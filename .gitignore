@@ -10,3 +10,24 @@ Thumbs.db
 # 개인 작업 기록과 Claude Code 개인 설정
 .claude/
 CLAUDE.local.md
+
+# 로그
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 설치·빌드 결과
+node_modules
+dist
+dist-ssr
+*.local
+
+# 편집기. .vscode/는 포맷 설정을 공유하므로 커밋한다
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
