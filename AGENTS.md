@@ -389,7 +389,7 @@ export const useMe = () =>
 
 ### PR
 
-- 대상은 `develop`이다(`hotfix/`만 `main`과 `develop` 양쪽). 승인 1명과 CI 통과 후 merge 커밋으로 병합한다.
+- 대상은 `develop`이다(`hotfix/`만 `main`과 `develop` 양쪽). 승인과 병합은 저장소 관리자가 한다. CI 통과 후 merge 커밋으로 병합한다.
 - PR을 올리기 전에 `yarn lint`와 `yarn build`가 통과하는지 확인한다. CI가 설정되기 전에는 PR을 올리는 사람이 로컬에서 돌린다.
 - 제목은 커밋 형식과 같게 쓴다.
 - 본문에 관련 FN ID나 화면 ID, 무엇을 왜 바꿨는지, 어떻게 확인했는지를 적는다. 화면이 바뀌면 캡처를 붙인다.
