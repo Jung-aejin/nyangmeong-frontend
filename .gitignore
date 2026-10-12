@@ -1,0 +1,12 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# 비밀값. 키 이름만 적은 .env.example은 커밋한다
+.env
+.env.*
+!.env.example
+
+# 개인 작업 기록과 Claude Code 개인 설정
+.claude/
+CLAUDE.local.md
