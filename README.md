@@ -1,16 +1,23 @@
-# React + Vite
+# 냥멍케어 프론트엔드
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+반려동물 케어 웹서비스 냥멍케어의 프론트엔드. React 19 + Vite, JavaScript.
 
-Currently, two official plugins are available:
+코드를 쓰기 전에 `AGENTS.md`를 읽는다. 아직 정하지 않은 것은 `docs/OPEN_ISSUES.md`에 있다.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 실행
 
-## React Compiler
+Node 24와 Yarn 1.22가 필요하다.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```
+yarn install
+yarn dev
+```
 
-## Expanding the Oxlint configuration
+`/api` 요청은 `http://localhost:8080`(백엔드)으로 넘어간다.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+## PR 전 확인
+
+```
+yarn lint
+yarn build
+```
