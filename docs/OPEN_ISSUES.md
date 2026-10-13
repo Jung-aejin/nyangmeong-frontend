@@ -1,12 +1,12 @@
 # 아직 정하지 않은 것
 
-`AGENTS.md`의 규칙에서 빠져 있는 결정을 모았다. 정해지면 `AGENTS.md`에 규칙으로 옮기고 여기서 지운다.
+`AGENTS.md`와 `docs/convention/`의 규칙에서 빠져 있는 결정을 모았다. 정해지면 그 문서에 규칙으로 옮기고 여기서 지운다.
 
 ## 팀이 정할 것
 
 | 항목 | 지금은 이렇게 한다 |
 | --- | --- |
-| 브랜치·커밋·PR 규칙 전체(`AGENTS.md` 9장) | 9장 제안을 따른다. 백엔드 저장소와 같이 정한다 |
+| 브랜치·커밋·PR 규칙 전체(`docs/convention/git.md` 9장) | 9장 제안을 따른다. 백엔드 저장소와 같이 정한다 |
 | `pages`의 `useQuery` 금지와 `import.meta.env` 직접 읽기 금지도 ESLint로 강제할지. `features` 간 import, `axios` 직접 import, `fetch`는 이미 ESLint가 검사한다 | 사람이 리뷰에서 본다 |
 | CI를 설정할지, 무엇을 돌릴지 | 정해지지 않음. 그 전에는 PR을 올리는 사람이 로컬에서 `yarn lint`와 `yarn build`를 돌린다 |
 | 테스트를 쓸지, 쓴다면 어떤 도구로 | 정해지지 않음 |
