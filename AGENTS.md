@@ -50,7 +50,7 @@
    ├─ App.jsx           <AppRoutes/> 하나만 렌더. 전역 CSS import
    │
    ├─ api/              서버 통신 공통 설정. 도메인을 모른다
-   │   ├─ axios.js        axios 인스턴스 + 인터셉터 (api.md 5장)
+   │   ├─ axios.js        axios 인스턴스(메인 서버 `api`, AI 서버 `aiApi`) + 인터셉터 (api.md 5장)
    │   └─ env.js          import.meta.env를 읽어 export하는 유일한 파일
    │
    ├─ features/         도메인별 코드 묶음. 도메인 1개 = 폴더 1개

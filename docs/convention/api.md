@@ -6,7 +6,10 @@
 
 ### 주소와 인증
 
-- 모든 요청은 `/api/v1`로 시작하는 상대 경로다. 호스트와 포트를 코드에 적지 않는다. 개발 환경은 Vite 프록시가, 운영은 Nginx가 같은 오리진으로 만들어 준다.
+- 서버는 둘이다. 메인 서버(Spring Boot)와 AI 서버(Python)이고, AI 서버는 포트가 다르다.
+- 메인 서버 요청은 `/api/v1`로 시작하는 상대 경로다. 호스트와 포트를 코드에 적지 않는다. 개발 환경은 Vite 프록시가, 운영은 Nginx가 같은 오리진으로 만들어 준다.
+- AI 서버 요청은 `api/axios.js`의 `aiApi` 인스턴스로 보낸다. 주소는 환경변수 `VITE_AI_API_URL`이고 `api/env.js`에서 읽는다. 포트가 다르면 다른 오리진이므로 `aiApi`는 `withCredentials`로 쿠키를 함께 보낸다. `aiApi`는 AI 서버를 처음 부르는 사람이 만든다.
+- AI 서버도 로그인한 사용자만 쓴다. 메인 서버가 심은 같은 로그인 쿠키로 확인한다. 401이 오면 `api`와 같이 메인 서버의 재발급을 한 번 거쳐 다시 보낸다.
 - 인증은 서버가 심는 HttpOnly 쿠키다. 코드에서 토큰을 읽거나 저장하지 않는다.
 - 로그인 여부와 역할은 `features/member`의 `useMe`(`GET /members/me`)로만 확인한다. 쿠키가 HttpOnly라 코드에서 읽을 수 없으므로 서버에 묻는 것이 유일한 방법이다. 헤더와 `ProtectedRoute`가 같은 훅을 쓴다.
 - 상태를 바꾸는 요청(GET·HEAD·OPTIONS가 아닌 요청)은 `X-Requested-With: XMLHttpRequest` 헤더가 없으면 서버가 403으로 거절한다. `api/axios.js`의 인스턴스가 모든 요청에 붙여 주므로 그 인스턴스만 쓴다. 파일 업로드(`multipart/form-data`)도 같다.
@@ -131,4 +134,4 @@ export const useMe = () =>
 
 ### 환경변수
 
-- `import.meta.env`는 `api/env.js`만 읽는다. 나머지는 `env.js`에서 import 한다. API 주소는 환경변수로 두지 않는다(위 "주소와 인증").
+- `import.meta.env`는 `api/env.js`만 읽는다. 나머지는 `env.js`에서 import 한다. 메인 서버 주소는 환경변수로 두지 않는다. AI 서버 주소만 `VITE_AI_API_URL`로 둔다(위 "주소와 인증").
