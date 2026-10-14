@@ -3,20 +3,20 @@
 이 저장소에서 코드를 쓰는 사람과 AI 도구가 따르는 규칙이다. 이 파일에는 구조와 의존 방향처럼 항상 필요한 규칙만 있고, 나머지는 `docs/convention/`에 있다("나머지 규칙이 있는 곳").
 
 - Codex는 이 파일을 자동으로 읽는다. Claude Code는 `CLAUDE.md`의 `@AGENTS.md` 한 줄로 읽는다. 그 줄을 지우면 규칙이 통째로 빠진다.
-- 9장(Git 규칙, `docs/convention/git.md`)은 팀 합의 전 제안이다. 아직 정하지 않은 것은 `docs/OPEN_ISSUES.md`에 있다.
-- 백엔드 규칙은 `nyangmeong-backend` 저장소의 `AGENTS.md`와 `docs/convention/`에 있다. 5장(서버 통신)과 6장(필드 이름)은 그 문서와 맞물린다.
+- Git 규칙(`docs/convention/git.md`)은 팀 합의 전 제안이다. 아직 정하지 않은 것은 `docs/OPEN_ISSUES.md`에 있다.
+- 백엔드 규칙은 `nyangmeong-backend` 저장소의 `AGENTS.md`와 `docs/convention/`에 있다. 서버 통신(`docs/convention/api.md`)과 이름 짓기의 필드 이름(`docs/convention/common.md`)은 그 문서와 맞물린다.
 
-## 0. 코드를 쓰기 전에 꼭 알 것
+## 코드를 쓰기 전에 꼭 알 것
 
 어기면 되돌리기 어렵거나 오류 없이 조용히 잘못되는 것만 모았다. 나머지는 필요할 때 찾아본다.
 
-1. **비밀값을 커밋하지 않고, `VITE_` 변수에도 넣지 않는다.** 이 저장소는 공개다. `VITE_`로 시작하는 환경변수는 빌드 결과에 그대로 들어가 브라우저에서 누구나 볼 수 있다. (8장)
-2. **토큰을 `localStorage`나 변수에 저장하지 않는다.** 로그인은 서버가 심는 쿠키로 유지되고 브라우저가 알아서 붙인다. 로그인 여부와 역할은 `features/member`의 `useMe`로만 확인한다. (`docs/convention/api.md` 5장)
-3. **401은 "토큰 없음·만료"에만 온다.** 재발급은 `api/axios.js`가 한 번만 시도한다. 화면 코드에서 401을 따로 처리하거나 재발급을 부르지 않는다. (`docs/convention/api.md` 5장)
-4. **`features/A`는 `features/B`를 import 하지 않는다.** 같이 쓰는 코드는 `components/`·`hooks/`·`utils/`로 올린다. queryKey 객체만 예외다. (3장)
-5. **필드 이름을 새로 짓지 않는다.** 서버가 준 JSON 키(`pstSn`, `mdfcnDt`)를 그대로 쓴다. 읽기 좋게 바꾸는 변환 함수를 만들지 않는다. (`docs/convention/common.md` 6장)
+1. **비밀값을 커밋하지 않고, `VITE_` 변수에도 넣지 않는다.** 이 저장소는 공개다. `VITE_`로 시작하는 환경변수는 빌드 결과에 그대로 들어가 브라우저에서 누구나 볼 수 있다. (설정과 비밀값)
+2. **토큰을 `localStorage`나 변수에 저장하지 않는다.** 로그인은 서버가 심는 쿠키로 유지되고 브라우저가 알아서 붙인다. 로그인 여부와 역할은 `features/member`의 `useMe`로만 확인한다. (`docs/convention/api.md`)
+3. **401은 "토큰 없음·만료"에만 온다.** 재발급은 `api/axios.js`가 한 번만 시도한다. 화면 코드에서 401을 따로 처리하거나 재발급을 부르지 않는다. (`docs/convention/api.md`)
+4. **`features/A`는 `features/B`를 import 하지 않는다.** 같이 쓰는 코드는 `components/`·`hooks/`·`utils/`로 올린다. queryKey 객체만 예외다. (의존 방향)
+5. **필드 이름을 새로 짓지 않는다.** 서버가 준 JSON 키(`pstSn`, `mdfcnDt`)를 그대로 쓴다. 읽기 좋게 바꾸는 변환 함수를 만들지 않는다. (`docs/convention/common.md` 이름 짓기)
 
-## 1. 기술 스택
+## 기술 스택
 
 | 역할 | 라이브러리 |
 | --- | --- |
@@ -39,7 +39,7 @@
 - Node는 24를 쓴다. 버전은 `.nvmrc`와 `package.json`의 `engines`에 적혀 있다.
 - 줄바꿈은 LF다(`.gitattributes`가 커밋할 때 맞춘다).
 
-## 2. 폴더 구조
+## 폴더 구조
 
 ```
 (저장소 루트)
@@ -50,7 +50,7 @@
    ├─ App.jsx           <AppRoutes/> 하나만 렌더. 전역 CSS import
    │
    ├─ api/              서버 통신 공통 설정. 도메인을 모른다
-   │   ├─ axios.js        axios 인스턴스(메인 서버 `api`, AI 서버 `aiApi`) + 인터셉터 (api.md 5장)
+   │   ├─ axios.js        axios 인스턴스(메인 서버 `api`, AI 서버 `aiApi`) + 인터셉터 (`docs/convention/api.md`)
    │   └─ env.js          import.meta.env를 읽어 export하는 유일한 파일
    │
    ├─ features/         도메인별 코드 묶음. 도메인 1개 = 폴더 1개
@@ -83,7 +83,7 @@
 
 `features/`와 `components/`가 헷갈릴 때: props에 도메인 객체가 들어오면 `features/`(`<PetCard pet={pet}>`), 원시값만 들어오면 `components/`(`<Avatar src={url} size="sm">`).
 
-## 3. 의존 방향
+## 의존 방향
 
 ```
 main          앱 시작점
@@ -106,20 +106,20 @@ api/axios     서버 통신
 
 | 이럴 때 | 읽는 파일 |
 | --- | --- |
-| 코드를 쓸 때 항상 | `docs/convention/common.md`: 주석, 6장 이름 짓기 |
+| 코드를 쓸 때 항상 | `docs/convention/common.md`: 주석, 이름 짓기 |
 | `pages/`, `routes/`, 관리자 화면을 쓸 때 | `docs/convention/pages.md` |
 | `features/`를 쓰거나 상태를 둘 곳을 정할 때 | `docs/convention/features.md` |
-| 서버에 요청을 보내거나 응답·오류를 다룰 때 | `docs/convention/api.md`(5장 서버 통신) |
-| 브랜치·커밋·PR을 만들 때 | `docs/convention/git.md`(9장 Git 규칙) |
+| 서버에 요청을 보내거나 응답·오류를 다룰 때 | `docs/convention/api.md` |
+| 브랜치·커밋·PR을 만들 때 | `docs/convention/git.md` |
 
-## 7. 여러 명이 같이 고치는 파일
+## 여러 명이 같이 고치는 파일
 
 `routes/paths.js`와 `routes/AppRoutes.jsx`는 모든 도메인 담당이 줄을 추가한다. 다들 맨 끝에 붙이면 병합할 때마다 충돌한다.
 
 - 파일 안을 도메인별 구획으로 나누고(주석으로 구분), 자기 도메인 구획 안에 추가한다.
 - 이 파일들의 줄 정렬이나 순서 바꾸기를 기능 PR에 섞지 않는다.
 
-## 8. 설정과 비밀값
+## 설정과 비밀값
 
 **이 저장소는 공개다. 한 번 커밋된 값은 지워도 이력에 남는다.**
 

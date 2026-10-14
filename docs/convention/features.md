@@ -2,7 +2,7 @@
 
 `AGENTS.md`에서 이어지는 문서다.
 
-### features
+## features
 
 - `api.js`: 서버 요청 함수만 둔다. `api/axios.js`의 인스턴스를 쓴다. `axios`를 직접 import 하거나 `fetch`를 쓰지 않는다(ESLint가 검사한다).
 - `queries.js`: `useQuery`·`useMutation`·queryKey는 여기에만 쓴다. 키는 객체로 export 하고, 다른 파일에 키 배열을 직접 적지 않는다. 데이터를 바꾼 뒤의 무효화도 이 키 객체로 한다.
@@ -30,7 +30,7 @@ export const useCreatePet = () => {
 };
 ```
 
-### 상태
+## 상태
 
 - 서버에서 받은 데이터는 react-query 캐시에만 둔다. `useState`나 Context에 복사해 두지 않는다. 복사본은 서버 값이 바뀌어도 따라 바뀌지 않는다. 수정 화면에서 폼의 처음 값으로 넣는 것은 예외다.
 - `QueryClient` 기본값은 `main.jsx`에 한 번만 정한다. 실패한 조회를 다시 시도하지 않고, 창을 다시 볼 때 다시 조회하지 않는다.
