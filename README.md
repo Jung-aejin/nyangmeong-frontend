@@ -6,6 +6,8 @@
 
 ## 실행
 
+처음 받으면 `bash setup.sh`로 필요한 도구를 설치한다. Windows는 Git Bash에서 실행한다. 여러 번 실행해도 된다.
+
 Node 24와 Yarn 1.22가 필요하다.
 
 ```
