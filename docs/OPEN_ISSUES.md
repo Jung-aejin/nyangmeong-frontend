@@ -29,7 +29,7 @@
 | 항목 | 영향을 받는 곳 |
 | --- | --- |
 | 로딩을 화면에 어떻게 보일지(스켈레톤 / 스피너) | 전체 |
-| `features/` 폴더 목록을 백엔드 도메인(`member`, `pet`, `health`, `ai`, `community`, `place`, `support`, `notification`, `expense`)과 같게 할지 | 전체 |
+| `features/` 폴더 목록을 백엔드 도메인(`member`, `pet`, `health`, `community`, `place`, `support`, `notification`, `expense`)과 같게 할지 | 전체 |
 | 채팅 소켓 클라이언트의 위치(`features/chat/socket.js` 예정) | 채팅 |
 | 관리자용 API 함수와 훅의 위치. 한 도메인 것은 `features/<도메인>/`, 여러 도메인을 합친 대시보드는 `features/admin/`으로 백엔드와 맞출지 | 관리자 화면 |
 | 폼 입력 검증을 어떻게 할지(직접 / 라이브러리) | 입력 화면 |
