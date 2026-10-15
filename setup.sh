@@ -37,6 +37,30 @@ pkg() {
   fi
 }
 
+# 셸 설정 파일에 한 줄을 넣는다. 이미 있으면 그대로 둔다
+persist_line() {
+  mkdir -p "$(dirname "$1")"
+  touch "$1"
+  grep -qxF "$2" "$1" || printf '\n%s\n' "$2" >> "$1"
+}
+
+# 새 창에서도 이 폴더의 명령이 잡히도록 PATH에 영구로 넣는다. 맥은 ~/.zshrc, Windows는 사용자 PATH
+persist_path() {
+  if [ "$OS" = mac ]; then
+    persist_line "$HOME/.zshrc" "export PATH=\"$1:\$PATH\""
+    return
+  fi
+  # %USERPROFILE% 같은 항목이 풀리지 않도록 레지스트리 값을 ExpandString으로 그대로 다시 쓴다.
+  # 마지막 줄은 열려 있는 탐색기에 환경변수 변경을 알리려고 빈 변수를 지우는 것이다
+  WIN_DIR="$(cygpath -w "$1")" powershell.exe -NoProfile -Command '
+    $key = [Microsoft.Win32.Registry]::CurrentUser.OpenSubKey("Environment", $true)
+    $parts = @(([string]$key.GetValue("Path", "", "DoNotExpandEnvironmentNames")) -split ";" | Where-Object { $_ })
+    if ($parts -notcontains $env:WIN_DIR) {
+      $key.SetValue("Path", (($parts + $env:WIN_DIR) -join ";"), [Microsoft.Win32.RegistryValueKind]::ExpandString)
+      [Environment]::SetEnvironmentVariable("NYANGMEONG_SETUP", $null, "User")
+    }'
+}
+
 # VS Code 명령줄 도구 위치. 맥은 PATH에 없으면 앱 안의 것을 쓴다
 vscode_cli() {
   if command -v code >/dev/null; then command -v code; return; fi
@@ -53,10 +77,20 @@ step "공통"
 command -v git >/dev/null || die "Git이 없습니다. Windows는 Git for Windows를 설치한 뒤 다시 실행해 주세요."
 skip "Git $(git --version | awk '{print $3}')"
 
+# Claude Code: 공식 설치 스크립트가 ~/.local/bin에 설치한다. 로그인은 처음 실행할 때 직접 한다
 if command -v claude >/dev/null; then
   skip "Claude Code $(claude --version 2>/dev/null | awk '{print $1}')"
 else
-  todo "Claude Code를 설치해 주세요. 맥: curl -fsSL https://claude.ai/install.sh | bash / Windows PowerShell: irm https://claude.ai/install.ps1 | iex"
+  if [ "$OS" = mac ]; then
+    curl -fsSL https://claude.ai/install.sh | bash
+  else
+    powershell.exe -NoProfile -ExecutionPolicy Bypass -Command 'irm https://claude.ai/install.ps1 | iex'
+  fi
+  export PATH="$HOME/.local/bin:$PATH"
+  command -v claude >/dev/null || die "Claude Code 설치에 실패했습니다. 위 출력을 확인해 주세요."
+  persist_path "$HOME/.local/bin"
+  ok "Claude Code $(claude --version 2>/dev/null | awk '{print $1}')"
+  todo "저장소 폴더에서 claude 를 실행해 로그인해 주세요"
 fi
 
 CODE=$(vscode_cli)
@@ -101,10 +135,23 @@ case "$branch" in
     else
       git checkout -b "$initials"
     fi
-    ok "브랜치 $initials"
+    branch=$initials
+    ok "브랜치 $branch"
     ;;
   *) skip "브랜치 $branch" ;;
 esac
+
+# 원격에 없는 개인 브랜치는 공개 저장소이므로 물어보고 올린다
+if ! git ls-remote --exit-code --heads origin "$branch" >/dev/null 2>&1; then
+  read -rp "  origin에 $branch 브랜치가 없습니다. 지금 올리시겠습니까? [Y/n] " answer
+  case "$answer" in
+    [nN]*) todo "개인 브랜치를 올려 주세요: git push -u origin $branch" ;;
+    *)
+      if git push -q -u origin "$branch"; then ok "브랜치 $branch 푸시"
+      else todo "푸시하지 못했습니다. 저장소 권한을 확인한 뒤 git push -u origin $branch 를 실행해 주세요"; fi
+      ;;
+  esac
+fi
 
 step "프론트엔드"
 
@@ -117,9 +164,21 @@ else
   command -v fnm >/dev/null || pkg fnm formula Schniz.fnm
   if command -v fnm >/dev/null; then
     eval "$(fnm env --shell bash)"
-    fnm install "$want_node" && fnm use "$want_node"
+    fnm install "$want_node" && fnm use "$want_node" && fnm default "$want_node"
     ok "Node $(node -v) (fnm)"
-    todo "셸을 열 때 fnm이 켜지도록 fnm 안내(https://github.com/Schniz/fnm#shell-setup)의 한 줄을 셸 설정 파일에 넣어 주세요"
+    # 새 창에서도 fnm의 Node가 기존 Node보다 먼저 잡히도록 셸 설정에 넣는다
+    if [ "$OS" = mac ]; then
+      persist_line "$HOME/.zshrc" 'eval "$(fnm env --use-on-cd --shell zsh)"'
+    else
+      persist_line "$HOME/.bashrc" 'eval "$(fnm env --use-on-cd --shell bash)"'
+      ps_profile=$(cygpath -u "$(powershell.exe -NoProfile -Command '$PROFILE' | tr -d '\r')")
+      persist_line "$ps_profile" 'fnm env --use-on-cd --shell powershell | Out-String | Invoke-Expression'
+      case "$(powershell.exe -NoProfile -Command 'Get-ExecutionPolicy' | tr -d '\r')" in
+        Restricted | AllSigned | Undefined)
+          todo "PowerShell이 프로필을 실행하도록 PowerShell에서 Set-ExecutionPolicy -Scope CurrentUser RemoteSigned 를 실행해 주세요" ;;
+      esac
+    fi
+    ok "fnm 셸 설정"
   fi
 fi
 
@@ -138,10 +197,8 @@ else
     yarn_dir="$HOME/.local/bin"
     mkdir -p "$yarn_dir"
     corepack enable --install-directory "$yarn_dir" yarn
-    case ":$PATH:" in
-      *":$yarn_dir:"*) ;;
-      *) export PATH="$yarn_dir:$PATH"; todo "셸 설정 파일에서 PATH에 $yarn_dir 경로를 추가해 주세요" ;;
-    esac
+    case ":$PATH:" in *":$yarn_dir:"*) ;; *) export PATH="$yarn_dir:$PATH" ;; esac
+    persist_path "$yarn_dir"
   fi
   hash -r
   [ "$(yarn -v)" = "$want_yarn" ] || die "Yarn 버전이 $want_yarn 이 아닙니다: $(yarn -v) ($(command -v yarn)). 이 yarn을 지우거나 PATH 순서를 바꿔 주세요."
@@ -161,5 +218,25 @@ fi
 step "확인"
 yarn -s lint && ok "yarn lint"
 yarn -s build >/dev/null && ok "yarn build"
+
+# 개발 서버가 뜨는지 보고 끈다. yarn을 거치면 Windows에서 자식 프로세스가 남으므로 vite를 직접 띄운다
+log=$(mktemp)
+NO_COLOR=1 node node_modules/vite/bin/vite.js > "$log" 2>&1 &
+pid=$!
+for _ in $(seq 1 30); do
+  grep -q 'Local:' "$log" && break
+  kill -0 "$pid" 2>/dev/null || break
+  sleep 1
+done
+started=$(grep -o 'http://localhost:[0-9]*' "$log" | head -1 || true)
+kill "$pid" 2>/dev/null || true
+wait "$pid" 2>/dev/null || true
+if [ -z "$started" ]; then
+  cat "$log"
+  rm -f "$log"
+  die "개발 서버가 뜨지 않았습니다. 위 출력을 확인해 주세요."
+fi
+rm -f "$log"
+ok "yarn dev ($started)"
 
 printf '\n설치가 끝났습니다. 직접 할 일 %d개(위 [직접] 줄).\n' "$TODO"
