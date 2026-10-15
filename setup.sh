@@ -51,11 +51,14 @@ persist_path() {
     return
   fi
   # %USERPROFILE% 같은 항목이 풀리지 않도록 레지스트리 값을 ExpandString으로 그대로 다시 쓴다.
+  # 이미 있는지는 양쪽 값을 풀고 끝의 역슬래시와 대소문자를 무시해 비교한다(%USERPROFILE% 형태로 들어 있어도 같은 폴더로 본다)
   # 마지막 줄은 열려 있는 탐색기에 환경변수 변경을 알리려고 빈 변수를 지우는 것이다
   WIN_DIR="$(cygpath -w "$1")" powershell.exe -NoProfile -Command '
     $key = [Microsoft.Win32.Registry]::CurrentUser.OpenSubKey("Environment", $true)
     $parts = @(([string]$key.GetValue("Path", "", "DoNotExpandEnvironmentNames")) -split ";" | Where-Object { $_ })
-    if ($parts -notcontains $env:WIN_DIR) {
+    $norm = { param($p) [Environment]::ExpandEnvironmentVariables($p).TrimEnd("\").ToLowerInvariant() }
+    $want = & $norm $env:WIN_DIR
+    if (-not ($parts | Where-Object { (& $norm $_) -eq $want })) {
       $key.SetValue("Path", (($parts + $env:WIN_DIR) -join ";"), [Microsoft.Win32.RegistryValueKind]::ExpandString)
       [Environment]::SetEnvironmentVariable("NYANGMEONG_SETUP", $null, "User")
     }'
@@ -70,6 +73,24 @@ vscode_cli() {
     [ -n "$app" ] && [ -x "$app/Contents/Resources/app/bin/code" ] && echo "$app/Contents/Resources/app/bin/code"
   fi
   return 0
+}
+
+# .vscode/extensions.json의 확장을 설치한다. VS Code가 없으면 직접 할 일로 남긴다
+vscode_extensions() {
+  local code installed ext
+  code=$(vscode_cli)
+  if [ -z "$code" ]; then
+    todo "VS Code를 설치한 뒤 다시 실행해 주세요(확장 설치를 위해)."
+    return 0
+  fi
+  installed=$("$code" --list-extensions | tr '[:upper:]' '[:lower:]')
+  for ext in $(grep -o '"[^"]*\.[^"]*"' .vscode/extensions.json | tr -d '"'); do
+    if printf '%s\n' "$installed" | grep -qx "$(printf '%s' "$ext" | tr '[:upper:]' '[:lower:]')"; then
+      skip "VS Code 확장 $ext"
+    else
+      "$code" --install-extension "$ext" >/dev/null && ok "VS Code 확장 $ext"
+    fi
+  done
 }
 
 step "공통"
@@ -91,20 +112,6 @@ else
   persist_path "$HOME/.local/bin"
   ok "Claude Code $(claude --version 2>/dev/null | awk '{print $1}')"
   todo "저장소 폴더에서 claude 를 실행해 로그인해 주세요"
-fi
-
-CODE=$(vscode_cli)
-if [ -z "$CODE" ]; then
-  todo "VS Code를 설치한 뒤 다시 실행해 주세요(확장 설치를 위해)."
-else
-  installed=$("$CODE" --list-extensions | tr '[:upper:]' '[:lower:]')
-  for ext in $(grep -o '"[^"]*\.[^"]*"' .vscode/extensions.json | tr -d '"'); do
-    if printf '%s\n' "$installed" | grep -qx "$(printf '%s' "$ext" | tr '[:upper:]' '[:lower:]')"; then
-      skip "VS Code 확장 $ext"
-    else
-      "$CODE" --install-extension "$ext" >/dev/null && ok "VS Code 확장 $ext"
-    fi
-  done
 fi
 
 # 전역 git 설정(회사 계정 등)은 건드리지 않고 이 저장소에만 둔다. 전역 값이 있으면 그대로 쓸지 묻는다
@@ -154,6 +161,8 @@ if ! git ls-remote --exit-code --heads origin "$branch" >/dev/null 2>&1; then
 fi
 
 step "프론트엔드"
+
+vscode_extensions
 
 # Node: .nvmrc의 버전. 다른 Node를 덮어쓰지 않도록 버전 관리자 fnm으로 설치한다
 want_node=$(tr -d ' \r\n' < .nvmrc)
