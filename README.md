@@ -6,7 +6,7 @@
 
 ## 실행
 
-처음 받으면 `bash setup.sh`로 필요한 도구를 설치한다. Windows는 Git Bash에서 실행한다. 여러 번 실행해도 된다.
+처음 받으면 맥은 터미널에서 `bash setup.sh`, Windows는 cmd에서 `setup.bat`, PowerShell에서 `.\setup.bat`(탐색기에서 더블클릭해도 된다)로 필요한 도구를 설치한다. PowerShell·cmd에서 `bash setup.sh`를 치면 Git Bash가 아니라 WSL이 실행되므로 `setup.bat`를 쓴다. 여러 번 실행해도 된다.
 
 Node 24와 Yarn 1.22가 필요하다.
 

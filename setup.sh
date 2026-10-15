@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 냥멍케어 프론트엔드 개발 환경 설치. 맥은 터미널, Windows는 Git Bash에서 `bash setup.sh`로 실행한다.
+# 냥멍케어 프론트엔드 개발 환경 설치. 맥은 터미널에서 `bash setup.sh`, Windows는 cmd·PowerShell에서 `setup.bat`(또는 Git Bash에서 `bash setup.sh`)로 실행한다.
 # 이미 맞는 버전이 있으면 건너뛴다. 여러 번 실행해도 된다.
 # 백엔드 저장소의 setup.sh와 공통 부분(맨 위 함수와 "공통" 절)이 같다. 고칠 때 둘 다 고친다.
 set -euo pipefail
@@ -16,17 +16,17 @@ step() { printf '\n== %s\n' "$1"; }
 case "$(uname -s)" in
   Darwin) OS=mac ;;
   MINGW* | MSYS*) OS=win ;;
-  *) die "지원하지 않는 환경이다: $(uname -s). 맥 터미널이나 Windows Git Bash에서 실행한다." ;;
+  *) die "지원하지 않는 환경입니다: $(uname -s). 맥은 터미널에서 bash setup.sh, Windows는 setup.bat로 실행해 주세요." ;;
 esac
 
 # 패키지 설치. 맥은 Homebrew, Windows는 winget
 # pkg <brew 이름> <formula|cask> <winget ID> [winget 버전]
 pkg() {
   if [ "$OS" = mac ]; then
-    command -v brew >/dev/null || die "Homebrew가 없다. https://brew.sh 의 설치 명령을 먼저 실행한다."
+    command -v brew >/dev/null || die "Homebrew가 없습니다. https://brew.sh 의 설치 명령을 먼저 실행해 주세요."
     if [ "$2" = cask ]; then brew install --cask "$1"; else brew install "$1"; fi
   else
-    command -v winget.exe >/dev/null || die "winget이 없다. Microsoft Store에서 '앱 설치 관리자'를 설치한다."
+    command -v winget.exe >/dev/null || die "winget이 없습니다. Microsoft Store에서 '앱 설치 관리자'를 설치해 주세요."
     if [ -n "${4:-}" ]; then
       winget.exe install --id "$3" -e --version "$4" --accept-package-agreements --accept-source-agreements
     else
@@ -50,18 +50,18 @@ vscode_cli() {
 
 step "공통"
 
-command -v git >/dev/null || die "Git이 없다. Windows는 Git for Windows를 설치하고 Git Bash에서 다시 실행한다."
+command -v git >/dev/null || die "Git이 없습니다. Windows는 Git for Windows를 설치한 뒤 다시 실행해 주세요."
 skip "Git $(git --version | awk '{print $3}')"
 
 if command -v claude >/dev/null; then
   skip "Claude Code $(claude --version 2>/dev/null | awk '{print $1}')"
 else
-  todo "Claude Code 설치. 맥: curl -fsSL https://claude.ai/install.sh | bash / Windows PowerShell: irm https://claude.ai/install.ps1 | iex"
+  todo "Claude Code를 설치해 주세요. 맥: curl -fsSL https://claude.ai/install.sh | bash / Windows PowerShell: irm https://claude.ai/install.ps1 | iex"
 fi
 
 CODE=$(vscode_cli)
 if [ -z "$CODE" ]; then
-  todo "VS Code 설치 뒤 다시 실행한다(확장 설치를 위해)."
+  todo "VS Code를 설치한 뒤 다시 실행해 주세요(확장 설치를 위해)."
 else
   installed=$("$CODE" --list-extensions | tr '[:upper:]' '[:lower:]')
   for ext in $(grep -o '"[^"]*\.[^"]*"' .vscode/extensions.json | tr -d '"'); do
@@ -73,12 +73,17 @@ else
   done
 fi
 
-# 전역 git 설정(회사 계정 등)은 건드리지 않고 이 저장소에만 둔다
+# 전역 git 설정(회사 계정 등)은 건드리지 않고 이 저장소에만 둔다. 전역 값이 있으면 그대로 쓸지 묻는다
 for key in user.name user.email; do
   if [ -n "$(git config --local "$key" || true)" ]; then
     skip "git $key = $(git config --local "$key")"
   else
-    read -rp "  이 저장소에 쓸 git $key: " value
+    value=$(git config --global "$key" || true)
+    if [ -n "$value" ]; then
+      read -rp "  이 저장소에도 전역 git $key($value) 값을 사용하시겠습니까? [Y/n] " answer
+      case "$answer" in [nN]*) value="" ;; esac
+    fi
+    while [ -z "$value" ]; do read -rp "  이 저장소에 사용할 git $key 값을 입력하세요: " value; done
     git config --local "$key" "$value"
     ok "git $key = $value"
   fi
@@ -88,7 +93,7 @@ done
 branch=$(git branch --show-current)
 case "$branch" in
   "" | main | master | develop)
-    read -rp "  개인 브랜치로 쓸 이니셜(대문자, 예: LJS): " initials
+    read -rp "  개인 브랜치로 사용할 이니셜을 입력하세요(대문자, 예: LJS): " initials
     if git show-ref --verify --quiet "refs/heads/$initials"; then
       git checkout "$initials"
     elif git ls-remote --exit-code --heads origin "$initials" >/dev/null 2>&1; then
@@ -114,12 +119,12 @@ else
     eval "$(fnm env --shell bash)"
     fnm install "$want_node" && fnm use "$want_node"
     ok "Node $(node -v) (fnm)"
-    todo "셸을 열 때 fnm이 켜지도록 fnm 안내(https://github.com/Schniz/fnm#shell-setup)의 한 줄을 셸 설정 파일에 넣는다"
+    todo "셸을 열 때 fnm이 켜지도록 fnm 안내(https://github.com/Schniz/fnm#shell-setup)의 한 줄을 셸 설정 파일에 넣어 주세요"
   fi
 fi
 
 if [ "$NEED_RESTART" = 1 ]; then
-  printf '\n[다시 실행] 새로 설치한 프로그램은 새 창에서만 잡힌다. Git Bash를 닫았다가 열고 bash setup.sh를 한 번 더 실행한다.\n'
+  printf '\n[다시 실행] 새로 설치한 프로그램은 새 창에서만 인식됩니다. 창을 닫았다가 새로 열고 같은 명령(setup.bat 또는 bash setup.sh)을 한 번 더 실행해 주세요.\n'
   exit 2
 fi
 
@@ -128,8 +133,18 @@ want_yarn=$(grep -o '"packageManager": *"yarn@[^"]*"' package.json | sed 's/.*ya
 if [ "$(yarn -v 2>/dev/null || true)" = "$want_yarn" ]; then
   skip "Yarn $want_yarn"
 else
-  corepack enable
-  [ "$(yarn -v)" = "$want_yarn" ] || die "Yarn 버전이 $want_yarn 이 아니다: $(yarn -v)"
+  # Node가 관리자 권한 폴더(Windows Program Files, 맥 /usr/local)에 있으면 실패한다. 그때는 사용자 폴더에 둔다
+  if ! corepack enable >/dev/null 2>&1; then
+    yarn_dir="$HOME/.local/bin"
+    mkdir -p "$yarn_dir"
+    corepack enable --install-directory "$yarn_dir" yarn
+    case ":$PATH:" in
+      *":$yarn_dir:"*) ;;
+      *) export PATH="$yarn_dir:$PATH"; todo "셸 설정 파일에서 PATH에 $yarn_dir 경로를 추가해 주세요" ;;
+    esac
+  fi
+  hash -r
+  [ "$(yarn -v)" = "$want_yarn" ] || die "Yarn 버전이 $want_yarn 이 아닙니다: $(yarn -v) ($(command -v yarn)). 이 yarn을 지우거나 PATH 순서를 바꿔 주세요."
   ok "Yarn $want_yarn (corepack)"
 fi
 
@@ -147,4 +162,4 @@ step "확인"
 yarn -s lint && ok "yarn lint"
 yarn -s build >/dev/null && ok "yarn build"
 
-printf '\n끝. 직접 할 일 %d개(위 [직접] 줄).\n' "$TODO"
+printf '\n설치가 끝났습니다. 직접 할 일 %d개(위 [직접] 줄).\n' "$TODO"
