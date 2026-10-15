@@ -1,6 +1,7 @@
 # OS
 .DS_Store
 Thumbs.db
+desktop.ini
 
 # 비밀값. 키 이름만 적은 .env.example은 커밋한다
 .env
@@ -27,7 +28,8 @@ dist
 dist-ssr
 *.local
 
-# 편집기. .vscode/는 포맷 설정을 공유하므로 커밋한다
+# 편집기. .vscode/는 포맷 설정을 공유하므로 커밋한다. 실행·디버그 설정(launch.json)은 사람마다 달라서 커밋하지 않는다
+.vscode/launch.json
 .idea
 *.suo
 *.ntvs*
