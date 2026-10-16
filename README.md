@@ -26,7 +26,7 @@ flowchart LR
 
 | setup이 하는 일 | 내용 |
 | --- | --- |
-| Git | 사용자 설정, 커밋 훅(`Co-Authored-By` 줄 삭제), 이니셜 브랜치 |
+| Git | 사용자 설정, 이니셜 브랜치, 훅(커밋의 `Co-Authored-By` 삭제, `yarn.lock`이 바뀌면 pull·브랜치 전환 뒤 `yarn install`) |
 | AI 도구 | Claude Code·Codex 감지. 둘 다 없으면 Claude Code 설치 |
 | VS Code 확장 | Prettier, ESLint, Claude Code |
 | Node 24 · Yarn 1.22 | 없으면 설치, `yarn install` |
