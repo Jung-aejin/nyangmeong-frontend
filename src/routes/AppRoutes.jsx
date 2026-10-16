@@ -11,6 +11,9 @@ import { PATHS } from './paths';
 // 공통
 const LandingPage = lazy(() => import('@/pages/main/LandingPage'));
 
+// mypage
+const PetListPage = lazy(() => import('@/pages/mypage/PetListPage'));
+
 // admin
 const AdminHomePage = lazy(() => import('@/pages/admin/AdminHomePage'));
 
@@ -21,6 +24,9 @@ export default function AppRoutes() {
         <Route element={<UserLayout />}>
           {/* 공통 */}
           <Route path={PATHS.HOME} element={<LandingPage />} />
+
+          {/* mypage. 로그인 API(AIC)가 나오면 ProtectedRoute 아래로 옮긴다 */}
+          <Route path={PATHS.MYPAGE_PETS} element={<PetListPage />} />
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={[MEMBER_ROLE.ADMIN]} />}>

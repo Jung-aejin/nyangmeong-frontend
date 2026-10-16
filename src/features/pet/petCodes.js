@@ -1,0 +1,64 @@
+// 공통코드 값은 백엔드 db/..._insert_com_cd_*.sql 과 같아야 한다
+
+// PETG01 반려동물구분
+export const PET_SE = {
+  DOG: 'PETC0001',
+  CAT: 'PETC0002',
+};
+
+export const PET_SE_OPTIONS = [
+  { code: PET_SE.DOG, name: '강아지' },
+  { code: PET_SE.CAT, name: '고양이' },
+];
+
+// PETG02 반려동물성별
+export const PET_GNDR_OPTIONS = [
+  { code: 'PETC0003', name: '수컷' },
+  { code: 'PETC0004', name: '암컷' },
+];
+
+// PETG03 털색. 강아지·고양이 선택지가 달라 종류마다 목록을 따로 둔다
+export const COLR_DRCT_INPT = 'PETC0017';
+
+const COLR = {
+  BLACK: { code: 'PETC0005', name: '검정' },
+  WHITE: { code: 'PETC0006', name: '흰색' },
+  BROWN: { code: 'PETC0007', name: '갈색' },
+  CREAM: { code: 'PETC0008', name: '크림' },
+  GRAY: { code: 'PETC0009', name: '회색' },
+  BLACK_TAN: { code: 'PETC0010', name: '검정&황갈색' },
+  SPOTTED: { code: 'PETC0011', name: '얼룩' },
+  BRINDLE: { code: 'PETC0012', name: '브린들' },
+  TRICOLOR: { code: 'PETC0013', name: '삼색' },
+  MACKEREL: { code: 'PETC0014', name: '고등어' },
+  CHEESE: { code: 'PETC0015', name: '치즈' },
+  TUXEDO: { code: 'PETC0016', name: '턱시도' },
+  DRCT_INPT: { code: COLR_DRCT_INPT, name: '직접 입력' },
+};
+
+export const COLR_OPTIONS = {
+  [PET_SE.DOG]: [
+    COLR.BLACK,
+    COLR.WHITE,
+    COLR.BROWN,
+    COLR.CREAM,
+    COLR.GRAY,
+    COLR.BLACK_TAN,
+    COLR.SPOTTED,
+    COLR.BRINDLE,
+    COLR.TRICOLOR,
+    COLR.DRCT_INPT,
+  ],
+  [PET_SE.CAT]: [
+    COLR.BLACK,
+    COLR.WHITE,
+    COLR.GRAY,
+    COLR.BROWN,
+    COLR.CREAM,
+    COLR.MACKEREL,
+    COLR.CHEESE,
+    COLR.TRICOLOR,
+    COLR.TUXEDO,
+    COLR.DRCT_INPT,
+  ],
+};

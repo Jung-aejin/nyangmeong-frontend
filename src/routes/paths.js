@@ -3,6 +3,9 @@ export const PATHS = {
   // 공통
   HOME: '/',
 
+  // mypage
+  MYPAGE_PETS: '/mypage/pets',
+
   // admin
   ADMIN: '/admin',
 };
