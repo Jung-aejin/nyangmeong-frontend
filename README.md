@@ -47,6 +47,25 @@ flowchart LR
 - 인증: `/mcp` → 서버 선택 → Authenticate
 - 데스크탑 앱은 Connectors 화면에서 인증한다(확인 필요).
 - Codex는 등록할 때 로그인 창이 뜬다. 놓쳤으면 `codex mcp login <이름>`.
+- `figma` MCP는 Starter 플랜 한도가 적어 스킬이 쓰지 않는다. 디자인은 아래 스크립트로 받는다.
+
+### Figma 디자인
+
+`/start`는 화면 ID로 이름을 지은 프레임(`SCR-MAN-001 메인`)을 찾아 기획에 적고, 구현할 때 그 PNG와 레이어 값을 본다.
+
+1. Figma → 왼쪽 위 계정 → Settings → Security → Personal access tokens → Generate new token. 권한은 `File content` 읽기만.
+2. `.env.local`의 `FIGMA_TOKEN=` 뒤에 붙인다. 디스코드에도 올리지 않는다.
+3. 처음 한 번 `node scripts/figma.mjs pull`. 화면 프레임 전부를 `.cache/figma/`에 받는다.
+
+| 명령 | 내용 |
+| --- | --- |
+| `node scripts/figma.mjs pull` | 받아 둔 게 없을 때만 받는다. API 3회 |
+| `node scripts/figma.mjs pull --refresh` | 디자인이 바뀌었을 때 다시 받는다 |
+| `node scripts/figma.mjs list` | 받은 화면 프레임 목록 |
+| `node scripts/figma.mjs show SCR-MAN-001` | 레이어의 크기·간격·색·글자 |
+
+- REST API 한도는 토큰 주인의 시트에 따른다. View·Collab 시트는 월 20회라 `--refresh`를 아낀다.
+- 화면 프레임은 페이지나 섹션 바로 아래에 두고 이름을 화면 ID로 시작한다. 상태가 여럿이면 같은 화면 ID로 프레임을 여러 개 둔다(`SCR-MAN-001 메인 로그인 전`).
 
 ### 직접 실행
 
