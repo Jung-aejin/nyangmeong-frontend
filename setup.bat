@@ -26,13 +26,11 @@ if not defined GITBASH (
 set "RC=%ERRORLEVEL%"
 
 :end
-rem 실패했거나 직접 할 일이 남았을 때(종료 코드 0이 아님) 탐색기 더블클릭이면 창이 바로 닫히지 않게 멈춘다.
+rem 탐색기 더블클릭이면 결과를 읽을 수 있게 성공·실패와 관계없이 창이 바로 닫히지 않게 멈춘다. cmd·PowerShell에서 실행하면 창이 남으므로 멈추지 않는다.
 rem 더블클릭은 cmdcmdline이 ...setup.bat" " 로 끝나 끝에서 두 번째 글자가 공백이다(PowerShell은 "" 로 끝난다).
 rem 경로에 & 같은 글자가 있어도 깨지지 않도록 지연 확장으로 꺼낸다
-if not "%RC%"=="0" (
-  setlocal EnableDelayedExpansion
-  if "!cmdcmdline:~-2,1!"==" " pause
-  endlocal
-)
+setlocal EnableDelayedExpansion
+if "!cmdcmdline:~-2,1!"==" " pause
+endlocal
 chcp %OLDCP% >nul
 exit /b %RC%
