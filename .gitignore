@@ -39,3 +39,6 @@ dist-ssr
 
 # Playwright MCP 로그·스냅샷
 .playwright-mcp/
+
+# /start가 내려받는 DMS 문서 캐시(화면설계서 등). 각자 PC에만 둔다
+.cache/
