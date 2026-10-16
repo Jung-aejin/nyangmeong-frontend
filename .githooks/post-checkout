@@ -1,0 +1,6 @@
+#!/bin/sh
+# 브랜치를 바꿔 yarn.lock이 달라졌으면 의존성을 맞춘다. 파일 하나를 되돌리는 checkout($3=0)에는 실행하지 않는다
+[ "$3" = 1 ] || exit 0
+git diff --name-only "$1" "$2" 2>/dev/null | grep -qx yarn.lock || exit 0
+echo "[post-checkout] yarn.lock이 바뀌어 yarn install 을 실행합니다"
+NODE_OPTIONS=--no-deprecation yarn install --frozen-lockfile --silent || echo "[post-checkout] yarn install 실패. 직접 yarn install 을 실행해 주세요"

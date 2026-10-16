@@ -1,0 +1,5 @@
+#!/bin/sh
+# git pull·merge로 yarn.lock이 바뀌었으면 의존성을 맞춘다. 남이 추가한 라이브러리를 따로 설치하지 않아도 된다
+git diff-tree -r --name-only ORIG_HEAD HEAD 2>/dev/null | grep -qx yarn.lock || exit 0
+echo "[post-merge] yarn.lock이 바뀌어 yarn install 을 실행합니다"
+NODE_OPTIONS=--no-deprecation yarn install --frozen-lockfile --silent || echo "[post-merge] yarn install 실패. 직접 yarn install 을 실행해 주세요"

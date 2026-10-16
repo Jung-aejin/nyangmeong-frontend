@@ -1,0 +1,19 @@
+{
+  "model": "sonnet",
+  "attribution": {
+    "commit": "",
+    "pr": "",
+    "sessionUrl": false
+  },
+  "extraKnownMarketplaces": {
+    "nyangmeong-frontend": {
+      "source": {
+        "source": "git",
+        "url": "https://github.com/kkori-lab/nyangmeong-frontend.git"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "limit-guard@nyangmeong-frontend": true
+  }
+}
