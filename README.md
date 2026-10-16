@@ -10,12 +10,13 @@
 
 Codex를 쓰면 Codex CLI를 먼저 설치하고 setup을 실행한다. setup은 Claude Code와 Codex 중 설치된 것을 감지하고, 둘 다 없으면 Claude Code를 설치한다.
 
-setup은 감지한 AI 도구에 MCP 두 개를 사용자 범위로 등록한다.
+setup은 감지한 AI 도구에 MCP 세 개를 사용자 범위로 등록한다. Claude Code에 이름이나 주소가 같은 claude.ai 커넥터(예: `claude.ai dms`)가 이미 연결돼 있으면 Claude Code에는 등록하지 않는다.
 
 | MCP | 용도 | 주소 |
 | --- | --- | --- |
 | `dms` | 요구사항정의서·화면설계서·기능명세서 | `.env.local`의 `DMS_MCP_URL`(디스코드로 받는다) |
 | `figma` | 디자인 | `https://mcp.figma.com/mcp` |
+| `playwright` | 화면 완료 조건 확인용 브라우저(창 없이 실행) | `npx @playwright/mcp@latest --headless` |
 
 인증은 처음 한 번 브라우저에서 한다. Claude Code는 `claude`를 실행해 `/mcp`에서 서버를 고르고 Authenticate, Codex는 등록할 때 로그인 창이 열린다(놓쳤으면 `codex mcp login <이름>`).
 
