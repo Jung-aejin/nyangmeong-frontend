@@ -6,11 +6,24 @@
 
 ## 실행
 
-처음 받으면 맥은 터미널에서 `bash setup.sh`, Windows는 cmd에서 `setup.bat`, PowerShell에서 `.\setup.bat`(탐색기에서 더블클릭해도 된다)로 필요한 도구를 설치한다. PowerShell·cmd에서 `bash setup.sh`를 치면 Git Bash가 아니라 WSL이 실행되므로 `setup.bat`를 쓴다. 여러 번 실행해도 된다.
+처음 받으면 setup을 실행한다. 여러 번 실행해도 된다.
 
-Codex를 쓰면 Codex CLI를 먼저 설치하고 setup을 실행한다. setup은 Claude Code와 Codex 중 설치된 것을 감지하고, 둘 다 없으면 Claude Code를 설치한다.
+| OS | 실행 |
+| --- | --- |
+| Windows | cmd `setup.bat`, PowerShell `.\setup.bat`, 또는 탐색기에서 더블클릭. `bash setup.sh`는 WSL이 실행되므로 쓰지 않는다 |
+| 맥 | 터미널에서 `bash setup.sh` |
 
-setup은 감지한 AI 도구에 MCP 세 개를 사용자 범위로 등록한다. Claude Code에 이름이나 주소가 같은 claude.ai 커넥터(예: `claude.ai dms`)가 이미 연결돼 있으면 Claude Code에는 등록하지 않는다. 감지한 도구 모두에 `dms`가 이미 있으면 `DMS_MCP_URL`은 비워 둬도 된다.
+setup이 하는 일:
+
+| 항목 | 내용 |
+| --- | --- |
+| Git | 이 저장소의 git 사용자 설정, 이니셜 브랜치 만들기·올리기 |
+| AI 도구 | Claude Code·Codex 중 설치된 것을 감지. 둘 다 없으면 Claude Code 설치(Codex를 쓰려면 먼저 설치) |
+| VS Code 확장 | Prettier, ESLint, Claude Code |
+| Node 24 · Yarn 1.22 | 없으면 fnm·corepack으로 설치. `yarn install` |
+| `.env.local` | 없으면 `.env.example`을 복사 |
+| MCP | 아래 표. 같은 claude.ai 커넥터가 이미 있으면 Claude Code에는 등록하지 않는다 |
+| 확인 | lint, build, dev 서버 기동 후 종료 |
 
 | MCP | 용도 | 주소 |
 | --- | --- | --- |
@@ -18,7 +31,7 @@ setup은 감지한 AI 도구에 MCP 세 개를 사용자 범위로 등록한다.
 | `figma` | 디자인 | `https://mcp.figma.com/mcp` |
 | `playwright` | 화면 완료 조건 확인용 브라우저(창 없이 실행) | `npx @playwright/mcp@latest --headless` |
 
-인증은 처음 한 번 브라우저에서 한다. Claude Code는 `claude`를 실행해 `/mcp`에서 서버를 고르고 Authenticate, Codex는 등록할 때 로그인 창이 열린다(놓쳤으면 `codex mcp login <이름>`).
+감지한 도구 모두에 `dms`가 이미 있으면 `DMS_MCP_URL`은 비워 둬도 된다. 인증은 아래 "처음 한 번: MCP 인증"을 따른다.
 
 Node 24와 Yarn 1.22가 필요하다.
 
@@ -43,7 +56,7 @@ setup을 실행한 뒤에는 앱을 다시 켠다. 새로 설치한 프로그램
 
 ### 처음 한 번: MCP 인증
 
-claude.ai 계정으로 로그인하면 claude.ai에서 연결한 커넥터(`claude.ai dms`, `claude.ai Figma`)는 따로 인증하지 않아도 된다. setup이 등록한 서버 중 인증이 필요한 것은 터미널·VS Code에서 `/mcp`를 입력해 서버를 고르고 Authenticate 한다. 데스크탑 앱은 Connectors 화면에서 한다(확인 필요).
+claude.ai 계정으로 로그인하면 claude.ai에서 연결한 커넥터(`claude.ai dms`, `claude.ai Figma`)는 따로 인증하지 않아도 된다. setup이 등록한 서버 중 인증이 필요한 것은 터미널·VS Code에서 `/mcp`를 입력해 서버를 고르고 Authenticate 한다. 데스크탑 앱은 Connectors 화면에서 한다(확인 필요). Codex는 setup이 등록할 때 로그인 창이 열린다(놓쳤으면 `codex mcp login <이름>`).
 
 ### 작업 흐름
 
