@@ -104,7 +104,7 @@ export default function UserHeader() {
 
   const openChat = () => {
     setOpenMenu(null);
-    chatModal.open();
+    chatModal.toggle();
   };
 
   return (

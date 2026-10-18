@@ -1,5 +1,6 @@
 import { Outlet } from 'react-router-dom';
 import ChatModalProvider from '@/context/ChatModalProvider';
+import ChatModal from './ChatModal';
 import FloatingButtons from './FloatingButtons';
 import UserFooter from './UserFooter';
 import UserHeader from './UserHeader';
@@ -14,6 +15,7 @@ export default function UserLayout() {
         </main>
         <UserFooter />
         <FloatingButtons />
+        <ChatModal />
       </div>
     </ChatModalProvider>
   );
