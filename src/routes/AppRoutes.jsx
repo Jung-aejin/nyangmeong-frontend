@@ -11,6 +11,9 @@ import { PATHS } from './paths';
 // 공통
 const LandingPage = lazy(() => import('@/pages/main/LandingPage'));
 
+// ai
+const AiChatPage = lazy(() => import('@/pages/ai/AiChatPage'));
+
 // admin
 const AdminHomePage = lazy(() => import('@/pages/admin/AdminHomePage'));
 
@@ -22,6 +25,9 @@ export default function AppRoutes() {
           {/* 공통 */}
           <Route path={PATHS.HOME} element={<LandingPage />} />
         </Route>
+
+        {/* ai: 별도 창 전체 화면이라 UserLayout 밖에 둔다 */}
+        <Route path={PATHS.AI} element={<AiChatPage />} />
 
         <Route element={<ProtectedRoute allowedRoles={[MEMBER_ROLE.ADMIN]} />}>
           <Route element={<AdminLayout />}>

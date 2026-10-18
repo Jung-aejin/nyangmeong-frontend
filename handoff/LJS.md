@@ -2,21 +2,17 @@
 
 ## 지금 하는 것
 
-SCR-COM-006 GNB 2차 메뉴 드롭다운 (시작 2026-10-18 15:28) — 상태: 끝 (검증 `통과`, 사람 확인 2026-10-18). 구현은 Figma 기준(메뉴별 카드)이라 명세 006-03·004·화면설계서와 다름. 006-07 터치는 연결 남음
+SCR-COM-007 AI 매니저 진입 — 새 창 런처 (시작 2026-10-18 16:43) — 상태: 끝 (검증 `통과` 회차 1, 사람 확인 2026-10-18). 007-03 히어로 연결은 연결 남음
 
-### 이번 세션에 끝낸 것 (플레이스 쿼리 값·키 수정, 2026-10-18 16:19~)
+- 만든 것: `src/hooks/useAiWindow.js`(창 이름 `nyangmeong-ai` 고정, `window.open('', 이름)`으로 기존 창을 찾아 빈 창일 때만 `/ai`로 보내고 아니면 포커스), `src/pages/ai/AiChatPage.jsx`(빈 화면, 내용은 SCR-AIM-011), `FloatingButtons.jsx`(팝업 차단 안내 + [다시 열기]), `paths.js`(`AI: '/ai'`), `AppRoutes.jsx`(`UserLayout` 밖 라우트)
+- 결정: 탭 간 단일 창 공유는 이번 범위 밖. 같은 본창 탭 기준으로 함. 서로 다른 본창 탭에서 같은 창을 쓰는지는 실측 후 정한다
+- 검증: `yarn -s lint` 0, `yarn -s build` 0, 판정 `통과`(회차 1)
 
-- 플레이스 2차 메뉴 링크 값을 AI매니저 명세 부록·`docs/routes.md`에 맞춤: 용품 `supplies` → `goods`, 동반 `companion` → `pet-friendly` (`src/layouts/gnbMenus.js`)
-- 쿼리 키를 `cat` → `category`로 변경 (`gnbMenus.js`, `docs/routes.md` 15·40행). 결정: 헷갈리지 않게 `category`로 쓴다
-- 결정: URL 구조(`/places` 하나에 쿼리로 탭을 구분할지)는 AIC 답이 올 때까지 그대로 둔다. 플레이스 기능명세서 v0.5·화면설계서 v0.7에는 쿼리 파라미터 정의가 없고, 탭마다 화면 ID(SCR-HOS-001, SCR-PLC-001~004)가 따로 있다
-- 검증: `yarn -s lint` 0, `yarn -s build` 0, `grep -rn "cat=" src docs` 0줄, 판정 `통과`(회차 1)
-
-### 추가 요청 (플레이스 쿼리 값·키 수정)
-
-| 추가-1 | `src/layouts/gnbMenus.js`, `docs/routes.md` | 명령: `yarn -s lint`, `yarn -s build` 종료 코드 0, `grep -rn "cat=" src docs` 결과 0줄 / 화면: 용품 → `/places?category=goods`, 동반 → `/places?category=pet-friendly` | 요청 2026-10-18 16:27 "쿼리 키를 헷갈리지 않게 category로 수정하자" |
+이전 작업: SCR-COM-006 GNB 2차 메뉴 — 끝. 구현은 Figma 기준(메뉴별 카드)이라 명세 006-03·004·화면설계서와 다름. 플레이스 링크는 `/places?category=…`(용품 `goods`, 동반 `pet-friendly`)
 
 ## 다음에 할 것
 
+- SCR-COM-007 연결 남음: 007-03 메인 히어로 검색바가 `useAiWindow`의 `open(문장)`을 부르게 연결(YAY, MAN-001). `/ai`에서 `?q=`를 새 대화의 첫 메시지로 보내는 일(SCR-AIM-011). 이미 열린 `/ai` 창에서는 `open(firstMessage)`의 첫 메시지가 무시되므로(`useAiWindow.js` else 분기) 그때 처리 방식을 정한다
 - 플레이스 URL 구조 확인(AIC, HOS-001): 5개 화면을 `/places?category=…` 하나로 만들지, 탭마다 별도 URL로 할지. 답에 따라 `gnbMenus.js`와 `docs/routes.md`의 해당 값을 같이 고친다
 - 사람이 고치는 문서 (`?cat` → `?category`):
   - AI매니저 기능명세서 v0.7: FN-AIM-004-10, 「부록_라우팅매핑표」 No.2·3·17~20행, 제.개정내역 새 버전 행

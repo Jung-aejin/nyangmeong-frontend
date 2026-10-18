@@ -9,6 +9,9 @@ export const PATHS = {
   // main
   MAIN: '/main',
 
+  // ai
+  AI: '/ai',
+
   // health
   HEALTH: '/health',
   HEALTH_DIARY: '/health/diary',
