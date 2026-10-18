@@ -2,10 +2,22 @@
 
 ## 지금 하는 것
 
-SCR-COM-005 프로필 드롭다운 (시작 2026-10-18 17:06) — 상태: 끝 (검증 `통과` 2번째 검증, 사람 확인 2026-10-18). 연결 남음은 "다음에 할 것"
+SCR-COM-005 연결 남음 (시작 2026-10-18 17:35) — 상태: 끝 (검증 `통과` 1회차, 사람 확인 2026-10-18). 연결 남음은 "다음에 할 것"
+
+기준: 백엔드 `docs/api/member.md` MemberSummaryResponse(커밋 62b6143). 백엔드에 컨트롤러가 아직 없어 실제 API는 부르지 않는다(가짜 응답 유지)
+디자인: 노드 265:3982, `.cache/figma/SCR-COM-005__265-3982.png` (화면은 그대로라 이번에 읽지 않음)
+
+- FN-COM-005-02 회원 정보 표시: `features/member/api.js` 가짜 응답 키 `acntEml` → `maskedAcntEml`, `layouts/ProfileDropdown.jsx` 표시 키 같이 변경, 주석의 "추정" 문구를 명세 근거로 교체. API `GET /members/me/summary`(LJS 백엔드, 미구현) — 가짜 유지, 연결은 "다음에 할 것"
+  - 완료 조건 — 명령: `yarn -s lint` 0, `yarn -s build` 0 / 화면: 프로필 드롭다운에 `초코보호자`와 `jin****@gmail.com`이 보인다
+- FN-COM-005-07 로그아웃 처리: 변경 없음. `POST /auth/logout`(AIC, 미구현) — 로그인 연결 때
+- FN-COM-005-08 대화창 종료: 변경 없음. SCR-COM-009에서 확인(KSJ)
+
+새 의존성: 없음
+
+이전 작업: SCR-COM-005 프로필 드롭다운 (시작 2026-10-18 17:06) — 상태: 끝 (검증 `통과` 2번째 검증, 사람 확인 2026-10-18). 연결 남음은 "다음에 할 것"
 
 - 만든 것: `layouts/ProfileDropdown.jsx`(토글·바깥 클릭·ESC·메뉴 4개·로그아웃), `components/ConfirmModal.jsx`(`<dialog>` + `showModal()`), `features/member`(`getMemberSummary`·`logout` 가짜, `useMemberSummary`·`useLogout`), `hooks/useAiWindow.js`(`closeAiWindow`, 이름으로 찾아 닫음), `routes/paths.js`(`MYPAGE`, `SETTINGS_NOTIFICATIONS`), `UserHeader.jsx`(프로필 자리 교체)
-- 결정: 로그아웃 확인 = 확인 모달, AI 창 닫기 = 이름으로 찾기(본창을 새로고침해도 찾는다), 가짜 요약 필드 `mbrNcnm`(ERD 확인)·`acntEml`(추정)
+- 결정: 로그아웃 확인 = 확인 모달, AI 창 닫기 = 이름으로 찾기(본창을 새로고침해도 찾는다), 가짜 요약 필드 `mbrNcnm`·`maskedAcntEml`(백엔드 명세 MemberSummaryResponse 기준으로 정정)
 - 추가 요청(모두 통과): 추가-1 `showModal`로 교체, 추가-2 `src/` 영어 주석을 한글로(저장소 컨벤션), 추가-3 모달을 닫은 뒤 포커스를 프로필 아이콘으로 복귀(배경 클릭은 `ConfirmModal.jsx` `handleMouseDown`의 `preventDefault`)
 - 검증: `yarn -s lint` 0, `yarn -s build` 0, 판정 `통과`
 - COM 남은 순서("COM 먼저 다 마무리"): 003 → 004 → 008 → 009. SCR-AIM-011은 기획을 지우고 `대기`로 되돌렸다
@@ -15,7 +27,7 @@ SCR-COM-005 프로필 드롭다운 (시작 2026-10-18 17:06) — 상태: 끝 (�
 
 ## 다음에 할 것
 
-- SCR-COM-005 연결 남음: 005-02 회원 요약 조회 API(LJS 백엔드)로 `getMemberSummary`를 바꾸고 응답 키(`acntEml`은 추정)를 Swagger로 확인, 005-07 로그아웃 API(AIC)로 `logout`을 바꾼다(로그인 연결 때). 005-08 채팅 모달 닫기는 SCR-COM-009에서 화면으로 확인(KSJ)
+- SCR-COM-005 연결 남음: 005-02 회원 요약 조회 API(LJS 백엔드)로 `getMemberSummary`를 바꾸고 응답 키(`maskedAcntEml`, 명세 기준)를 Swagger로 확인, 005-07 로그아웃 API(AIC)로 `logout`을 바꾼다(로그인 연결 때). 005-08 채팅 모달 닫기는 SCR-COM-009에서 화면으로 확인(KSJ)
 - SCR-COM-007 연결 남음: 007-03 메인 히어로 검색바가 `useAiWindow`의 `open(문장)`을 부르게 연결(YAY, MAN-001). `/ai`에서 `?q=`를 새 대화의 첫 메시지로 보내는 일(SCR-AIM-011). 이미 열린 `/ai` 창에서는 `open(firstMessage)`의 첫 메시지가 무시되므로(`useAiWindow.js` else 분기) 그때 처리 방식을 정한다
 - 플레이스 URL 구조 확인(AIC, HOS-001): 5개 화면을 `/places?category=…` 하나로 만들지, 탭마다 별도 URL로 할지. 답에 따라 `gnbMenus.js`와 `docs/routes.md`의 해당 값을 같이 고친다
 - 사람이 고치는 문서 (`?cat` → `?category`):

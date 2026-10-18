@@ -32,7 +32,7 @@ function ProfileMenuPanel({ onClose, onLogout }) {
           {summary?.mbrNcnm}
         </p>
         <p className="text-sm leading-[23px] text-[#667374]">
-          {summary?.acntEml}
+          {summary?.maskedAcntEml}
         </p>
       </div>
       {MENU_LINKS.map((item) => (
