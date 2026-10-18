@@ -1,6 +1,6 @@
 import { PATHS } from '@/routes/paths';
 
-const place = (cat) => ({ pathname: PATHS.PLACES, search: `?cat=${cat}` });
+const place = (category) => ({ pathname: PATHS.PLACES, search: `?category=${category}` });
 
 // 1st-level menu goes to its first screen; items are the 2nd-level menu (SCR-COM-006)
 export const GNB_MENUS = [
@@ -19,8 +19,8 @@ export const GNB_MENUS = [
     items: [
       { label: '병원', to: place('hospital') },
       { label: '미용', to: place('beauty') },
-      { label: '용품', to: place('supplies') },
-      { label: '동반', to: place('companion') },
+      { label: '용품', to: place('goods') },
+      { label: '동반', to: place('pet-friendly') },
       { label: '호텔', to: place('hotel') },
     ],
   },
