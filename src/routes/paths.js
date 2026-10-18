@@ -7,6 +7,9 @@ export const PATHS = {
   INQUIRIES: '/inquiries',
   SETTINGS_NOTIFICATIONS: '/settings/notifications',
 
+  // account
+  LOGIN: '/login',
+
   // main
   MAIN: '/main',
 
