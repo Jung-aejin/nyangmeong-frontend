@@ -1,4 +1,4 @@
-// Shows nothing for 0, "99+" above 99
+// 0이면 아무것도 그리지 않고, 99를 넘으면 "99+"로 보인다
 export default function CountBadge({ count, className = '' }) {
   if (!count) return null;
 

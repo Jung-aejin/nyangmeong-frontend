@@ -2,7 +2,7 @@ import { PATHS } from '@/routes/paths';
 
 const place = (category) => ({ pathname: PATHS.PLACES, search: `?category=${category}` });
 
-// 1st-level menu goes to its first screen; items are the 2nd-level menu (SCR-COM-006)
+// 1차 메뉴는 첫 화면으로 이동하고, items는 2차 메뉴다(SCR-COM-006)
 export const GNB_MENUS = [
   {
     label: '건강기록',
