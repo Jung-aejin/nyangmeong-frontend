@@ -2,40 +2,21 @@
 
 ## 지금 하는 것
 
-SCR-COM-003 인증 진입 흐름 (시작 2026-10-18 17:44) — 상태: 끝 (검증 `통과` 1회차, 사람 확인 2026-10-18). 연결 남음은 "다음에 할 것"
+SCR-COM-004 알림 드롭다운 (시작 2026-10-18 17:52) — 상태: 끝 (검증 `통과`, 사람 확인 2026-10-18). 연결 남음은 "다음에 할 것"
 
-고른 이유: "다음에 할 것" 맨 위(SCR-COM-005 연결)는 백엔드 모든 브랜치에 `/members/me`·`/auth/logout` 컨트롤러가 없어(2026-10-18 확인) 할 일이 없음 → 마일스톤 `대기` 맨 위
-기준: 공통레이아웃 기능명세서 v0.4, 화면설계서 v0.7 SCR-COM-003, `docs/routes.md`(랜딩 `/?redirect=`, 로그인 `/login?redirect=`, 복귀 없으면 `/main`)
-디자인: 없음, 화면설계서 기준
-범위: 랜딩(MAN-002, YAY)·로그인 화면(ACC-002, AIC)은 남의 화면. 이번에는 둘을 잇는 공통 부분만 만든다. 로그인 전이라 `ProtectedRoute`로 감싸지 않고 `useMe`로 가르지 않는다(AGENTS.md 2번)
-
-- FN-COM-003-01·02·03 미인증 감지·redirect 보존·랜딩 이동: 변경 없음. 이미 `routes/ProtectedRoute.jsx`(화면)와 `api/axios.js`(401)가 `/?redirect=<경로>`로 보낸다. 화면을 감싸는 것은 로그인 연결 때
-- FN-COM-003-04 로그인 페이지 이동: `routes/paths.js`에 `// account` 구획과 `LOGIN: '/login'` 추가, `pages/main/LandingPage.jsx`에 [로그인] 링크(받은 `redirect`를 그대로 붙여 `/login?redirect=…`). 랜딩 꾸미기는 YAY 몫이라 링크 하나만
-  - 완료 조건 — 화면: `/?redirect=%2Fmypage`에서 [로그인]을 누르면 주소가 `/login?redirect=%2Fmypage`가 된다 / `/`에서 누르면 `/login`
-- FN-COM-003-05·06 로그인 성공 복귀·무효 처리: `routes/redirect.js`에 `getRedirectPath(search)` — `redirect`가 `/`로 시작하고 `//`·`/\`로 시작하지 않으며 랜딩·로그인 자신이 아니면 그 경로, 아니면 `PATHS.MAIN`. 로그인 화면(AIC)이 성공 뒤 부른다. API 없음
-  - 완료 조건 — 명령: `yarn -s lint` 0, `yarn -s build` 0, `node`로 `getRedirectPath`에 `?redirect=%2Fmypage`→`/mypage`, 없음·`//evil.com`·`/\evil.com`·`https://evil.com`·`%2F`·`%2Flogin`→`/main`
-- FN-COM-003-07 세션 만료 동일 처리: 변경 없음. `api/axios.js`가 재발급 실패 시 같은 `/?redirect=`로 보낸다. 만료 토스트(002-24)는 로그인 연결 때
-- FN-COM-003-08 로그인 상태 랜딩 접근: 이번에 안 함. `useMe`가 필요해 로그인 연결 때(API `GET /members/me`, AIC)
-- FN-COM-003-09 모달 로그인 미사용: 변경 없음(로그인은 `/login` 페이지만)
-- FN-COM-003-10 AI 대화창 세션 연동: 이번에 안 함. 대화창이 아직 API를 부르지 않는다. SCR-AIM-011에서 401일 때 오류 표시 후 창 닫기
-
-새 의존성: 없음
-
-이전 작업: SCR-COM-005 연결 남음 (2026-10-18) — 끝. 가짜 응답 키를 `maskedAcntEml`로 정정(백엔드 `docs/api/member.md` 기준). 실제 API 연결은 "다음에 할 것"
-
-이전 작업: SCR-COM-005 프로필 드롭다운 (시작 2026-10-18 17:06) — 상태: 끝 (검증 `통과` 2번째 검증, 사람 확인 2026-10-18). 연결 남음은 "다음에 할 것"
-
-- 만든 것: `layouts/ProfileDropdown.jsx`(토글·바깥 클릭·ESC·메뉴 4개·로그아웃), `components/ConfirmModal.jsx`(`<dialog>` + `showModal()`), `features/member`(`getMemberSummary`·`logout` 가짜, `useMemberSummary`·`useLogout`), `hooks/useAiWindow.js`(`closeAiWindow`, 이름으로 찾아 닫음), `routes/paths.js`(`MYPAGE`, `SETTINGS_NOTIFICATIONS`), `UserHeader.jsx`(프로필 자리 교체)
-- 결정: 로그아웃 확인 = 확인 모달, AI 창 닫기 = 이름으로 찾기(본창을 새로고침해도 찾는다), 가짜 요약 필드 `mbrNcnm`·`maskedAcntEml`(백엔드 명세 MemberSummaryResponse 기준으로 정정)
-- 추가 요청(모두 통과): 추가-1 `showModal`로 교체, 추가-2 `src/` 영어 주석을 한글로(저장소 컨벤션), 추가-3 모달을 닫은 뒤 포커스를 프로필 아이콘으로 복귀(배경 클릭은 `ConfirmModal.jsx` `handleMouseDown`의 `preventDefault`)
+- 만든 것: `layouts/NotificationDropdown.jsx`(토글·바깥 클릭·ESC·탭·목록·클릭 이동), `features/notification`(`NotificationItem.jsx`, `notiTabs.js`, `getNotifications`·`readNotification` 가짜, `useNotifications`·`useReadNotification`), `UserHeader.jsx`(자리표시 패널 교체)
+- 결정: 이동은 서버가 준 `mvmnPath` 그대로(프론트에 유형→경로 표를 두지 않음), 펫돌봄(`MTCH_DLNG`)만 이동 없이 채팅 모달, 004-08 수락·거절과 시간 표시는 뺌. 가짜 유형 코드는 `notiTabs.js`에만 있다
+- 가짜 확인용 쿼리(개발 환경만): `?fakeUnread=N`, `?fakeNotifications=0`
 - 검증: `yarn -s lint` 0, `yarn -s build` 0, 판정 `통과`
-- COM 남은 순서("COM 먼저 다 마무리"): 004 → 008 → 009 (003은 끝). SCR-AIM-011은 기획을 지우고 `대기`로 되돌렸다
+- COM 남은 순서("COM 먼저 다 마무리"): 008 → 009 (004까지 끝). SCR-AIM-011은 기획을 지우고 `대기`로 되돌렸다
 
+이전 작업: SCR-COM-003 인증 진입 흐름 — 끝(로그인 링크·`routes/redirect.js`의 `getRedirectPath`). SCR-COM-005 프로필 드롭다운 — 끝(`ConfirmModal`, `useAiWindow.closeAiWindow`, 가짜 키 `mbrNcnm`·`maskedAcntEml`)
 이전 작업: SCR-COM-007 AI 매니저 진입 — 끝(히어로 연결 남음). 서로 다른 본창 탭에서 같은 AI 창을 쓰는지는 실측 후 정한다
 이전 작업: SCR-COM-006 GNB 2차 메뉴 — 끝. 구현은 Figma 기준(메뉴별 카드)이라 명세 006-03·004·화면설계서와 다름. 플레이스 링크는 `/places?category=…`(용품 `goods`, 동반 `pet-friendly`)
 
 ## 다음에 할 것
 
+- SCR-COM-004 연결 남음: 알림 API(YAY)로 `features/notification/api.js` 가짜를 바꾸고 AIMG02 코드값 확정 뒤 `notiTabs.js`의 가짜 코드를 고친다. 004-08 공동양육 [수락]·[거절]은 응답에 초대 식별자(`jntBrupInvtnSn`)가 있어야 한다(YAY·SJM, 백엔드 issues 14번). 004-09 펫돌봄은 채팅방 식별자(`otoChatRoomSn`)로 방을 열어야 한다(SCR-COM-009, KSJ). 시간 표시("10분 전")는 `NotificationSummary`에 수신 일시 필드가 없어 YAY에 요청. 가짜 공지 `mvmnPath`가 `/notices/1`이라 `docs/routes.md` 75행(`/notices`)과 다르다(가짜라 동작 영향 없음)
 - SCR-COM-003 연결 남음: 003-08 로그인 상태로 랜딩에 오면 `/main`으로(`useMe` 필요, 로그인 연결 때, AIC). 003-10 AI 대화창이 401이면 인증 오류 표시 후 창 닫기(SCR-AIM-011). 로그인 화면(ACC-002, AIC)은 성공 뒤 `routes/redirect.js`의 `getRedirectPath(location.search)`로 이동 경로를 정한다(AIC에 알릴 것). 테스트 러너가 없어 이 함수의 회귀 테스트가 없다(러너 추가는 의존성이라 팀 결정)
 - SCR-COM-005 연결 남음: 005-02 회원 요약 조회 API(LJS 백엔드)로 `getMemberSummary`를 바꾸고 응답 키(`maskedAcntEml`, 명세 기준)를 Swagger로 확인, 005-07 로그아웃 API(AIC)로 `logout`을 바꾼다(로그인 연결 때). 005-08 채팅 모달 닫기는 SCR-COM-009에서 화면으로 확인(KSJ)
 - SCR-COM-007 연결 남음: 007-03 메인 히어로 검색바가 `useAiWindow`의 `open(문장)`을 부르게 연결(YAY, MAN-001). `/ai`에서 `?q=`를 새 대화의 첫 메시지로 보내는 일(SCR-AIM-011). 이미 열린 `/ai` 창에서는 `open(firstMessage)`의 첫 메시지가 무시되므로(`useAiWindow.js` else 분기) 그때 처리 방식을 정한다

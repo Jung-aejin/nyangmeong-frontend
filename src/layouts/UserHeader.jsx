@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Bell, MessageCircle } from 'lucide-react';
+import { MessageCircle } from 'lucide-react';
 import { Link, NavLink } from 'react-router-dom';
 import logo from '@/assets/nm_logo.svg';
 import CountBadge from '@/components/CountBadge';
 import { useChatModal } from '@/context/chatModal';
-import { useUnreadCount } from '@/features/notification/queries';
 import { PATHS } from '@/routes/paths';
 import GnbDropdown from './GnbDropdown';
 import { GNB_MENUS } from './gnbMenus';
+import NotificationDropdown from './NotificationDropdown';
 import ProfileDropdown from './ProfileDropdown';
 
 const GNB_OPEN_DELAY = 200;
@@ -22,7 +22,6 @@ export default function UserHeader() {
   // GNB가 열려 있는 동안 카드를 보여 줄 1차 메뉴의 순번
   const [gnbIndex, setGnbIndex] = useState(0);
   const chatModal = useChatModal();
-  const { data: unread } = useUnreadCount();
 
   const gnbRef = useRef(null);
   const gnbTimer = useRef(null);
@@ -93,6 +92,11 @@ export default function UserHeader() {
     links[links.indexOf(document.activeElement) + step]?.focus();
   };
 
+  const closeNotification = useCallback(
+    () => setOpenMenu((current) => (current === 'notification' ? null : current)),
+    [],
+  );
+
   const closeProfile = useCallback(
     () => setOpenMenu((current) => (current === 'profile' ? null : current)),
     [],
@@ -157,19 +161,14 @@ export default function UserHeader() {
           </nav>
         </div>
 
-        <div className="flex items-center gap-2 justify-self-end">
-          <button
-            type="button"
-            className={iconButton}
-            aria-label="알림"
-            onClick={() => toggle('notification')}
-          >
-            <Bell size={24} />
-            <CountBadge
-              count={unread?.unreadCount}
-              className="absolute right-px top-[5px]"
-            />
-          </button>
+        {/* 알림 패널이 이 묶음의 오른쪽 끝에 맞춰지도록 relative를 준다 */}
+        <div className="relative flex items-center gap-2 justify-self-end">
+          <NotificationDropdown
+            isOpen={openMenu === 'notification'}
+            onToggle={() => toggle('notification')}
+            onClose={closeNotification}
+            buttonClassName={iconButton}
+          />
           <button
             type="button"
             className={iconButton}
@@ -188,18 +187,6 @@ export default function UserHeader() {
           />
         </div>
       </div>
-
-      {openMenu === 'notification' && (
-        <div
-          className="absolute inset-x-0 top-16 border-b border-[#e2e7e7] bg-white shadow-sm"
-          role="menu"
-          data-menu={openMenu}
-        >
-          <div className="mx-auto h-24 max-w-[1440px] px-8 py-4 text-sm text-[#566465]">
-            {openMenu}
-          </div>
-        </div>
-      )}
     </header>
   );
 }
