@@ -2,53 +2,46 @@
 
 ## 지금 하는 것
 
-SCR-COM-002 기본 레이아웃 (시작 2026-10-17 14:57) — 상태: 끝 (검증 `확인 못 함 있음` 회차 2, 사람 확인 2026-10-18)
+SCR-COM-006 GNB 2차 메뉴 드롭다운 (시작 2026-10-18 15:28) — 상태: 끝 (검증 `확인 못 함 있음`, 사람 확인 2026-10-18). 구현은 Figma 기준(메뉴별 카드, 추가-1)이라 명세 006-03·004·화면설계서와 다름
 
 ### 기획
 
 기준: 공통레이아웃_기능명세서_v0.4_20261001, 공통레이아웃_화면설계서_v0.7_20261001
-디자인: Figma 노드 265:3463, `.cache/figma/SCR-COM-002__265-3463.png`
-로그인 연결 때 `ProtectedRoute`로 감쌀 화면: `UserLayout` 아래 전부(랜딩 제외)
+디자인: Figma 노드 265:4236 `.cache/figma/SCR-COM-006__265-4236.png`, 265:4489 `.cache/figma/SCR-COM-006__265-4489.png`
+API: 없음(정적 메뉴)
 
-- FN-COM-002-01 공통 골격: `layouts/UserLayout.jsx`(헤더+`<Outlet/>`+푸터+플로팅), `layouts/UserHeader.jsx`, `layouts/UserFooter.jsx`, `layouts/FloatingButtons.jsx` 신설. 화면: `/`에서 헤더·본문·푸터·플로팅이 보인다
-- FN-COM-002-02 로그인 필수: 이번엔 코드 없음(로그인 전 `ProtectedRoute` 금지). 연결 남음 → 다음에 할 것
-- FN-COM-002-03 헤더 고정: `UserHeader.jsx` sticky·h-16. 화면: 스크롤해도 헤더가 위에 있고 높이 64px
-- FN-COM-002-04 로고 이동: `UserHeader.jsx`, `routes/paths.js`에 `MAIN`(SCR-MAN-001) 추가. 화면: 로고 클릭 시 URL이 메인 경로로 바뀐다
-- FN-COM-002-05 GNB 3개: `UserHeader.jsx`. 화면: 건강기록·플레이스·커뮤니티 3개만 보인다
-- FN-COM-002-06 현재 메뉴 표시: `UserHeader.jsx`(`NavLink`의 active). 화면: 현재 경로 메뉴가 굵게+하단 2px 선
-- FN-COM-002-07 GNB 첫 화면: `paths.js`에 건강 종합(SCR-HLT-011)·플레이스 병원 탭(SCR-HOS-001 ?cat=hospital)·펫이야기(SCR-CMU-001-01) 경로 추가. 화면: 클릭 시 URL이 바뀐다(페이지는 각 담당이 만든다)
-- FN-COM-002-08 GNB 호버: `UserHeader.jsx`에서 호버 시 빈 2차 메뉴 패널 열기. 내용·지연은 SCR-COM-006. 화면: 호버 시 패널이 열린다
-- FN-COM-002-09 알림 배지: `components/CountBadge.jsx`(0 숨김, 99 초과 `99+`), `features/notification/api.js`·`queries.js`에 미확인 수 조회. API YAY — 가짜 응답으로 먼저 만들고 나중에 연결(가짜는 `features/notification/api.js`). 화면: 가짜 3 → `3`, 가짜 0 → 배지 없음, 가짜 120 → `99+`
-- FN-COM-002-10 알림 드롭다운 열기: `UserHeader.jsx`에서 빈 패널 열기. 내용은 SCR-COM-004. 화면: 아이콘 클릭 시 패널이 열린다
-- FN-COM-002-11 채팅 아이콘·배지: `UserHeader.jsx`에서 `CountBadge.jsx` 재사용. 안 읽은 수 조회(KSJ)는 `features/chat/`을 만들지 않고 연결 남음 — 지금은 숫자 0(배지 숨김). 화면: 채팅 아이콘이 보이고 배지는 없다
-- FN-COM-002-12 채팅 모달 열기: `context/ChatModalContext.jsx`에 열림 상태만 둔다. 모달 셸은 SCR-COM-009·KSJ. 화면: 아이콘 클릭 시 열림 상태가 바뀐다(열린 드롭다운이 닫힘으로 확인)
-- FN-COM-002-13 배지 독립: 알림·채팅 숫자를 각각 따로 `CountBadge`에 넘긴다(합산 코드 없음). 화면: 알림 가짜 3이면 알림 아이콘에만 `3`, 채팅 아이콘엔 배지가 없다
-- FN-COM-002-14 아이콘 순서: `UserHeader.jsx`. 화면: 좌→우 알림·채팅·프로필
-- FN-COM-002-15 프로필 아이콘: `UserHeader.jsx`, 기본 이미지는 lucide 아이콘. 회원 이미지는 회원 요약 조회(LJS 백엔드) 연결 때. 화면: 기본 이미지가 보이고 클릭 시 빈 프로필 패널이 열린다
-- FN-COM-002-16 드롭다운 단일 노출: `UserHeader.jsx`에 열린 드롭다운 하나만 담는 상태(`gnb`·`notification`·`profile`·없음). 화면: 프로필을 연 채 알림을 누르면 프로필이 닫히고 알림이 열린다
-- FN-COM-002-17 채팅 모달과 드롭다운: 채팅 아이콘 클릭 시 열린 드롭다운을 닫는다. 화면: 알림을 연 채 채팅 아이콘을 누르면 알림이 닫힌다
-- FN-COM-002-18 푸터 링크: `UserFooter.jsx`, `paths.js`에 공지 목록(SCR-CSC-001)·FAQ 목록(SCR-CSC-002-01) 추가. 화면: 클릭 시 URL이 바뀐다
-- FN-COM-002-19 플로팅 AI: `FloatingButtons.jsx`에 [AI] 버튼(점선 테두리). 새 창 열기는 SCR-COM-007. 화면: 버튼이 보인다
-- FN-COM-002-20 플로팅 TOP: `FloatingButtons.jsx`. 화면: 스크롤 후 클릭 시 최상단으로 간다
-- FN-COM-002-21 플로팅 위치 고정: `FloatingButtons.jsx` fixed 우측 하단. 지도 페이지 조정은 PLC 몫. 화면: 스크롤해도 우측 하단에 있다
-- FN-COM-002-22 브레드크럼 미사용: 만들지 않는다. 화면: 브레드크럼이 없다
-- FN-COM-002-23 햄버거 미사용: 만들지 않는다. 화면: 헤더 우측에 [≡]가 없다
-- FN-COM-002-24 세션 만료: API AIC. 이번엔 코드 없음 — 만료 토스트는 `api/axios.js`의 랜딩 이동과 함께 바꿔야 해서 SCR-COM-003과 함께. 연결 남음 → 다음에 할 것
+설계 결정:
+- 메뉴 목록(1차 3개 + 2차 12개)은 `layouts/gnbMenus.js` 하나에 둔다. `UserHeader.jsx`의 `GNB_MENUS`를 여기로 옮겨 1차·2차가 같은 원본을 쓴다
+- 패널은 `layouts/GnbDropdown.jsx`. 열림 상태는 지금처럼 `UserHeader.jsx`의 `openMenu === 'gnb'` 하나로 둔다(002-16 단일 노출 유지)
+- 지연(0.2초 열림·0.3초 닫힘)은 `UserHeader.jsx` 안의 타이머 ref 하나로 처리한다. 다른 화면에서 쓸 곳이 없어 `hooks/`로 올리지 않는다
+- 1차 메뉴(nav)와 패널을 한 감싸개 안에 두어, 메뉴→패널로 마우스가 옮겨가도 닫히지 않게 한다
+
+- FN-COM-006-01 호버 열림 지연: `UserHeader.jsx`. 화면: 1차 메뉴에 올리고 0.2초 뒤 패널이 열린다(0.1초 만에 지나가면 안 열린다)
+- FN-COM-006-02 이탈 닫힘 지연: `UserHeader.jsx`. 닫기 버튼 없음. 화면: 메뉴·패널 밖으로 나가고 0.3초 뒤 닫힌다, 0.3초 안에 돌아오면 유지된다
+- FN-COM-006-03 3열 노출: `GnbDropdown.jsx`, 딤 없음. 화면: 건강기록·플레이스·커뮤니티 3열이 한 패널에 보이고 본문이 어두워지지 않는다
+- FN-COM-006-04 2차 메뉴 구성: `layouts/gnbMenus.js`, `routes/paths.js`(아래 질문 1). 화면: 건강 종합·검진기록관리·건강상태관리 / 병원·미용·용품·동반·호텔 / 펫이야기·실종센터·펫뉴스·우리동네 펫돌봄
+- FN-COM-006-05 항목 이동: `GnbDropdown.jsx`(`Link` + 클릭 시 닫기). 화면: 항목 클릭 시 URL이 바뀌고 패널이 닫힌다(페이지는 각 담당이 만든다)
+- FN-COM-006-06 키보드 접근: `UserHeader.jsx`·`GnbDropdown.jsx`. Tab 포커스 시 지연 없이 열기, 방향키로 항목 이동, ESC로 닫고 포커스를 1차 메뉴로 되돌린다. 화면: Tab으로 1차 메뉴에 가면 열리고, ↓·→로 항목이 옮겨가며, ESC로 닫힌다
+- FN-COM-006-07 터치 동작: 잠정(반응형 범위 미정) — 아래 질문 2
+- FN-COM-006-08 채팅 메뉴 미포함: 넣지 않는다. 화면: 패널에 채팅 항목이 없다
+- FN-COM-006-09 유틸 메뉴 미포함: 넣지 않는다. 화면: 패널에 마이페이지·고객센터·설정이 없다
 - 공통 완료 조건 — 명령: `yarn -s lint`, `yarn -s build` 종료 코드 0
 
 새 의존성: 없음
 
 질문:
-1. `features/chat/`은 KSJ 화면 도메인이다. 헤더 배지용 안 읽은 수 조회(가짜 응답) 하나 때문에 이 폴더를 먼저 만들어도 되는가? 아니면 KSJ와 먼저 맞추는가?
-2. `routes/paths.js`에 다른 도메인 경로(메인, 건강 종합, 플레이스 병원 탭, 펫이야기, 공지 목록, FAQ 목록)를 각 도메인 구획 안에 한 줄씩 추가해도 되는가?
-추천안: 1은 만든다(조회 함수 2개뿐이고 KSJ가 실제 API를 붙일 때 같은 파일을 덮어쓴다), 2는 추가한다(GNB·푸터가 이 경로 없이는 링크를 못 건다).
-결정: 1. KSJ와 먼저 맞춘다 → `features/chat/`을 만들지 않는다. 채팅 배지는 숫자를 props로 받기만 하고, 조회 연결은 KSJ와 맞춘 뒤(연결 남음). 2. 추가한다.
+1. 2차 메뉴 경로 9개(검진기록관리·건강상태관리, 미용·용품·동반·호텔, 실종센터·펫뉴스·우리동네 펫돌봄)를 `routes/paths.js`의 각 도메인 구획에 넣어도 되는가? 플레이스는 병원과 같이 `PLACES` + `?cat=beauty|supplies|companion|hotel`, 건강·커뮤니티는 `/health/records`·`/health/status`·`/community/missing`·`/community/news`·`/community/petcare` 같은 하위 경로로 이름을 지어 넣고, 담당이 실제 경로를 정하면 그 값만 바꾼다.
+2. FN-COM-006-07 터치(첫 탭 열기·두 번째 탭 이동)는 명세가 잠정이다. 이번에 빼고 연결 남음으로 둘 것인가, 지금 넣을 것인가?
+추천안: 1은 넣는다(경로 상수 없이는 2차 메뉴가 링크를 못 걸고, 값만 바꾸면 되므로 담당과 충돌이 적다). 2는 뺀다(반응형 범위가 정해지지 않아 지금 만들면 기준 없이 만든 코드가 된다).
+결정: 1. 넣는다. 2. 뺀다(006-07 터치는 연결 남음).
 
 ### 추가 요청
 
-| 추가-1 | `index.html`, `src/assets/index.css` | 명령: `yarn -s lint`, `yarn -s build` 종료 코드 0 | 요청 2026-10-18 15:08 "Pretendard 폰트 적용을 이 마일스톤에 포함" |
-| 추가-2 | `src/layouts/UserFooter.jsx`, `src/routes/paths.js` | 명령: `yarn -s lint`, `yarn -s build` 종료 코드 0 / 화면: 푸터 [1:1 문의] 클릭 시 URL이 `/inquiries`로 바뀐다 | 요청 2026-10-18 15:14 "푸터 1:1 문의 링크를 남긴다" |
+| 추가-1 | `src/layouts/UserHeader.jsx`, `src/layouts/GnbDropdown.jsx`, `src/layouts/gnbMenus.js`, `src/routes/paths.js` | 명령: `yarn -s lint`, `yarn -s build` 종료 코드 0 / 화면: 메뉴에 올리면 그 메뉴 아래에만 카드(Figma 265:4236·265:4489)가 열린다. 건강기록 = 종합 건강기록·건강 일지·케어 캘린더, 커뮤니티 = 펫이야기·우리동네 펫돌봄·실종센터·펫뉴스, 플레이스 = 병원·미용·용품·동반·호텔(같은 카드 모양) | 요청 2026-10-18 "피그마 디자인을 따라야 해", "플레이스 동일하게 가면 돼", "A로 ㄱㄱㄱ"(항목 이름은 Figma 기준) |
 
 ## 다음에 할 것
 
+- SCR-COM-006 플레이스 `?cat` 값 수정(`/build`로 추가 요청): `gnbMenus.js`가 `supplies`·`companion`인데 `docs/routes.md`는 `goods`·`pet-friendly`(hospital·beauty·hotel은 같음). 어느 쪽이 맞는지 AIC(HOS-001) 확인 후 값만 바꾼다
+- SCR-COM-006 문서 불일치: 기능명세서 006-03·006-04(3열, 건강기록 항목 이름)·화면설계서 SCR-COM-006(메뉴별 카드·Figma 이름과 다름) — 작성자가 어느 쪽이 맞는지 정해 문서를 고친다. Figma 플레이스 프레임은 없음
+- SCR-COM-006 연결 남음: 006-07 터치 동작 명세 확정(반응형 범위 확정 후, 명세 작성자)
 - SCR-COM-002 연결 남음: 002-02 `ProtectedRoute`로 감싸기(로그인 연결 때), 002-06 GNB 대상 페이지를 `UserLayout` 아래 라우트로 붙이기(각 담당), 002-09 알림 미확인 수 API(YAY), 002-11 채팅 안 읽은 수 조회 위치를 KSJ와 맞추고 연결(KSJ), 002-15 회원 프로필 이미지, 002-24 세션 만료 토스트(SCR-COM-003과 함께)

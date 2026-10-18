@@ -11,12 +11,17 @@ export const PATHS = {
 
   // health
   HEALTH: '/health',
+  HEALTH_DIARY: '/health/diary',
+  HEALTH_CALENDAR: '/health/calendar',
 
   // place
   PLACES: '/places',
 
   // community
   COMMUNITY: '/community',
+  COMMUNITY_MISSING: '/community/missing',
+  COMMUNITY_NEWS: '/community/news',
+  COMMUNITY_PETCARE: '/community/petcare',
 
   // admin
   ADMIN: '/admin',
