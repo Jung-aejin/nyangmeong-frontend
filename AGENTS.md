@@ -79,6 +79,7 @@ api/axios     서버 통신
 | 새 폴더·공통 파일을 만들 때, 실행 환경(Yarn·Node)을 다룰 때 | `docs/convention/structure.md` |
 | 환경변수(`.env*`)를 다룰 때, 핸드오프를 쓸 때 | `docs/convention/config.md` |
 | `routes/paths.js`, `routes/AppRoutes.jsx`를 고칠 때 | `docs/convention/shared-files.md` |
+| 새 화면 URL을 정하거나 바꿀 때 | `docs/routes.md`: 새 화면 URL은 이 문서의 규칙을 따른다. URL 값은 `routes/paths.js`가 정본이다. AI 대상(✓) URL을 바꾸면 AI 서버의 라우팅 매핑도 같이 고친다 |
 | 브랜치·커밋·PR을 만들 때 | `docs/convention/git.md` |
 | 내 담당 화면·API를 마일스톤으로 나눌 때 | `docs/convention/milestone.md` |
 
