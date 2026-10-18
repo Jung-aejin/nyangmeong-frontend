@@ -10,6 +10,9 @@ import { PATHS } from './paths';
 
 // 공통
 const LandingPage = lazy(() => import('@/pages/main/LandingPage'));
+const NotificationSettingsPage = lazy(
+  () => import('@/pages/settings/NotificationSettingsPage'),
+);
 
 // ai
 const AiChatPage = lazy(() => import('@/pages/ai/AiChatPage'));
@@ -24,6 +27,10 @@ export default function AppRoutes() {
         <Route element={<UserLayout />}>
           {/* 공통 */}
           <Route path={PATHS.HOME} element={<LandingPage />} />
+          <Route
+            path={PATHS.SETTINGS_NOTIFICATIONS}
+            element={<NotificationSettingsPage />}
+          />
         </Route>
 
         {/* ai: 별도 창 전체 화면이라 UserLayout 밖에 둔다 */}

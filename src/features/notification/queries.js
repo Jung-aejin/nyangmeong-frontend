@@ -1,9 +1,17 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getNotifications, getUnreadCount, readNotification } from './api';
+import { showToast } from '@/components/toastStore';
+import {
+  getNotificationSettings,
+  getNotifications,
+  getUnreadCount,
+  readNotification,
+  saveNotificationSettings,
+} from './api';
 
 export const notificationKeys = {
   unreadCount: ['notifications', 'unread-count'],
   list: ['notifications', 'list'],
+  settings: ['notifications', 'settings'],
 };
 
 export const useUnreadCount = () =>
@@ -28,5 +36,24 @@ export const useReadNotification = () => {
       queryClient.invalidateQueries({ queryKey: notificationKeys.unreadCount });
       queryClient.invalidateQueries({ queryKey: notificationKeys.list });
     },
+  });
+};
+
+export const useNotificationSettings = () =>
+  useQuery({
+    queryKey: notificationKeys.settings,
+    queryFn: getNotificationSettings,
+  });
+
+export const useSaveNotificationSettings = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: saveNotificationSettings,
+    onSuccess: (saved) => {
+      queryClient.setQueryData(notificationKeys.settings, saved);
+      showToast('저장했어요');
+    },
+    onError: () => showToast('저장하지 못했어요. 잠시 뒤 다시 시도해 주세요'),
   });
 };

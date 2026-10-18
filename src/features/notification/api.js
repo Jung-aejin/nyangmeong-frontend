@@ -101,3 +101,40 @@ export const readNotification = (inappNotiSn) => {
   if (target) target.prslDt = new Date().toISOString();
   return Promise.resolve();
 };
+
+// 알림 설정 가짜다. GET·PUT /members/me/notification-settings(YAY)가 생기면 api.get()·api.put()으로 바꾼다
+// 기본값은 명세 FN-COM-008-13이고, 실제 기본값은 서버가 정한다. 새로고침하면 처음 값으로 돌아간다
+// 개발 환경에서만 ?fakeLimitSet=0으로 한도 미설정을, ?fakeSaveError=1로 저장 실패를 확인할 수 있다
+const fakeSettings = {
+  acntEml: 'jin****@gmail.com',
+  emlNotiRcptnYn: true,
+  inappNotiRcptnYn: true,
+  careSchdlNotiRcptnYn: true,
+  thdyBfhdNotiYn: false,
+  d1BfhdNotiYn: true,
+  d3BfhdNotiYn: false,
+  d7BfhdNotiYn: false,
+  mtchDlngNotiRcptnYn: true,
+  cmntNotiRcptnYn: true,
+  lostExpryNotiRcptnYn: true,
+  expndLimNotiRcptnYn: false,
+};
+
+// expndLimSetYn은 서버가 계산해 주는 값이라 저장 대상이 아니다
+const getFakeSettingsResponse = () => ({
+  ...fakeSettings,
+  expndLimSetYn: getQueryParam('fakeLimitSet') !== '0',
+});
+
+export const getNotificationSettings = () =>
+  Promise.resolve(getFakeSettingsResponse());
+
+export const saveNotificationSettings = (body) => {
+  if (getQueryParam('fakeSaveError') === '1') {
+    return Promise.reject(new Error('fake save error'));
+  }
+  Object.keys(fakeSettings).forEach((key) => {
+    if (key in body) fakeSettings[key] = body[key];
+  });
+  return Promise.resolve(getFakeSettingsResponse());
+};
