@@ -12,7 +12,7 @@
 | 이름 | 소문자 kebab-case |
 | 단수·복수 | 뒤에 `/:id`가 붙으면 복수(`/notices`), 하나뿐이면 단수(`/mypage`, `/main`) |
 | 상세·작성·수정 | `/:<PK>`(API 경로 변수와 같은 이름), `/new`, `/:<PK>/edit` |
-| 탭·필터 | 쿼리(`?cat=hospital`) (AIM-004-10) |
+| 탭·필터 | 쿼리(`?category=hospital`) (AIM-004-10) |
 | 로그인 복귀 | `?redirect=` (COM-003-02) |
 | AI 대상 | AI 서버가 쓰는 URL. 바꾸면 AI 매핑도 같이 고친다 (AIM-004-09) |
 
@@ -37,7 +37,7 @@
 | HLT-003 | 케어 캘린더 | `/health/calendar` (매핑표 11·12행) | JAJ | ✓ |
 | HLT-005 | 검진상세 | `/health/checkups/:ckupRcdSn`. 단독 진입 불가 (매핑표 41행) | JAJ | |
 | HLT-007 | 검사 수치 입력 | `/health/checkups/:ckupRcdSn/inspections`. 검진상세 경유 (매핑표 42행) | JAJ | |
-| HOS-001 | 플레이스 | `/places` (`?cat=hospital·beauty·goods·pet-friendly·hotel`) (매핑표 2·17~20행) | AIC | ✓ |
+| HOS-001 | 플레이스 | `/places` (`?category=hospital·beauty·goods·pet-friendly·hotel`) (매핑표 2·17~20행) | AIC | ✓ |
 | CMU-001 | 펫이야기 | `/community` · `/community/posts/:pstSn` · `/new` · `/:pstSn/edit`. 남이 수정 URL로 오면 상세로 (CMU-001-15) | KSJ | ✓ 목록 |
 | CMU-002 | 실종센터 | `/community/missing` · `/:lostTpofSn` | KSJ | ✓ 목록 |
 | CMU-003 | 펫뉴스 | `/community/news` | KSJ | ✓ |
