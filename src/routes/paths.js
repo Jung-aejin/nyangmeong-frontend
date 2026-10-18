@@ -2,6 +2,21 @@
 export const PATHS = {
   // 공통
   HOME: '/',
+  NOTICES: '/notices',
+  FAQS: '/faqs',
+  INQUIRIES: '/inquiries',
+
+  // main
+  MAIN: '/main',
+
+  // health
+  HEALTH: '/health',
+
+  // place
+  PLACES: '/places',
+
+  // community
+  COMMUNITY: '/community',
 
   // admin
   ADMIN: '/admin',

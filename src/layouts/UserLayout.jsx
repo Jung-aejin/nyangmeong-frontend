@@ -1,11 +1,20 @@
 import { Outlet } from 'react-router-dom';
+import ChatModalProvider from '@/context/ChatModalProvider';
+import FloatingButtons from './FloatingButtons';
+import UserFooter from './UserFooter';
+import UserHeader from './UserHeader';
 
 export default function UserLayout() {
   return (
-    <div className="min-h-screen">
-      <main>
-        <Outlet />
-      </main>
-    </div>
+    <ChatModalProvider>
+      <div className="flex min-h-screen flex-col bg-[#faf8f5]">
+        <UserHeader />
+        <main className="mx-auto w-full max-w-[1440px] flex-1 px-8 py-6">
+          <Outlet />
+        </main>
+        <UserFooter />
+        <FloatingButtons />
+      </div>
+    </ChatModalProvider>
   );
 }

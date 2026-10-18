@@ -9,5 +9,6 @@
 - `.env`, `.env.local`은 git에 올리지 않는다. 키 이름만 `.env.example`에 적고 값은 비워 둔다.
 - DMS MCP 서버 주소(`DMS_MCP_URL`)는 디스코드로 공유하는 값을 `.env.local`에 넣는다. `VITE_`가 없어 빌드 결과에 들어가지 않는다. `setup.sh`가 읽어 감지한 AI 도구(Claude Code·Codex)에 등록한다.
 - Figma 디자인 파일 주소(`FIGMA_FILE_URL`)도 디스코드로 공유하는 값을 `.env.local`에 넣는다. 공개 저장소에 적지 않는다.
+- Figma 개인 액세스 토큰(`FIGMA_TOKEN`)은 각자 만들어 `.env.local`에 넣는다. 디스코드에도 공유하지 않는다. `scripts/figma.mjs`만 읽는다.
 - `CLAUDE.local.md`는 git에 올리지 않는다.
 - 작업 기록은 `handoff/<이름>.md`에 사람마다 한 파일로 두고 커밋한다. 다른 PC에서도 이어서 작업하기 위해서다. 공개 저장소이므로 비밀값과 개인 PC 경로를 쓰지 않는다.
