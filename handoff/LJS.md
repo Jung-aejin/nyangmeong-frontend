@@ -2,20 +2,23 @@
 
 ## 지금 하는 것
 
-SCR-COM-004 알림 드롭다운 (시작 2026-10-18 17:52) — 상태: 끝 (검증 `통과`, 사람 확인 2026-10-18). 연결 남음은 "다음에 할 것"
+SCR-COM-008 설정 (알림) (시작 2026-10-18) — 상태: 끝 (검증 `통과` 1회차, 사람 확인 2026-10-18). 연결 남음은 "다음에 할 것"
 
-- 만든 것: `layouts/NotificationDropdown.jsx`(토글·바깥 클릭·ESC·탭·목록·클릭 이동), `features/notification`(`NotificationItem.jsx`, `notiTabs.js`, `getNotifications`·`readNotification` 가짜, `useNotifications`·`useReadNotification`), `UserHeader.jsx`(자리표시 패널 교체)
-- 결정: 이동은 서버가 준 `mvmnPath` 그대로(프론트에 유형→경로 표를 두지 않음), 펫돌봄(`MTCH_DLNG`)만 이동 없이 채팅 모달, 004-08 수락·거절과 시간 표시는 뺌. 가짜 유형 코드는 `notiTabs.js`에만 있다
-- 가짜 확인용 쿼리(개발 환경만): `?fakeUnread=N`, `?fakeNotifications=0`
+- 만든 것: `pages/settings/NotificationSettingsPage.jsx`, `features/notification/NotificationSettingsForm.jsx`(폼 ①~⑥·저장), `getNotificationSettings`·`saveNotificationSettings` 가짜(`api.js`), `useNotificationSettings`·`useSaveNotificationSettings`(`queries.js`), 공통 `components/Toggle.jsx`·`SettingsCard.jsx`, 라우트 `/settings/notifications`(`ProtectedRoute` 없이), `PATHS.MYPAGE_EXPENSES`
+- 결정: 저장 요청은 `SAVE_KEYS` 11개만 보낸다(`acntEml`·`expndLimSetYn`은 서버 표시값). [저장]은 서버 값과 폼 값이 같으면 비활성. 한도 미설정 안내는 `expndLimSetYn`이 false일 때 가계부 토글을 켜면 나온다. 캐릭터 완료는 항상 받는 알림에 잠정 배치
+- 가짜 확인용 쿼리(개발 환경만): `?fakeLimitSet=0`, `?fakeSaveError=1`
 - 검증: `yarn -s lint` 0, `yarn -s build` 0, 판정 `통과`
-- COM 남은 순서("COM 먼저 다 마무리"): 008 → 009 (004까지 끝). SCR-AIM-011은 기획을 지우고 `대기`로 되돌렸다
+- COM 남은 순서: 009. SCR-AIM-011은 `대기`
 
+이전 작업: SCR-COM-004 알림 드롭다운 — 끝(`layouts/NotificationDropdown.jsx`, `features/notification`. 이동은 서버 `mvmnPath` 그대로, 펫돌봄만 채팅 모달. 가짜 쿼리 `?fakeUnread=N`, `?fakeNotifications=0`)
 이전 작업: SCR-COM-003 인증 진입 흐름 — 끝(로그인 링크·`routes/redirect.js`의 `getRedirectPath`). SCR-COM-005 프로필 드롭다운 — 끝(`ConfirmModal`, `useAiWindow.closeAiWindow`, 가짜 키 `mbrNcnm`·`maskedAcntEml`)
 이전 작업: SCR-COM-007 AI 매니저 진입 — 끝(히어로 연결 남음). 서로 다른 본창 탭에서 같은 AI 창을 쓰는지는 실측 후 정한다
 이전 작업: SCR-COM-006 GNB 2차 메뉴 — 끝. 구현은 Figma 기준(메뉴별 카드)이라 명세 006-03·004·화면설계서와 다름. 플레이스 링크는 `/places?category=…`(용품 `goods`, 동반 `pet-friendly`)
 
 ## 다음에 할 것
 
+- SCR-COM-009 공통 채팅 모달 (COM 남은 순서 마지막): 채팅 API·모달 셸은 KSJ를 기다림. `/start COM-009`로 기획
+- SCR-COM-008 연결 남음: 알림 설정 API(YAY, `GET`·`PUT /members/me/notification-settings`)로 `features/notification/api.js`의 설정 가짜를 바꾼다. 008-12 캐릭터 완료 알림을 설정 가능하게 할지는 명세 확정 대기(명세 작성자)
 - SCR-COM-004 연결 남음: 알림 API(YAY)로 `features/notification/api.js` 가짜를 바꾸고 AIMG02 코드값 확정 뒤 `notiTabs.js`의 가짜 코드를 고친다. 004-08 공동양육 [수락]·[거절]은 응답에 초대 식별자(`jntBrupInvtnSn`)가 있어야 한다(YAY·SJM, 백엔드 issues 14번). 004-09 펫돌봄은 채팅방 식별자(`otoChatRoomSn`)로 방을 열어야 한다(SCR-COM-009, KSJ). 시간 표시("10분 전")는 `NotificationSummary`에 수신 일시 필드가 없어 YAY에 요청. 가짜 공지 `mvmnPath`가 `/notices/1`이라 `docs/routes.md` 75행(`/notices`)과 다르다(가짜라 동작 영향 없음)
 - SCR-COM-003 연결 남음: 003-08 로그인 상태로 랜딩에 오면 `/main`으로(`useMe` 필요, 로그인 연결 때, AIC). 003-10 AI 대화창이 401이면 인증 오류 표시 후 창 닫기(SCR-AIM-011). 로그인 화면(ACC-002, AIC)은 성공 뒤 `routes/redirect.js`의 `getRedirectPath(location.search)`로 이동 경로를 정한다(AIC에 알릴 것). 테스트 러너가 없어 이 함수의 회귀 테스트가 없다(러너 추가는 의존성이라 팀 결정)
 - SCR-COM-005 연결 남음: 005-02 회원 요약 조회 API(LJS 백엔드)로 `getMemberSummary`를 바꾸고 응답 키(`maskedAcntEml`, 명세 기준)를 Swagger로 확인, 005-07 로그아웃 API(AIC)로 `logout`을 바꾼다(로그인 연결 때). 005-08 채팅 모달 닫기는 SCR-COM-009에서 화면으로 확인(KSJ)
