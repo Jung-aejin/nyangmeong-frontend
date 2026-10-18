@@ -5,6 +5,7 @@ export const PATHS = {
   NOTICES: '/notices',
   FAQS: '/faqs',
   INQUIRIES: '/inquiries',
+  SETTINGS_NOTIFICATIONS: '/settings/notifications',
 
   // main
   MAIN: '/main',
@@ -25,6 +26,9 @@ export const PATHS = {
   COMMUNITY_MISSING: '/community/missing',
   COMMUNITY_NEWS: '/community/news',
   COMMUNITY_PETCARE: '/community/petcare',
+
+  // mypage
+  MYPAGE: '/mypage',
 
   // admin
   ADMIN: '/admin',

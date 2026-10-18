@@ -1,5 +1,5 @@
-// Fake response until the notification API (YAY) exists. Replace with api.get() and match the real field name
-// In dev only, ?fakeUnread=0 or ?fakeUnread=120 overrides the count to check the badge rules
+// 알림 API(YAY)가 생기기 전까지 쓰는 가짜 응답이다. api.get()으로 바꾸고 실제 필드 이름에 맞춘다
+// 개발 환경에서만 ?fakeUnread=0, ?fakeUnread=120으로 개수를 바꿔 배지 규칙을 확인할 수 있다
 const FAKE_UNREAD_COUNT = 3;
 
 const getFakeUnreadCount = () => {

@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
-import { Bell, MessageCircle, User } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Bell, MessageCircle } from 'lucide-react';
 import { Link, NavLink } from 'react-router-dom';
 import logo from '@/assets/nm_logo.svg';
 import CountBadge from '@/components/CountBadge';
@@ -8,6 +8,7 @@ import { useUnreadCount } from '@/features/notification/queries';
 import { PATHS } from '@/routes/paths';
 import GnbDropdown from './GnbDropdown';
 import { GNB_MENUS } from './gnbMenus';
+import ProfileDropdown from './ProfileDropdown';
 
 const GNB_OPEN_DELAY = 200;
 const GNB_CLOSE_DELAY = 300;
@@ -16,9 +17,9 @@ const iconButton =
   'relative flex h-[42px] w-[42px] items-center justify-center rounded-full text-[#3d4a4b] hover:bg-[#f4f6f6]';
 
 export default function UserHeader() {
-  // Only one dropdown is open at a time: 'gnb' | 'notification' | 'profile' | null
+  // 드롭다운은 한 번에 하나만 열린다: 'gnb' | 'notification' | 'profile' | null
   const [openMenu, setOpenMenu] = useState(null);
-  // Which 1st-level menu's card is shown while the GNB is open
+  // GNB가 열려 있는 동안 카드를 보여 줄 1차 메뉴의 순번
   const [gnbIndex, setGnbIndex] = useState(0);
   const chatModal = useChatModal();
   const { data: unread } = useUnreadCount();
@@ -32,8 +33,8 @@ export default function UserHeader() {
   const toggle = (name) =>
     setOpenMenu((current) => (current === name ? null : name));
 
-  // Open or close the GNB card after a delay; a newer call cancels the pending one.
-  // Moving between menus while the card is already open switches at once.
+  // 지연 뒤에 GNB 카드를 열거나 닫는다. 새 호출이 대기 중인 호출을 취소한다.
+  // 카드가 이미 열려 있으면 메뉴 사이를 옮길 때 바로 바뀐다.
   const scheduleGnb = (open, delay, index) => {
     clearTimeout(gnbTimer.current);
     gnbTimer.current = setTimeout(
@@ -55,7 +56,7 @@ export default function UserHeader() {
   };
 
   const handleGnbFocus = (event) => {
-    // Focus moved back by ESC must not reopen the panel it just closed
+    // ESC로 포커스가 돌아온 것이 방금 닫은 패널을 다시 열면 안 된다
     if (skipGnbFocus.current) {
       skipGnbFocus.current = false;
       return;
@@ -72,7 +73,7 @@ export default function UserHeader() {
 
   const handleGnbKeyDown = (event) => {
     if (event.key === 'Escape') {
-      // Return focus to the 1st-level menu whose card is open
+      // 카드가 열려 있는 1차 메뉴로 포커스를 돌려보낸다
       const menuLink = gnbRef.current.querySelector(
         `[data-gnb-menu="${gnbIndex}"] > a`,
       );
@@ -91,6 +92,11 @@ export default function UserHeader() {
     const links = [...gnbRef.current.querySelectorAll('a')];
     links[links.indexOf(document.activeElement) + step]?.focus();
   };
+
+  const closeProfile = useCallback(
+    () => setOpenMenu((current) => (current === 'profile' ? null : current)),
+    [],
+  );
 
   const openChat = () => {
     setOpenMenu(null);
@@ -171,21 +177,19 @@ export default function UserHeader() {
             onClick={openChat}
           >
             <MessageCircle size={24} />
-            {/* Unread count comes from KSJ's chat API; 0 hides the badge until it is wired */}
+            {/* 안 읽은 채팅 수는 KSJ의 채팅 API에서 온다. 연결하기 전까지는 0이라 배지가 숨겨진다 */}
             <CountBadge count={0} className="absolute right-px top-[5px]" />
           </button>
-          <button
-            type="button"
-            className={`${iconButton} border border-[#e2e7e7]`}
-            aria-label="프로필"
-            onClick={() => toggle('profile')}
-          >
-            <User size={24} />
-          </button>
+          <ProfileDropdown
+            isOpen={openMenu === 'profile'}
+            onToggle={() => toggle('profile')}
+            onClose={closeProfile}
+            buttonClassName={`${iconButton} border border-[#e2e7e7]`}
+          />
         </div>
       </div>
 
-      {openMenu && openMenu !== 'gnb' && (
+      {openMenu === 'notification' && (
         <div
           className="absolute inset-x-0 top-16 border-b border-[#e2e7e7] bg-white shadow-sm"
           role="menu"

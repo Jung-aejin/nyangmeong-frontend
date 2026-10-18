@@ -3,13 +3,13 @@ import footerPixel from '@/assets/footer_pixel.svg';
 import { PATHS } from '@/routes/paths';
 
 const DEV_TEAM = ['이진성', '안인철', '정애진', '서정민', '김선진', '윤아연'];
-// Placeholder from the design. Real addresses are not committed to this public repo
+// 디자인의 임시 값이다. 실제 주소는 공개 저장소에 올리지 않는다
 const EMAIL_PLACEHOLDER = '0000@gmail.com';
 
 export default function UserFooter() {
   return (
     <footer className="relative border-t border-[#e2e7e7] bg-[#f5f2ee] text-[#566465]">
-      {/* Decorative band that sits right above the footer edge */}
+      {/* 푸터 윗선 바로 위에 놓이는 장식 띠 */}
       <img
         src={footerPixel}
         alt=""
