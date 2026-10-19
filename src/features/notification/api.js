@@ -1,4 +1,4 @@
-// 알림 API(YAY)가 생기기 전까지 쓰는 가짜 응답이다. api.get()으로 바꾸고 실제 필드 이름에 맞춘다
+// 알림 API(LJS 백엔드)가 생기기 전까지 쓰는 가짜 응답이다. api.get()으로 바꾸고 실제 필드 이름에 맞춘다
 // notiTypeCd 값은 AIMG02 코드값이 정해지기 전의 가짜다. mvmnPath는 docs/routes.md의 알림 클릭 이동 대상이다
 // 개발 환경에서만 ?fakeUnread=0, ?fakeUnread=120으로 미읽음 수를, ?fakeNotifications=0으로 알림 0건을 확인할 수 있다
 const fakeNotifications = [
@@ -102,7 +102,7 @@ export const readNotification = (inappNotiSn) => {
   return Promise.resolve();
 };
 
-// 알림 설정 가짜다. GET·PUT /members/me/notification-settings(YAY)가 생기면 api.get()·api.put()으로 바꾼다
+// 알림 설정 가짜다. GET·PUT /members/me/notification-settings(LJS 백엔드)가 생기면 api.get()·api.put()으로 바꾼다
 // 기본값은 명세 FN-COM-008-13이고, 실제 기본값은 서버가 정한다. 새로고침하면 처음 값으로 돌아간다
 // 개발 환경에서만 ?fakeLimitSet=0으로 한도 미설정을, ?fakeSaveError=1로 저장 실패를 확인할 수 있다
 const fakeSettings = {
