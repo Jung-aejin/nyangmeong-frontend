@@ -33,6 +33,7 @@ export const PATHS = {
   // mypage
   MYPAGE: '/mypage',
   MYPAGE_EXPENSES: '/mypage/expenses',
+  MYPAGE_CHARACTERS: '/mypage/characters',
 
   // admin
   ADMIN: '/admin',

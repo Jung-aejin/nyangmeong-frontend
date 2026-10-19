@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import ChatInput from '@/features/ai/ChatInput';
 import ConversationHeader from '@/features/ai/ConversationHeader';
 import ConversationMessages from '@/features/ai/ConversationMessages';
 import ConversationSidebar from '@/features/ai/ConversationSidebar';
 import { fakePets } from '@/features/ai/fakePets';
-import { useConversation } from '@/features/ai/queries';
+import { useConversation, useSendMessage } from '@/features/ai/queries';
+import WelcomeMessage from '@/features/ai/WelcomeMessage';
 import { useMemberSummary } from '@/features/member/queries';
 import { PATHS } from '@/routes/paths';
 
@@ -26,6 +28,36 @@ export default function AiChatPage() {
 
   const { data: member } = useMemberSummary();
   const { data: conversation, isError } = useConversation(selectedRoomSn);
+  const sendMessage = useSendMessage();
+
+  const selectedPet = pets.find((pet) => pet.petSn === selectedPetSn);
+
+  // 새 대화면 서버가 이 메시지로 대화를 만들고, 돌려준 방을 선택한다
+  const handleSend = (aiCnvrsMsgCn) => {
+    sendMessage.mutate(
+      {
+        aiCnvrsRoomSn: selectedRoomSn,
+        petSn: selectedPet?.petSn,
+        petNm: selectedPet?.petNm,
+        aiCnvrsMsgCn,
+      },
+      {
+        onSuccess: ({ aiCnvrsRoomSn }) => {
+          setFirstMessage(null);
+          setSelectedRoomSn(aiCnvrsRoomSn);
+        },
+      },
+    );
+  };
+
+  // 개발 모드의 StrictMode는 effect를 두 번 실행하므로 ref로 한 번만 보낸다
+  const hasSentFirstMessage = useRef(false);
+  useEffect(() => {
+    if (!firstMessage || hasSentFirstMessage.current) return;
+    hasSentFirstMessage.current = true;
+    handleSend(firstMessage.slice(0, 1000));
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- 창을 연 직후 한 번만 보낸다
+  }, []);
 
   // 설정은 이 창 안에서 열지 않고 본창에서 연다. 본창이 닫혔으면 새 탭으로 연다
   const handleOpenSettings = () => {
@@ -60,6 +92,14 @@ export default function AiChatPage() {
       />
 
       <main className="flex min-w-0 flex-1 flex-col">
+        {selectedRoomSn === null && (
+          <header className="flex h-16 shrink-0 items-center gap-3 border-b border-[#e2e7e7] bg-white px-6">
+            <h1 className="text-lg font-bold text-[#1a3234]">새 대화</h1>
+            <span className="shrink-0 rounded-full bg-[#e9f2f2] px-2.5 py-0.5 text-xs font-medium text-[#285a5c]">
+              {selectedPet?.petNm ?? '전체'}
+            </span>
+          </header>
+        )}
         {conversation && (
           <ConversationHeader
             conversation={conversation}
@@ -76,16 +116,24 @@ export default function AiChatPage() {
             <ConversationMessages messages={conversation.messages} />
           )}
           {selectedRoomSn === null && (
-            // 웰컴 메시지와 바로가기 칩, 입력창은 SCR-AIM-001에서 이 자리를 채운다.
-            // data-first-message는 그때 첫 메시지를 자동 전송(011-05, 001-06)할 값을 넘기는 자리다
-            <p
-              data-first-message={firstMessage ?? undefined}
-              className="mx-auto max-w-[820px] text-[15px] text-[#667374]"
-            >
-              대화를 고르거나 새 대화를 시작해 보세요
-            </p>
+            <div className="flex min-h-full items-center justify-center">
+              <WelcomeMessage
+                nickname={member?.mbrNcnm ?? ''}
+                petNm={selectedPet?.petNm}
+              />
+            </div>
           )}
         </div>
+        {sendMessage.isError && (
+          <p role="alert" className="pb-2 text-center text-sm text-[#b42318]">
+            메시지를 보내지 못했어요. 잠시 뒤 다시 시도해 주세요
+          </p>
+        )}
+        <ChatInput
+          petNm={selectedPet?.petNm}
+          isDisabled={sendMessage.isPending}
+          onSubmit={handleSend}
+        />
       </main>
     </div>
   );
