@@ -74,6 +74,7 @@ api/axios     서버 통신
 | --- | --- |
 | 코드를 쓸 때 항상 | `docs/convention/common.md`: 주석, 이름 짓기 |
 | `pages/`, `routes/`, 관리자 화면을 쓸 때 | `docs/convention/pages.md` |
+| 화면 UI·스타일을 쓸 때, `html/` 디자인 파일을 만들거나 받을 때 | `docs/convention/ui.md`: 디자인 기준 순서, AI 슬롭 금지 |
 | `features/`를 쓰거나 상태를 둘 곳을 정할 때 | `docs/convention/features.md` |
 | 서버에 요청을 보내거나 응답·오류를 다룰 때 | `docs/convention/api.md` |
 | 새 폴더·공통 파일을 만들 때, 실행 환경(Yarn·Node)을 다룰 때 | `docs/convention/structure.md` |
