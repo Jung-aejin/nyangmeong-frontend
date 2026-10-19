@@ -1,3 +1,4 @@
+import { Plus } from 'lucide-react';
 import { useState } from 'react';
 import { showToast } from '@/components/toastStore';
 import PetDeleteDialog from '@/features/pet/PetDeleteDialog';
@@ -22,23 +23,10 @@ export default function PetListPage() {
   const isFull = ownPetCount >= MAX_OWN_PETS;
 
   return (
-    <div className="mx-auto max-w-4xl p-6">
-      <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">반려동물 관리</h1>
-        <button
-          type="button"
-          onClick={() => setModalPetSn(null)}
-          disabled={isFull}
-          className="rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white disabled:bg-gray-300"
-        >
-          ＋ 반려동물 등록
-        </button>
-      </div>
-      {isFull && (
-        <p className="mb-4 text-right text-sm text-gray-500">
-          반려동물은 최대 {MAX_OWN_PETS}마리까지 등록할 수 있어요
-        </p>
-      )}
+    <div className="mx-auto max-w-5xl py-6">
+      <h1 className="mb-6 text-page font-bold tracking-[-0.02em]">
+        반려동물 관리
+      </h1>
       {isPending ? null : pets.length === 0 ? (
         <PetEmpty onRegister={() => setModalPetSn(null)} />
       ) : (
@@ -49,7 +37,22 @@ export default function PetListPage() {
           onEdit={(pet) => setModalPetSn(pet.petSn)}
           onDelete={setDeletingPet}
           onUnlink={() => showToast('준비 중인 기능이에요')}
-        />
+        >
+          <button
+            type="button"
+            onClick={() => setModalPetSn(null)}
+            disabled={isFull}
+            className="inline-flex h-10 items-center justify-center gap-1.5 rounded-md bg-brand-500 px-4 font-semibold text-white hover:bg-brand-600 disabled:cursor-not-allowed disabled:bg-surface-3 disabled:text-line-strong"
+          >
+            <Plus className="size-[18px]" />
+            반려동물 등록
+          </button>
+        </PetSlide>
+      )}
+      {isFull && (
+        <p className="mt-3 text-right text-sm text-subtle">
+          반려동물은 최대 {MAX_OWN_PETS}마리까지 등록할 수 있어요
+        </p>
       )}
       {modalPetSn !== undefined && (
         <PetFormModal

@@ -8,22 +8,15 @@ import {
 const findName = (options, code) =>
   options?.find((option) => option.code === code)?.name ?? '';
 
-// 만 나이. 1살이 안 되면 개월 수로 보인다
-export const formatAge = (petBrdt) => {
-  const birth = new Date(petBrdt);
-  const today = new Date();
-  let months =
-    (today.getFullYear() - birth.getFullYear()) * 12 +
-    today.getMonth() -
-    birth.getMonth();
-  if (today.getDate() < birth.getDate()) months -= 1;
-  if (months < 12) return `${Math.max(months, 0)}개월`;
-  return `${Math.floor(months / 12)}살`;
-};
-
 export const getPetSeName = (pet) => findName(PET_SE_OPTIONS, pet.petSeCd);
 
 export const getVrtyName = (pet) => pet.vrtyNm ?? pet.vrtyDrctInptNm ?? '';
+
+// "골든리트리버(강아지)". 품종 이름이 없으면 종류만
+export const formatSpecies = (pet) => {
+  const vrtyName = getVrtyName(pet);
+  return vrtyName ? `${vrtyName}(${getPetSeName(pet)})` : getPetSeName(pet);
+};
 
 export const getGndrName = (pet) => findName(PET_GNDR_OPTIONS, pet.petGndrCd);
 

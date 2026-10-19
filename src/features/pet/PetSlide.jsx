@@ -2,18 +2,22 @@ import { Cat, ChevronLeft, ChevronRight, Dog, X } from 'lucide-react';
 import { useState } from 'react';
 import { PET_REL, PET_SE } from './petCodes';
 import {
-  formatAge,
+  formatSpecies,
   formatWeight,
   getColrName,
   getGndrName,
-  getPetSeName,
-  getVrtyName,
   splitList,
 } from './petFormat';
 
 // 알레르기·기저질환은 이 개수까지만 보이고 나머지는 [외 N개]로 접는다
 const VISIBLE_LIST_COUNT = 2;
 
+const NAV_BUTTON =
+  'grid size-10 shrink-0 place-items-center rounded-full border border-line bg-white text-ink-2 hover:enabled:border-line-strong hover:enabled:text-ink disabled:cursor-not-allowed disabled:bg-surface-2 disabled:text-line-strong';
+const CARD_BUTTON =
+  'inline-flex h-10 items-center justify-center rounded-md border border-line bg-white px-4 font-semibold hover:bg-surface-2 hover:border-line-strong';
+
+// children은 ◀ N / 총마리 ▶ 오른쪽(카드 아래)에 놓인다. 등록 버튼이 들어온다
 export default function PetSlide({
   pets,
   index,
@@ -21,34 +25,12 @@ export default function PetSlide({
   onEdit,
   onDelete,
   onUnlink,
+  children,
 }) {
   const pet = pets[index];
 
   return (
-    <div>
-      <div className="mb-3 flex items-center justify-center gap-4">
-        <button
-          type="button"
-          onClick={() => onMove(index - 1)}
-          disabled={index === 0}
-          aria-label="이전 반려동물"
-          className="rounded-full border p-1 disabled:opacity-30"
-        >
-          <ChevronLeft className="size-5" />
-        </button>
-        <span className="text-sm text-gray-600">
-          반려동물 {index + 1} / {pets.length}
-        </span>
-        <button
-          type="button"
-          onClick={() => onMove(index + 1)}
-          disabled={index === pets.length - 1}
-          aria-label="다음 반려동물"
-          className="rounded-full border p-1 disabled:opacity-30"
-        >
-          <ChevronRight className="size-5" />
-        </button>
-      </div>
+    <section aria-label="반려동물 슬라이드">
       <PetCard
         key={pet.petSn}
         pet={pet}
@@ -56,40 +38,53 @@ export default function PetSlide({
         onDelete={onDelete}
         onUnlink={onUnlink}
       />
-    </div>
+      <div className="mt-3 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => onMove(index - 1)}
+            disabled={index === 0}
+            aria-label="이전 반려동물"
+            className={NAV_BUTTON}
+          >
+            <ChevronLeft className="size-5" />
+          </button>
+          <p className="min-w-11 text-center text-subtle">
+            <b className="font-semibold text-ink">{index + 1}</b> /{' '}
+            {pets.length}
+          </p>
+          <button
+            type="button"
+            onClick={() => onMove(index + 1)}
+            disabled={index === pets.length - 1}
+            aria-label="다음 반려동물"
+            className={`${NAV_BUTTON} enabled:border-brand-500 enabled:text-brand-600 hover:enabled:bg-brand-50`}
+          >
+            <ChevronRight className="size-5" />
+          </button>
+        </div>
+        {children}
+      </div>
+    </section>
   );
 }
 
 function PetCard({ pet, onEdit, onDelete, onUnlink }) {
   const isCoParent = pet.petRelCd === PET_REL.CO_PARENT;
-  const gndrText = `${getGndrName(pet)}${pet.nutrYn === 'Y' ? ' (중성화)' : ''}`;
+  const gndrText = `${getGndrName(pet)}${pet.nutrYn === 'Y' ? '(중성화 완료)' : ''}`;
 
   return (
-    <div className="grid gap-6 rounded-xl border p-6 md:grid-cols-[220px_1fr]">
-      <div className="flex flex-col items-center gap-3 text-center">
+    <article
+      aria-labelledby="pet-name"
+      className="grid gap-5 rounded-modal border border-line bg-white p-5 shadow-card min-[761px]:grid-cols-[180px_minmax(0,1fr)] min-[761px]:gap-8 min-[761px]:px-8 min-[761px]:py-6 min-[1101px]:grid-cols-[220px_minmax(0,1fr)] min-[1101px]:gap-14 min-[1101px]:px-12 min-[1101px]:pt-12 min-[1101px]:pb-8"
+    >
+      <div className="flex flex-row items-end justify-between gap-5 min-[761px]:flex-col min-[761px]:items-center min-[761px]:justify-center">
         <PetFace pet={pet} />
-        <p className="text-lg font-bold">{pet.petNm}</p>
-        <div className="flex gap-1">
-          {pet.rprsYn === 'Y' && <Badge className="bg-yellow-100">대표</Badge>}
-          <Badge className={isCoParent ? 'bg-purple-100' : 'bg-blue-100'}>
-            {isCoParent ? '공동양육' : '주양육'}
-          </Badge>
-        </div>
-        <p className="text-sm text-gray-600">
-          {[
-            getVrtyName(pet),
-            formatAge(pet.petBrdt),
-            getGndrName(pet),
-            formatWeight(pet.petBdwg),
-          ]
-            .filter(Boolean)
-            .join(' · ')}
-        </p>
         <div className="flex gap-2">
           <button
             type="button"
             onClick={() => onEdit(pet)}
-            className="rounded-lg border px-3 py-1 text-sm"
+            className={CARD_BUTTON}
           >
             수정
           </button>
@@ -97,7 +92,7 @@ function PetCard({ pet, onEdit, onDelete, onUnlink }) {
             <button
               type="button"
               onClick={() => onUnlink(pet)}
-              className="rounded-lg border px-3 py-1 text-sm"
+              className={CARD_BUTTON}
             >
               연동 해제
             </button>
@@ -105,28 +100,54 @@ function PetCard({ pet, onEdit, onDelete, onUnlink }) {
             <button
               type="button"
               onClick={() => onDelete(pet)}
-              className="rounded-lg border px-3 py-1 text-sm text-red-600"
+              className={`${CARD_BUTTON} text-danger`}
             >
               삭제
             </button>
           )}
         </div>
       </div>
-      <div className="grid gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
-        <dl className="space-y-3">
-          <InfoRow label="종">{getPetSeName(pet)}</InfoRow>
-          <InfoRow label="성별">{gndrText}</InfoRow>
-          <InfoRow label="체중">{formatWeight(pet.petBdwg)}</InfoRow>
-          <InfoRow label="털색">{getColrName(pet)}</InfoRow>
-        </dl>
-        <dl className="space-y-3">
-          <InfoRow label="인식 번호">{pet.chipNo}</InfoRow>
-          <InfoRow label="특징">{pet.chrcCn}</InfoRow>
-          <ListRow label="알레르기" value={pet.algyCn} />
-          <ListRow label="기저질환" value={pet.dssCn} />
-        </dl>
+      <div className="flex min-w-0 flex-col">
+        <h2
+          id="pet-name"
+          className="flex flex-wrap items-center gap-3 pb-4 text-xl font-bold tracking-[-0.02em] min-[761px]:text-page"
+        >
+          {pet.petNm}
+          <span className="inline-flex flex-wrap gap-1 align-middle">
+            {pet.rprsYn === 'Y' && (
+              <Badge className="bg-brand-500 text-white">대표</Badge>
+            )}
+            {isCoParent ? (
+              <Badge className="bg-tone-gray-bg text-tone-gray-fg">
+                공동양육
+              </Badge>
+            ) : (
+              <Badge className="bg-tone-green-bg text-tone-green-fg">
+                주양육
+              </Badge>
+            )}
+          </span>
+        </h2>
+        <div className="grid grid-cols-1 gap-x-12 min-[1281px]:grid-cols-[300px_minmax(0,1fr)]">
+          <InfoGroup className="max-[1280px]:[&>div:last-child]:border-b">
+            <InfoRow label="종">{formatSpecies(pet)}</InfoRow>
+            <InfoRow label="성별">{gndrText}</InfoRow>
+            <InfoRow label="체중">{formatWeight(pet.petBdwg)}</InfoRow>
+            <InfoRow label="털색">{getColrName(pet)}</InfoRow>
+          </InfoGroup>
+          <InfoGroup className="max-[1280px]:border-t-0">
+            <InfoRow label="인식 번호" emptyText="미등록">
+              {pet.chipNo}
+            </InfoRow>
+            <InfoRow label="특징" emptyText="없음">
+              {pet.chrcCn}
+            </InfoRow>
+            <ListRow label="알레르기" value={pet.algyCn} />
+            <ListRow label="기저질환" value={pet.dssCn} />
+          </InfoGroup>
+        </div>
       </div>
-    </div>
+    </article>
   );
 }
 
@@ -143,8 +164,8 @@ function PetFace({ pet }) {
   // 캐릭터 이미지 API(LJS)가 나오기 전과 캐릭터가 없는 동물은 종별 기본 얼굴을 쓴다
   const Icon = pet.petSeCd === PET_SE.CAT ? Cat : Dog;
   return (
-    <div className="flex size-28 items-center justify-center rounded-full bg-gray-100">
-      <Icon className="size-14 text-gray-500" />
+    <div className="grid size-28 shrink-0 place-items-center rounded-full bg-surface-2 text-line-strong shadow-[inset_0_0_0_1px_var(--color-line-strong)]">
+      <Icon className="size-14" />
     </div>
   );
 }
@@ -152,19 +173,41 @@ function PetFace({ pet }) {
 function Badge({ className, children }) {
   return (
     <span
-      className={`rounded-full px-2 py-0.5 text-xs font-semibold ${className}`}
+      className={`inline-flex h-6 items-center rounded-full px-2.5 pt-[1.5px] text-badge leading-none font-semibold whitespace-nowrap ${className}`}
     >
       {children}
     </span>
   );
 }
 
-function InfoRow({ label, children }) {
-  if (!children) return null;
+function InfoGroup({ className = '', children }) {
   return (
-    <div className="flex gap-3">
-      <dt className="w-16 shrink-0 text-gray-500">{label}</dt>
-      <dd className="break-all">{children}</dd>
+    <dl
+      className={`m-0 grid min-w-0 grid-cols-[max-content_minmax(0,1fr)] content-start border-t border-line-strong ${className}`}
+    >
+      {children}
+    </dl>
+  );
+}
+
+const ROW =
+  'col-span-full grid grid-cols-subgrid items-baseline gap-x-6 border-b border-line-soft py-4 last:border-b-0';
+const DT = 'min-w-20 text-subtle';
+const WARN_DOT =
+  'before:mr-1.5 before:mb-0.5 before:inline-block before:size-[5px] before:rounded-full before:bg-danger before:align-middle';
+
+function InfoRow({ label, emptyText, children }) {
+  if (!children && !emptyText) return null;
+  return (
+    <div className={ROW}>
+      <dt className={DT}>{label}</dt>
+      {children ? (
+        <dd className="m-0 font-semibold [overflow-wrap:anywhere]">
+          {children}
+        </dd>
+      ) : (
+        <dd className="m-0 text-muted [overflow-wrap:anywhere]">{emptyText}</dd>
+      )}
     </div>
   );
 }
@@ -172,64 +215,71 @@ function InfoRow({ label, children }) {
 function ListRow({ label, value }) {
   const [isOpen, setIsOpen] = useState(false);
   const items = splitList(value);
-  if (items.length === 0) return null;
-
   const hiddenCount = items.length - VISIBLE_LIST_COUNT;
 
   return (
-    <div className="flex gap-3">
-      <dt className="w-16 shrink-0 text-gray-500">{label}</dt>
-      <dd>
-        {hiddenCount > 0 ? (
-          <>
-            {items.slice(0, VISIBLE_LIST_COUNT).join(', ')}{' '}
-            <button
-              type="button"
-              onClick={() => setIsOpen(true)}
-              className="text-blue-600 underline"
-            >
-              외 {hiddenCount}개
-            </button>
-          </>
-        ) : (
-          items.join(', ')
-        )}
-        {isOpen && (
-          <ListLayer
-            title={`${label} (${items.length})`}
-            items={items}
-            onClose={() => setIsOpen(false)}
-          />
-        )}
-      </dd>
+    <div className={ROW}>
+      <dt className={`${DT} ${WARN_DOT}`}>{label}</dt>
+      {items.length === 0 ? (
+        <dd className="m-0 text-muted">없음</dd>
+      ) : (
+        <dd className="relative m-0 font-semibold [overflow-wrap:anywhere]">
+          {hiddenCount > 0 ? (
+            <>
+              {items.slice(0, VISIBLE_LIST_COUNT).join(', ')}{' '}
+              <button
+                type="button"
+                onClick={() => setIsOpen(true)}
+                className="font-semibold text-brand-600 underline underline-offset-3"
+              >
+                외 {hiddenCount}개
+              </button>
+            </>
+          ) : (
+            items.join(', ')
+          )}
+          {isOpen && (
+            <ListLayer
+              title={`${label} (${items.length})`}
+              items={items}
+              onClose={() => setIsOpen(false)}
+            />
+          )}
+        </dd>
+      )}
     </div>
   );
 }
 
+// 바깥을 누르면 닫히도록 화면 전체를 덮는 투명한 막을 깔고 그 위에 목록을 띄운다
 function ListLayer({ title, items, onClose }) {
   return (
-    <div
-      className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 p-4"
-      onClick={onClose}
-      role="dialog"
-      aria-modal="true"
-    >
+    <>
+      <div className="fixed inset-0 z-10" onClick={onClose} />
       <div
-        className="w-full max-w-xs rounded-xl bg-white p-5 shadow-xl"
-        onClick={(event) => event.stopPropagation()}
+        role="dialog"
+        aria-label={`${title} 전체 목록`}
+        className="absolute top-[calc(100%+8px)] right-0 z-20 w-60 max-w-[calc(100vw-32px)] rounded-box border border-line bg-white py-2 font-normal shadow-card"
       >
-        <div className="mb-3 flex items-center justify-between">
-          <h3 className="font-bold">{title}</h3>
-          <button type="button" onClick={onClose} aria-label="닫기">
-            <X className="size-5" />
+        <div className="flex items-center justify-between border-b border-line-soft pt-1 pr-2 pb-2 pl-4 font-semibold">
+          <span>{title}</span>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="닫기"
+            className="grid size-8 place-items-center rounded-box text-muted hover:bg-surface-3 hover:text-ink"
+          >
+            <X className="size-4" />
           </button>
         </div>
-        <ul className="list-disc space-y-1 pl-5">
+        <ul>
           {items.map((item) => (
-            <li key={item}>{item}</li>
+            <li key={item} className="px-4 py-2">
+              {item}
+            </li>
           ))}
         </ul>
       </div>
-    </div>
+    </>
   );
 }
