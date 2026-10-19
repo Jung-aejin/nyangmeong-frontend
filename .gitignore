@@ -42,3 +42,6 @@ dist-ssr
 
 # /start가 내려받는 DMS 문서 캐시(화면설계서 등). 각자 PC에만 둔다
 .cache/
+
+# 디자인 HTML 파일. 각자 PC에만 둔다
+html/

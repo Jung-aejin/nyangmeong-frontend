@@ -12,7 +12,7 @@
 어기면 되돌리기 어렵거나 오류 없이 조용히 잘못되는 것만 모았다. 나머지는 필요할 때 찾아본다.
 
 1. **비밀값을 커밋하지 않고, `VITE_` 변수에도 넣지 않는다.** 이 저장소는 공개다. `VITE_`로 시작하는 환경변수는 빌드 결과에 그대로 들어가 브라우저에서 누구나 볼 수 있다. (`docs/convention/config.md`)
-2. **토큰을 `localStorage`나 변수에 저장하지 않는다.** 로그인은 서버가 심는 쿠키로 유지되고 브라우저가 알아서 붙인다. 로그인 여부와 역할은 `features/member`의 `useMe`로만 확인한다. (`docs/convention/api.md`)
+2. **토큰을 `localStorage`나 변수에 저장하지 않는다.** 로그인은 서버가 심는 쿠키로 유지되고 브라우저가 알아서 붙인다. 로그인 여부와 역할은 `features/member`의 `useMe`로만 확인한다. 단, 로그인을 구현하기 전(백엔드 마지막 작업)에는 화면을 `ProtectedRoute`로 감싸지 않고 `useMe`로 화면을 가르지 않는다. `/members/me`가 없어 항상 실패해 화면이 랜딩으로 튕긴다. (`docs/convention/api.md`, `docs/convention/pages.md`)
 3. **401은 "토큰 없음·만료"에만 온다.** 재발급은 `api/axios.js`가 한 번만 시도한다. 화면 코드에서 401을 따로 처리하거나 재발급을 부르지 않는다. (`docs/convention/api.md`)
 4. **`features/A`는 `features/B`를 import 하지 않는다.** 같이 쓰는 코드는 `components/`·`hooks/`·`utils/`로 올린다. queryKey 객체만 예외다. (의존 방향)
 5. **필드 이름을 새로 짓지 않는다.** 서버가 준 JSON 키(`pstSn`, `mdfcnDt`)를 그대로 쓴다. 읽기 좋게 바꾸는 변환 함수를 만들지 않는다. (`docs/convention/common.md` 이름 짓기)
@@ -74,11 +74,13 @@ api/axios     서버 통신
 | --- | --- |
 | 코드를 쓸 때 항상 | `docs/convention/common.md`: 주석, 이름 짓기 |
 | `pages/`, `routes/`, 관리자 화면을 쓸 때 | `docs/convention/pages.md` |
+| 화면 UI·스타일을 쓸 때, `html/` 디자인 파일을 만들거나 받을 때 | `docs/convention/ui.md`: 디자인 기준 순서, AI 슬롭 금지 |
 | `features/`를 쓰거나 상태를 둘 곳을 정할 때 | `docs/convention/features.md` |
 | 서버에 요청을 보내거나 응답·오류를 다룰 때 | `docs/convention/api.md` |
 | 새 폴더·공통 파일을 만들 때, 실행 환경(Yarn·Node)을 다룰 때 | `docs/convention/structure.md` |
 | 환경변수(`.env*`)를 다룰 때, 핸드오프를 쓸 때 | `docs/convention/config.md` |
 | `routes/paths.js`, `routes/AppRoutes.jsx`를 고칠 때 | `docs/convention/shared-files.md` |
+| 새 화면 URL을 정하거나 바꿀 때 | `docs/routes.md`: 새 화면 URL은 이 문서의 규칙을 따른다. URL 값은 `routes/paths.js`가 정본이다. AI 대상(✓) URL을 바꾸면 AI 서버의 라우팅 매핑도 같이 고친다 |
 | 브랜치·커밋·PR을 만들 때 | `docs/convention/git.md` |
 | 내 담당 화면·API를 마일스톤으로 나눌 때 | `docs/convention/milestone.md` |
 
@@ -88,10 +90,10 @@ api/axios     서버 통신
 
 - 이 파일은 이미 읽혀 있으므로 다시 읽지 않는다. `docs/convention/`은 위 표에서 해당하는 파일만 연다.
 - 파일은 필요한 부분만 읽는다. 위치를 모르면 먼저 검색하고 그 주변만 읽는다. `node_modules/`, `dist/`는 읽지 않는다.
-- 검증 명령은 `yarn -s lint`, `yarn -s build`다. 실패한 부분만 본다. `/done`이 이 명령들의 종료 코드가 0이 아니면 마일스톤을 끝내지 않는다.
-- 기능 구현은 기획(`/start`, Opus) → 사람 승인 → 구현(Sonnet) → 검증(`/verify`, Opus, 대화를 보지 않는 별도 에이전트) → 사람 확인(README "사람 확인") → `/done` 순서다. 기획이 승인되기 전에는 코드를 쓰지 않는다.
+- 검증 명령은 `yarn -s lint`, `yarn -s build`다. 실패한 부분만 본다. `/end`가 이 명령들의 종료 코드가 0이 아니면 마일스톤을 끝내지 않는다.
+- 기능 구현은 기획(`/start`, Opus) → 사람 승인(`승인` 또는 `/impl`) → 구현과 검증 루프(`/impl`: 구현은 Sonnet, 검증은 대화를 보지 않는 별도 에이전트 Opus, `실패`면 고쳐서 최대 3회, 그래도 실패면 사람에게 넘긴다) → 사람 확인(README "사람 확인") → `/end` 순서다. 첫 검증 실패 뒤에는 기준 파일(기획·검증 명령·의존성·테스트)을 고칠 수 없다(`scripts/verify-loop.sh` 훅). 세션을 끊어도 잠금은 보관됐다가 이어지고, 루프를 버리는 것(`clear`)은 사람만 한다. 기획이 승인되기 전에는 코드를 쓰지 않는다. 승인된 뒤 사람이 기획에 없는 것을 요청하면 다시 기획하지 않고, 고치기 전에 `handoff/<이름>.md`의 `### 추가 요청`에 먼저 적는다(형식은 `.claude/skills/impl/SKILL.md` 6번). `/impl` 밖의 대화에서 요청받아도 같다.
 - `화면:` 완료 조건은 `yarn dev`를 띄우고 Playwright MCP로 확인한다. dev 서버는 끄지 않고 띄워 둔다(이미 떠 있으면 그것을 쓴다). 사람이 이어서 같은 서버로 확인한다. API가 없어 확인하지 못한 조건은 이유와 함께 보고한다.
 - 몇 개 파일로 끝나는 일에는 서브에이전트를 쓰지 않는다. 서브에이전트도 사용량을 쓴다.
-- 작업 하나가 끝나면 `/done`으로 핸드오프를 남기고 `/clear`한 뒤, 다음 작업은 `/start`로 시작한다.
+- 작업 하나가 끝나면 `/end`로 핸드오프를 남기고 `/clear`한 뒤, 다음 작업은 `/start`로 시작한다.
 - 개인 지시는 `CLAUDE.local.md`, 개인 설정은 `.claude/settings.local.json`, 개인 명령은 `~/.claude/skills/my-<이름>/`에 둔다(모두 git 제외). 저장소의 `.claude/skills/`는 공용이라 PR로만 바꾼다.
-- 개인 지시는 일하는 방식(설명·기획 형식·말투)만 바꾼다. 기획 승인 → 검증 → 사람 확인 → `/done` 흐름과 이 파일의 규칙이 개인 지시보다 우선한다.
+- 개인 지시는 일하는 방식(설명·기획 형식·말투)만 바꾼다. 기획 승인 → 검증 → 사람 확인 → `/end` 흐름과 이 파일의 규칙이 개인 지시보다 우선한다.

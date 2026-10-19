@@ -47,6 +47,25 @@ flowchart LR
 - 인증: `/mcp` → 서버 선택 → Authenticate
 - 데스크탑 앱은 Connectors 화면에서 인증한다(확인 필요).
 - Codex는 등록할 때 로그인 창이 뜬다. 놓쳤으면 `codex mcp login <이름>`.
+- `figma` MCP는 Starter 플랜 한도가 적어 스킬이 쓰지 않는다. 디자인은 아래 스크립트로 받는다.
+
+### Figma 디자인
+
+`/start`는 화면 ID로 이름을 지은 프레임(`SCR-MAN-001 메인`)을 찾아 기획에 적고, 구현할 때 그 PNG와 레이어 값을 본다.
+
+1. Figma → 왼쪽 위 계정 → Settings → Security → Personal access tokens → Generate new token. 권한은 `File content` 읽기만.
+2. `.env.local`의 `FIGMA_TOKEN=` 뒤에 붙인다. 디스코드에도 올리지 않는다.
+3. 처음 한 번 `node scripts/figma.mjs pull`. 화면 프레임 전부를 `.cache/figma/`에 받는다.
+
+| 명령 | 내용 |
+| --- | --- |
+| `node scripts/figma.mjs pull` | 받아 둔 게 없을 때만 받는다. API 3회 |
+| `node scripts/figma.mjs pull --refresh` | 디자인이 바뀌었을 때 다시 받는다 |
+| `node scripts/figma.mjs list` | 받은 화면 프레임 목록 |
+| `node scripts/figma.mjs show SCR-MAN-001` | 레이어의 크기·간격·색·글자 |
+
+- REST API 한도는 토큰 주인의 시트에 따른다. View·Collab 시트는 월 20회라 `--refresh`를 아낀다.
+- 화면 프레임은 페이지나 섹션 바로 아래에 두고 이름을 화면 ID로 시작한다. 상태가 여럿이면 같은 화면 ID로 프레임을 여러 개 둔다(`SCR-MAN-001 메인 로그인 전`).
 
 ### 직접 실행
 
@@ -65,7 +84,7 @@ flowchart LR
     B[VS Code 확장]
     C[터미널 claude]
   end
-  tools --> SK[".claude/skills<br/>/start · /verify · /done"]
+  tools --> SK[".claude/skills<br/>/start · /impl · /verify · /end"]
   SK --> HO["handoff/이니셜.md<br/>기획 · 진행 상황"]
   SK --> MS["milestones/이니셜.md<br/>화면 ID별 할 일"]
   SK --> MCP["MCP<br/>dms · figma · playwright"]
@@ -85,12 +104,13 @@ flowchart LR
 flowchart TD
   S["/start<br/>작업 고르기 · 기획 (Opus)"] --> P{기획 확인}
   P -- 고칠 점 --> S
-  P -- 승인 --> I["구현 (Sonnet)<br/>lint · build"]
-  I --> V["/verify<br/>별도 에이전트가 판정 (Opus)"]
-  V -- 실패 --> I
-  V -- 통과 --> H["사람 확인<br/>직접 띄워서 확인"]
+  P -- 승인 --> I["/impl 구현 (Sonnet)<br/>lint · build"]
+  I --> V["검증<br/>별도 에이전트가 판정 (Opus)"]
+  V -- "실패(확인 못 함·내 것 포함), 3회 미만" --> I
+  V -- 3회 실패 --> X["사람에게 넘김<br/>직접 수정 · /start 다시 기획 · 3회 더"]
+  V -- "통과 · 연결 남음만" --> H["/end 전에 확인할 것<br/>사람 확인<br/>직접 띄워서 확인"]
   H -- 문제 --> I
-  H -- 확인 --> D["/done<br/>마일스톤 끝 · 커밋 제안"]
+  H -- 확인 --> D["/end<br/>끝 판정 · 커밋 제안"]
   D --> N["새 대화 → /start"]
 ```
 
@@ -98,19 +118,22 @@ flowchart TD
 | --- | --- |
 | 다음 작업 시작 | `/start` |
 | 특정 화면 시작 | `/start COM-003` |
-| 기획 승인 | `승인` |
-| 검증 | `/verify` |
-| 마무리 | `/done` → `확인` → `커밋` → `푸시` → (마일스톤이 끝나면) `PR`. 병합은 GitHub에서 사람이 |
+| 기획 승인 (구현·검증 루프 시작) | `승인` 또는 `/impl` |
+| 다시 검증 (직접 고친 뒤) | `/verify` |
+| 마무리 | `/end` → `확인` → `커밋` → `푸시` → (마일스톤이 끝나면) `PR`. 병합은 GitHub에서 사람이 |
+| 중간 저장 (작업이 덜 끝났을 때) | `/end` → (확인 없이 핸드오프에 `진행`으로 남김) → `커밋` → `푸시`. 다음 세션은 `/start`로 이어 간다 |
 | 새 대화 | 터미널·VS Code `/clear`, 데스크탑 앱 Ctrl+N |
 
 - 마일스톤 파일이 없으면 첫 `/start`가 먼저 만든다. 시간이 더 걸린다.
-- 모델은 바꾸지 않는다. 기본은 Sonnet, `/start`·`/verify`만 Opus로 돈다.
+- 모델은 바꾸지 않는다. 기본은 Sonnet, `/start`와 검증(`/verify`, `/impl` 안의 검증)만 Opus로 돈다.
+- 마일스톤 `끝`은 `/end`만 정한다. 남의 API·화면을 기다려 연결만 남은 기능(연결 남음)은 `끝`을 막지 않고 마일스톤과 핸드오프 "다음에 할 것"에 남는다(`docs/convention/milestone.md`).
 - 스킬이 `/` 목록에 없으면 새 대화를 연다.
+- Codex(`$start`·`$impl`·`$end`)도 같은 흐름이지만 두 가지가 다르다. 검증도 구현과 같은 모델(GPT)로 돈다(Opus 지정은 Claude Code 전용). 기준 파일 잠금 훅(`.codex/hooks.json`)은 처음 한 번 사람이 신뢰해야 돈다: 이 폴더를 처음 열 때 "신뢰" → `/hooks`에서 훅 승인. 훅 내용이 바뀌면 다시 승인한다.
 - VS Code의 `/clear`는 확인 필요. 안 되면 명령 팔레트의 Open in New Tab.
 
 ### 사람 확인
 
-`/verify`가 끝에 주는 "사람 확인" 목록대로 확인한다.
+`/impl`이 끝에 주는 "`/end` 전에 확인할 것"(직접 `/verify`를 돌렸으면 그 보고)의 "사람 확인" 목록대로 확인한다.
 
 1. 백엔드가 필요하면 백엔드 저장소에서 `./gradlew bootRun`
 2. `/verify`가 띄워 둔 dev 서버가 있으면 그대로 쓴다. 없으면 이 저장소에서 `yarn dev` → `http://localhost:5173`

@@ -71,5 +71,11 @@ export default defineConfig([
     files: ['*.config.js'],
     languageOptions: { globals: globals.node },
   },
+  // 개발용 Node 스크립트. 브라우저 코드가 아니라 fetch를 쓴다
+  {
+    files: ['scripts/**/*.mjs'],
+    extends: [js.configs.recommended],
+    languageOptions: { globals: globals.node },
+  },
   prettier,
 ]);
