@@ -14,6 +14,9 @@ const NotificationSettingsPage = lazy(
   () => import('@/pages/settings/NotificationSettingsPage'),
 );
 
+// health
+const CareCalendarPage = lazy(() => import('@/pages/health/CareCalendarPage'));
+
 // ai
 const AiChatPage = lazy(() => import('@/pages/ai/AiChatPage'));
 
@@ -31,6 +34,9 @@ export default function AppRoutes() {
             path={PATHS.SETTINGS_NOTIFICATIONS}
             element={<NotificationSettingsPage />}
           />
+
+          {/* health */}
+          <Route path={PATHS.HEALTH_CALENDAR} element={<CareCalendarPage />} />
         </Route>
 
         {/* ai: 별도 창 전체 화면이라 UserLayout 밖에 둔다 */}

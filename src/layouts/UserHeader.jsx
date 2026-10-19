@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { MessageCircle } from 'lucide-react';
+import Icon from '@/components/Icon';
 import { Link, NavLink } from 'react-router-dom';
 import logo from '@/assets/nm_logo.svg';
 import CountBadge from '@/components/CountBadge';
@@ -93,7 +93,8 @@ export default function UserHeader() {
   };
 
   const closeNotification = useCallback(
-    () => setOpenMenu((current) => (current === 'notification' ? null : current)),
+    () =>
+      setOpenMenu((current) => (current === 'notification' ? null : current)),
     [],
   );
 
@@ -108,7 +109,7 @@ export default function UserHeader() {
   };
 
   return (
-    <header className="sticky top-0 z-30 h-16 border-b border-[#e2e7e7] bg-white">
+    <header className="sticky top-0 z-30 h-16 border-b border-[#e2e7e7] bg-white/92 backdrop-blur-[10px] backdrop-saturate-[1.4]">
       <div className="mx-auto grid h-full max-w-[1440px] grid-cols-[1fr_auto_1fr] items-center px-8">
         <Link to={PATHS.MAIN} className="justify-self-start">
           <img src={logo} alt="냥멍케어" className="h-8 w-[121px]" />
@@ -120,7 +121,7 @@ export default function UserHeader() {
           onBlur={handleGnbBlur}
           onKeyDown={handleGnbKeyDown}
         >
-          <nav className="flex h-16 items-center gap-1">
+          <nav className="flex h-16 items-center gap-2">
             {GNB_MENUS.map((menu, index) => (
               <div
                 key={menu.label}
@@ -133,14 +134,14 @@ export default function UserHeader() {
                   to={menu.to}
                   onClick={closeGnb}
                   className={({ isActive }) =>
-                    `relative rounded-lg px-4 py-2 text-base hover:bg-[#ebf0f0] ${
+                    `flex h-[38px] items-center rounded-lg px-4 text-base hover:bg-[#ebf0f0] ${
                       openMenu === 'gnb' && gnbIndex === index
                         ? 'bg-[#ebf0f0]'
                         : ''
                     } ${
                       isActive
                         ? 'font-bold text-[#1a3234]'
-                        : 'font-normal text-[#3d4a4b]'
+                        : 'font-semibold text-[#3d4a4b]'
                     }`
                   }
                 >
@@ -148,7 +149,7 @@ export default function UserHeader() {
                     <>
                       {menu.label}
                       {isActive && (
-                        <span className="absolute inset-x-4 -bottom-1 h-0.5 rounded-sm bg-[#285a5c]" />
+                        <span className="absolute inset-x-4 -bottom-px h-0.5 rounded-sm bg-[#285a5c]" />
                       )}
                     </>
                   )}
@@ -162,7 +163,7 @@ export default function UserHeader() {
         </div>
 
         {/* 알림 패널이 이 묶음의 오른쪽 끝에 맞춰지도록 relative를 준다 */}
-        <div className="relative flex items-center gap-2 justify-self-end">
+        <div className="relative flex items-center gap-3 justify-self-end">
           <NotificationDropdown
             isOpen={openMenu === 'notification'}
             onToggle={() => toggle('notification')}
@@ -175,7 +176,10 @@ export default function UserHeader() {
             aria-label="채팅"
             onClick={openChat}
           >
-            <MessageCircle size={24} />
+            <Icon
+              name="chat"
+              className="text-2xl [font-variation-settings:'FILL'_0,'wght'_500,'GRAD'_0,'opsz'_24]"
+            />
             {/* 안 읽은 채팅 수는 KSJ의 채팅 API에서 온다. 연결하기 전까지는 0이라 배지가 숨겨진다 */}
             <CountBadge count={0} className="absolute right-px top-[5px]" />
           </button>
