@@ -1,15 +1,34 @@
-import { PET_SE } from './petCodes';
+import { PET_REL, PET_SE } from './petCodes';
 
 // 가짜 응답: 반려동물 API(SJM 백엔드)와 품종 마스터(KSJ)가 나오기 전까지 쓴다.
 // 함수 이름과 경로 주석은 실제 API와 같게 두고, API가 나오면 본문만 api 요청으로 바꾼다.
-// lastBdwgRcd(가장 최근 체중 기록)는 키 이름이 아직 정해지지 않았다. 백엔드를 만들 때 맞춘다
+// 아직 정해지지 않은 키: lastBdwgRcd(가장 최근 체중 기록), vrtyNm(품종명), rprsYn(대표 여부),
+// petRelCd(주양육/공동양육), chrcFaceUrl(캐릭터 얼굴, LJS). 백엔드를 만들 때 맞춘다
+const basePet = {
+  vrtySn: null,
+  vrtyNm: null,
+  vrtyDrctInptNm: null,
+  chipNo: null,
+  nutrYn: 'N',
+  goalBdwg: null,
+  colrDrctInptNm: null,
+  chrcCn: null,
+  algyCn: null,
+  dssCn: null,
+  lastBdwgRcd: null,
+  rprsYn: 'N',
+  petRelCd: PET_REL.OWNER,
+  chrcFaceUrl: null,
+};
+
 let fakePets = [
   {
+    ...basePet,
     petSn: 1,
     petNm: '초코',
     petSeCd: PET_SE.DOG,
     vrtySn: 1,
-    vrtyDrctInptNm: null,
+    vrtyNm: '골든리트리버',
     petBrdt: '2021-05-03',
     chipNo: '410123456789012',
     petGndrCd: 'PETC0003',
@@ -19,32 +38,142 @@ let fakePets = [
     minBdwg: 3.5,
     maxBdwg: 4.5,
     colrCd: 'PETC0007',
-    colrDrctInptNm: null,
     chrcCn: '오른쪽 귀 한쪽만 접힘',
     algyCn: '새우,닭고기',
-    dssCn: null,
     lastBdwgRcd: { rcdNvl: 4.3, rcdDt: '2026-09-12T09:00:00' },
+    rprsYn: 'Y',
   },
   {
+    ...basePet,
     petSn: 2,
     petNm: '나비',
     petSeCd: PET_SE.CAT,
-    vrtySn: null,
     vrtyDrctInptNm: '코리안 숏헤어 믹스',
     petBrdt: '2023-02-14',
-    chipNo: null,
     petGndrCd: 'PETC0004',
-    nutrYn: 'N',
     petBdwg: 3.8,
-    goalBdwg: null,
     minBdwg: 3.0,
     maxBdwg: 4.5,
     colrCd: 'PETC0014',
-    colrDrctInptNm: null,
-    chrcCn: null,
-    algyCn: null,
-    dssCn: '슬개골 탈구',
-    lastBdwgRcd: null,
+    algyCn: '연어,소고기,밀,옥수수',
+    dssCn: '슬개골 탈구,피부염,외이염,결막염',
+  },
+  {
+    ...basePet,
+    petSn: 3,
+    petNm: '보리',
+    petSeCd: PET_SE.DOG,
+    vrtySn: 2,
+    vrtyNm: '말티즈',
+    petBrdt: '2026-02-01',
+    petGndrCd: 'PETC0004',
+    petBdwg: 1.9,
+    minBdwg: 1.5,
+    maxBdwg: 2.5,
+    colrCd: 'PETC0006',
+  },
+  {
+    ...basePet,
+    petSn: 4,
+    petNm: '두부',
+    petSeCd: PET_SE.DOG,
+    vrtySn: 3,
+    vrtyNm: '푸들',
+    petBrdt: '2019-11-20',
+    petGndrCd: 'PETC0003',
+    nutrYn: 'Y',
+    petBdwg: 5.2,
+    minBdwg: 4.5,
+    maxBdwg: 6.0,
+    colrCd: 'PETC0008',
+  },
+  {
+    ...basePet,
+    petSn: 5,
+    petNm: '치즈',
+    petSeCd: PET_SE.CAT,
+    vrtySn: 101,
+    vrtyNm: '코리안 숏헤어',
+    petBrdt: '2022-07-07',
+    petGndrCd: 'PETC0003',
+    nutrYn: 'Y',
+    petBdwg: 5.5,
+    minBdwg: 4.0,
+    maxBdwg: 6.0,
+    colrCd: 'PETC0015',
+  },
+  {
+    ...basePet,
+    petSn: 6,
+    petNm: '콩이',
+    petSeCd: PET_SE.DOG,
+    vrtySn: 4,
+    vrtyNm: '포메라니안',
+    petBrdt: '2024-04-10',
+    petGndrCd: 'PETC0004',
+    petBdwg: 2.6,
+    minBdwg: 2.0,
+    maxBdwg: 3.0,
+    colrCd: 'PETC0008',
+  },
+  {
+    ...basePet,
+    petSn: 7,
+    petNm: '구름',
+    petSeCd: PET_SE.CAT,
+    vrtySn: 103,
+    vrtyNm: '페르시안',
+    petBrdt: '2020-01-15',
+    petGndrCd: 'PETC0004',
+    nutrYn: 'Y',
+    petBdwg: 4.1,
+    minBdwg: 3.5,
+    maxBdwg: 5.0,
+    colrCd: 'PETC0006',
+  },
+  {
+    ...basePet,
+    petSn: 8,
+    petNm: '까미',
+    petSeCd: PET_SE.DOG,
+    vrtySn: 3,
+    vrtyNm: '푸들',
+    petBrdt: '2018-09-30',
+    petGndrCd: 'PETC0003',
+    petBdwg: 6.4,
+    minBdwg: 5.5,
+    maxBdwg: 7.0,
+    colrCd: 'PETC0005',
+  },
+  {
+    ...basePet,
+    petSn: 9,
+    petNm: '모모',
+    petSeCd: PET_SE.CAT,
+    vrtySn: 102,
+    vrtyNm: '러시안 블루',
+    petBrdt: '2025-03-03',
+    petGndrCd: 'PETC0004',
+    petBdwg: 3.2,
+    minBdwg: 2.8,
+    maxBdwg: 4.0,
+    colrCd: 'PETC0009',
+  },
+  {
+    ...basePet,
+    petSn: 10,
+    petNm: '해피',
+    petSeCd: PET_SE.DOG,
+    vrtySn: 1,
+    vrtyNm: '골든리트리버',
+    petBrdt: '2020-06-18',
+    petGndrCd: 'PETC0003',
+    nutrYn: 'Y',
+    petBdwg: 28.5,
+    minBdwg: 26.0,
+    maxBdwg: 32.0,
+    colrCd: 'PETC0007',
+    petRelCd: PET_REL.CO_PARENT,
   },
 ];
 
@@ -62,6 +191,10 @@ const fakeVarieties = {
   ],
 };
 
+const findVrtyNm = (petSeCd, vrtySn) =>
+  fakeVarieties[petSeCd]?.find((vrty) => vrty.vrtySn === vrtySn)?.vrtyNm ??
+  null;
+
 const fakeDelay = (data) =>
   new Promise((resolve) => setTimeout(() => resolve(data), 200));
 
@@ -75,9 +208,10 @@ export const getPet = (petSn) =>
 // POST /pets
 export const createPet = (body) => {
   const pet = {
+    ...basePet,
     ...body,
     petSn: Math.max(0, ...fakePets.map((p) => p.petSn)) + 1,
-    lastBdwgRcd: null,
+    vrtyNm: findVrtyNm(body.petSeCd, body.vrtySn),
   };
   fakePets = [...fakePets, pet];
   return fakeDelay(pet);
@@ -90,9 +224,16 @@ export const updatePet = ({ petSn, ...body }) => {
     ...prev,
     ...body,
     petBdwg: prev.lastBdwgRcd ? prev.petBdwg : body.petBdwg,
+    vrtyNm: findVrtyNm(body.petSeCd, body.vrtySn),
   };
   fakePets = fakePets.map((p) => (p.petSn === petSn ? pet : p));
   return fakeDelay(pet);
+};
+
+// DELETE /pets/{petSn}. 공동양육 연동 해제와 알림은 서버가 처리한다
+export const deletePet = (petSn) => {
+  fakePets = fakePets.filter((pet) => pet.petSn !== petSn);
+  return fakeDelay(null);
 };
 
 // GET /varieties?petSeCd= (KSJ 품종 마스터)

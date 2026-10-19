@@ -62,3 +62,12 @@ export const COLR_OPTIONS = {
     COLR.DRCT_INPT,
   ],
 };
+
+// 주양육 동물 등록 상한. 공동양육 동물은 세지 않는다
+export const MAX_OWN_PETS = 10;
+
+// 주양육/공동양육 구분. 공통코드가 아직 없어 백엔드를 만들 때 값을 맞춘다
+export const PET_REL = {
+  OWNER: 'OWNER',
+  CO_PARENT: 'CO_PARENT',
+};

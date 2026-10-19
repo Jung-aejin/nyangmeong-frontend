@@ -1,5 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createPet, getPet, getPets, getVarieties, updatePet } from './api';
+import {
+  createPet,
+  deletePet,
+  getPet,
+  getPets,
+  getVarieties,
+  updatePet,
+} from './api';
 
 export const petKeys = {
   all: ['pets'],
@@ -37,6 +44,14 @@ export const useUpdatePet = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: updatePet,
+    onSuccess: () => qc.invalidateQueries({ queryKey: petKeys.all }),
+  });
+};
+
+export const useDeletePet = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: deletePet,
     onSuccess: () => qc.invalidateQueries({ queryKey: petKeys.all }),
   });
 };
