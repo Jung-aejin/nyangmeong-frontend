@@ -134,3 +134,40 @@ export const deleteConversation = (aiCnvrsRoomSn) => {
   );
   return Promise.resolve();
 };
+
+let nextFakeRoomSn = 100;
+let nextFakeMsgSn = 100;
+
+// 메시지를 보낸다. aiCnvrsRoomSn이 null이면 대화를 이 메시지로 새로 만든다(제목은 첫 메시지, 200자까지)
+// intent는 AI 서버가 판정한 분기 결과다(추정: REGISTER·ROUTE·SEARCH·FALLBACK). 화면 처리는 002·004·005·012에서 한다
+export const sendMessage = ({
+  aiCnvrsRoomSn,
+  petSn,
+  petNm,
+  aiCnvrsMsgCn,
+}) => {
+  const message = {
+    aiCnvrsMsgSn: nextFakeMsgSn++,
+    aiCnvrsMsgRoleCd: 'USER',
+    aiCnvrsMsgCn,
+    aiCnvrsMsgCmptnYn: 'Y',
+  };
+
+  let room = fakeConversations.find(
+    (item) => item.aiCnvrsRoomSn === aiCnvrsRoomSn,
+  );
+  if (!room) {
+    room = {
+      aiCnvrsRoomSn: nextFakeRoomSn++,
+      aiCnvrsRoomCnvrsTtl: aiCnvrsMsgCn.slice(0, 200),
+      petSn: petSn ?? null,
+      petNm: petNm ?? null,
+      crtDt: daysAgo(0, new Date().getHours()),
+      messages: [],
+    };
+    fakeConversations = [room, ...fakeConversations];
+  }
+  room.messages = [...room.messages, message];
+
+  return Promise.resolve({ aiCnvrsRoomSn: room.aiCnvrsRoomSn, intent: 'SEARCH' });
+};

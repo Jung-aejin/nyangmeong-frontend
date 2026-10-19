@@ -1,5 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { deleteConversation, getConversation, getConversations } from './api';
+import {
+  deleteConversation,
+  getConversation,
+  getConversations,
+  sendMessage,
+} from './api';
 
 export const aiKeys = {
   lists: ['ai', 'conversations', 'list'],
@@ -30,6 +35,20 @@ export const useDeleteConversation = () => {
     onSuccess: (_, aiCnvrsRoomSn) => {
       queryClient.removeQueries({ queryKey: aiKeys.detail(aiCnvrsRoomSn) });
       queryClient.invalidateQueries({ queryKey: aiKeys.lists });
+    },
+  });
+};
+
+export const useSendMessage = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: sendMessage,
+    onSuccess: ({ aiCnvrsRoomSn }) => {
+      queryClient.invalidateQueries({ queryKey: aiKeys.lists });
+      queryClient.invalidateQueries({
+        queryKey: aiKeys.detail(aiCnvrsRoomSn),
+      });
     },
   });
 };
