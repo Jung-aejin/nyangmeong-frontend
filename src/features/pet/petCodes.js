@@ -26,8 +26,8 @@ const COLR = {
   BROWN: { code: 'PETC0007', name: '갈색' },
   CREAM: { code: 'PETC0008', name: '크림' },
   GRAY: { code: 'PETC0009', name: '회색' },
-  BLACK_TAN: { code: 'PETC0010', name: '검정&황갈색' },
-  SPOTTED: { code: 'PETC0011', name: '얼룩' },
+  BLACK_TAN: { code: 'PETC0010', name: '블랙탄' },
+  PARTI: { code: 'PETC0011', name: '파티' },
   BRINDLE: { code: 'PETC0012', name: '브린들' },
   TRICOLOR: { code: 'PETC0013', name: '삼색' },
   MACKEREL: { code: 'PETC0014', name: '고등어' },
@@ -38,15 +38,15 @@ const COLR = {
 
 export const COLR_OPTIONS = {
   [PET_SE.DOG]: [
-    COLR.BLACK,
     COLR.WHITE,
-    COLR.BROWN,
     COLR.CREAM,
+    COLR.BROWN,
+    COLR.BLACK,
     COLR.GRAY,
     COLR.BLACK_TAN,
-    COLR.SPOTTED,
-    COLR.BRINDLE,
+    COLR.PARTI,
     COLR.TRICOLOR,
+    COLR.BRINDLE,
     COLR.DRCT_INPT,
   ],
   [PET_SE.CAT]: [
@@ -55,10 +55,10 @@ export const COLR_OPTIONS = {
     COLR.GRAY,
     COLR.BROWN,
     COLR.CREAM,
-    COLR.MACKEREL,
     COLR.CHEESE,
-    COLR.TRICOLOR,
+    COLR.MACKEREL,
     COLR.TUXEDO,
+    COLR.TRICOLOR,
     COLR.DRCT_INPT,
   ],
 };
