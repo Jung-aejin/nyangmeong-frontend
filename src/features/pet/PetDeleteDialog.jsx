@@ -42,7 +42,9 @@ export default function PetDeleteDialog({ pet, onClose }) {
             복구할 수 없어요
           </p>
           <p className="mt-1 leading-[1.6] break-keep text-muted">
-            가계부 지출 기록은 유지되고 &quot;(삭제된 반려동물)&quot;로 표기돼요
+            가계부 지출 기록은 유지되고 반려동물 이름 옆에{' '}
+            <span className="whitespace-nowrap">&quot;(삭제됨)&quot;으로</span>{' '}
+            표기돼요
           </p>
         </div>
         <div className="flex gap-2 px-10 pb-6">

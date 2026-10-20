@@ -32,6 +32,17 @@
   --color-tone-green-fg: #22744a;
   --color-tone-gray-bg: #eef1f4;
   --color-tone-gray-fg: #59636e;
+  --color-tone-blue-bg: #eaf1fc;
+  --color-tone-blue-fg: #2d5fb8;
+  --color-tone-rose-bg: #fcebea;
+  --color-tone-rose-fg: #b8463f;
+  --color-tone-violet-bg: #efecfa;
+  --color-tone-violet-fg: #5f49b0;
+  --color-tone-amber-bg: #fcf1df;
+  --color-tone-amber-fg: #9a5c0c;
+  --color-warn: #80611a;
+  --color-warn-soft: #faf6e8;
+  --color-warn-line: #e6d7a8;
 
   /* 글자 크기 */
   --text-page: 28px;
