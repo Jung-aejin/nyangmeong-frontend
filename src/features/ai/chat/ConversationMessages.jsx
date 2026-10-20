@@ -1,5 +1,6 @@
 import AnswerBubble from './AnswerBubble';
 import FallbackBubble from './FallbackBubble';
+import RegisterCard from './RegisterCard';
 import { FALLBACK_MESSAGE, FAQ_FAIL_COUNT } from '../shared/fallbackCount';
 
 const ROLE_USER = 'USER';
@@ -9,7 +10,13 @@ const INCOMPLETE = 'N';
 export default function ConversationMessages({
   messages,
   fallbackCount,
+  registerCards,
+  latestCardSn,
+  isRegisterBusy,
+  hasRegisterError,
   onRegenerate,
+  onConfirmRegister,
+  onCancelRegister,
   children,
 }) {
   const lastSn = messages.at(-1)?.aiCnvrsMsgSn;
@@ -17,6 +24,24 @@ export default function ConversationMessages({
   return (
     <ul className="mx-auto flex w-full max-w-[820px] flex-col gap-4">
       {messages.map((message) => {
+        const registerCard = registerCards[message.aiCnvrsMsgSn];
+        if (registerCard) {
+          return (
+            <li key={message.aiCnvrsMsgSn}>
+              <RegisterCard
+                card={registerCard.card}
+                status={registerCard.status}
+                resultText={registerCard.resultText}
+                isActive={message.aiCnvrsMsgSn === latestCardSn}
+                isBusy={isRegisterBusy}
+                hasError={hasRegisterError}
+                hasCalendarLink={message.aiCnvrsMsgSn === lastSn}
+                onConfirm={() => onConfirmRegister(message.aiCnvrsMsgSn)}
+                onCancel={() => onCancelRegister(message.aiCnvrsMsgSn)}
+              />
+            </li>
+          );
+        }
         if (
           message.aiCnvrsMsgRoleCd !== ROLE_USER &&
           message.aiCnvrsMsgCn === FALLBACK_MESSAGE

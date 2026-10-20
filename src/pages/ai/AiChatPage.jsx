@@ -14,7 +14,13 @@ import {
   resetFallbackCount,
 } from '@/features/ai/shared/fallbackCount';
 import { openInMainWindow } from '@/features/ai/chat/openInMainWindow';
-import { useConversation, useSendMessage } from '@/features/ai/queries';
+import {
+  useCancelRegister,
+  useConfirmRegister,
+  useConversation,
+  useSendMessage,
+} from '@/features/ai/queries';
+import PetChoiceChips from '@/features/ai/chat/PetChoiceChips';
 import useAnswerStream from '@/features/ai/chat/useAnswerStream';
 import RouteGuideBubble from '@/features/ai/chat/RouteGuideBubble';
 import WelcomeMessage from '@/features/ai/chat/WelcomeMessage';
@@ -40,13 +46,27 @@ export default function AiChatPage() {
   const { data: member } = useMemberSummary();
   const { data: conversation, isError } = useConversation(selectedRoomSn);
   const sendMessage = useSendMessage();
+  const confirmRegister = useConfirmRegister();
+  const cancelRegister = useCancelRegister();
   const answer = useAnswerStream();
   /** 이동 안내 상태 */
   const [route, setRoute] = useState(null);
+  /** 이번 화면에서 받은 미리보기 카드: 메시지 번호별 카드·상태·결과 문구 */
+  const [registerCards, setRegisterCards] = useState({});
+  /** 반려동물을 되묻는 칩 */
+  const [petChoices, setPetChoices] = useState(null);
   /** 선택된 대화의 연속 실패 횟수 */
   const [fallbackCount, setFallbackCount] = useState(0);
   const isAnswering =
     answer.status === 'waiting' || answer.status === 'streaming';
+  const cardSns = Object.keys(registerCards).map(Number);
+  const latestCardSn = cardSns.length > 0 ? Math.max(...cardSns) : null;
+
+  /** 대화를 옮기거나 지울 때 카드·칩 상태 초기화 */
+  const resetRegister = () => {
+    setRegisterCards({});
+    setPetChoices(null);
+  };
 
   const selectedPet = pets.find((pet) => pet.petSn === selectedPetSn);
 
@@ -65,10 +85,23 @@ export default function AiChatPage() {
           intent,
           aiCnvrsMsgSn,
           route: nextRoute,
+          card,
+          petChoices: nextPetChoices,
         }) => {
           setFirstMessage(null);
           setRoute(null);
+          setPetChoices(null);
           setSelectedRoomSn(aiCnvrsRoomSn);
+          if (intent === 'REGISTER') {
+            answer.reset();
+            if (card) {
+              setRegisterCards((prev) => ({
+                ...prev,
+                [aiCnvrsMsgSn]: { card, status: 'pending', resultText: null },
+              }));
+            }
+            if (nextPetChoices) setPetChoices(nextPetChoices);
+          }
           /** 검색·이동 안내·매칭 실패만 이 화면 처리 */
           if (intent === 'SEARCH') {
             answer.start({ aiCnvrsRoomSn, question: aiCnvrsMsgCn });
@@ -83,6 +116,25 @@ export default function AiChatPage() {
           if (intent === 'ROUTE' || intent === 'REGISTER') {
             setFallbackCount(resetFallbackCount(aiCnvrsRoomSn));
           }
+        },
+      },
+    );
+  };
+
+  /** 등록·취소 결과를 카드에 반영 */
+  const settleRegisterCard = (mutation, status, aiCnvrsMsgSn) => {
+    mutation.mutate(
+      { aiCnvrsRoomSn: selectedRoomSn, aiCnvrsMsgSn },
+      {
+        onSuccess: ({ aiCnvrsMsgCn }) => {
+          setRegisterCards((prev) => ({
+            ...prev,
+            [aiCnvrsMsgSn]: {
+              ...prev[aiCnvrsMsgSn],
+              status,
+              resultText: aiCnvrsMsgCn,
+            },
+          }));
         },
       },
     );
@@ -165,6 +217,7 @@ export default function AiChatPage() {
         onSelectRoom={(aiCnvrsRoomSn) => {
           answer.reset();
           setRoute(null);
+          resetRegister();
           setFirstMessage(null);
           setSelectedRoomSn(aiCnvrsRoomSn);
           setFallbackCount(getFallbackCount(aiCnvrsRoomSn));
@@ -172,6 +225,7 @@ export default function AiChatPage() {
         onNewChat={() => {
           answer.reset();
           setRoute(null);
+          resetRegister();
           setFirstMessage(null);
           setSelectedRoomSn(null);
           setFallbackCount(0);
@@ -194,6 +248,7 @@ export default function AiChatPage() {
             onDeleted={() => {
               answer.reset();
               setRoute(null);
+              resetRegister();
               setSelectedRoomSn(null);
               setFallbackCount(0);
             }}
@@ -213,7 +268,21 @@ export default function AiChatPage() {
                   message.aiCnvrsMsgSn !== route?.aiCnvrsMsgSn,
               )}
               fallbackCount={fallbackCount}
+              registerCards={registerCards}
+              latestCardSn={latestCardSn}
+              isRegisterBusy={
+                confirmRegister.isPending || cancelRegister.isPending
+              }
+              hasRegisterError={
+                confirmRegister.isError || cancelRegister.isError
+              }
               onRegenerate={handleRegenerate}
+              onConfirmRegister={(aiCnvrsMsgSn) =>
+                settleRegisterCard(confirmRegister, 'registered', aiCnvrsMsgSn)
+              }
+              onCancelRegister={(aiCnvrsMsgSn) =>
+                settleRegisterCard(cancelRegister, 'cancelled', aiCnvrsMsgSn)
+              }
             >
               {answer.status !== 'idle' && (
                 <AnswerBubble
@@ -233,6 +302,13 @@ export default function AiChatPage() {
                       replaceMsgSn: answer.hiddenMsgSns.at(-1),
                     })
                   }
+                />
+              )}
+              {petChoices && (
+                <PetChoiceChips
+                  pets={petChoices}
+                  isDisabled={sendMessage.isPending || isAnswering}
+                  onSelect={handleSend}
                 />
               )}
               {route && (
