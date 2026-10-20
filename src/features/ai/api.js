@@ -1,5 +1,6 @@
 import { IS_DEV } from '@/api/env';
 import { PATHS } from '@/routes/paths';
+import { FALLBACK_MESSAGE } from './fallbackCount';
 import { isRegisterRequest, matchRoute } from './fakeRoutingMap';
 
 /**
@@ -141,7 +142,8 @@ export const deleteConversation = (aiCnvrsRoomSn) => {
   return Promise.resolve();
 };
 
-let nextFakeRoomSn = 100;
+/** 새로고침 뒤에도 sessionStorage 키와 겹치지 않는 가짜 대화 번호 */
+let nextFakeRoomSn = Date.now();
 let nextFakeMsgSn = 100;
 
 /** 메시지 전송 */
@@ -194,11 +196,31 @@ export const sendMessage = ({ aiCnvrsRoomSn, petSn, petNm, aiCnvrsMsgCn }) => {
     });
   }
 
+  if (isUnmatchable(aiCnvrsMsgCn)) {
+    /** 실패 안내 문구의 AI 메시지 저장 */
+    const notice = {
+      aiCnvrsMsgSn: nextFakeMsgSn++,
+      aiCnvrsMsgRoleCd: 'AI',
+      aiCnvrsMsgCn: FALLBACK_MESSAGE,
+      aiCnvrsMsgCmptnYn: 'Y',
+    };
+    room.messages = [...room.messages, notice];
+    return Promise.resolve({
+      aiCnvrsRoomSn: room.aiCnvrsRoomSn,
+      intent: 'FALLBACK',
+      aiCnvrsMsgSn: notice.aiCnvrsMsgSn,
+    });
+  }
+
   return Promise.resolve({
     aiCnvrsRoomSn: room.aiCnvrsRoomSn,
     intent: 'SEARCH',
   });
 };
+
+/** 한글·영문 단어가 없는 입력은 매칭 실패, 개발 환경은 쿼리로 강제 */
+const isUnmatchable = (text) =>
+  Boolean(fakeFlag('fakeAiFallback')) || !/[가-힣A-Za-z]/.test(text);
 
 const HEALTH_PATTERN = /접종|병원|아파|건강|약|사료/;
 const HEALTH_NOTE =
