@@ -2,7 +2,7 @@
 
 ## 지금 하는 것
 
-SCR-MYP-002·003 디자인 반영 — 끝 (2026-10-19 20:15 시작, 21:55 사람 확인·검증 통과)
+SCR-MYP-002·003 디자인 반영 — 끝 (2026-10-19 20:15 시작, 21:55 사람 확인·검증 통과, PR #21로 develop 머지 완료 2026-10-20)
 디자인: ../design-ref/html/SCR-MYP-002.html (변형 ../design-ref/html/SCR-MYP-002/variants/), ../design-ref/html/SCR-MYP-003.html — 시안 위치: ../design-ref/ (lint 때문에 프로젝트 밖에 둠)
 
 기준: 화면설계서 v0.6_20261019와 기능명세서 v0.4_20261019의 `.cache/dms/` 최신본(DMS에 있는 같은 이름 파일은 수정 전 판이라 쓰지 않는다). 디자인은 `../design-ref/html/SCR-MYP-002.html`(변형 `../design-ref/html/SCR-MYP-002/variants/`)·`../design-ref/html/SCR-MYP-003.html`이 기준이다. 문구는 화면설계서, 털색 선택지는 `petCodes.js`와 기능명세서, 오류 문구는 기능명세서 그대로 쓴다
@@ -49,7 +49,6 @@ SCR-MYP-002·003 디자인 반영 — 끝 (2026-10-19 20:15 시작, 21:55 사람
 
 ## 다음에 할 것
 - 캐릭터 이미지 API(LJS)가 나오면 슬라이드 얼굴(`chrcFaceUrl`)을 실제 이미지로 바꾼다. 지금은 종별 기본 얼굴이다
-- develop PR을 만든다. 디자인 반영(SCR-MYP-002·003)이 끝났다
 - 목표체중 오류 문구 "0보다 큰 숫자로 입력해 주세요"는 화면설계서에 없지만 필요해서 유지한다(2026-10-20 사람 결정). 명세에 문구를 넣을지는 팀에 확인한다
 - `index.css`의 그림자 토큰을 시안 이름에 맞춰 바꿨다(2026-10-20 사람 결정): `shadow-depth-sm`·`md`·`lg`(구 card·pop·modal), `ring-focus`·`ring-error`(`@utility`, 구 focus·error). Tailwind 기본 `shadow-sm`·`lg`를 쓰는 다른 화면이 있어 `depth`를 붙였다. `OPEN_ISSUES.md` 스타일링 항목에 제안으로 적었고, 팀이 합의하면 확정한다
 - 디자인 반영 때 정한 스타일 결정(토큰을 `@theme`에, Pretendard CDN, 브랜드 색 #285a5c 계열, 아이콘은 lucide 대응)을 팀과 맞춘 뒤 `docs/OPEN_ISSUES.md` 스타일링 항목을 갱신한다
