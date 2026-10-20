@@ -1,4 +1,4 @@
-import { PET_REL, PET_SE } from './petCodes';
+import { PET_REL, PET_SE } from './shared/petCodes';
 
 /**
  * [반려동물 가짜 API]

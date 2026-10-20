@@ -1,23 +1,23 @@
 import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import ChatInput from '@/features/ai/ChatInput';
-import ConversationHeader from '@/features/ai/ConversationHeader';
-import ConversationMessages from '@/features/ai/ConversationMessages';
-import AnswerBubble from '@/features/ai/AnswerBubble';
-import ConversationSidebar from '@/features/ai/ConversationSidebar';
+import ChatInput from '@/features/ai/chat/ChatInput';
+import ConversationHeader from '@/features/ai/chat/ConversationHeader';
+import ConversationMessages from '@/features/ai/chat/ConversationMessages';
+import AnswerBubble from '@/features/ai/chat/AnswerBubble';
+import ConversationSidebar from '@/features/ai/chat/ConversationSidebar';
 import { OPEN_CHAT_MODAL_MESSAGE } from '@/constants/chatModal';
-import { CHAT_MODAL_ACTION } from '@/features/ai/fakeRoutingMap';
-import { fakePets } from '@/features/ai/fakePets';
+import { CHAT_MODAL_ACTION } from '@/features/ai/shared/fakeRoutingMap';
+import { fakePets } from '@/features/ai/chat/fakePets';
 import {
   getFallbackCount,
   increaseFallbackCount,
   resetFallbackCount,
-} from '@/features/ai/fallbackCount';
-import { openInMainWindow } from '@/features/ai/openInMainWindow';
+} from '@/features/ai/shared/fallbackCount';
+import { openInMainWindow } from '@/features/ai/chat/openInMainWindow';
 import { useConversation, useSendMessage } from '@/features/ai/queries';
-import useAnswerStream from '@/features/ai/useAnswerStream';
-import RouteGuideBubble from '@/features/ai/RouteGuideBubble';
-import WelcomeMessage from '@/features/ai/WelcomeMessage';
+import useAnswerStream from '@/features/ai/chat/useAnswerStream';
+import RouteGuideBubble from '@/features/ai/chat/RouteGuideBubble';
+import WelcomeMessage from '@/features/ai/chat/WelcomeMessage';
 import { useMemberSummary } from '@/features/member/queries';
 import { PATHS } from '@/routes/paths';
 

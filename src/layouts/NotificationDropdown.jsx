@@ -3,8 +3,8 @@ import { Bell } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import CountBadge from '@/components/CountBadge';
 import { useChatModal } from '@/context/chatModal';
-import NotificationItem from '@/features/notification/NotificationItem';
-import { NOTI_TABS, NOTI_TYPE } from '@/features/notification/notiTabs';
+import NotificationItem from '@/features/notification/shared/NotificationItem';
+import { NOTI_TABS, NOTI_TYPE } from '@/features/notification/shared/notiTabs';
 import {
   useNotifications,
   useReadNotification,

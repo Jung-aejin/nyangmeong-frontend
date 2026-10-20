@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import ExpenseDashboard from '@/features/expense/ExpenseDashboard';
+import ExpenseDashboard from '@/features/expense/dashboard/ExpenseDashboard';
 import { PATHS } from '@/routes/paths';
 
 export default function ExpensePage() {
