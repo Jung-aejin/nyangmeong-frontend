@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 export const api = axios.create({
-  baseURL: '/api/v1',
+  baseURL: '/api',
   // 없으면 서버가 상태를 바꾸는 요청을 403으로 거절한다
   headers: { 'X-Requested-With': 'XMLHttpRequest' },
 });
