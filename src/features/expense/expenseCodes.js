@@ -46,6 +46,9 @@ export const EXPND_CLSF_LIST = [
   },
 ];
 
+// 병원 카테고리는 공용으로 등록할 수 없다
+export const HOSPITAL_CLSF_CD = EXPND_CLSF_LIST[0].code;
+
 export const EXPND_CLSF = Object.fromEntries(
   EXPND_CLSF_LIST.map((clsf) => [clsf.code, clsf]),
 );

@@ -1,3 +1,4 @@
+import { Plus } from 'lucide-react';
 import { BTN_SECONDARY } from '@/components/buttonStyles';
 import ExpenseInfo from './ExpenseInfo';
 import { formatDayHeader, formatWon } from './expenseFormat';
@@ -9,6 +10,7 @@ export default function ExpenseDayDetail({
   expndYmd,
   items,
   totalAmt,
+  onAdd,
   onEdit,
   onDelete,
 }) {
@@ -41,6 +43,14 @@ export default function ExpenseDayDetail({
           </div>
         </div>
       ))}
+      <button
+        type="button"
+        onClick={onAdd}
+        className={`${BTN_SECONDARY} mt-2 w-full`}
+      >
+        <Plus className="size-4" aria-hidden="true" />
+        지출 추가
+      </button>
     </section>
   );
 }
