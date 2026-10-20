@@ -19,6 +19,8 @@ const AiChatPage = lazy(() => import('@/pages/ai/AiChatPage'));
 
 // mypage
 const PetListPage = lazy(() => import('@/pages/mypage/PetListPage'));
+const ExpensePage = lazy(() => import('@/pages/mypage/ExpensePage'));
+const ExpenseAllPage = lazy(() => import('@/pages/mypage/ExpenseAllPage'));
 
 // admin
 const AdminHomePage = lazy(() => import('@/pages/admin/AdminHomePage'));
@@ -37,6 +39,11 @@ export default function AppRoutes() {
 
           {/* mypage. 로그인 API(AIC)가 나오면 ProtectedRoute 아래로 옮긴다 */}
           <Route path={PATHS.MYPAGE_PETS} element={<PetListPage />} />
+          <Route path={PATHS.MYPAGE_EXPENSES} element={<ExpensePage />} />
+          <Route
+            path={PATHS.MYPAGE_EXPENSES_ALL}
+            element={<ExpenseAllPage />}
+          />
         </Route>
 
         {/* ai: 별도 창 전체 화면이라 UserLayout 밖에 둔다 */}

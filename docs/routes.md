@@ -51,6 +51,7 @@
 | MYP-010 | 픽셀 캐릭터 | `/mypage/characters` | SJM | ✓ |
 | MYP-020 | 포인트·케어미션 | `/mypage/points` | SJM | ✓ |
 | MYP-030 | 가계부 | `/mypage/expenses` | SJM | ✓ |
+| MYP-030 (30-2) | 가계부 전체 내역 | `/mypage/expenses/all` (`?month=YYYY-MM`) | SJM | |
 | MYP-040 | 회원정보 수정 | `/mypage/profile` | SJM | ✓ |
 
 화면 ID 앞의 `SCR-`는 생략했다.
