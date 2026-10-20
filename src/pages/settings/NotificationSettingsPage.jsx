@@ -1,4 +1,4 @@
-import NotificationSettingsForm from '@/features/notification/NotificationSettingsForm';
+import NotificationSettingsForm from '@/features/notification/settings/NotificationSettingsForm';
 import { useNotificationSettings } from '@/features/notification/queries';
 
 export default function NotificationSettingsPage() {

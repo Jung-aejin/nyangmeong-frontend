@@ -1,11 +1,11 @@
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
 import { showToast } from '@/components/toastStore';
-import PetDeleteDialog from '@/features/pet/PetDeleteDialog';
-import PetEmpty from '@/features/pet/PetEmpty';
-import PetFormModal from '@/features/pet/PetFormModal';
-import PetSlide from '@/features/pet/PetSlide';
-import { MAX_OWN_PETS, PET_REL } from '@/features/pet/petCodes';
+import PetDeleteDialog from '@/features/pet/list/PetDeleteDialog';
+import PetEmpty from '@/features/pet/list/PetEmpty';
+import PetFormModal from '@/features/pet/list/PetFormModal';
+import PetSlide from '@/features/pet/list/PetSlide';
+import { MAX_OWN_PETS, PET_REL } from '@/features/pet/shared/petCodes';
 import { usePets } from '@/features/pet/queries';
 
 export default function PetListPage() {

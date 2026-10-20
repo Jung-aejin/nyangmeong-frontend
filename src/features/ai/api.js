@@ -1,7 +1,7 @@
 import { IS_DEV } from '@/api/env';
 import { PATHS } from '@/routes/paths';
-import { FALLBACK_MESSAGE } from './fallbackCount';
-import { isRegisterRequest, matchRoute } from './fakeRoutingMap';
+import { FALLBACK_MESSAGE } from './shared/fallbackCount';
+import { isRegisterRequest, matchRoute } from './shared/fakeRoutingMap';
 
 /**
  * [가짜 대화 API]

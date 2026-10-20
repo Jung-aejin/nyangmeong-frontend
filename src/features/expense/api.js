@@ -1,5 +1,5 @@
 import { getCurrentYm, shiftYm } from '@/utils/yearMonth';
-import { EXPND_CLSF_LIST, PET_STTS } from './expenseCodes';
+import { EXPND_CLSF_LIST, PET_STTS } from './shared/expenseCodes';
 
 /**
  * [가계부 가짜 API]

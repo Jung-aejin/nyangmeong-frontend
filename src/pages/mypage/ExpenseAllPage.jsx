@@ -1,6 +1,6 @@
 import { ChevronLeft } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
-import ExpenseHistory from '@/features/expense/ExpenseHistory';
+import ExpenseHistory from '@/features/expense/history/ExpenseHistory';
 import { PATHS } from '@/routes/paths';
 
 export default function ExpenseAllPage() {
