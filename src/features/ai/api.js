@@ -1,3 +1,6 @@
+import { IS_DEV } from '@/api/env';
+import { PATHS } from '@/routes/paths';
+
 // 대화 API(Python AI 서버)가 생기기 전까지 쓰는 가짜 응답이다. api.get() / api.delete()로 바꾼다
 // 필드 이름은 ERD 컬럼명(AI_CNVRS_ROOM_*, AI_CNVRS_MSG_*)에서 따온 추정이다. 연결 때 Swagger로 확인한다
 // petSn이 null인 대화는 펫 태그가 [전체]다. aiCnvrsMsgRoleCd는 'USER' 또는 'AI'다
@@ -140,12 +143,7 @@ let nextFakeMsgSn = 100;
 
 // 메시지를 보낸다. aiCnvrsRoomSn이 null이면 대화를 이 메시지로 새로 만든다(제목은 첫 메시지, 200자까지)
 // intent는 AI 서버가 판정한 분기 결과다(추정: REGISTER·ROUTE·SEARCH·FALLBACK). 화면 처리는 002·004·005·012에서 한다
-export const sendMessage = ({
-  aiCnvrsRoomSn,
-  petSn,
-  petNm,
-  aiCnvrsMsgCn,
-}) => {
+export const sendMessage = ({ aiCnvrsRoomSn, petSn, petNm, aiCnvrsMsgCn }) => {
   const message = {
     aiCnvrsMsgSn: nextFakeMsgSn++,
     aiCnvrsMsgRoleCd: 'USER',
@@ -169,5 +167,116 @@ export const sendMessage = ({
   }
   room.messages = [...room.messages, message];
 
-  return Promise.resolve({ aiCnvrsRoomSn: room.aiCnvrsRoomSn, intent: 'SEARCH' });
+  return Promise.resolve({
+    aiCnvrsRoomSn: room.aiCnvrsRoomSn,
+    intent: 'SEARCH',
+  });
+};
+
+const HEALTH_PATTERN = /접종|병원|아파|건강|약|사료/;
+const HEALTH_NOTE =
+  '※ 참고 정보이며 의료 진단이 아닙니다. 이상 징후가 있다면 수의사와 상담하세요.';
+const FAKE_ANSWER =
+  '생후 6~8주부터 종합백신(DHPPL) 1차를 시작으로 2~4주 간격으로 5차까지 맞히고, 코로나 장염·켄넬코프·인플루엔자·광견병을 순서대로 이어서 접종해요. 기초 접종이 끝나면 1년에 한 번 추가 접종을 권장해요.';
+const CHUNK_SIZE = 3;
+const CHUNK_DELAY_MS = 40;
+
+// 개발 환경에서만 ?fakeAiFirstDelay=초, ?fakeAiError=1, ?fakeAiCut=1, ?fakeAiNoShortcut=1로 실패 상황을 만든다
+const fakeFlag = (name) =>
+  IS_DEV ? new URLSearchParams(window.location.search).get(name) : null;
+
+// 실패 상황은 첫 요청에만 만든다. 그래야 [다시 시도]·[다시 생성]이 같은 주소에서 성공하는지 볼 수 있다
+const usedFakeFlags = new Set();
+const fakeFlagOnce = (name) => {
+  if (usedFakeFlags.has(name)) return null;
+  const value = fakeFlag(name);
+  if (value !== null) usedFakeFlags.add(name);
+  return value;
+};
+
+const wait = (ms, signal) =>
+  new Promise((resolve) => {
+    const timer = setTimeout(resolve, ms);
+    signal?.addEventListener('abort', () => {
+      clearTimeout(timer);
+      resolve();
+    });
+  });
+
+// 질문에 대한 답을 글자 묶음으로 흘려 보낸다. 서버 스트리밍(SSE 등)이 생기면 그 방식으로 바꾼다
+// 끝나면 { aiCnvrsMsgSn, aiCnvrsMsgCmptnYn, rltdShrtcts }를 돌려준다. rltdShrtcts는 저장하지 않는 연관 바로가기다(추정)
+// 연결이 끊기거나 signal로 중단되면 받은 데까지 미완료('N')로 저장하고 돌려준다. 오류면 reject한다
+// replaceMsgSn이 있으면 그 AI 메시지를 새 답으로 바꾼다(다시 생성)
+export const streamAnswer = async ({
+  aiCnvrsRoomSn,
+  question,
+  replaceMsgSn,
+  onToken,
+  signal,
+}) => {
+  const room = fakeConversations.find(
+    (item) => item.aiCnvrsRoomSn === aiCnvrsRoomSn,
+  );
+  if (!room) throw new Error('not found');
+
+  await wait(
+    Number(fakeFlagOnce('fakeAiFirstDelay') ?? 0) * 1000 || 600,
+    signal,
+  );
+  if (signal?.aborted) return { aiCnvrsMsgSn: null };
+  if (fakeFlagOnce('fakeAiError')) throw new Error('AI error');
+
+  const isHealth = HEALTH_PATTERN.test(question);
+  const answer = isHealth
+    ? FAKE_ANSWER
+    : '그 내용은 아직 잘 몰라요. 다른 질문을 해 주세요.';
+  const limit = fakeFlagOnce('fakeAiCut')
+    ? Math.floor(answer.length / 2)
+    : answer.length;
+
+  let received = '';
+  while (received.length < limit && !signal?.aborted) {
+    const chunk = answer.slice(
+      received.length,
+      Math.min(received.length + CHUNK_SIZE, limit),
+    );
+    received += chunk;
+    onToken(chunk);
+    await wait(CHUNK_DELAY_MS, signal);
+  }
+
+  const isComplete = received.length === answer.length;
+  // 첫 글자도 못 받고 중단된 답은 저장하지 않는다
+  if (received === '') return { aiCnvrsMsgSn: null };
+
+  const message = {
+    aiCnvrsMsgSn: nextFakeMsgSn++,
+    aiCnvrsMsgRoleCd: 'AI',
+    aiCnvrsMsgCn:
+      isComplete && isHealth
+        ? `${answer}
+
+${HEALTH_NOTE}`
+        : received,
+    aiCnvrsMsgCmptnYn: isComplete ? 'Y' : 'N',
+  };
+  room.messages = [
+    ...room.messages.filter((item) => item.aiCnvrsMsgSn !== replaceMsgSn),
+    message,
+  ];
+
+  const hasShortcut = isComplete && isHealth && !fakeFlag('fakeAiNoShortcut');
+  return {
+    aiCnvrsMsgSn: message.aiCnvrsMsgSn,
+    aiCnvrsMsgCmptnYn: message.aiCnvrsMsgCmptnYn,
+    aiCnvrsMsgCn: message.aiCnvrsMsgCn,
+    rltdShrtcts: hasShortcut
+      ? [
+          {
+            label: '케어 캘린더에서 접종 일정 보기',
+            path: PATHS.HEALTH_CALENDAR,
+          },
+        ]
+      : [],
+  };
 };
