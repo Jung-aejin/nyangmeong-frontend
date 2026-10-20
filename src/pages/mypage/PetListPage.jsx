@@ -1,0 +1,71 @@
+import { Plus } from 'lucide-react';
+import { useState } from 'react';
+import { showToast } from '@/components/toastStore';
+import PetDeleteDialog from '@/features/pet/PetDeleteDialog';
+import PetEmpty from '@/features/pet/PetEmpty';
+import PetFormModal from '@/features/pet/PetFormModal';
+import PetSlide from '@/features/pet/PetSlide';
+import { MAX_OWN_PETS, PET_REL } from '@/features/pet/petCodes';
+import { usePets } from '@/features/pet/queries';
+
+export default function PetListPage() {
+  const { data: pets = [], isPending } = usePets();
+  const [slideIndex, setSlideIndex] = useState(0);
+  // undefined: 닫힘, null: 등록, 숫자: 그 petSn 수정
+  const [modalPetSn, setModalPetSn] = useState(undefined);
+  const [deletingPet, setDeletingPet] = useState(null);
+
+  // 삭제로 목록이 줄어 위치가 끝을 넘으면 마지막 동물을 보인다
+  const currentIndex = Math.min(slideIndex, Math.max(pets.length - 1, 0));
+  const ownPetCount = pets.filter(
+    (pet) => pet.petRelCd === PET_REL.OWNER,
+  ).length;
+  const isFull = ownPetCount >= MAX_OWN_PETS;
+
+  return (
+    <div className="mx-auto max-w-5xl py-6">
+      <h1 className="mb-6 text-page font-bold tracking-[-0.02em]">
+        반려동물 관리
+      </h1>
+      {isPending ? null : pets.length === 0 ? (
+        <PetEmpty onRegister={() => setModalPetSn(null)} />
+      ) : (
+        <PetSlide
+          pets={pets}
+          index={currentIndex}
+          onMove={setSlideIndex}
+          onEdit={(pet) => setModalPetSn(pet.petSn)}
+          onDelete={setDeletingPet}
+          onUnlink={() => showToast('준비 중인 기능이에요')}
+        >
+          <button
+            type="button"
+            onClick={() => setModalPetSn(null)}
+            disabled={isFull}
+            className="inline-flex h-10 items-center justify-center gap-1.5 rounded-md bg-brand-500 px-4 font-semibold text-white hover:bg-brand-600 disabled:cursor-not-allowed disabled:bg-surface-3 disabled:text-line-strong"
+          >
+            <Plus className="size-[18px]" />
+            반려동물 등록
+          </button>
+        </PetSlide>
+      )}
+      {isFull && (
+        <p className="mt-3 text-right text-sm text-subtle">
+          반려동물은 최대 {MAX_OWN_PETS}마리까지 등록할 수 있어요
+        </p>
+      )}
+      {modalPetSn !== undefined && (
+        <PetFormModal
+          petSn={modalPetSn}
+          onClose={() => setModalPetSn(undefined)}
+        />
+      )}
+      {deletingPet && (
+        <PetDeleteDialog
+          pet={deletingPet}
+          onClose={() => setDeletingPet(null)}
+        />
+      )}
+    </div>
+  );
+}
