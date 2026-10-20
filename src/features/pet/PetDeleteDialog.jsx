@@ -25,7 +25,7 @@ export default function PetDeleteDialog({ pet, onClose }) {
         aria-modal="true"
         aria-labelledby="pet-delete-title"
         aria-describedby="pet-delete-desc"
-        className="relative m-auto flex w-full max-w-[440px] shrink-0 flex-col rounded-modal bg-white shadow-modal"
+        className="relative m-auto flex w-full max-w-[440px] shrink-0 flex-col rounded-modal bg-white shadow-depth-lg"
       >
         <div className="px-10 pt-10 pb-8 text-center">
           <h2
@@ -40,6 +40,9 @@ export default function PetDeleteDialog({ pet, onClose }) {
           >
             삭제하면 건강기록·픽셀 캐릭터 등 연결된 데이터도 함께 사라지고
             복구할 수 없어요
+          </p>
+          <p className="mt-1 leading-[1.6] break-keep text-muted">
+            가계부 지출 기록은 유지되고 &quot;(삭제된 반려동물)&quot;로 표기돼요
           </p>
         </div>
         <div className="flex gap-2 px-10 pb-6">

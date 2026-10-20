@@ -1,5 +1,5 @@
 import { Cat, ChevronLeft, ChevronRight, Dog, X } from 'lucide-react';
-import { useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import { PET_REL, PET_SE } from './petCodes';
 import {
   formatSpecies,
@@ -76,7 +76,7 @@ function PetCard({ pet, onEdit, onDelete, onUnlink }) {
   return (
     <article
       aria-labelledby="pet-name"
-      className="grid gap-5 rounded-modal border border-line bg-white p-5 shadow-card min-[761px]:grid-cols-[180px_minmax(0,1fr)] min-[761px]:gap-8 min-[761px]:px-8 min-[761px]:py-6 min-[1101px]:grid-cols-[220px_minmax(0,1fr)] min-[1101px]:gap-14 min-[1101px]:px-12 min-[1101px]:pt-12 min-[1101px]:pb-8"
+      className="grid gap-5 rounded-modal border border-line bg-white p-5 shadow-depth-sm min-[761px]:grid-cols-[180px_minmax(0,1fr)] min-[761px]:gap-8 min-[761px]:px-8 min-[761px]:py-6 min-[1101px]:grid-cols-[220px_minmax(0,1fr)] min-[1101px]:gap-14 min-[1101px]:px-12 min-[1101px]:pt-12 min-[1101px]:pb-8"
     >
       <div className="flex flex-row items-end justify-between gap-5 min-[761px]:flex-col min-[761px]:items-center min-[761px]:justify-center">
         <PetFace pet={pet} />
@@ -136,12 +136,8 @@ function PetCard({ pet, onEdit, onDelete, onUnlink }) {
             <InfoRow label="털색">{getColrName(pet)}</InfoRow>
           </InfoGroup>
           <InfoGroup className="max-[1280px]:border-t-0">
-            <InfoRow label="인식 번호" emptyText="미등록">
-              {pet.chipNo}
-            </InfoRow>
-            <InfoRow label="특징" emptyText="없음">
-              {pet.chrcCn}
-            </InfoRow>
+            <InfoRow label="인식 번호">{pet.chipNo}</InfoRow>
+            <ChrcRow value={pet.chrcCn} />
             <ListRow label="알레르기" value={pet.algyCn} />
             <ListRow label="기저질환" value={pet.dssCn} />
           </InfoGroup>
@@ -193,20 +189,61 @@ function InfoGroup({ className = '', children }) {
 const ROW =
   'col-span-full grid grid-cols-subgrid items-baseline gap-x-6 border-b border-line-soft py-4 last:border-b-0';
 const DT = 'min-w-20 text-subtle';
-const WARN_DOT =
-  'before:mr-1.5 before:mb-0.5 before:inline-block before:size-[5px] before:rounded-full before:bg-danger before:align-middle';
 
-function InfoRow({ label, emptyText, children }) {
-  if (!children && !emptyText) return null;
+function InfoRow({ label, children }) {
   return (
     <div className={ROW}>
       <dt className={DT}>{label}</dt>
-      {children ? (
+      {children && (
         <dd className="m-0 font-semibold [overflow-wrap:anywhere]">
           {children}
         </dd>
-      ) : (
-        <dd className="m-0 text-muted [overflow-wrap:anywhere]">{emptyText}</dd>
+      )}
+    </div>
+  );
+}
+
+// 한 줄을 넘치는 특징만 끝을 …으로 줄이고 [더보기]를 보인다
+function ChrcRow({ value }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isOverflow, setIsOverflow] = useState(false);
+  const textRef = useRef(null);
+
+  useLayoutEffect(() => {
+    const el = textRef.current;
+    if (!el) return undefined;
+    const check = () => setIsOverflow(el.scrollWidth > el.clientWidth);
+    check();
+    const observer = new ResizeObserver(check);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [value]);
+
+  return (
+    <div className={ROW}>
+      <dt className={DT}>특징</dt>
+      {value && (
+        <dd className="relative m-0 flex min-w-0 items-baseline gap-2 font-semibold">
+          <span ref={textRef} className="min-w-0 truncate">
+            {value}
+          </span>
+          {isOverflow && (
+            <button
+              type="button"
+              onClick={() => setIsOpen(true)}
+              className="shrink-0 font-semibold text-brand-600 underline underline-offset-3"
+            >
+              더보기
+            </button>
+          )}
+          {isOpen && (
+            <ListLayer
+              title="특징"
+              text={value}
+              onClose={() => setIsOpen(false)}
+            />
+          )}
+        </dd>
       )}
     </div>
   );
@@ -219,10 +256,8 @@ function ListRow({ label, value }) {
 
   return (
     <div className={ROW}>
-      <dt className={`${DT} ${WARN_DOT}`}>{label}</dt>
-      {items.length === 0 ? (
-        <dd className="m-0 text-muted">없음</dd>
-      ) : (
+      <dt className={DT}>{label}</dt>
+      {items.length > 0 && (
         <dd className="relative m-0 font-semibold [overflow-wrap:anywhere]">
           {hiddenCount > 0 ? (
             <>
@@ -252,14 +287,14 @@ function ListRow({ label, value }) {
 }
 
 // 바깥을 누르면 닫히도록 화면 전체를 덮는 투명한 막을 깔고 그 위에 목록을 띄운다
-function ListLayer({ title, items, onClose }) {
+function ListLayer({ title, items, text, onClose }) {
   return (
     <>
       <div className="fixed inset-0 z-10" onClick={onClose} />
       <div
         role="dialog"
-        aria-label={`${title} 전체 목록`}
-        className="absolute top-[calc(100%+8px)] right-0 z-20 w-60 max-w-[calc(100vw-32px)] rounded-box border border-line bg-white py-2 font-normal shadow-card"
+        aria-label={`${title} 전체 ${text ? '내용' : '목록'}`}
+        className="absolute top-[calc(100%+8px)] right-0 z-20 w-60 max-w-[calc(100vw-32px)] rounded-box border border-line bg-white py-2 font-normal shadow-depth-sm"
       >
         <div className="flex items-center justify-between border-b border-line-soft pt-1 pr-2 pb-2 pl-4 font-semibold">
           <span>{title}</span>
@@ -272,13 +307,19 @@ function ListLayer({ title, items, onClose }) {
             <X className="size-4" />
           </button>
         </div>
-        <ul>
-          {items.map((item) => (
-            <li key={item} className="px-4 py-2">
-              {item}
-            </li>
-          ))}
-        </ul>
+        {text ? (
+          <p className="max-h-60 overflow-y-auto px-4 py-3 whitespace-pre-wrap [overflow-wrap:anywhere]">
+            {text}
+          </p>
+        ) : (
+          <ul>
+            {items.map((item) => (
+              <li key={item} className="px-4 py-2">
+                {item}
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </>
   );

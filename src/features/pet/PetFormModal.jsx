@@ -139,7 +139,7 @@ export default function PetFormModal({ petSn = null, onClose }) {
         role="dialog"
         aria-modal="true"
         aria-labelledby="pet-form-title"
-        className="relative m-auto flex w-full max-w-[720px] shrink-0 flex-col rounded-modal bg-white shadow-modal"
+        className="relative m-auto flex w-full max-w-[720px] shrink-0 flex-col rounded-modal bg-white shadow-depth-lg"
       >
         <header className="flex items-start gap-3.5 border-b border-line-strong px-7 pt-4 pb-2">
           <h2 id="pet-form-title" className="text-xl leading-[1.35] font-bold">
@@ -434,7 +434,7 @@ function PetForm({ pet, onClose }) {
                 />
                 <span
                   aria-hidden="true"
-                  className="grid size-5 shrink-0 place-items-center rounded-sm border-[1.5px] border-line-strong bg-white transition-colors after:h-[5px] after:w-2.5 after:-translate-y-px after:-rotate-45 after:border-b-2 after:border-l-2 after:border-white after:opacity-0 peer-checked:border-brand-500 peer-checked:bg-brand-500 peer-checked:after:opacity-100 peer-focus-visible:shadow-focus"
+                  className="grid size-5 shrink-0 place-items-center rounded-sm border-[1.5px] border-line-strong bg-white transition-colors after:h-[5px] after:w-2.5 after:-translate-y-px after:-rotate-45 after:border-b-2 after:border-l-2 after:border-white after:opacity-0 peer-checked:border-brand-500 peer-checked:bg-brand-500 peer-checked:after:opacity-100 peer-focus-visible:ring-focus"
                 />
                 중성화 완료
               </label>
@@ -692,7 +692,7 @@ function PetForm({ pet, onClose }) {
 }
 
 const INPUT =
-  'block h-10 w-full rounded-md border border-input-line bg-white px-3 placeholder:text-placeholder hover:border-line-strong focus:border-brand-500 focus:shadow-focus focus:outline-none aria-invalid:border-danger aria-invalid:focus:shadow-error';
+  'block h-10 w-full rounded-md border border-input-line bg-white px-3 placeholder:text-placeholder hover:border-line-strong focus:border-brand-500 focus:ring-focus focus:outline-none aria-invalid:border-danger aria-invalid:focus:ring-error';
 const HELP = 'text-sm leading-normal text-muted';
 const LABEL = 'flex items-center gap-0.5 leading-[1.4] font-semibold';
 
@@ -799,7 +799,7 @@ function RadioGroup({ name, options, value, onChange }) {
           />
           <span
             aria-hidden="true"
-            className="grid size-5 shrink-0 place-items-center rounded-full border-[1.5px] border-line-strong bg-white after:size-2.5 after:scale-0 after:rounded-full after:bg-brand-500 after:transition-transform peer-checked:border-brand-500 peer-checked:after:scale-100 peer-focus-visible:shadow-focus"
+            className="grid size-5 shrink-0 place-items-center rounded-full border-[1.5px] border-line-strong bg-white after:size-2.5 after:scale-0 after:rounded-full after:bg-brand-500 after:transition-transform peer-checked:border-brand-500 peer-checked:after:scale-100 peer-focus-visible:ring-focus"
           />
           {option.name}
         </label>
@@ -969,7 +969,7 @@ function BreedCombo({ varieties, selected, text, invalid, onType, onSelect }) {
           id="pet-vrty-list"
           role="listbox"
           aria-label="품종 목록"
-          className="absolute top-[calc(100%+6px)] right-0 left-0 z-30 max-h-64 overflow-y-auto rounded-md border border-line bg-white p-1 shadow-pop"
+          className="absolute top-[calc(100%+6px)] right-0 left-0 z-30 max-h-64 overflow-y-auto rounded-md border border-line bg-white p-1 shadow-depth-md"
         >
           {shown.length === 0 && (
             <li className="flex h-9 items-center px-2.5 text-muted">
