@@ -9,10 +9,13 @@ import { PATHS } from './paths';
 // 도메인별 구획 안에 추가한다. 맨 끝에 붙이면 병합할 때 충돌한다
 
 // 공통
-const LandingPage = lazy(() => import('@/pages/main/LandingPage'));
+const LandingPage = lazy(() => import('@/pages/landing/LandingPage'));
 const NotificationSettingsPage = lazy(
   () => import('@/pages/settings/NotificationSettingsPage'),
 );
+
+// main
+const MainPage = lazy(() => import('@/pages/main/MainPage'));
 
 // ai
 const AiChatPage = lazy(() => import('@/pages/ai/AiChatPage'));
@@ -34,6 +37,9 @@ export default function AppRoutes() {
             path={PATHS.SETTINGS_NOTIFICATIONS}
             element={<NotificationSettingsPage />}
           />
+
+          {/* main. 로그인 API(AIC)가 나오면 ProtectedRoute 아래로 옮긴다 */}
+          <Route path={PATHS.MAIN} element={<MainPage />} />
 
           {/* mypage. 로그인 API(AIC)가 나오면 ProtectedRoute 아래로 옮긴다 */}
           <Route path={PATHS.MYPAGE_PETS} element={<PetListPage />} />
