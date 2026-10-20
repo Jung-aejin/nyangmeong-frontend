@@ -3,6 +3,7 @@ export const PATHS = {
   // 공통
   HOME: '/',
   NOTICES: '/notices',
+  NOTICE_DETAIL: '/notices/:ntcMttrSn',
   FAQS: '/faqs',
   INQUIRIES: '/inquiries',
   SETTINGS_NOTIFICATIONS: '/settings/notifications',

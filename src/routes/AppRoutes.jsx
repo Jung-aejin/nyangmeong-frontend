@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { MEMBER_ROLE } from '@/constants/memberRole';
 import AdminLayout from '@/layouts/AdminLayout';
+import CustomerCenterLayout from '@/layouts/CustomerCenterLayout';
 import UserLayout from '@/layouts/UserLayout';
 import ProtectedRoute from './ProtectedRoute';
 import { PATHS } from './paths';
@@ -13,6 +14,10 @@ const LandingPage = lazy(() => import('@/pages/main/LandingPage'));
 const NotificationSettingsPage = lazy(
   () => import('@/pages/settings/NotificationSettingsPage'),
 );
+
+// customer center
+const NoticeListPage = lazy(() => import('@/pages/notice/NoticeListPage'));
+const NoticeDetailPage = lazy(() => import('@/pages/notice/NoticeDetailPage'));
 
 // ai
 const AiChatPage = lazy(() => import('@/pages/ai/AiChatPage'));
@@ -31,6 +36,12 @@ export default function AppRoutes() {
             path={PATHS.SETTINGS_NOTIFICATIONS}
             element={<NotificationSettingsPage />}
           />
+
+          {/* customer center */}
+          <Route element={<CustomerCenterLayout />}>
+            <Route path={PATHS.NOTICES} element={<NoticeListPage />} />
+            <Route path={PATHS.NOTICE_DETAIL} element={<NoticeDetailPage />} />
+          </Route>
         </Route>
 
         {/* ai: 별도 창 전체 화면이라 UserLayout 밖에 둔다 */}
