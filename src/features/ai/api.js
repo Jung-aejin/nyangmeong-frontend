@@ -1,6 +1,14 @@
 import { IS_DEV } from '@/api/env';
 import { PATHS } from '@/routes/paths';
 import { FALLBACK_MESSAGE } from './shared/fallbackCount';
+import { fakePets } from './chat/fakePets';
+import {
+  describeCard,
+  findMissingCardFields,
+  getCardTitle,
+  interpretRegister,
+  REVISE_PATTERN,
+} from './shared/fakeRegisterParser';
 import { isRegisterRequest, matchRoute } from './shared/fakeRoutingMap';
 
 /**
@@ -112,7 +120,7 @@ let fakeConversations = [
 ];
 
 /** 대화 목록 */
-export const getConversations = ({ petSn } = {}) => {
+export const getConversations = async ({ petSn } = {}) => {
   const rooms = fakeConversations
     .filter((room) => petSn == null || room.petSn === petSn)
     .sort((a, b) => b.crtDt.localeCompare(a.crtDt))
@@ -123,31 +131,55 @@ export const getConversations = ({ petSn } = {}) => {
       petNm: room.petNm,
       crtDt: room.crtDt,
     }));
-  return Promise.resolve(rooms);
+  return rooms;
 };
 
 /** 대화 상세 */
-export const getConversation = (aiCnvrsRoomSn) => {
+export const getConversation = async (aiCnvrsRoomSn) => {
   const room = fakeConversations.find(
     (item) => item.aiCnvrsRoomSn === aiCnvrsRoomSn,
   );
-  return room ? Promise.resolve(room) : Promise.reject(new Error('not found'));
+  if (!room) throw new Error('not found');
+  return room;
 };
 
 /** 대화 삭제 */
-export const deleteConversation = (aiCnvrsRoomSn) => {
+export const deleteConversation = async (aiCnvrsRoomSn) => {
   fakeConversations = fakeConversations.filter(
     (room) => room.aiCnvrsRoomSn !== aiCnvrsRoomSn,
   );
-  return Promise.resolve();
 };
 
 /** 새로고침 뒤에도 sessionStorage 키와 겹치지 않는 가짜 대화 번호 */
 let nextFakeRoomSn = Date.now();
 let nextFakeMsgSn = 100;
 
+/** 대화별 되묻는 중인 등록 초안 */
+const fakeDrafts = new Map();
+/** 대화별 확정·취소 전인 가장 최근 미리보기 카드 */
+const fakePendingCards = new Map();
+/** 같은 이름 케어 항목 안내 확인용 기존 항목 */
+const fakeCareItems = [{ petSn: 1, careArtclNm: '산책' }];
+
+/** AI 메시지 저장 */
+const saveAiMessage = (room, aiCnvrsMsgCn) => {
+  const message = {
+    aiCnvrsMsgSn: nextFakeMsgSn++,
+    aiCnvrsMsgRoleCd: 'AI',
+    aiCnvrsMsgCn,
+    aiCnvrsMsgCmptnYn: 'Y',
+  };
+  room.messages = [...room.messages, message];
+  return message;
+};
+
 /** 메시지 전송 */
-export const sendMessage = ({ aiCnvrsRoomSn, petSn, petNm, aiCnvrsMsgCn }) => {
+export const sendMessage = async ({
+  aiCnvrsRoomSn,
+  petSn,
+  petNm,
+  aiCnvrsMsgCn,
+}) => {
   const message = {
     aiCnvrsMsgSn: nextFakeMsgSn++,
     aiCnvrsMsgRoleCd: 'USER',
@@ -171,11 +203,51 @@ export const sendMessage = ({ aiCnvrsRoomSn, petSn, petNm, aiCnvrsMsgCn }) => {
   }
   room.messages = [...room.messages, message];
 
-  if (isRegisterRequest(aiCnvrsMsgCn)) {
-    return Promise.resolve({
-      aiCnvrsRoomSn: room.aiCnvrsRoomSn,
-      intent: 'REGISTER',
+  const roomSn = room.aiCnvrsRoomSn;
+  const answeringDraft = fakeDrafts.get(roomSn);
+  const pendingCard = fakePendingCards.get(roomSn);
+  const isRevision =
+    !answeringDraft &&
+    Boolean(pendingCard) &&
+    REVISE_PATTERN.test(aiCnvrsMsgCn);
+  if (answeringDraft || isRevision || isRegisterRequest(aiCnvrsMsgCn)) {
+    const result = interpretRegister({
+      text: aiCnvrsMsgCn,
+      draft: answeringDraft ?? (isRevision ? pendingCard.draft : undefined),
+      isRevision,
+      pets: fakePets,
+      petSn: petSn ?? room.petSn,
+      careItems: fakeCareItems,
     });
+
+    if (result.type === 'ASK') {
+      fakeDrafts.set(roomSn, result.draft);
+      const ask = saveAiMessage(room, result.message);
+      return {
+        aiCnvrsRoomSn: roomSn,
+        intent: 'REGISTER',
+        aiCnvrsMsgSn: ask.aiCnvrsMsgSn,
+        petChoices: result.petChoices,
+      };
+    }
+
+    /** 카드 메시지는 요약 텍스트로 저장, 결과는 확정·취소 때 교체 */
+    fakeDrafts.delete(roomSn);
+    const preview = saveAiMessage(
+      room,
+      `${getCardTitle(result.card)} ${describeCard(result.card)}`,
+    );
+    fakePendingCards.set(roomSn, {
+      aiCnvrsMsgSn: preview.aiCnvrsMsgSn,
+      draft: result.draft,
+      card: result.card,
+    });
+    return {
+      aiCnvrsRoomSn: roomSn,
+      intent: 'REGISTER',
+      aiCnvrsMsgSn: preview.aiCnvrsMsgSn,
+      card: result.card,
+    };
   }
 
   const route = matchRoute(aiCnvrsMsgCn);
@@ -188,12 +260,12 @@ export const sendMessage = ({ aiCnvrsRoomSn, petSn, petNm, aiCnvrsMsgCn }) => {
       aiCnvrsMsgCmptnYn: 'Y',
     };
     room.messages = [...room.messages, guide];
-    return Promise.resolve({
+    return {
       aiCnvrsRoomSn: room.aiCnvrsRoomSn,
       intent: 'ROUTE',
       aiCnvrsMsgSn: guide.aiCnvrsMsgSn,
       route: { label: route.label, path: route.path, action: route.action },
-    });
+    };
   }
 
   if (isUnmatchable(aiCnvrsMsgCn)) {
@@ -205,17 +277,73 @@ export const sendMessage = ({ aiCnvrsRoomSn, petSn, petNm, aiCnvrsMsgCn }) => {
       aiCnvrsMsgCmptnYn: 'Y',
     };
     room.messages = [...room.messages, notice];
-    return Promise.resolve({
+    return {
       aiCnvrsRoomSn: room.aiCnvrsRoomSn,
       intent: 'FALLBACK',
       aiCnvrsMsgSn: notice.aiCnvrsMsgSn,
-    });
+    };
   }
 
-  return Promise.resolve({
+  return {
     aiCnvrsRoomSn: room.aiCnvrsRoomSn,
     intent: 'SEARCH',
-  });
+  };
+};
+
+/** 가장 최근 카드만 확정·취소 가능 */
+const getPendingCard = (aiCnvrsRoomSn, aiCnvrsMsgSn) => {
+  const pending = fakePendingCards.get(aiCnvrsRoomSn);
+  if (!pending || pending.aiCnvrsMsgSn !== aiCnvrsMsgSn) {
+    throw new Error('not latest card');
+  }
+  return pending;
+};
+
+/** 카드 메시지를 결과 문구로 교체 */
+const settleCard = (aiCnvrsRoomSn, pending, aiCnvrsMsgCn) => {
+  const room = fakeConversations.find(
+    (item) => item.aiCnvrsRoomSn === aiCnvrsRoomSn,
+  );
+  room.messages = room.messages.map((message) =>
+    message.aiCnvrsMsgSn === pending.aiCnvrsMsgSn
+      ? { ...message, aiCnvrsMsgCn }
+      : message,
+  );
+  fakePendingCards.delete(aiCnvrsRoomSn);
+  return { aiCnvrsMsgSn: pending.aiCnvrsMsgSn, aiCnvrsMsgCn };
+};
+
+/** 등록 확정 */
+export const confirmRegister = async ({ aiCnvrsRoomSn, aiCnvrsMsgSn }) => {
+  await wait(300);
+  if (fakeFlagOnce('fakeRegisterError')) throw new Error('register error');
+  const pending = getPendingCard(aiCnvrsRoomSn, aiCnvrsMsgSn);
+  /** 저장 직전 필수 칸 재검증 */
+  if (findMissingCardFields(pending.card).length > 0) {
+    throw new Error('invalid card');
+  }
+  if (pending.card.cardTypeCd === 'CARE') {
+    fakeCareItems.push({
+      petSn: pending.card.petSn,
+      careArtclNm: pending.card.careArtclNm,
+    });
+  }
+  return settleCard(
+    aiCnvrsRoomSn,
+    pending,
+    `✔ 등록됨 — ${describeCard(pending.card)}`,
+  );
+};
+
+/** 등록 취소 */
+export const cancelRegister = async ({ aiCnvrsRoomSn, aiCnvrsMsgSn }) => {
+  await wait(150);
+  const pending = getPendingCard(aiCnvrsRoomSn, aiCnvrsMsgSn);
+  return settleCard(
+    aiCnvrsRoomSn,
+    pending,
+    `취소됨 — ${describeCard(pending.card)}`,
+  );
 };
 
 /** 한글·영문 단어가 없는 입력은 매칭 실패, 개발 환경은 쿼리로 강제 */

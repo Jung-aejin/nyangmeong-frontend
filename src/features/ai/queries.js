@@ -1,5 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
+  cancelRegister,
+  confirmRegister,
   deleteConversation,
   getConversation,
   getConversations,
@@ -38,6 +40,24 @@ export const useDeleteConversation = () => {
     },
   });
 };
+
+/** 등록 확정·취소 공통: 결과 문구로 바뀐 대화 상세 갱신 */
+const useRegisterAnswer = (mutationFn) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn,
+    onSuccess: (_, { aiCnvrsRoomSn }) => {
+      queryClient.invalidateQueries({
+        queryKey: aiKeys.detail(aiCnvrsRoomSn),
+      });
+    },
+  });
+};
+
+export const useConfirmRegister = () => useRegisterAnswer(confirmRegister);
+
+export const useCancelRegister = () => useRegisterAnswer(cancelRegister);
 
 export const useSendMessage = () => {
   const queryClient = useQueryClient();
