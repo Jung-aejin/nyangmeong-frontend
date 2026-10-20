@@ -2,21 +2,23 @@
 
 ## 지금 하는 것
 
-SCR-MYP-030 가계부 목록 — 끝 (2026-10-20 13:37 시작, 15:30 승인, 사람 확인·검증 통과). 검증 판정 `확인 못 함 있음`(연결 남음 FN-MYP-030-08뿐), 검증 루프 2회차 통과
-디자인: 시안 폴더 nmcare-design-v5(저장소 밖)의 `myp-ledger*.html` 4개. 기준: 기능명세서 v0.4_20261019 FN-MYP-030-01~21, 화면설계서 v0.6_20261019 SCR-MYP-030(30-1~30-6)
-만든 것: `/mypage/expenses`(30-1)·`/mypage/expenses/all`(30-2, `?month=YYYY-MM`, 사람이 정한 URL). `features/expense/`(가짜 응답 `api.js`, `queries.js`, 집계 `expenseStats.js`, 화면 조립 `ExpenseDashboard.jsx`·`ExpenseHistory.jsx`), 공통 `components/{Modal,Select,MonthNav,MonthPicker,Pagination,buttonStyles}`, `utils/yearMonth.js`, `index.css` 색 토큰
-가짜 응답의 키 `petNm`·`petStts`(지출에 남은 반려동물의 이름·상태)·`mmExpndLimAmt`(월 한도)·`overview`의 `pets`·`expndMonths`는 추정이다. 한도는 처음에 비어 있다
+SCR-MYP-031 가계부 등록/수정 — 끝 (2026-10-20 16:23 시작, 16:30 승인, 사람 확인·검증 통과). 검증 판정 `통과`, 1회차
+기준: 기능명세서 v0.4_20261019 FN-MYP-031-01~06, 화면설계서 v0.6_20261019 SCR-MYP-031(1단계, 2-A~2-D)
+디자인: 시안 폴더(저장소 밖)의 `myp-ledger.html` 안 등록 모달, 영수증 업로드는 `aim-receipt-upload.html` 참고. 색·폰트는 `00styleguide.html`·`acc.css`
+디자인 결정(2026-10-20 사람): 시안(`myp-ledger.html`의 등록 모달, 영수증 업로드는 `aim-receipt-upload.html`)을 기준으로 한다. 날짜 상세에 [+ 지출 추가] 버튼을 둔다
 
-### 추가 요청
-| 추가-1 | features/expense/expenseFormat.js, features/pet/PetDeleteDialog.jsx | 화면: 삭제된 반려동물의 지출이 "(삭제된 반려동물)" 대신 "모리 (삭제됨)"처럼 이름과 함께 보이고, 반려동물 삭제 팝업 문구도 같은 표기로 맞는다 | 요청 2026-10-20 "A로 하고 바로 고쳐줘" (사람 확인 완료) |
+만든 것: 등록 모달 흐름(`features/expense/ExpenseAddModal.jsx`: 방법 선택 → 직접 입력 `ExpenseForm.jsx` / 영수증 업로드 `ExpenseReceiptUpload.jsx` → 인식 결과 `ExpenseReceiptReview.jsx` → 중복 확인 `ExpenseDuplicateDialog.jsx`), 수정 `ExpenseEditModal.jsx`, 날짜 상세 [+ 지출 추가], `receiptFile.js`(형식·용량 검사), `expenseInput.js`, `components/AmountInput.jsx`. 가짜 응답은 `api.js`의 `createExpenses`·`updateExpense`·`findDuplicateExpenses`·`recognizeReceipt`(파일 이름에 fail·partial·error)
+디자인: 시안 `myp-ledger.html`·`aim-receipt-upload.html`. 공용 `Modal` 폭이 고정이라 시안의 넓은 입력 모달 대신 440px이고, 인식 결과의 점선 테두리는 본문 안쪽 상자다
+가짜 응답의 키 `rcptSn`(영수증 번호)과 영수증 인식 결과 키(`expndYmd`·`expndAmt`·`dtlMttr`·`expndClsfCd`)는 추정이다. 날짜는 이번 달 마지막 날까지만 고르게 했다(명세에 없는 제한)
 
 새 의존성: 없음
 
 ## 다음에 할 것
+- SCR-MYP-031 연결 남음: 가계부 API(SJM 백엔드)가 나오면 `createExpenses`·`updateExpense`·`findDuplicateExpenses`를 실제 요청으로, 영수증 인식(YAY, OCR 호출부 LJS)이 나오면 `recognizeReceipt`를 실제 요청으로 바꾸고 추정 키를 응답에 맞춘다. 중복 확인을 서버가 저장 요청 안에서 하는지, 병원 공용 금지·미래 달 제한을 서버도 검사하는지 맞춘다
+- 건강 일지에서 병원 영수증을 저장하면 가계부에 1건이 자동 기록된다(FN-AIM-009-10, JAJ·YAY). 이 기록이 `rcptSn`으로 연결되는지 팀과 맞춘다
 - SCR-MYP-030 연결 남음: FN-MYP-030-08 한도 알림 발송(서버 인앱 알림, 알림 저장 YAY·가계부 API SJM 백엔드)
 - 가계부 API(SJM 백엔드)가 나오면 `features/expense/api.js` 가짜를 실제 요청으로 바꾸고 위 추정 키를 응답에 맞춘다. 집계(카테고리·반려동물별·주요 지출·지난달 대비)를 서버가 주면 `expenseStats.js` 집계를 그 값으로 바꾼다
 - 삭제된 반려동물의 이름이 서버에 남는지 백엔드에서 확인한다(화면은 "이름 (삭제됨)"으로 표시). 기능명세서 FN-MYP-030-10·FN-MYP-002-07 문구가 이 표기와 맞는지도 확인한다
-- SCR-MYP-031을 만들 때 가계부의 빈 날짜 클릭·[수정]·전체 내역 항목 클릭("준비 중" 토스트)을 등록/수정 모달에 연결한다
 - 명세가 모호해 정한 것을 팀에 확인한다: 금액순 정렬은 전체를 금액순으로 늘어놓고 같은 날짜가 이어진 것만 묶어서 날짜 머리가 여러 번 나올 수 있다. 전체 내역 상단 합계·건수는 필터와 무관하게 그 달 전체다. 편집 중 필터·정렬을 바꾸면 편집이 풀린다(FN-MYP-030-17 그대로). 반려동물별 지출 비율은 반올림 때문에 합이 101%가 될 수 있다
 - 캐릭터 이미지 API(LJS)가 나오면 슬라이드 얼굴(`chrcFaceUrl`)을 실제 이미지로 바꾼다. 지금은 종별 기본 얼굴이다
 - 목표체중 오류 문구 "0보다 큰 숫자로 입력해 주세요"는 화면설계서에 없지만 필요해서 유지한다(2026-10-20 사람 결정). 명세에 문구를 넣을지는 팀에 확인한다
