@@ -37,7 +37,7 @@
 ```
 src/
 ├─ api/         서버 통신 공통 설정(axios.js, env.js). 도메인을 모른다
-├─ features/    도메인별 코드. 도메인 1개 = 폴더 1개 (api.js, queries.js, 그 도메인 UI)
+├─ features/    도메인별 코드. 도메인 1개 = 폴더 1개 (api.js, queries.js, shared/, 화면별 폴더)
 ├─ pages/       URL 1개 = 파일 1개. features·components 조립만 한다 (관리자 화면은 pages/admin/)
 ├─ layouts/     화면 겉틀. 헤더·푸터·사이드바 + <Outlet/>
 ├─ routes/      URL과 페이지 연결 (AppRoutes.jsx, ProtectedRoute.jsx, paths.js)

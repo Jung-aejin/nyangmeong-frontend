@@ -15,10 +15,12 @@
    │   └─ env.js          import.meta.env를 읽어 export하는 유일한 파일
    │
    ├─ features/         도메인별 코드 묶음. 도메인 1개 = 폴더 1개
-   │   └─ pet/
-   │       ├─ api.js        이 도메인의 서버 요청 함수 (getPets, createPet)
-   │       ├─ queries.js    queryKey + react-query 훅 (petKeys, usePets, useCreatePet)
-   │       └─ PetCard.jsx   이 도메인 데이터를 그리는 UI. 하위 폴더 없이 여기에 둔다
+   │   └─ expense/
+   │       ├─ api.js        이 도메인의 서버 요청 함수 (getExpenses, createExpenses). 항상 여기
+   │       ├─ queries.js    queryKey + react-query 훅 (expenseKeys, useExpenses). 항상 여기
+   │       ├─ shared/       화면 하나에 속하지 않는 파일 (두 화면 이상이 쓰거나 layouts가 쓰는 것)
+   │       ├─ dashboard/    한 화면에서만 쓰는 파일. 화면 1개 = 폴더 1개
+   │       └─ history/
    │
    ├─ pages/            URL 1개 = 파일 1개. features·components 조립만 한다
    │   ├─ pet/PetListPage.jsx
@@ -40,7 +42,17 @@
    └─ assets/           이미지·폰트·전역 CSS
 ```
 
-폴더 깊이는 `src` 아래 3단계를 넘지 않는다. 지금 구조는 2단계다(`features/pet/PetCard.jsx`).
+폴더 깊이는 `src` 아래 3단계를 넘지 않는다. 지금 구조는 3단계다(`features/expense/dashboard/ExpenseCalendar.jsx`). 화면 폴더와 `shared/` 안에는 폴더를 더 만들지 않는다.
+
+## features 안의 폴더
+
+모든 도메인이 같은 틀을 쓴다. 파일을 어디에 둘지는 그 파일을 import 하는 곳으로 정한다.
+
+- 화면은 `pages/`의 페이지 하나다. `layouts/`의 조각(알림 드롭다운 등)은 화면이 아니다.
+- 한 화면에서만 쓰는 파일은 그 화면 폴더에, 그 밖의 파일은 `shared/`에 둔다. 두 번째 화면이 쓰기 시작하면 `shared/`로 옮긴다.
+- 화면 폴더끼리는 import 하지 않는다. `shared/`는 화면 폴더를 import 하지 않는다.
+- `shared/`와 화면 폴더는 넣을 파일이 생길 때 만든다. `api.js`·`queries.js`만 있는 도메인도 있다(`member/`).
+- 화면 폴더 이름은 소문자 단수 역할 이름이다. 페이지가 조립용 컴포넌트 하나를 쓰면 그 이름에서 도메인을 뗀다(`ExpenseHistory` → `history/`). 아니면 페이지 이름에서 도메인과 `Page`를 뗀다(`PetListPage` → `list/`). 남는 이름이 없으면 사람이 정한다.
 
 ## 실행 환경
 
