@@ -39,7 +39,7 @@ function NotificationPanel({ unreadCount, onClose }) {
   };
 
   return (
-    <div className="absolute right-0 top-[61px] z-40 w-[380px] overflow-hidden rounded-[14px] border border-[#e2e7e7] bg-white shadow-lg">
+    <div className="absolute right-0 top-[61px] z-40 w-[380px] overflow-hidden rounded-[14px] border border-[#e2e7e7] bg-white shadow-lg max-[760px]:fixed max-[760px]:inset-x-3 max-[760px]:top-[72px] max-[760px]:w-auto">
       <div className="flex items-center justify-between px-[18px] pb-2 pt-3.5">
         <h2 className="text-base font-bold leading-[26px] text-[#1a3234]">
           알림
@@ -122,7 +122,7 @@ export default function NotificationDropdown({
         aria-expanded={isOpen}
         onClick={onToggle}
       >
-        <Bell size={24} />
+        <Bell size={24} className="max-[760px]:size-8" />
         <CountBadge
           count={unread?.unreadCount}
           className="absolute right-px top-[5px]"

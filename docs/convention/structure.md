@@ -15,12 +15,12 @@
    │   └─ env.js          import.meta.env를 읽어 export하는 유일한 파일
    │
    ├─ features/         도메인별 코드 묶음. 도메인 1개 = 폴더 1개
-   │   └─ expense/
+   │   └─ <도메인>/
    │       ├─ api.js        이 도메인의 서버 요청 함수 (getExpenses, createExpenses). 항상 여기
    │       ├─ queries.js    queryKey + react-query 훅 (expenseKeys, useExpenses). 항상 여기
    │       ├─ shared/       화면 하나에 속하지 않는 파일 (두 화면 이상이 쓰거나 layouts가 쓰는 것)
-   │       ├─ dashboard/    한 화면에서만 쓰는 파일. 화면 1개 = 폴더 1개
-   │       └─ history/
+   │       └─ <화면>/       한 화면에서만 쓰는 파일. 화면 = pages/의 페이지 파일 1개
+   │                        예: expense/dashboard/, expense/history/, pet/list/, ai/chat/
    │
    ├─ pages/            URL 1개 = 파일 1개. features·components 조립만 한다
    │   ├─ pet/PetListPage.jsx
@@ -48,7 +48,7 @@
 
 모든 도메인이 같은 틀을 쓴다. 파일을 어디에 둘지는 그 파일을 import 하는 곳으로 정한다.
 
-- 화면은 `pages/`의 페이지 하나다. `layouts/`의 조각(알림 드롭다운 등)은 화면이 아니다.
+- 화면은 `pages/`의 페이지 파일 하나다(`ExpensePage.jsx`). 화면설계서의 SCR ID와 단위가 다르다: SCR ID 하나에 페이지가 둘일 수 있고, 모달·`layouts/`의 조각(알림 드롭다운 등)은 SCR ID가 있어도 화면이 아니다.
 - 한 화면에서만 쓰는 파일은 그 화면 폴더에, 그 밖의 파일은 `shared/`에 둔다. 두 번째 화면이 쓰기 시작하면 `shared/`로 옮긴다.
 - 화면 폴더끼리는 import 하지 않는다. `shared/`는 화면 폴더를 import 하지 않는다.
 - `shared/`와 화면 폴더는 넣을 파일이 생길 때 만든다. `api.js`·`queries.js`만 있는 도메인도 있다(`member/`).

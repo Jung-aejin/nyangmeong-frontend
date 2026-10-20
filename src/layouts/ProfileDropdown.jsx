@@ -58,6 +58,42 @@ function ProfileMenuPanel({ onClose, onLogout }) {
   );
 }
 
+/** 로그아웃 확인 모달과 처리 */
+export function LogoutConfirm({ onClose }) {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const chatModal = useChatModal();
+  const logout = useLogout();
+
+  const handleConfirm = () => {
+    logout.mutate(undefined, {
+      onSuccess: () => {
+        closeAiWindow();
+        chatModal.close();
+        /** 이전 회원 캐시 비우기 */
+        queryClient.clear();
+        onClose();
+        navigate(PATHS.HOME);
+      },
+    });
+  };
+
+  return (
+    <ConfirmModal
+      title="로그아웃하시겠어요?"
+      confirmLabel="로그아웃"
+      errorMessage={
+        logout.isError
+          ? '로그아웃하지 못했어요. 잠시 후 다시 시도해 주세요.'
+          : undefined
+      }
+      isPending={logout.isPending}
+      onConfirm={handleConfirm}
+      onCancel={onClose}
+    />
+  );
+}
+
 export default function ProfileDropdown({
   isOpen,
   onToggle,
@@ -67,10 +103,6 @@ export default function ProfileDropdown({
   const rootRef = useRef(null);
   const buttonRef = useRef(null);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const chatModal = useChatModal();
-  const logout = useLogout();
 
   /** 토글 버튼이 rootRef 안: 닫자마자 다시 열리는 것 방지 */
   useEffect(() => {
@@ -104,23 +136,7 @@ export default function ProfileDropdown({
     setIsConfirmOpen(true);
   };
 
-  const handleLogoutCancel = () => {
-    logout.reset();
-    setIsConfirmOpen(false);
-  };
-
-  const handleLogoutConfirm = () => {
-    logout.mutate(undefined, {
-      onSuccess: () => {
-        closeAiWindow();
-        chatModal.close();
-        /** 이전 회원 캐시 비우기 */
-        queryClient.clear();
-        setIsConfirmOpen(false);
-        navigate(PATHS.HOME);
-      },
-    });
-  };
+  const closeConfirm = () => setIsConfirmOpen(false);
 
   return (
     <div ref={rootRef} className="relative">
@@ -138,20 +154,7 @@ export default function ProfileDropdown({
       {isOpen && (
         <ProfileMenuPanel onClose={onClose} onLogout={handleLogoutClick} />
       )}
-      {isConfirmOpen && (
-        <ConfirmModal
-          title="로그아웃하시겠어요?"
-          confirmLabel="로그아웃"
-          errorMessage={
-            logout.isError
-              ? '로그아웃하지 못했어요. 잠시 후 다시 시도해 주세요.'
-              : undefined
-          }
-          isPending={logout.isPending}
-          onConfirm={handleLogoutConfirm}
-          onCancel={handleLogoutCancel}
-        />
-      )}
+      {isConfirmOpen && <LogoutConfirm onClose={closeConfirm} />}
     </div>
   );
 }
