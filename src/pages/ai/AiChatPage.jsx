@@ -8,6 +8,11 @@ import ConversationSidebar from '@/features/ai/ConversationSidebar';
 import { OPEN_CHAT_MODAL_MESSAGE } from '@/constants/chatModal';
 import { CHAT_MODAL_ACTION } from '@/features/ai/fakeRoutingMap';
 import { fakePets } from '@/features/ai/fakePets';
+import {
+  getFallbackCount,
+  increaseFallbackCount,
+  resetFallbackCount,
+} from '@/features/ai/fallbackCount';
 import { openInMainWindow } from '@/features/ai/openInMainWindow';
 import { useConversation, useSendMessage } from '@/features/ai/queries';
 import useAnswerStream from '@/features/ai/useAnswerStream';
@@ -38,6 +43,8 @@ export default function AiChatPage() {
   const answer = useAnswerStream();
   /** 이동 안내 상태 */
   const [route, setRoute] = useState(null);
+  /** 선택된 대화의 연속 실패 횟수 */
+  const [fallbackCount, setFallbackCount] = useState(0);
   const isAnswering =
     answer.status === 'waiting' || answer.status === 'streaming';
 
@@ -62,17 +69,31 @@ export default function AiChatPage() {
           setFirstMessage(null);
           setRoute(null);
           setSelectedRoomSn(aiCnvrsRoomSn);
-          /** 검색·이동 안내만 이 화면 처리 */
+          /** 검색·이동 안내·매칭 실패만 이 화면 처리 */
           if (intent === 'SEARCH') {
             answer.start({ aiCnvrsRoomSn, question: aiCnvrsMsgCn });
           }
           if (intent === 'ROUTE') {
             setRoute({ ...nextRoute, aiCnvrsMsgSn, status: 'waiting' });
           }
+          if (intent === 'FALLBACK') {
+            answer.reset();
+            setFallbackCount(increaseFallbackCount(aiCnvrsRoomSn));
+          }
+          if (intent === 'ROUTE' || intent === 'REGISTER') {
+            setFallbackCount(resetFallbackCount(aiCnvrsRoomSn));
+          }
         },
       },
     );
   };
+
+  /** 검색 답변 완료 시 실패 횟수 초기화 */
+  useEffect(() => {
+    if (answer.status !== 'done') return;
+    /* eslint-disable-next-line react-hooks/set-state-in-effect -- 답변 완료 시점에 맞춘 초기화 */
+    setFallbackCount(resetFallbackCount(answer.aiCnvrsRoomSn));
+  }, [answer.status, answer.aiCnvrsRoomSn]);
 
   /** 미완료 답변 재생성 */
   const handleRegenerate = (message) => {
@@ -146,12 +167,14 @@ export default function AiChatPage() {
           setRoute(null);
           setFirstMessage(null);
           setSelectedRoomSn(aiCnvrsRoomSn);
+          setFallbackCount(getFallbackCount(aiCnvrsRoomSn));
         }}
         onNewChat={() => {
           answer.reset();
           setRoute(null);
           setFirstMessage(null);
           setSelectedRoomSn(null);
+          setFallbackCount(0);
         }}
         onOpenSettings={handleOpenSettings}
       />
@@ -172,6 +195,7 @@ export default function AiChatPage() {
               answer.reset();
               setRoute(null);
               setSelectedRoomSn(null);
+              setFallbackCount(0);
             }}
           />
         )}
@@ -188,6 +212,7 @@ export default function AiChatPage() {
                   !answer.hiddenMsgSns.includes(message.aiCnvrsMsgSn) &&
                   message.aiCnvrsMsgSn !== route?.aiCnvrsMsgSn,
               )}
+              fallbackCount={fallbackCount}
               onRegenerate={handleRegenerate}
             >
               {answer.status !== 'idle' && (
