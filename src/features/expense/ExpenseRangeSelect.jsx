@@ -3,7 +3,7 @@ import Select from '@/components/Select';
 import { formatYm } from '@/utils/yearMonth';
 import { RANGE_MODE } from './expenseCodes';
 
-// 편집 모드의 삭제 범위. 기간 지정은 시작·종료를 월 단위로 고르고, 뒤바뀌면 쓰는 쪽에서 바로잡는다
+/** 편집 모드 삭제 범위 */
 export default function ExpenseRangeSelect({
   baseYm,
   range,

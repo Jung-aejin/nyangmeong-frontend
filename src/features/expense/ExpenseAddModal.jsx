@@ -39,17 +39,20 @@ function ChooseOption({ icon, title, description, onClick }) {
   );
 }
 
-// 지출 등록의 1단계(방법 선택)부터 직접 입력, 영수증 업로드, 인식 결과 확인, 중복 확인까지 이어서 연다.
-// expndYmd: 누른 날짜. onSaved(expndYmd): 저장한 날짜(영수증 날짜가 다를 수 있다)
+/**
+ * [지출 등록 모달]
+ * - 방법 선택 -> 직접 입력·영수증 업로드 -> 인식 결과 확인 -> 중복 확인
+ * - expndYmd: 누른 날짜, onSaved: 저장 날짜(영수증 날짜 별개 가능)
+ */
 export default function ExpenseAddModal({ expndYmd, pets, onSaved, onClose }) {
   const [step, setStep] = useState(STEP.CHOOSE);
-  // 영수증 파일과 미리보기 주소. 분석을 취소해도 남아 있어야 해서 여기서 쥔다
+  /** 영수증 파일·미리보기 주소: 분석 취소 후에도 유지 */
   const [picked, setPicked] = useState(null);
   const [recognized, setRecognized] = useState(null);
-  // 인식하지 못해 직접 입력으로 넘어왔을 때, 저장한 지출에 연결할 영수증 번호
+  /** 직접 입력 전환 시 연결할 영수증 번호 */
   const [directRcptSn, setDirectRcptSn] = useState(null);
   const [isRetakeOpen, setIsRetakeOpen] = useState(false);
-  // 겹치는 지출이 있어 확인을 기다리는 저장: { items, duplicates }
+  /** 중복 확인 대기 저장: { items, duplicates } */
   const [pendingSave, setPendingSave] = useState(null);
   const pickedRef = useRef(null);
 
@@ -84,7 +87,7 @@ export default function ExpenseAddModal({ expndYmd, pets, onSaved, onClose }) {
       onError: showSaveError,
     });
 
-  // 저장하기 전에 같은 지출이 이미 있는지 본다
+  /** 중복 지출 조회 */
   const handleSubmit = (items) =>
     findDuplicates.mutate(items, {
       onSuccess: (duplicates) => {

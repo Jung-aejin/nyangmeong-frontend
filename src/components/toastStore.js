@@ -13,7 +13,7 @@ export const subscribe = (listener) => {
 
 export const getToasts = () => toasts;
 
-// 컴포넌트 밖(mutation의 onError 등)에서도 부를 수 있다
+/** 컴포넌트 밖(mutation onError 등)에서도 호출 가능 */
 export const showToast = (message) => {
   const id = nextId++;
   toasts = [...toasts, { id, message }];

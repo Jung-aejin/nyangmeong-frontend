@@ -1,7 +1,7 @@
 import { useId } from 'react';
 import { EXPND_CLSF_LIST } from './expenseCodes';
 
-// 카테고리 7종을 칩으로 원탭 선택한다
+/** 카테고리 칩 원탭 선택 */
 export default function ExpenseCategoryChips({ value, onChange }) {
   const name = useId();
 

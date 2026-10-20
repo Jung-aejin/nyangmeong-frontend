@@ -5,11 +5,11 @@
 ## 주소와 인증
 
 - 서버는 둘이다. 메인 서버(Spring Boot)와 AI 서버(Python)이고, AI 서버는 포트가 다르다.
-- 메인 서버 요청은 `/api/v1`로 시작하는 상대 경로다. 호스트와 포트를 코드에 적지 않는다. 개발 환경은 Vite 프록시가, 운영은 Nginx가 같은 오리진으로 만들어 준다.
+- 메인 서버 요청은 `/api`로 시작하는 상대 경로다. 호스트와 포트를 코드에 적지 않는다. 개발 환경은 Vite 프록시가, 운영은 Nginx가 같은 오리진으로 만들어 준다.
 - AI 서버 요청은 `api/axios.js`의 `aiApi` 인스턴스로 보낸다. 주소는 환경변수 `VITE_AI_API_URL`이고 `api/env.js`에서 읽는다. 포트가 다르면 다른 오리진이므로 `aiApi`는 `withCredentials`로 쿠키를 함께 보낸다. `aiApi`는 AI 서버를 처음 부르는 사람이 만든다.
 - AI 서버도 로그인한 사용자만 쓴다. 메인 서버가 심은 같은 로그인 쿠키로 확인한다. 401이 오면 `api`와 같이 메인 서버의 재발급을 한 번 거쳐 다시 보낸다.
 - 인증은 서버가 심는 HttpOnly 쿠키다. 코드에서 토큰을 읽거나 저장하지 않는다.
-- 로그인 여부와 역할은 `features/member`의 `useMe`(`GET /members/me`)로만 확인한다. 쿠키가 HttpOnly라 코드에서 읽을 수 없으므로 서버에 묻는 것이 유일한 방법이다. 헤더와 `ProtectedRoute`가 같은 훅을 쓴다.
+- 로그인 여부와 역할은 `features/member`의 `useMe`(`GET /auth/me`: 회원 번호·권한·닉네임·프로필 사진·마스킹 이메일)로만 확인한다. 쿠키가 HttpOnly라 코드에서 읽을 수 없으므로 서버에 묻는 것이 유일한 방법이다. 헤더와 `ProtectedRoute`가 같은 훅을 쓴다.
 - 상태를 바꾸는 요청(GET·HEAD·OPTIONS가 아닌 요청)은 `X-Requested-With: XMLHttpRequest` 헤더가 없으면 서버가 403으로 거절한다. `api/axios.js`의 인스턴스가 모든 요청에 붙여 주므로 그 인스턴스만 쓴다. 파일 업로드(`multipart/form-data`)도 같다.
 - API 명세(경로, 요청·응답 필드)는 백엔드의 Swagger UI에서 본다. 개발 환경 주소는 `http://localhost:8080/swagger-ui.html`이다.
 - 수정(PATCH)은 바꿀 필드만 보낸다. 서버는 보내지 않은 필드와 `null`인 필드를 바꾸지 않는다. 값을 비워야 하면 빈 문자열(`""`)을 보낸다. PUT으로 저장하는 API는 전체를 보내며, 보내지 않은 항목은 지워진다.
@@ -17,16 +17,19 @@
 
 ## 응답 모양
 
+2026-10-20 확정. 백엔드 `docs/convention/api.md`와 같다.
+
 ```json
-{"success":true,"data":{ ... }}
-{"success":false,"error":{"code":"MEMBER_NOT_FOUND","message":"일치하는 회원정보를 찾을 수 없습니다.","fields":null}}
+{"timestamp":"2026-10-20T09:10:00","status":"success","httpCode":200,"message":"ok","data":{ ... }}
+{"timestamp":"2026-10-20T09:10:00","status":"error","httpCode":404,"message":"일치하는 회원정보를 찾을 수 없습니다.","path":"/api/auth/me","code":"MEMBER_NOT_FOUND"}
+{"timestamp":"2026-10-20T09:10:00","status":"error","httpCode":400,"message":"입력값이 올바르지 않습니다.","path":"/api/pets","code":"INVALID_INPUT_VALUE","data":[{"field":"petNm","message":"이름을 입력해 주세요"}]}
 ```
 
-- 인터셉터가 `data`만 꺼내서 돌려준다. `api.js`의 함수는 `data` 안의 값을 받는다(axios 응답 객체가 아니므로 `res.data`를 또 꺼내지 않는다).
+- 인터셉터가 `data`만 꺼내서 돌려준다. `api.js`의 함수는 `data` 안의 값을 받는다(axios 응답 객체가 아니므로 `res.data`를 또 꺼내지 않는다). 삭제·상태 변경처럼 `data`가 없는 성공은 `undefined`가 온다.
 - 보호 파일 다운로드만 예외다. JSON이 아니라 파일 자체가 오므로 이 모양이 아니다. `api.get(url, { responseType: 'blob' })`로 요청하면 인터셉터가 Blob을 그대로 돌려준다.
-- 오류는 항상 `{ code, message, fields }` 모양으로 온다. `error.code`로 분기하고 `error.message`를 그대로 화면에 표시한다. 같은 오류의 문구를 프론트에서 새로 쓰지 않는다.
-- 서버가 `error`를 주지 않은 경우에도 인터셉터가 같은 모양을 만들어 준다. 응답이 없으면(네트워크 단절) `NETWORK_ERROR`, 응답은 있는데 `error`가 없으면(Nginx 502·504 등) `SERVER_ERROR`다. 화면 코드는 이 경우를 따로 처리하지 않는다.
-- `error.fields`는 입력값 검증 오류일 때만 `[{ field, message }]`이고 그 밖에는 `null`이다. 입력칸 아래 문구에 쓴다.
+- 오류는 `status`가 `"error"`이고 최상위에 `code`·`message`가 있다. `code`(백엔드 `ErrorCode` 상수 이름)로 분기하고 `message`를 그대로 화면에 표시한다. 같은 오류의 문구를 프론트에서 새로 쓰지 않는다. 인터셉터는 `{ code, message, fields }`로 정리해 거부(reject)하므로 화면 코드는 그 모양만 본다.
+- `fields`는 입력값 검증 오류(`INVALID_INPUT_VALUE`)일 때만 서버 응답의 `data`에서 꺼낸 `[{ field, message }]`이고 그 밖에는 `null`이다. 입력칸 아래 문구에 쓴다.
+- 서버가 이 모양을 주지 않은 경우에도 인터셉터가 같은 모양을 만들어 준다. 응답이 없으면(네트워크 단절) `NETWORK_ERROR`, 응답은 있는데 `code`가 없으면(Nginx 502·504 등) `SERVER_ERROR`다. 화면 코드는 이 경우를 따로 처리하지 않는다.
 
 ## 오류 표시
 
@@ -41,7 +44,7 @@
 | 코드 | 뜻 | 프론트가 하는 일 |
 | --- | --- | --- |
 | 400 | 입력값이 틀렸거나 업무 규칙에 어긋남 | `error.message`, `error.fields` 표시 |
-| 401 | 토큰 없음·만료(이 경우에만) | 인터셉터가 재발급을 1회 시도. 실패하면 랜딩으로 이동 |
+| 401 | 토큰 없음·틀림(`UNAUTHORIZED`)·만료(`TOKEN_EXPIRED`) | `TOKEN_EXPIRED`면 인터셉터가 재발급을 1회 시도. 실패하거나 `UNAUTHORIZED`면 랜딩으로 이동 |
 | 403 | 권한 없음. `MEMBER_INACTIVE`는 정지·탈퇴 회원 | `MEMBER_INACTIVE`는 재발급 없이 랜딩으로 이동. 그 밖은 `error.message` 표시 |
 | 404 | 대상이 없음 | `error.message` 표시 |
 | 409 | 이미 있음 | `error.message` 표시 |
@@ -57,7 +60,7 @@
 import axios from 'axios';
 
 export const api = axios.create({
-  baseURL: '/api/v1',                                  // 상대 경로만
+  baseURL: '/api',                                  // 상대 경로만
   headers: { 'X-Requested-With': 'XMLHttpRequest' },   // 없으면 서버가 거절한다
 });
 
@@ -71,16 +74,19 @@ const fallbackError = (response) => (response
 api.interceptors.response.use(
   (res) => (res.config.responseType === 'blob'
     ? res.data                                         // 보호 파일은 Blob 그대로 돌려준다
-    : res.data.data),                                  // { success, data, error }에서 data만 꺼낸다
+    : res.data.data),                                  // { status, httpCode, message, data }에서 data만 꺼낸다
   async (err) => {
     const { config, response } = err;
     let body = response?.data;
     if (body instanceof Blob) {                        // 파일 요청이 실패하면 오류 JSON도 Blob으로 온다
       body = await body.text().then(JSON.parse).catch(() => null);
     }
-    const error = body?.error ?? fallbackError(response);   // 항상 { code, message, fields }
+    // 서버 오류 { code, message, data }를 { code, message, fields }로 정리한다. fields는 검증 오류의 data다
+    const error = body?.code
+      ? { code: body.code, message: body.message, fields: body.code === 'INVALID_INPUT_VALUE' ? body.data : null }
+      : fallbackError(response);
     const isRefresh = config?.url === '/auth/refresh';
-    if (response?.status === 401 && !config._retried && !isRefresh) {
+    if (response?.status === 401 && error.code === 'TOKEN_EXPIRED' && !config._retried && !isRefresh) {
       config._retried = true;                          // 재발급은 한 번만
       try {
         refreshing ??= api.post('/auth/refresh').finally(() => { refreshing = null; });
@@ -100,10 +106,10 @@ api.interceptors.response.use(
 
 ```js
 // features/member/api.js
-export const getMe = () => api.get('/members/me', { skipAuthRedirect: true });
+export const getMe = () => api.get('/auth/me', { skipAuthRedirect: true });
 
 // features/member/queries.js
-export const memberKeys = { me: ['members', 'me'] };
+export const memberKeys = { me: ['auth', 'me'] };
 export const useMe = () =>
   useQuery({ queryKey: memberKeys.me, queryFn: getMe, staleTime: 5 * 60 * 1000 });
 ```

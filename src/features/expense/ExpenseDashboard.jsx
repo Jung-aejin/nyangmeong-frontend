@@ -24,18 +24,18 @@ import { useExpenseOverview, useExpenses } from './queries';
 
 const TOP_EXPENSE_COUNT = 3;
 
-// onViewAll(ym): 보고 있던 달을 들고 전체 내역으로 간다
+/** onViewAll(ym): 보던 달을 넘기는 전체 내역 이동 */
 export default function ExpenseDashboard({ onViewAll }) {
   const [maxYm] = useState(getCurrentYm);
   const [ym, setYm] = useState(maxYm);
   const [selectedYmd, setSelectedYmd] = useState(null);
   const [isLimitOpen, setIsLimitOpen] = useState(false);
   const [deletingExpense, setDeletingExpense] = useState(null);
-  // 등록 모달을 열 날짜와 수정 중인 지출
+  /** 등록 모달 날짜·수정 중인 지출 */
   const [addingYmd, setAddingYmd] = useState(null);
   const [editingExpense, setEditingExpense] = useState(null);
 
-  // 지난달 대비를 위해 지난달까지 함께 받는다
+  /** 지난달 대비용 조회 범위 */
   const { data: expenses = [], isPlaceholderData } = useExpenses({
     fromYm: shiftYm(ym, -1),
     toYm: ym,
@@ -56,7 +56,7 @@ export default function ExpenseDashboard({ onViewAll }) {
   };
   const handleSelectDay = (expndYmd) =>
     setSelectedYmd(expndYmd === selectedYmd ? null : expndYmd);
-  // 저장한 날짜로 달력을 옮기고 그 날짜 상세를 펼친다(영수증 날짜는 다른 달일 수 있다)
+  /** 저장 날짜로 달력 이동·상세 펼침(영수증 날짜는 다른 달 가능) */
   const handleSaved = (expndYmd) => {
     setAddingYmd(null);
     setEditingExpense(null);

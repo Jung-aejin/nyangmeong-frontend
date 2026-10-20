@@ -1,7 +1,7 @@
 import { BTN_DANGER } from '@/components/buttonStyles';
 import { formatWon } from './expenseFormat';
 
-// 다른 페이지에서 고른 것까지 합친 건수와 합계다
+/** 페이지 간 선택 건수·합계 */
 export default function ExpenseSelectBar({ count, totalAmt, onDelete }) {
   return (
     <div className="sticky bottom-4 z-5 flex items-center justify-between gap-3 rounded-card bg-brand-900 py-3 pr-3 pl-5 text-white shadow-depth-md">

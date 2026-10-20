@@ -1,4 +1,4 @@
-// 원 단위 금액 입력. value는 숫자만 담은 문자열이고 onChange도 숫자 문자열을 준다
+/** 원 단위 금액 입력: 숫자 문자열 값 */
 export default function AmountInput({
   id,
   value,

@@ -10,11 +10,11 @@ import {
 } from './petCodes';
 import { useCreatePet, usePet, useUpdatePet, useVarieties } from './queries';
 
-// 품종 목록에서 [직접 입력]을 고른 상태. 서버에는 vrtySn 없이 vrtyDrctInptNm만 보낸다
+/** 품종 [직접 입력] 선택 상태 */
 const VRTY_DRCT_INPT = 'DRCT_INPT';
 const VRTY_DRCT_LABEL = '직접 입력';
 
-// 종류와 성별은 처음부터 하나가 골라져 있다(명세에 이 둘의 입력 오류가 없다)
+/** 종류·성별 초기 선택값 */
 const EMPTY_FORM = {
   petNm: '',
   petSeCd: PET_SE.DOG,
@@ -44,11 +44,11 @@ const toForm = (pet) => ({
   vrtySn: pet.vrtySn == null ? VRTY_DRCT_INPT : String(pet.vrtySn),
 });
 
-// 0보다 큰 숫자, 소수 셋째 자리까지(DB decimal(8,3))
+/** 체중 입력 형식 (DB decimal(8,3) 기준) */
 const DECIMAL_INPUT = /^\d{0,5}(\.\d{0,3})?$/;
 const isPositive = (value) => value !== '' && Number(value) > 0;
 
-// "새우, ,닭고기 " → "새우,닭고기". 빈 값이면 null
+/** 쉼표 목록 정리 */
 const normalizeList = (value) =>
   value
     .split(',')
@@ -61,7 +61,7 @@ const toTextOrNull = (value) => value.trim() || null;
 
 const formatRecordDate = (rcdDt) => rcdDt.slice(5, 10);
 
-// 서버가 돌려주는 필드 이름과 화면의 오류 자리가 다른 것만 짝지어 둔다
+/** 서버 필드명 -> 화면 오류 자리 매핑 */
 const ERROR_KEY = {
   vrtySn: 'vrty',
   vrtyDrctInptNm: 'vrty',
@@ -72,7 +72,7 @@ const ERROR_KEY = {
 };
 const errorKeyOf = (field) => ERROR_KEY[field] ?? field;
 
-// 화면에 나온 순서대로 [오류 자리, 문구, 이동할 칸 id]를 돌려준다
+/** 오류 목록 (화면 순서) */
 const validate = ({ form, breedText, isWeightLocked }) => {
   const errors = [];
   const isVrtyDrctInpt = form.vrtySn === VRTY_DRCT_INPT;
@@ -164,7 +164,7 @@ export default function PetFormModal({ petSn = null, onClose }) {
 
 function PetForm({ pet, onClose }) {
   const [form, setForm] = useState(() => (pet ? toForm(pet) : EMPTY_FORM));
-  // 품종 칸에 보이는 글자. 목록에서 고르기 전에는 form.vrtySn과 다를 수 있다
+  /** 품종 칸 표시 글자 */
   const [breedText, setBreedText] = useState(() => {
     if (!pet) return '';
     return pet.vrtySn == null ? VRTY_DRCT_LABEL : (pet.vrtyNm ?? '');
@@ -205,7 +205,7 @@ function PetForm({ pet, onClose }) {
     if (/^\d*$/.test(e.target.value)) handleChange(e);
   };
 
-  // 품종·털색 목록이 종류마다 달라 종류를 바꾸면 고른 값을 비운다
+  /** 종류별 품종·털색 목록 초기화 */
   const handlePetSeChange = (code) => {
     if (form.petSeCd === code) return;
     setForm((prev) => ({
@@ -297,7 +297,7 @@ function PetForm({ pet, onClose }) {
     else createPet.mutate(body, options);
   };
 
-  // toISOString은 UTC라 한국 자정~오전 9시에 어제 날짜가 된다
+  /** UTC 변환 시 날짜 어긋남 방지 */
   const today = new Date().toLocaleDateString('sv-SE');
 
   return (
@@ -470,7 +470,7 @@ function PetForm({ pet, onClose }) {
                   건강 일지에 기록된 체중이에요 (
                   {formatRecordDate(lastBdwgRcd.rcdDt)} 기록)
                 </p>
-                {/* 건강 일지(SCR-HLT-002, JAJ) 경로가 생기면 연결한다 */}
+                {/** 건강 일지(SCR-HLT-002) 경로 연결 예정 */}
                 <button
                   type="button"
                   className="inline-flex h-10 items-center justify-center self-start rounded-md border border-line bg-white px-4 font-semibold hover:border-line-strong hover:bg-surface-2"
@@ -726,7 +726,7 @@ function Row({ children }) {
   );
 }
 
-// 입력칸 하나. id로 라벨을 잇고, 글자 수·안내·오류 문구를 아래위에 붙인다
+/** 입력칸 하나 */
 function Field({
   id,
   label,
@@ -763,7 +763,7 @@ function Field({
   );
 }
 
-// 입력칸이 여러 개이거나 라디오처럼 라벨로 이을 칸이 없는 묶음
+/** 라벨로 이을 칸 없는 입력 묶음 */
 function Group({ label, required, help, helpId, error, errorId, children }) {
   return (
     <fieldset className="m-0 flex min-w-0 flex-col gap-1.5 border-0 p-0">
@@ -855,10 +855,10 @@ function Highlight({ text, query }) {
   );
 }
 
-// 품종 검색 + 목록 선택. 입력하면 목록이 좁혀지고, 맨 아래에 [직접 입력]이 있다
+/** 품종 검색·선택 목록 */
 function BreedCombo({ varieties, selected, text, invalid, onType, onSelect }) {
   const [isOpen, setIsOpen] = useState(false);
-  // 입력한 글자로 목록을 거르는 중이면 그 글자, 아니면 null(전체 목록)
+  /** 목록 필터 글자 (전체 목록은 null) */
   const [query, setQuery] = useState(null);
   const [active, setActive] = useState(-1);
 
@@ -868,7 +868,7 @@ function BreedCombo({ varieties, selected, text, invalid, onType, onSelect }) {
       : varieties.filter((vrty) =>
           normalize(vrty.vrtyNm).includes(normalize(query)),
         );
-  // 방향키로 오가는 항목: 목록 + 맨 아래 [직접 입력]
+  /** 방향키 이동 항목 */
   const optionCount = shown.length + 1;
 
   const open = () => {

@@ -18,7 +18,7 @@ const CATEGORY_OPTIONS = [
   ...EXPND_CLSF_LIST.map((clsf) => ({ value: clsf.code, label: clsf.name })),
 ];
 
-// 현재 연동 중인 동물, 공용, 연동 해제·삭제된 동물 순이다. 뒤의 둘은 조회·삭제에만 쓴다
+/** 필터 선택지 (조회·삭제 전용 항목 포함) */
 const getPetOptions = (pets) => {
   const activePets = pets.filter((pet) => pet.petStts === PET_STTS.ACTIVE);
   const removedPets = pets.filter((pet) => pet.petStts !== PET_STTS.ACTIVE);
@@ -36,7 +36,7 @@ const getPetOptions = (pets) => {
   ];
 };
 
-// children은 오른쪽 끝에 놓인다(편집 버튼). 편집 중에는 정렬을 보이지 않는다
+/** children: 오른쪽 끝 편집 버튼 */
 export default function ExpenseFilterBar({
   pets,
   petFilter,

@@ -28,8 +28,7 @@ const newRow = (petValue, digits) => ({
   digits,
 });
 
-// result: 영수증 인식 결과(인식하지 못한 항목은 null). 반려동물은 영수증에서 알 수 없어 사용자가 고른다.
-// onSubmit(items): 줄마다 지출 1건. onRetake: [다시 촬영]을 눌렀을 때(확인은 부모가 한다)
+/** 영수증 인식 결과 확인·수정 */
 export default function ExpenseReceiptReview({
   result,
   fallbackYmd,
@@ -68,7 +67,7 @@ export default function ExpenseReceiptReview({
       current.map((row) => (row.key === key ? { ...row, ...patch } : row)),
     );
 
-  // 병원에서는 공용을 쓸 수 없어서, 공용을 골라 둔 줄은 비우고 안내한다
+  /** 병원 카테고리 공용 선택 비우기·안내 */
   const handleChangeClsf = (code) => {
     setExpndClsfCd(code);
     if (
@@ -132,7 +131,7 @@ export default function ExpenseReceiptReview({
           </>
         }
       >
-        {/* 점선 테두리는 AI가 인식한 요소라는 표시다 */}
+        {/** AI 인식 요소 점선 테두리 */}
         <div className="rounded-box border-2 border-dashed border-brand-500 p-4">
           <form
             id={FORM_ID}

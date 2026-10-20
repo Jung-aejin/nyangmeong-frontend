@@ -1,8 +1,14 @@
-// 대화 API(Python AI 서버)가 생기기 전까지 쓰는 가짜 응답이다. api.get() / api.delete()로 바꾼다
-// 필드 이름은 ERD 컬럼명(AI_CNVRS_ROOM_*, AI_CNVRS_MSG_*)에서 따온 추정이다. 연결 때 Swagger로 확인한다
-// petSn이 null인 대화는 펫 태그가 [전체]다. aiCnvrsMsgRoleCd는 'USER' 또는 'AI'다
+import { IS_DEV } from '@/api/env';
+import { PATHS } from '@/routes/paths';
+import { isRegisterRequest, matchRoute } from './fakeRoutingMap';
 
-// 오늘 기준 n일 전 날짜를 서버가 주는 형태(타임존 없는 일시)로 만든다. 날짜 묶음이 날마다 맞게 상대 날짜로 둔다
+/**
+ * [가짜 대화 API]
+ * - Python AI 서버 연결 전 임시 응답, 연결 시 api.get()·api.delete()로 교체
+ * - 필드 이름은 ERD 컬럼명 기반 추정, 연결 때 Swagger로 확인
+ */
+
+/** n일 전 일시(타임존 없는 형태) */
 const daysAgo = (days, hour) => {
   const date = new Date();
   date.setDate(date.getDate() - days);
@@ -104,7 +110,7 @@ let fakeConversations = [
   },
 ];
 
-// 최근 대화가 위로 온다. 목록에는 메시지를 싣지 않는다
+/** 대화 목록 */
 export const getConversations = ({ petSn } = {}) => {
   const rooms = fakeConversations
     .filter((room) => petSn == null || room.petSn === petSn)
@@ -119,7 +125,7 @@ export const getConversations = ({ petSn } = {}) => {
   return Promise.resolve(rooms);
 };
 
-// 대화 하나와 그 메시지를 함께 돌려준다
+/** 대화 상세 */
 export const getConversation = (aiCnvrsRoomSn) => {
   const room = fakeConversations.find(
     (item) => item.aiCnvrsRoomSn === aiCnvrsRoomSn,
@@ -127,7 +133,7 @@ export const getConversation = (aiCnvrsRoomSn) => {
   return room ? Promise.resolve(room) : Promise.reject(new Error('not found'));
 };
 
-// 대화와 메시지를 복구할 수 없게 지운다
+/** 대화 삭제 */
 export const deleteConversation = (aiCnvrsRoomSn) => {
   fakeConversations = fakeConversations.filter(
     (room) => room.aiCnvrsRoomSn !== aiCnvrsRoomSn,
@@ -138,14 +144,8 @@ export const deleteConversation = (aiCnvrsRoomSn) => {
 let nextFakeRoomSn = 100;
 let nextFakeMsgSn = 100;
 
-// 메시지를 보낸다. aiCnvrsRoomSn이 null이면 대화를 이 메시지로 새로 만든다(제목은 첫 메시지, 200자까지)
-// intent는 AI 서버가 판정한 분기 결과다(추정: REGISTER·ROUTE·SEARCH·FALLBACK). 화면 처리는 002·004·005·012에서 한다
-export const sendMessage = ({
-  aiCnvrsRoomSn,
-  petSn,
-  petNm,
-  aiCnvrsMsgCn,
-}) => {
+/** 메시지 전송 */
+export const sendMessage = ({ aiCnvrsRoomSn, petSn, petNm, aiCnvrsMsgCn }) => {
   const message = {
     aiCnvrsMsgSn: nextFakeMsgSn++,
     aiCnvrsMsgRoleCd: 'USER',
@@ -169,5 +169,138 @@ export const sendMessage = ({
   }
   room.messages = [...room.messages, message];
 
-  return Promise.resolve({ aiCnvrsRoomSn: room.aiCnvrsRoomSn, intent: 'SEARCH' });
+  if (isRegisterRequest(aiCnvrsMsgCn)) {
+    return Promise.resolve({
+      aiCnvrsRoomSn: room.aiCnvrsRoomSn,
+      intent: 'REGISTER',
+    });
+  }
+
+  const route = matchRoute(aiCnvrsMsgCn);
+  if (route) {
+    /** 이동 안내 문구의 AI 메시지 저장 */
+    const guide = {
+      aiCnvrsMsgSn: nextFakeMsgSn++,
+      aiCnvrsMsgRoleCd: 'AI',
+      aiCnvrsMsgCn: `${route.label} 화면으로 이동할게요.`,
+      aiCnvrsMsgCmptnYn: 'Y',
+    };
+    room.messages = [...room.messages, guide];
+    return Promise.resolve({
+      aiCnvrsRoomSn: room.aiCnvrsRoomSn,
+      intent: 'ROUTE',
+      aiCnvrsMsgSn: guide.aiCnvrsMsgSn,
+      route: { label: route.label, path: route.path, action: route.action },
+    });
+  }
+
+  return Promise.resolve({
+    aiCnvrsRoomSn: room.aiCnvrsRoomSn,
+    intent: 'SEARCH',
+  });
+};
+
+const HEALTH_PATTERN = /접종|병원|아파|건강|약|사료/;
+const HEALTH_NOTE =
+  '※ 참고 정보이며 의료 진단이 아닙니다. 이상 징후가 있다면 수의사와 상담하세요.';
+const FAKE_ANSWER =
+  '생후 6~8주부터 종합백신(DHPPL) 1차를 시작으로 2~4주 간격으로 5차까지 맞히고, 코로나 장염·켄넬코프·인플루엔자·광견병을 순서대로 이어서 접종해요. 기초 접종이 끝나면 1년에 한 번 추가 접종을 권장해요.';
+const CHUNK_SIZE = 3;
+const CHUNK_DELAY_MS = 40;
+
+/** 개발 환경 전용 실패 상황 쿼리 */
+const fakeFlag = (name) =>
+  IS_DEV ? new URLSearchParams(window.location.search).get(name) : null;
+
+/** 첫 요청에만 실패 상황 적용: 재시도 성공 확인용 */
+const usedFakeFlags = new Set();
+const fakeFlagOnce = (name) => {
+  if (usedFakeFlags.has(name)) return null;
+  const value = fakeFlag(name);
+  if (value !== null) usedFakeFlags.add(name);
+  return value;
+};
+
+const wait = (ms, signal) =>
+  new Promise((resolve) => {
+    const timer = setTimeout(resolve, ms);
+    signal?.addEventListener('abort', () => {
+      clearTimeout(timer);
+      resolve();
+    });
+  });
+
+/** 답변 스트리밍 */
+export const streamAnswer = async ({
+  aiCnvrsRoomSn,
+  question,
+  replaceMsgSn,
+  onToken,
+  signal,
+}) => {
+  const room = fakeConversations.find(
+    (item) => item.aiCnvrsRoomSn === aiCnvrsRoomSn,
+  );
+  if (!room) throw new Error('not found');
+
+  await wait(
+    Number(fakeFlagOnce('fakeAiFirstDelay') ?? 0) * 1000 || 600,
+    signal,
+  );
+  if (signal?.aborted) return { aiCnvrsMsgSn: null };
+  if (fakeFlagOnce('fakeAiError')) throw new Error('AI error');
+
+  const isHealth = HEALTH_PATTERN.test(question);
+  const answer = isHealth
+    ? FAKE_ANSWER
+    : '그 내용은 아직 잘 몰라요. 다른 질문을 해 주세요.';
+  const limit = fakeFlagOnce('fakeAiCut')
+    ? Math.floor(answer.length / 2)
+    : answer.length;
+
+  let received = '';
+  while (received.length < limit && !signal?.aborted) {
+    const chunk = answer.slice(
+      received.length,
+      Math.min(received.length + CHUNK_SIZE, limit),
+    );
+    received += chunk;
+    onToken(chunk);
+    await wait(CHUNK_DELAY_MS, signal);
+  }
+
+  const isComplete = received.length === answer.length;
+  /** 미완료 저장 제외 대상 */
+  if (received === '') return { aiCnvrsMsgSn: null };
+
+  const message = {
+    aiCnvrsMsgSn: nextFakeMsgSn++,
+    aiCnvrsMsgRoleCd: 'AI',
+    aiCnvrsMsgCn:
+      isComplete && isHealth
+        ? `${answer}
+
+${HEALTH_NOTE}`
+        : received,
+    aiCnvrsMsgCmptnYn: isComplete ? 'Y' : 'N',
+  };
+  room.messages = [
+    ...room.messages.filter((item) => item.aiCnvrsMsgSn !== replaceMsgSn),
+    message,
+  ];
+
+  const hasShortcut = isComplete && isHealth && !fakeFlag('fakeAiNoShortcut');
+  return {
+    aiCnvrsMsgSn: message.aiCnvrsMsgSn,
+    aiCnvrsMsgCmptnYn: message.aiCnvrsMsgCmptnYn,
+    aiCnvrsMsgCn: message.aiCnvrsMsgCn,
+    rltdShrtcts: hasShortcut
+      ? [
+          {
+            label: '케어 캘린더에서 접종 일정 보기',
+            path: PATHS.HEALTH_CALENDAR,
+          },
+        ]
+      : [],
+  };
 };

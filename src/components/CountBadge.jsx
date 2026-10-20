@@ -1,4 +1,4 @@
-// 0이면 아무것도 그리지 않고, 99를 넘으면 "99+"로 보인다
+/** 개수 배지(0은 숨김, 99 초과는 99+) */
 export default function CountBadge({ count, className = '' }) {
   if (!count) return null;
 

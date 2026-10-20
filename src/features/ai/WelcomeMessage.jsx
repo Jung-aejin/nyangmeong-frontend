@@ -1,7 +1,7 @@
 import { openInMainWindow } from './openInMainWindow';
 import { shortcutChips } from './shortcutChips';
 
-// petNm이 없으면 [전체]가 선택된 상태다
+/** 환영 메시지 */
 export default function WelcomeMessage({ nickname, petNm }) {
   return (
     <section className="mx-auto flex max-w-[820px] flex-col items-center gap-4 text-center">

@@ -4,7 +4,7 @@ import { getPetFilterLabel } from './expenseFormat';
 export const PET_PLACEHOLDER = { value: '', label: '선택해 주세요' };
 export const HOSPITAL_NOTICE = '병원비는 반려동물을 선택해 주세요';
 
-// 오늘이 속한 달의 마지막 날. 미래 달에는 지출을 등록할 수 없다
+/** 오늘이 속한 달의 마지막 날 */
 export const getMaxExpndYmd = () => {
   const now = new Date();
   const last = new Date(now.getFullYear(), now.getMonth() + 1, 0);
@@ -15,15 +15,13 @@ export const getMaxExpndYmd = () => {
 export const getActivePets = (pets) =>
   pets.filter((pet) => pet.petStts === PET_STTS.ACTIVE);
 
-// pets는 등록순이라 마지막이 가장 최근에 등록한 동물이다
+/** 가장 최근 등록 동물 */
 export const getDefaultPetValue = (activePets) =>
   activePets.length === 0
     ? ''
     : String(activePets[activePets.length - 1].petSn);
 
-// 반려동물 칸의 선택지.
-// 공용은 연동된 동물이 여러 마리이거나 이미 공용인 지출을 고칠 때만 두고, 병원 카테고리에서는 없앤다.
-// takenValues: 다른 줄에서 이미 고른 값. keepPet: 고치는 지출의 동물(연동 해제·삭제됐어도 목록에 둔다)
+/** 반려동물 칸 선택지 */
 export const getPetOptions = ({
   pets,
   expndClsfCd,

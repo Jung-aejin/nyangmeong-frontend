@@ -3,7 +3,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 const NAV_BUTTON =
   'grid size-10 shrink-0 place-items-center rounded-full border border-line bg-white text-ink-2 hover:enabled:border-line-strong hover:enabled:text-ink disabled:cursor-not-allowed disabled:bg-surface-2 disabled:text-line-strong';
 
-// children은 ◀ ▶ 사이에 놓이는 연월 표시다
+/** children: ◀ ▶ 사이의 연월 표시 */
 export default function MonthNav({
   onPrev,
   onNext,

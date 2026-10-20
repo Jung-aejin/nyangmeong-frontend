@@ -5,13 +5,13 @@ import { formatYm } from '@/utils/yearMonth';
 const YEAR_BUTTON =
   'grid size-10 place-items-center rounded-full border border-line bg-white text-ink-2 hover:enabled:border-line-strong disabled:cursor-not-allowed disabled:bg-surface-2 disabled:text-line-strong';
 
-// enabledYms: 고를 수 있는 연월. maxYm보다 뒤인 달은 enabledYms에 있어도 고르지 못한다
+/** enabledYms: 선택 가능한 연월, maxYm 초과는 선택 불가 */
 export default function MonthPicker({ ym, maxYm, enabledYms, onSelect }) {
   const [isOpen, setIsOpen] = useState(false);
   const [viewYear, setViewYear] = useState(Number(ym.slice(0, 4)));
   const rootRef = useRef(null);
 
-  // 피커 밖을 누르면 바꾸지 않고 닫는다
+  /** 바깥 클릭 시 변경 없이 닫기 */
   useEffect(() => {
     if (!isOpen) return undefined;
     const handleMouseDown = (event) => {

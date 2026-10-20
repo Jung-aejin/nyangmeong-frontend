@@ -4,7 +4,7 @@ import ExpenseInfo from './ExpenseInfo';
 import { formatMonthDay } from './expenseFormat';
 import { EXPENSE_ROW } from './expenseStyles';
 
-// duplicates: 겹치는 기존 지출. 마리별로 나눠 저장할 때는 겹치는 줄만 모아 한 번에 보여 준다
+/** 겹치는 기존 지출 확인 */
 export default function ExpenseDuplicateDialog({
   duplicates,
   isPending,

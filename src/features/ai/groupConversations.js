@@ -3,7 +3,7 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 const startOfDay = (date) =>
   new Date(date.getFullYear(), date.getMonth(), date.getDate());
 
-// 오늘·어제·지난 7일·이전 순서로 묶는다. 대화가 없는 묶음은 뺀다. 목록은 이미 최근순이라고 본다
+/** 날짜 묶음 분류 */
 export function groupConversations(conversations, now = new Date()) {
   const groups = [
     { label: '오늘', items: [] },
@@ -13,7 +13,7 @@ export function groupConversations(conversations, now = new Date()) {
   ];
 
   conversations.forEach((conversation) => {
-    // 날짜끼리 뺀다. 시각까지 빼면 어제 밤 11시 대화가 아침에 '오늘'로 묶인다
+    /** 날짜 단위 차이: 시각 포함 시 어제 밤 대화가 오늘로 묶임 */
     const diffDays = Math.round(
       (startOfDay(now) - startOfDay(new Date(conversation.crtDt))) / DAY_MS,
     );

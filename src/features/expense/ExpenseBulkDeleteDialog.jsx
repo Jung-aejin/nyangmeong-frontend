@@ -6,7 +6,7 @@ import { formatYm } from '@/utils/yearMonth';
 import { formatWon } from './expenseFormat';
 import { useDeleteExpenses } from './queries';
 
-// 범위가 두 달 이상이면 시작~종료 월과 "여러 달" 안내로 오삭제를 막는다
+/** 두 달 이상 범위 오삭제 방지 안내 */
 export default function ExpenseBulkDeleteDialog({
   expndSns,
   totalAmt,

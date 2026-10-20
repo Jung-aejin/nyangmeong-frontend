@@ -1,4 +1,4 @@
-// 본창을 path로 이동시키고 이 창은 닫는다. 본창이 닫혀 있으면 새 탭으로 연다
+/** 본창 이동 후 현재 창 닫기 */
 export function openInMainWindow(path) {
   const opener = window.opener;
   if (opener && !opener.closed) {

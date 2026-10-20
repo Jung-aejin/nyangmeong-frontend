@@ -22,7 +22,7 @@ export const expenseKeys = {
   overview: () => ['expenses', 'overview'],
 };
 
-// 월을 바꿀 때 목록이 비었다 채워지며 깜박이지 않게 이전 결과를 유지한다
+/** 월 전환 시 깜박임 방지용 이전 결과 유지 */
 export const useExpenses = (range) =>
   useQuery({
     queryKey: expenseKeys.list(range),
@@ -46,7 +46,7 @@ export const useDeleteExpense = () => useExpenseMutation(deleteExpense);
 export const useDeleteExpenses = () => useExpenseMutation(deleteExpenses);
 export const useCreateExpenses = () => useExpenseMutation(createExpenses);
 export const useUpdateExpense = () => useExpenseMutation(updateExpense);
-// 저장 전에 겹치는 지출을 찾는다. 목록이 바뀌지 않으므로 캐시를 건드리지 않는다
+/** 저장 전 중복 지출 조회 */
 export const useFindDuplicateExpenses = () =>
   useMutation({ mutationFn: findDuplicateExpenses });
 export const useRecognizeReceipt = () =>

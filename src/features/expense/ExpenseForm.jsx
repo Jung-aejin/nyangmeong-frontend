@@ -20,8 +20,7 @@ const LABEL = 'font-semibold';
 const INPUT =
   'block h-10 w-full rounded-md border border-input-line bg-white px-3 placeholder:text-placeholder hover:border-line-strong focus:border-brand-500 focus:ring-focus focus:outline-none';
 
-// 지출 등록(직접 입력)과 수정이 함께 쓰는 입력 모달.
-// expense가 있으면 수정, 없으면 expndYmd(누른 날짜)를 기본 날짜로 하는 등록이다
+/** 지출 입력 모달: 등록·수정 공용 */
 export default function ExpenseForm({
   expense,
   expndYmd,
@@ -59,7 +58,7 @@ export default function ExpenseForm({
     expndClsfCd !== null &&
     Number(digits) >= 1;
 
-  // 병원에서는 공용을 쓸 수 없어서, 공용을 골라 뒀다면 비우고 안내한다
+  /** 병원 카테고리 공용 선택 비우기·안내 */
   const handleChangeClsf = (code) => {
     setExpndClsfCd(code);
     if (code === HOSPITAL_CLSF_CD && petValue === FILTER_SHARED) {

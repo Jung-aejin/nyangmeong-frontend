@@ -15,8 +15,7 @@ const isNothingRecognized = (result) =>
   result.dtlMttr == null &&
   result.expndClsfCd == null;
 
-// picked: { file, previewUrl } 또는 null. 파일과 미리보기 주소는 부모가 쥐고 있어 취소해도 남는다.
-// onRecognized(result): 하나라도 인식했을 때. onDirect(rcptSn): 인식하지 못해 직접 입력으로 갈 때
+/** 영수증 업로드·인식 */
 export default function ExpenseReceiptUpload({
   picked,
   onPick,
@@ -29,7 +28,7 @@ export default function ExpenseReceiptUpload({
   const fileRef = useRef(null);
   const abortRef = useRef(null);
   const [fileError, setFileError] = useState('');
-  // 인식하지 못했을 때 연결해 둘 영수증 번호. 일시 오류면 null
+  /** 인식 실패 시 연결할 영수증 번호 */
   const [failed, setFailed] = useState(null);
   const recognize = useRecognizeReceipt();
   const isAnalyzing = recognize.isPending;

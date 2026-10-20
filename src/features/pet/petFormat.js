@@ -12,7 +12,7 @@ export const getPetSeName = (pet) => findName(PET_SE_OPTIONS, pet.petSeCd);
 
 export const getVrtyName = (pet) => pet.vrtyNm ?? pet.vrtyDrctInptNm ?? '';
 
-// "골든리트리버(강아지)". 품종 이름이 없으면 종류만
+/** 품종명(종류) 표기 */
 export const formatSpecies = (pet) => {
   const vrtyName = getVrtyName(pet);
   return vrtyName ? `${vrtyName}(${getPetSeName(pet)})` : getPetSeName(pet);
@@ -27,5 +27,5 @@ export const getColrName = (pet) =>
 
 export const formatWeight = (kg) => `${kg}kg`;
 
-// "새우,닭고기" → ['새우', '닭고기']
+/** 쉼표 문자열 -> 배열 */
 export const splitList = (value) => (value ? value.split(',') : []);

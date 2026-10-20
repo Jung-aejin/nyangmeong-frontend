@@ -2,7 +2,7 @@ import { showToast } from '@/components/toastStore';
 import ExpenseForm from './ExpenseForm';
 import { useUpdateExpense } from './queries';
 
-// 수정에는 중복 지출 확인을 하지 않는다. onSaved(expndYmd): 저장한 지출의 날짜
+/** 지출 수정 모달: 중복 확인 없음 */
 export default function ExpenseEditModal({ expense, pets, onSaved, onClose }) {
   const updateExpense = useUpdateExpense();
 

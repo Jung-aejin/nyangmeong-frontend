@@ -6,7 +6,7 @@ const DAY_NAMES = ['일', '월', '화', '수', '목', '금', '토'];
 const CELL =
   'flex min-h-20 min-w-0 flex-col items-start border-r border-b border-line bg-white p-2 text-left text-sm';
 
-// cells는 getCalendarCells의 6주(42칸). 지출이 없는 날을 누르면 등록, 있는 날을 누르면 상세를 연다
+/** 날짜 칸 클릭 -> 등록 또는 상세 */
 export default function ExpenseCalendar({
   ym,
   cells,

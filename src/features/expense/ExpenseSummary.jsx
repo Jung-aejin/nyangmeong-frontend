@@ -6,7 +6,7 @@ import { formatWon } from './expenseFormat';
 import { getRatio } from './expenseStats';
 import { CARD, CARD_BODY, CARD_HEAD } from './expenseStyles';
 
-// prevTotalAmt가 null이면 비교할 지난달이 없어 증감 배지를 보이지 않는다
+/** prevTotalAmt null: 증감 배지 숨김 */
 export default function ExpenseSummary({
   ym,
   isNextDisabled,

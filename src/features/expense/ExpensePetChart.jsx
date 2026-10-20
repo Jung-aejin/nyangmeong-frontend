@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { formatWon } from './expenseFormat';
 import { CARD, CARD_BODY, CARD_HEAD, CARD_TITLE } from './expenseStyles';
 
-// 처음에는 이 마릿수까지만 보이고 나머지는 [더보기]로 펼친다
+/** 초기 노출 마릿수 */
 const VISIBLE_PET_COUNT = 4;
 
 export default function ExpensePetChart({ stats }) {

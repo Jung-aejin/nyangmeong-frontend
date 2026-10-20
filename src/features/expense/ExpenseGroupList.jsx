@@ -2,7 +2,7 @@ import ExpenseInfo from './ExpenseInfo';
 import { formatDayHeader, formatWon } from './expenseFormat';
 import { DAY_HEAD, EXPENSE_ROW } from './expenseStyles';
 
-// isEditing이면 줄이 체크박스 라벨이 되고, 아니면 눌러서 수정하는 버튼이 된다
+/** 편집 여부별 줄 형태 (체크박스 라벨 또는 수정 버튼) */
 export default function ExpenseGroupList({
   groups,
   isEditing,

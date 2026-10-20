@@ -8,7 +8,7 @@ const UNSUPPORTED =
   '지원하지 않는 형식이에요. jpg·jpeg·png·webp 이미지를 올려 주세요';
 const TOO_LARGE = '용량이 너무 커요. 10MB 이하 이미지를 올려 주세요';
 
-// 파일 앞 바이트로 실제 형식을 알아낸다. 확장자만 바꾼 파일을 거르려는 것이다
+/** 파일 앞 바이트 기반 실제 형식 판별 */
 const detectType = (bytes) => {
   const startsWith = (signature, offset = 0) =>
     signature.every((byte, i) => bytes[offset + i] === byte);
@@ -24,7 +24,7 @@ const detectType = (bytes) => {
   return null;
 };
 
-// 올릴 수 있으면 null, 아니면 안내 문구
+/** 업로드 가능 여부 검사 */
 export const validateReceiptFile = async (file) => {
   const ext = file.name.split('.').pop().toLowerCase();
   const expectedType = ext === 'jpeg' ? 'jpg' : ext;

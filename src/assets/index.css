@@ -3,21 +3,21 @@
 @theme {
   --font-sans: 'Pretendard Variable', Pretendard, system-ui, sans-serif;
 
-  /* 브랜드 */
+  /** 브랜드 */
   --color-brand-50: #e9f2f2;
   --color-brand-100: #cde0e0;
   --color-brand-500: #285a5c;
   --color-brand-600: #1e4a4c;
   --color-brand-900: #1a3234;
 
-  /* 글자 */
+  /** 글자 */
   --color-ink: #1a3234;
   --color-ink-2: #3d4a4b;
   --color-muted: #566465;
   --color-subtle: #667374;
   --color-placeholder: #8c9899;
 
-  /* 면·선 */
+  /** 면·선 */
   --color-surface-2: #f4f6f6;
   --color-surface-3: #ebf0f0;
   --color-line: #e2e7e7;
@@ -25,7 +25,7 @@
   --color-line-strong: #b9c4c4;
   --color-input-line: #d3dae2;
 
-  /* 상태·뱃지 */
+  /** 상태·뱃지 */
   --color-danger: #b4473a;
   --color-danger-soft: #fbeeec;
   --color-tone-green-bg: #e6f4ec;
@@ -44,24 +44,24 @@
   --color-warn-soft: #faf6e8;
   --color-warn-line: #e6d7a8;
 
-  /* 글자 크기 */
+  /** 글자 크기 */
   --text-page: 28px;
   --text-page--line-height: 1.35;
   --text-badge: 13px;
 
-  /* 둥글기 */
+  /** 둥글기 */
   --radius-box: 10px;
   --radius-card: 14px;
   --radius-modal: 20px;
 
-  /* 깊이 그림자. Tailwind 기본 shadow-sm·md·lg와 이름이 겹치지 않게 depth를 붙인다 */
+  /** 깊이 그림자(Tailwind 기본 이름과 겹침 방지용 depth 접미사) */
   --shadow-depth-sm: 0 8px 24px rgba(26, 50, 52, 0.08);
   --shadow-depth-md:
     0 12px 32px -8px rgba(15, 23, 35, 0.18), 0 2px 6px rgba(15, 23, 35, 0.06);
   --shadow-depth-lg: 0 24px 64px -12px rgba(15, 23, 35, 0.35);
 }
 
-/* 입력칸·선택 컨트롤의 포커스·오류 링. 깊이 그림자가 아니라 테두리 효과라 따로 둔다 */
+/** 입력칸·선택 컨트롤 포커스·오류 링 */
 @utility ring-focus {
   box-shadow: 0 0 0 3px rgba(182, 218, 172, 0.5);
 }

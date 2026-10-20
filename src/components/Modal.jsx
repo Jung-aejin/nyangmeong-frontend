@@ -1,7 +1,7 @@
 import { X } from 'lucide-react';
 import { useEffect, useId, useRef } from 'react';
 
-// isConfirm: 제목·설명을 가운데에 두는 확인 팝업. 아니면 제목 줄과 ✕가 있는 입력 모달
+/** isConfirm: 가운데 정렬 확인 팝업, 아니면 제목 줄과 ✕가 있는 입력 모달 */
 export default function Modal({
   title,
   description,
@@ -14,7 +14,7 @@ export default function Modal({
   const dialogRef = useRef(null);
   const titleId = useId();
 
-  // ConfirmModal과 같은 이유로 showModal을 쓰고 cleanup에서 닫는다(StrictMode가 effect를 두 번 돌린다)
+  /** ConfirmModal과 같은 showModal·cleanup 방식 */
   useEffect(() => {
     const dialog = dialogRef.current;
     dialog.showModal();
@@ -26,7 +26,7 @@ export default function Modal({
     if (!isPending) onClose();
   };
 
-  // dialog에 padding이 없어서 dialog 자체가 mousedown 대상이면 배경을 누른 것이다
+  /** 배경(backdrop) 클릭 판별 */
   const handleMouseDown = (event) => {
     if (event.target !== event.currentTarget || isPending) return;
     event.preventDefault();

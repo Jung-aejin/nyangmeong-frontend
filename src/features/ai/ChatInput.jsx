@@ -3,7 +3,7 @@ import { ArrowUp } from 'lucide-react';
 
 const MAX_LENGTH = 1000;
 
-// 입력 규칙만 맡는다. 전송은 onSubmit(text)으로 넘긴다. petNm이 없으면 [전체]다
+/** 입력 규칙 전담 */
 export default function ChatInput({ petNm, isDisabled, onSubmit }) {
   const [text, setText] = useState('');
   const [isTrimmed, setIsTrimmed] = useState(false);
@@ -12,7 +12,7 @@ export default function ChatInput({ petNm, isDisabled, onSubmit }) {
 
   const handleChange = (event) => {
     const value = event.target.value;
-    // 타이핑 초과와 붙여넣기 초과를 같이 막는다. 초과분은 잘라낸다
+    /** 입력 길이 제한 */
     if (value.length > MAX_LENGTH) {
       setText(value.slice(0, MAX_LENGTH));
       setIsTrimmed(true);
@@ -30,8 +30,12 @@ export default function ChatInput({ petNm, isDisabled, onSubmit }) {
   };
 
   const handleKeyDown = (event) => {
-    // 한글 조합 중 Enter는 글자 확정이라 전송하지 않는다
-    if (event.key !== 'Enter' || event.shiftKey || event.nativeEvent.isComposing)
+    /** 한글 조합 중 Enter 전송 방지 */
+    if (
+      event.key !== 'Enter' ||
+      event.shiftKey ||
+      event.nativeEvent.isComposing
+    )
       return;
     event.preventDefault();
     submit();
