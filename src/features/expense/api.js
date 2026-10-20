@@ -4,7 +4,7 @@ import { EXPND_CLSF_LIST, PET_STTS } from './expenseCodes';
 /**
  * [가계부 가짜 API]
  * - SJM 백엔드 API 나오기 전까지 사용 -> 나오면 본문만 api 요청으로 교체
- * - 미확정 키: petNm·petStts·mmExpndLimAmt·pets·expndMonths
+ * - 미확정 키: petNm·petStts·mmExpndLimAmt·pets·expndMonths·rcptSn·영수증 인식 결과 키
  */
 const [HOSPITAL, FEED, SNACK, SUPPLY, GROOM, CARE, ETC] = EXPND_CLSF_LIST.map(
   (clsf) => clsf.code,
@@ -123,3 +123,81 @@ export const deleteExpenses = (expndSns) => {
   );
   return fakeDelay(null);
 };
+
+const findFakePet = (petSn) => fakePets.find((pet) => pet.petSn === petSn);
+
+/** 지출 등록 (POST /expenses) */
+export const createExpenses = (items) => {
+  const maxSn = Math.max(0, ...fakeExpenses.map((expense) => expense.expndSn));
+  fakeExpenses = [
+    ...fakeExpenses,
+    ...items.map((item, index) => ({
+      ...item,
+      expndSn: maxSn + index + 1,
+      petNm: findFakePet(item.petSn)?.petNm ?? null,
+      petStts: findFakePet(item.petSn)?.petStts ?? null,
+    })),
+  ];
+  return fakeDelay(null);
+};
+
+/** 지출 수정 (PUT /expenses/{expndSn}) */
+export const updateExpense = ({ expndSn, ...item }) => {
+  fakeExpenses = fakeExpenses.map((expense) =>
+    expense.expndSn === expndSn
+      ? {
+          ...expense,
+          ...item,
+          petNm: findFakePet(item.petSn)?.petNm ?? null,
+          petStts: findFakePet(item.petSn)?.petStts ?? null,
+        }
+      : expense,
+  );
+  return fakeDelay(null);
+};
+
+/** 중복 지출 조회 (POST /expenses/duplicates) */
+export const findDuplicateExpenses = (items) =>
+  fakeDelay(
+    fakeExpenses.filter((expense) =>
+      items.some(
+        (item) =>
+          item.petSn === expense.petSn &&
+          item.expndYmd === expense.expndYmd &&
+          item.expndAmt === expense.expndAmt &&
+          item.expndClsfCd === expense.expndClsfCd,
+      ),
+    ),
+  );
+
+/** 영수증 인식 (POST /receipts/recognize) */
+/** 가짜 응답: 파일 이름의 fail·partial·error에 따른 실패 상황 */
+export const recognizeReceipt = ({ file, signal }) =>
+  new Promise((resolve, reject) => {
+    const abort = () => reject(new DOMException('중단', 'AbortError'));
+    if (signal.aborted) return abort();
+    const timer = setTimeout(() => {
+      if (file.name.includes('error')) return reject(new Error('일시 오류'));
+      const rcptSn = Date.now();
+      if (file.name.includes('fail')) {
+        return resolve({
+          rcptSn,
+          expndYmd: null,
+          expndAmt: null,
+          dtlMttr: null,
+          expndClsfCd: null,
+        });
+      }
+      resolve({
+        rcptSn,
+        expndYmd: `${getCurrentYm()}-03`,
+        expndAmt: file.name.includes('partial') ? null : 462000,
+        dtlMttr: '행복동물병원',
+        expndClsfCd: HOSPITAL,
+      });
+    }, 1500);
+    signal.addEventListener('abort', () => {
+      clearTimeout(timer);
+      abort();
+    });
+  });

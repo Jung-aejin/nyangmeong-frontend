@@ -3,7 +3,6 @@ import { BTN_SECONDARY } from '@/components/buttonStyles';
 import MonthNav from '@/components/MonthNav';
 import MonthPicker from '@/components/MonthPicker';
 import Pagination from '@/components/Pagination';
-import { showToast } from '@/components/toastStore';
 import { getCurrentYm, isYm, shiftYm } from '@/utils/yearMonth';
 import ExpenseBulkDeleteDialog from './ExpenseBulkDeleteDialog';
 import {
@@ -14,6 +13,7 @@ import {
   RANGE_MODE,
   SORT,
 } from './expenseCodes';
+import ExpenseEditModal from './ExpenseEditModal';
 import ExpenseFilterBar from './ExpenseFilterBar';
 import { formatWon, getPetFilterLabel } from './expenseFormat';
 import ExpenseGroupList from './ExpenseGroupList';
@@ -60,6 +60,7 @@ export default function ExpenseHistory({ initialYm }) {
   });
   const [selected, setSelected] = useState(() => new Set());
   const [isBulkOpen, setIsBulkOpen] = useState(false);
+  const [editingExpense, setEditingExpense] = useState(null);
 
   const { data: overview } = useExpenseOverview();
   const { data: expenses = [], isPlaceholderData } = useExpenses(
@@ -167,8 +168,6 @@ export default function ExpenseHistory({ initialYm }) {
     setSelected(new Set());
     setIsBulkOpen(false);
   };
-  /** SCR-MYP-031 수정 모달 연결 예정 */
-  const handleEditItem = () => showToast('준비 중인 기능이에요');
 
   return (
     <div
@@ -267,7 +266,7 @@ export default function ExpenseHistory({ initialYm }) {
             isEditing={isEditing}
             selected={selected}
             onToggle={handleToggle}
-            onEditItem={handleEditItem}
+            onEditItem={setEditingExpense}
           />
         )}
       </section>
@@ -282,6 +281,14 @@ export default function ExpenseHistory({ initialYm }) {
           count={selectedItems.length}
           totalAmt={sumAmt(selectedItems)}
           onDelete={() => setIsBulkOpen(true)}
+        />
+      )}
+      {editingExpense && (
+        <ExpenseEditModal
+          expense={editingExpense}
+          pets={overview.pets}
+          onSaved={() => setEditingExpense(null)}
+          onClose={() => setEditingExpense(null)}
         />
       )}
       {isBulkOpen && (

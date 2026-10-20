@@ -1,11 +1,12 @@
 import { ChevronRight } from 'lucide-react';
 import { useState } from 'react';
-import { showToast } from '@/components/toastStore';
 import { getCurrentYm, shiftYm } from '@/utils/yearMonth';
+import ExpenseAddModal from './ExpenseAddModal';
 import ExpenseCalendar from './ExpenseCalendar';
 import ExpenseCategoryChart from './ExpenseCategoryChart';
 import ExpenseDayDetail from './ExpenseDayDetail';
 import ExpenseDeleteDialog from './ExpenseDeleteDialog';
+import ExpenseEditModal from './ExpenseEditModal';
 import ExpenseLimitModal from './ExpenseLimitModal';
 import ExpensePetChart from './ExpensePetChart';
 import ExpenseSummary from './ExpenseSummary';
@@ -30,6 +31,9 @@ export default function ExpenseDashboard({ onViewAll }) {
   const [selectedYmd, setSelectedYmd] = useState(null);
   const [isLimitOpen, setIsLimitOpen] = useState(false);
   const [deletingExpense, setDeletingExpense] = useState(null);
+  /** 등록 모달 날짜·수정 중인 지출 */
+  const [addingYmd, setAddingYmd] = useState(null);
+  const [editingExpense, setEditingExpense] = useState(null);
 
   /** 지난달 대비용 조회 범위 */
   const { data: expenses = [], isPlaceholderData } = useExpenses({
@@ -52,8 +56,13 @@ export default function ExpenseDashboard({ onViewAll }) {
   };
   const handleSelectDay = (expndYmd) =>
     setSelectedYmd(expndYmd === selectedYmd ? null : expndYmd);
-  /** SCR-MYP-031 등록·수정 모달 연결 예정 */
-  const showPending = () => showToast('준비 중인 기능이에요');
+  /** 저장 날짜로 달력 이동·상세 펼침(영수증 날짜는 다른 달 가능) */
+  const handleSaved = (expndYmd) => {
+    setAddingYmd(null);
+    setEditingExpense(null);
+    setYm(expndYmd.slice(0, 7));
+    setSelectedYmd(expndYmd);
+  };
 
   return (
     <div
@@ -76,14 +85,15 @@ export default function ExpenseDashboard({ onViewAll }) {
             cells={getCalendarCells(ym, monthExpenses)}
             selectedYmd={selectedYmd}
             onSelectDay={handleSelectDay}
-            onEmptyDay={showPending}
+            onEmptyDay={setAddingYmd}
           />
           {selectedItems.length > 0 && (
             <ExpenseDayDetail
               expndYmd={selectedYmd}
               items={selectedItems}
               totalAmt={sumAmt(selectedItems)}
-              onEdit={showPending}
+              onAdd={() => setAddingYmd(selectedYmd)}
+              onEdit={setEditingExpense}
               onDelete={setDeletingExpense}
             />
           )}
@@ -108,6 +118,22 @@ export default function ExpenseDashboard({ onViewAll }) {
         <ExpenseLimitModal
           mmExpndLimAmt={overview.mmExpndLimAmt}
           onClose={() => setIsLimitOpen(false)}
+        />
+      )}
+      {addingYmd && (
+        <ExpenseAddModal
+          expndYmd={addingYmd}
+          pets={overview.pets}
+          onSaved={handleSaved}
+          onClose={() => setAddingYmd(null)}
+        />
+      )}
+      {editingExpense && (
+        <ExpenseEditModal
+          expense={editingExpense}
+          pets={overview.pets}
+          onSaved={handleSaved}
+          onClose={() => setEditingExpense(null)}
         />
       )}
       {deletingExpense && (

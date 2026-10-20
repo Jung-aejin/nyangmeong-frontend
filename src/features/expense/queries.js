@@ -5,11 +5,15 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import {
+  createExpenses,
   deleteExpense,
   deleteExpenses,
+  findDuplicateExpenses,
   getExpenseOverview,
   getExpenses,
+  recognizeReceipt,
   saveExpenseLimit,
+  updateExpense,
 } from './api';
 
 export const expenseKeys = {
@@ -40,3 +44,10 @@ const useExpenseMutation = (mutationFn) => {
 export const useSaveExpenseLimit = () => useExpenseMutation(saveExpenseLimit);
 export const useDeleteExpense = () => useExpenseMutation(deleteExpense);
 export const useDeleteExpenses = () => useExpenseMutation(deleteExpenses);
+export const useCreateExpenses = () => useExpenseMutation(createExpenses);
+export const useUpdateExpense = () => useExpenseMutation(updateExpense);
+/** 저장 전 중복 지출 조회 */
+export const useFindDuplicateExpenses = () =>
+  useMutation({ mutationFn: findDuplicateExpenses });
+export const useRecognizeReceipt = () =>
+  useMutation({ mutationFn: recognizeReceipt });
