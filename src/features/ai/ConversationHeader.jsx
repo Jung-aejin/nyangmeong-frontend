@@ -3,10 +3,10 @@ import { Trash2 } from 'lucide-react';
 import ConfirmModal from '@/components/ConfirmModal';
 import { useDeleteConversation } from './queries';
 
-// 목록의 날짜 표기와 같게 2026-09-12T..를 2026.09.12로 바꾼다
+/** 일시 표기 변환 */
 const formatDate = (crtDt) => crtDt.slice(0, 10).replaceAll('-', '.');
 
-// 제목은 첫 메시지로 한 번 만들어지고 바꿀 수 없다. 삭제만 있다
+/** 대화 제목·삭제 헤더 */
 export default function ConversationHeader({ conversation, onDeleted }) {
   const [isConfirming, setIsConfirming] = useState(false);
   const deleteConversation = useDeleteConversation();

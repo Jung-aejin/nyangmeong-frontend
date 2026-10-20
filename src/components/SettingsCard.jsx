@@ -1,4 +1,4 @@
-// 제목 줄(아이콘 + 제목)과 본문으로 이뤄진 설정 카드. 본문 행은 children으로 받는다
+/** 제목 줄(아이콘+제목)과 본문(children)으로 이뤄진 설정 카드 */
 export default function SettingsCard({ icon, title, children }) {
   const Icon = icon;
 

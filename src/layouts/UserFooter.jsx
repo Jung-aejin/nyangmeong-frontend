@@ -3,13 +3,13 @@ import footerPixel from '@/assets/footer_pixel.svg';
 import { PATHS } from '@/routes/paths';
 
 const DEV_TEAM = ['이진성', '안인철', '정애진', '서정민', '김선진', '윤아연'];
-// 디자인의 임시 값이다. 실제 주소는 공개 저장소에 올리지 않는다
+/** 디자인 임시 값(실제 주소는 공개 저장소에 두지 않음) */
 const EMAIL_PLACEHOLDER = '0000@gmail.com';
 
 export default function UserFooter() {
   return (
     <footer className="relative border-t border-[#e2e7e7] bg-[#f5f2ee] text-[#566465]">
-      {/* 푸터 윗선 바로 위에 놓이는 장식 띠 */}
+      {/** 푸터 윗선 위 장식 띠 */}
       <img
         src={footerPixel}
         alt=""
@@ -46,8 +46,8 @@ export default function UserFooter() {
         <hr className="my-6 border-[#eae6e0]" />
         <div className="flex items-center justify-between gap-4 text-sm">
           <p>
-            본 사이트는 팀 [꼬리연구소]의 공동 역량 증명을 위한 포트폴리오 용도로 제작되었으며,
-            일체의 상업적 목적이 없음을 밝힙니다.
+            본 사이트는 팀 [꼬리연구소]의 공동 역량 증명을 위한 포트폴리오
+            용도로 제작되었으며, 일체의 상업적 목적이 없음을 밝힙니다.
           </p>
           <p className="shrink-0">© 2026 꼬리연구소. All rights reserved.</p>
         </div>

@@ -3,8 +3,7 @@ import AnswerBubble from './AnswerBubble';
 const ROLE_USER = 'USER';
 const INCOMPLETE = 'N';
 
-// 저장된 메시지를 보여 준다. children은 저장 전의 진행 중인 답변 말풍선이다
-// 미완료 답변의 [다시 생성]은 마지막 메시지일 때만 둔다
+/** 저장된 메시지 목록 */
 export default function ConversationMessages({
   messages,
   onRegenerate,

@@ -2,12 +2,17 @@
 
 ## 지금 하는 것
 
-SCR-AIM-002 대화창 · 검색 질문/응답 (시작 2026-10-20) — 상태: 끝 (검증 `통과` 2회차, 사람 확인 2026-10-20). 1회차 실패는 기획 밖 변경(백엔드 주소 변경 문서·`axios.js`, 별도 커밋 `3662205`)과 가짜 플래그가 [다시 시도]에서도 계속 실패해 확인 불가였던 것이다
+SCR-AIM-004 대화창 · 페이지 라우팅 (시작 2026-10-20) — 상태: 끝 (검증 `확인 못 함 있음`(연결 남음뿐) 2회차, 사람 확인 2026-10-20). 1회차 실패는 기획 밖 변경(`openInMainWindow.js`에 채팅 모달 함수 추가)이었고 `AiChatPage.jsx` 안으로 옮겼다
 
-- 만든 것: `features/ai/useAnswerStream.js`(스트림 상태·10초 첫 글자·60초 전체 타임아웃), `AnswerBubble.jsx`(아바타·점 3개·고지·바로가기·오류·미완료), `ConversationMessages.jsx`(AI 메시지를 `AnswerBubble`로, 미완료는 마지막 메시지일 때만 [다시 생성]), `AiChatPage.jsx`(`intent === 'SEARCH'`일 때만 스트림), 가짜 `streamAnswer`(`api.js`), `src/assets/ai-character.png`
-- 가짜 확인용 쿼리(DEV만): `?fakeAiFirstDelay=11`·`?fakeAiError=1`·`?fakeAiCut=1`은 첫 요청에만 적용(다시 시도·다시 생성은 성공), `?fakeAiNoShortcut=1`
-- 결정: 의료 고지의 "※"는 화면에서 떼고 점선 아래에 보인다(디자인 HTML 따름). 고양이 캐릭터는 응답 말풍선 아바타로만 쓰고 웰컴에는 넣지 않았다
-- 검증: `yarn -s lint` 0, `yarn -s build` 0, 판정 `통과`. 검증 루프 1회차 실패가 보관 중이다(다음 첫 검증에서 되살아남. 버리려면 `! sh scripts/verify-loop.sh clear`)
+- 만든 것: `features/ai/fakeRoutingMap.js`(부록 매핑표를 옮긴 가짜 서버 판정·최장 일치·등록 요청 판정, 채팅 행은 `action`), `RouteGuideBubble.jsx`(안내·3초 막대·[취소]), `useRouteCountdown.js`, 가짜 `sendMessage`의 `intent: 'ROUTE'`·`'REGISTER'`와 안내 AI 메시지 저장, `AiChatPage.jsx`(안내 메시지를 목록에서 빼고 말풍선으로 대신, 유예가 끝나면 `openInMainWindow`), `constants/chatModal.js`와 `ChatModalProvider.jsx`(본창이 `postMessage`로 채팅 모달 열기)
+- 결정: 매칭 실패는 `FALLBACK`이 아니라 `SEARCH`로 둔다(AIM-002 답변 유지). 매핑표에 없는 `/mypage/caregivers`·`/mypage/points`·`/mypage/profile`은 `paths.js`에 없어 문자열로 썼다. `RouteGuideBubble`은 `key`로 메시지마다 새로 시작한다(검증 뒤에 고침, 린트·빌드만 다시 돌림)
+- 검증: `yarn -s lint` 0, `yarn -s build` 0. 검증 루프 1회차 실패가 보관 중이다(다음 첫 검증에서 되살아남. 버리려면 `! sh scripts/verify-loop.sh clear`)
+
+### 추가 요청
+| 추가-1 | `docs/convention/common.md` 주석 절 | 명령: 해당 없음(문서) | 요청 2026-10-20 "백엔드 주석 컨벤션을 프론트에도(JSX는 `{/** */}`), 주석 컨벤션만 수정" |
+| 추가-2 | `src` 전체의 주석(파일 79개) | 명령: `yarn -s lint`·`yarn -s build` 0, 새 `common.md`의 검사 grep 두 줄에 출력 없음 | 요청 2026-10-20 "주석 컨벤션 규칙에 맞게 전부 수정하고 커밋 푸시 가자" |
+
+이전 작업: SCR-AIM-002 대화창 · 검색 질문/응답 — 끝(검증 `통과` 2회차. `useAnswerStream`·`AnswerBubble`·`ConversationMessages`, 가짜 `streamAnswer`와 DEV 쿼리 `?fakeAiFirstDelay=11`·`?fakeAiError=1`·`?fakeAiCut=1`·`?fakeAiNoShortcut=1`. 의료 고지 "※"는 점선 아래, 고양이 캐릭터는 응답 아바타에만)
 
 이전 작업: SCR-AIM-001 대화창 · 새 대화 — 끝(검증 `통과` 2회차. `WelcomeMessage`·`ChatInput`·`shortcutChips`·`openInMainWindow`, 가짜 `sendMessage`의 `intent`, 히어로 `?q=` 첫 메시지 자동 전송)
 
@@ -20,7 +25,10 @@ SCR-AIM-002 대화창 · 검색 질문/응답 (시작 2026-10-20) — 상태: �
 
 ## 다음에 할 것
 
-- 다음 화면은 SCR-AIM-004(`대기`, 페이지 라우팅). `openInMainWindow`·`shortcutChips`를 그대로 쓴다. 기획이 막히면 `milestones/LJS.md`의 `대기` 중 맨 위
+- 검증 루프 1회차 실패(AIM-004, 기획 밖 변경)로 보관 중. 기획은 고치지 않는다. 루프를 버리려면 `! sh scripts/verify-loop.sh clear`
+- 주석 컨벤션: 프론트 반영과 `src` 전체 정리 끝(추가-1·2). `common.md` 변경은 팀 합의 문서라 PR에서 알린다. 백엔드 세션(backend-d8)에는 "프론트 반영, JSX는 `{/** */}`, ESLint 지시는 `/* … */`"를 알린다
+- SCR-AIM-004 연결 남음: 대화 API(Python AI 서버, 담당 없음)로 `features/ai/api.js`의 `sendMessage` 가짜를 바꾸고 `route`·`aiCnvrsMsgSn` 필드 이름을 Swagger로 확인(`fakeRoutingMap.js`는 지운다). 004-03 새로고침 뒤에도 안내 문구가 이력에 남는지는 그때 확인한다. 본창이 닫혀 있을 때 새 탭으로 여는 `/main`은 라우트가 아직 없다(MAN-001, YAY)
+- 다음 화면은 SCR-AIM-005(`대기`, 매칭 실패 폴백). 가짜 `sendMessage`가 `FALLBACK`을 주도록 바꾸고 `shortcutChips`를 쓴다. 기획이 막히면 `milestones/LJS.md`의 `대기` 중 맨 위
 - SCR-AIM-002 연결 남음: 대화 API(Python AI 서버, 담당 없음)로 `features/ai/api.js`의 `streamAnswer` 가짜를 바꾸고 스트리밍 방식(SSE 등)·`rltdShrtcts`·`aiCnvrsMsgCmptnYn` 필드 이름을 Swagger로 확인. 웰컴에 Figma의 고양이 캐릭터를 넣을지(`src/assets/ai-character.png`는 이미 있음)는 디자인 담당과 맞춘다
 - SCR-AIM-001 연결 남음: 대화 API(Python AI 서버, 담당 없음)로 `features/ai/api.js`의 `sendMessage` 가짜를 바꾸고 `intent` 필드 이름·값(`REGISTER·ROUTE·SEARCH·FALLBACK`은 추정)을 Swagger로 확인. Figma의 고양이 캐릭터 이미지(`ai-character.png`)는 저장소에 파일이 없어 웰컴에 넣지 못했다(파일을 받으면 `WelcomeMessage.jsx`에 추가). 직접 주소창으로 연 `/ai`에서는 칩을 눌러도 브라우저가 `window.close()`를 막아 창이 남는다(설계대로)
 - SCR-AIM-011 연결 남음: 대화 API(Python AI 서버, 담당 없음)로 `features/ai/api.js`의 가짜(`getConversations`·`getConversation`·`deleteConversation`)를 바꾸고 필드 이름(`aiCnvrs…` 추정)을 Swagger로 확인. 011-08 반려동물 목록 API(SJM)로 `AiChatPage.jsx`의 `fakePets`를 `features/pet` 훅으로 바꾼다. 011-03·17④ 세션 만료 시 AI 창 닫기는 로그인 연결 때(SCR-COM-003 003-10과 함께).- SCR-COM-009 연결 남음: 임시 내용(`ChatModalPlaceholder.jsx`)을 KSJ의 모달 셸로 바꾸고 `ChatModal.jsx`의 `import.meta.env.DEV` 조건을 없앤다(KSJ). 004-09 펫돌봄 알림이 `chatModal.open(방)`을 부르게 연결(알림 응답에 방 식별자 필요, LJS 백엔드·KSJ). 002-11 헤더 안 읽은 메시지 배지(KSJ). 마지막에 본 방을 새로고침 뒤에도 기억할지는 KSJ와 맞춘다

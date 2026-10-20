@@ -23,7 +23,7 @@ import { useExpenseOverview, useExpenses } from './queries';
 
 const TOP_EXPENSE_COUNT = 3;
 
-// onViewAll(ym): 보고 있던 달을 들고 전체 내역으로 간다
+/** onViewAll(ym): 보던 달을 넘기는 전체 내역 이동 */
 export default function ExpenseDashboard({ onViewAll }) {
   const [maxYm] = useState(getCurrentYm);
   const [ym, setYm] = useState(maxYm);
@@ -31,7 +31,7 @@ export default function ExpenseDashboard({ onViewAll }) {
   const [isLimitOpen, setIsLimitOpen] = useState(false);
   const [deletingExpense, setDeletingExpense] = useState(null);
 
-  // 지난달 대비를 위해 지난달까지 함께 받는다
+  /** 지난달 대비용 조회 범위 */
   const { data: expenses = [], isPlaceholderData } = useExpenses({
     fromYm: shiftYm(ym, -1),
     toYm: ym,
@@ -52,7 +52,7 @@ export default function ExpenseDashboard({ onViewAll }) {
   };
   const handleSelectDay = (expndYmd) =>
     setSelectedYmd(expndYmd === selectedYmd ? null : expndYmd);
-  // 지출 등록·수정 모달(SCR-MYP-031)을 만들 때 연결한다
+  /** SCR-MYP-031 등록·수정 모달 연결 예정 */
   const showPending = () => showToast('준비 중인 기능이에요');
 
   return (

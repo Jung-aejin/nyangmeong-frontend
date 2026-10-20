@@ -1,7 +1,7 @@
 import { CARD, CARD_BODY, CARD_HEAD, CARD_TITLE } from './expenseStyles';
 import { formatWon } from './expenseFormat';
 
-// 누적 비율 구간을 conic-gradient로 이어 붙인다
+/** 누적 비율 conic-gradient */
 const buildGradient = (stats) => {
   let acc = 0;
   const total = stats.reduce((sum, stat) => sum + stat.totalAmt, 0);

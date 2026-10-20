@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 
-// 호버한 1차 메뉴 아래에 뜨는 카드(SCR-COM-006). items: [{ label, to }]
+/** 1차 메뉴 호버 카드(SCR-COM-006), items: [{ label, to }] */
 export default function GnbDropdown({ items, onNavigate }) {
   return (
     <ul

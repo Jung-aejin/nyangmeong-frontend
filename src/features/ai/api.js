@@ -1,11 +1,14 @@
 import { IS_DEV } from '@/api/env';
 import { PATHS } from '@/routes/paths';
+import { isRegisterRequest, matchRoute } from './fakeRoutingMap';
 
-// 대화 API(Python AI 서버)가 생기기 전까지 쓰는 가짜 응답이다. api.get() / api.delete()로 바꾼다
-// 필드 이름은 ERD 컬럼명(AI_CNVRS_ROOM_*, AI_CNVRS_MSG_*)에서 따온 추정이다. 연결 때 Swagger로 확인한다
-// petSn이 null인 대화는 펫 태그가 [전체]다. aiCnvrsMsgRoleCd는 'USER' 또는 'AI'다
+/**
+ * [가짜 대화 API]
+ * - Python AI 서버 연결 전 임시 응답, 연결 시 api.get()·api.delete()로 교체
+ * - 필드 이름은 ERD 컬럼명 기반 추정, 연결 때 Swagger로 확인
+ */
 
-// 오늘 기준 n일 전 날짜를 서버가 주는 형태(타임존 없는 일시)로 만든다. 날짜 묶음이 날마다 맞게 상대 날짜로 둔다
+/** n일 전 일시(타임존 없는 형태) */
 const daysAgo = (days, hour) => {
   const date = new Date();
   date.setDate(date.getDate() - days);
@@ -107,7 +110,7 @@ let fakeConversations = [
   },
 ];
 
-// 최근 대화가 위로 온다. 목록에는 메시지를 싣지 않는다
+/** 대화 목록 */
 export const getConversations = ({ petSn } = {}) => {
   const rooms = fakeConversations
     .filter((room) => petSn == null || room.petSn === petSn)
@@ -122,7 +125,7 @@ export const getConversations = ({ petSn } = {}) => {
   return Promise.resolve(rooms);
 };
 
-// 대화 하나와 그 메시지를 함께 돌려준다
+/** 대화 상세 */
 export const getConversation = (aiCnvrsRoomSn) => {
   const room = fakeConversations.find(
     (item) => item.aiCnvrsRoomSn === aiCnvrsRoomSn,
@@ -130,7 +133,7 @@ export const getConversation = (aiCnvrsRoomSn) => {
   return room ? Promise.resolve(room) : Promise.reject(new Error('not found'));
 };
 
-// 대화와 메시지를 복구할 수 없게 지운다
+/** 대화 삭제 */
 export const deleteConversation = (aiCnvrsRoomSn) => {
   fakeConversations = fakeConversations.filter(
     (room) => room.aiCnvrsRoomSn !== aiCnvrsRoomSn,
@@ -141,8 +144,7 @@ export const deleteConversation = (aiCnvrsRoomSn) => {
 let nextFakeRoomSn = 100;
 let nextFakeMsgSn = 100;
 
-// 메시지를 보낸다. aiCnvrsRoomSn이 null이면 대화를 이 메시지로 새로 만든다(제목은 첫 메시지, 200자까지)
-// intent는 AI 서버가 판정한 분기 결과다(추정: REGISTER·ROUTE·SEARCH·FALLBACK). 화면 처리는 002·004·005·012에서 한다
+/** 메시지 전송 */
 export const sendMessage = ({ aiCnvrsRoomSn, petSn, petNm, aiCnvrsMsgCn }) => {
   const message = {
     aiCnvrsMsgSn: nextFakeMsgSn++,
@@ -167,6 +169,31 @@ export const sendMessage = ({ aiCnvrsRoomSn, petSn, petNm, aiCnvrsMsgCn }) => {
   }
   room.messages = [...room.messages, message];
 
+  if (isRegisterRequest(aiCnvrsMsgCn)) {
+    return Promise.resolve({
+      aiCnvrsRoomSn: room.aiCnvrsRoomSn,
+      intent: 'REGISTER',
+    });
+  }
+
+  const route = matchRoute(aiCnvrsMsgCn);
+  if (route) {
+    /** 이동 안내 문구의 AI 메시지 저장 */
+    const guide = {
+      aiCnvrsMsgSn: nextFakeMsgSn++,
+      aiCnvrsMsgRoleCd: 'AI',
+      aiCnvrsMsgCn: `${route.label} 화면으로 이동할게요.`,
+      aiCnvrsMsgCmptnYn: 'Y',
+    };
+    room.messages = [...room.messages, guide];
+    return Promise.resolve({
+      aiCnvrsRoomSn: room.aiCnvrsRoomSn,
+      intent: 'ROUTE',
+      aiCnvrsMsgSn: guide.aiCnvrsMsgSn,
+      route: { label: route.label, path: route.path, action: route.action },
+    });
+  }
+
   return Promise.resolve({
     aiCnvrsRoomSn: room.aiCnvrsRoomSn,
     intent: 'SEARCH',
@@ -181,11 +208,11 @@ const FAKE_ANSWER =
 const CHUNK_SIZE = 3;
 const CHUNK_DELAY_MS = 40;
 
-// 개발 환경에서만 ?fakeAiFirstDelay=초, ?fakeAiError=1, ?fakeAiCut=1, ?fakeAiNoShortcut=1로 실패 상황을 만든다
+/** 개발 환경 전용 실패 상황 쿼리 */
 const fakeFlag = (name) =>
   IS_DEV ? new URLSearchParams(window.location.search).get(name) : null;
 
-// 실패 상황은 첫 요청에만 만든다. 그래야 [다시 시도]·[다시 생성]이 같은 주소에서 성공하는지 볼 수 있다
+/** 첫 요청에만 실패 상황 적용: 재시도 성공 확인용 */
 const usedFakeFlags = new Set();
 const fakeFlagOnce = (name) => {
   if (usedFakeFlags.has(name)) return null;
@@ -203,10 +230,7 @@ const wait = (ms, signal) =>
     });
   });
 
-// 질문에 대한 답을 글자 묶음으로 흘려 보낸다. 서버 스트리밍(SSE 등)이 생기면 그 방식으로 바꾼다
-// 끝나면 { aiCnvrsMsgSn, aiCnvrsMsgCmptnYn, rltdShrtcts }를 돌려준다. rltdShrtcts는 저장하지 않는 연관 바로가기다(추정)
-// 연결이 끊기거나 signal로 중단되면 받은 데까지 미완료('N')로 저장하고 돌려준다. 오류면 reject한다
-// replaceMsgSn이 있으면 그 AI 메시지를 새 답으로 바꾼다(다시 생성)
+/** 답변 스트리밍 */
 export const streamAnswer = async ({
   aiCnvrsRoomSn,
   question,
@@ -246,7 +270,7 @@ export const streamAnswer = async ({
   }
 
   const isComplete = received.length === answer.length;
-  // 첫 글자도 못 받고 중단된 답은 저장하지 않는다
+  /** 미완료 저장 제외 대상 */
   if (received === '') return { aiCnvrsMsgSn: null };
 
   const message = {

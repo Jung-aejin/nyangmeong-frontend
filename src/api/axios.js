@@ -2,14 +2,14 @@ import axios from 'axios';
 
 export const api = axios.create({
   baseURL: '/api',
-  // 없으면 서버가 상태를 바꾸는 요청을 403으로 거절한다
+  /** 서버의 상태 변경 요청 거절(403) 방지용 헤더 */
   headers: { 'X-Requested-With': 'XMLHttpRequest' },
 });
 
-// 동시에 온 401이 재발급 하나를 같이 기다린다
+/** 진행 중인 재발급 공유 */
 let refreshing = null;
 
-// 서버가 error를 주지 않은 경우에도 화면 코드는 같은 모양을 받는다
+/** 서버 오류 형식 통일 */
 const fallbackError = (response) =>
   response
     ? {
@@ -24,12 +24,12 @@ const fallbackError = (response) =>
       };
 
 api.interceptors.response.use(
-  // 보호 파일은 Blob 그대로, 그 밖은 { success, data, error }에서 data만 꺼낸다
+  /** 응답 data 추출(파일은 Blob 그대로) */
   (res) => (res.config.responseType === 'blob' ? res.data : res.data.data),
   async (err) => {
     const { config, response } = err;
     let body = response?.data;
-    // 파일 요청이 실패하면 오류 JSON도 Blob으로 온다
+    /** 파일 요청 실패 시 오류 Blob 파싱 */
     if (body instanceof Blob) {
       body = await body
         .text()
@@ -39,7 +39,7 @@ api.interceptors.response.use(
     const error = body?.error ?? fallbackError(response);
     const isRefresh = config?.url === '/auth/refresh';
     if (response?.status === 401 && !config._retried && !isRefresh) {
-      // 재발급은 한 번만
+      /** 재발급 1회 제한 */
       config._retried = true;
       try {
         refreshing ??= api.post('/auth/refresh').finally(() => {
@@ -48,12 +48,12 @@ api.interceptors.response.use(
         await refreshing;
         return api(config);
       } catch {
-        // 아래 랜딩 이동으로 넘어간다
+        /** 재발급 실패 시 랜딩 이동으로 진행 */
       }
     }
     const loggedOut =
       response?.status === 401 || error.code === 'MEMBER_INACTIVE';
-    // 재발급 요청 자신은 이동하지 않는다. 이동 여부는 원래 요청의 skipAuthRedirect로 정한다
+    /** 재발급 요청 자신은 이동 제외 */
     if (loggedOut && !isRefresh && !config?.skipAuthRedirect) {
       location.href = `/?redirect=${encodeURIComponent(location.pathname + location.search)}`;
     }

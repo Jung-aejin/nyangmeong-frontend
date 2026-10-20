@@ -20,7 +20,7 @@ export const useUnreadCount = () =>
     queryFn: getUnreadCount,
   });
 
-// tab은 notiTabs.js의 탭 하나다. 탭마다 따로 캐시한다
+/** tab별 캐시 알림 목록 */
 export const useNotifications = (tab) =>
   useQuery({
     queryKey: [...notificationKeys.list, tab.key],

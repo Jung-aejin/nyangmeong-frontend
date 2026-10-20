@@ -12,7 +12,7 @@ export const aiKeys = {
   detail: (aiCnvrsRoomSn) => ['ai', 'conversations', 'detail', aiCnvrsRoomSn],
 };
 
-// petSn이 null이면 [전체]다
+/** 대화 목록 조회 */
 export const useConversations = (petSn) =>
   useQuery({
     queryKey: aiKeys.list(petSn),
@@ -31,7 +31,7 @@ export const useDeleteConversation = () => {
 
   return useMutation({
     mutationFn: deleteConversation,
-    // 지운 대화의 상세는 다시 조회하면 실패하므로, 무효화하지 않고 캐시에서 뺀다
+    /** 삭제된 대화 상세는 무효화 대신 캐시 제거 */
     onSuccess: (_, aiCnvrsRoomSn) => {
       queryClient.removeQueries({ queryKey: aiKeys.detail(aiCnvrsRoomSn) });
       queryClient.invalidateQueries({ queryKey: aiKeys.lists });

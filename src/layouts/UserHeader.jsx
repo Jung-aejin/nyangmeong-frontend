@@ -17,9 +17,9 @@ const iconButton =
   'relative flex h-[42px] w-[42px] items-center justify-center rounded-full text-[#3d4a4b] hover:bg-[#f4f6f6]';
 
 export default function UserHeader() {
-  // 드롭다운은 한 번에 하나만 열린다: 'gnb' | 'notification' | 'profile' | null
+  /** 열린 드롭다운 하나: gnb | notification | profile | null */
   const [openMenu, setOpenMenu] = useState(null);
-  // GNB가 열려 있는 동안 카드를 보여 줄 1차 메뉴의 순번
+  /** GNB 카드를 보여 줄 1차 메뉴 순번 */
   const [gnbIndex, setGnbIndex] = useState(0);
   const chatModal = useChatModal();
 
@@ -32,8 +32,7 @@ export default function UserHeader() {
   const toggle = (name) =>
     setOpenMenu((current) => (current === name ? null : name));
 
-  // 지연 뒤에 GNB 카드를 열거나 닫는다. 새 호출이 대기 중인 호출을 취소한다.
-  // 카드가 이미 열려 있으면 메뉴 사이를 옮길 때 바로 바뀐다.
+  /** 지연 뒤 GNB 카드 열기·닫기 */
   const scheduleGnb = (open, delay, index) => {
     clearTimeout(gnbTimer.current);
     gnbTimer.current = setTimeout(
@@ -55,7 +54,7 @@ export default function UserHeader() {
   };
 
   const handleGnbFocus = (event) => {
-    // ESC로 포커스가 돌아온 것이 방금 닫은 패널을 다시 열면 안 된다
+    /** ESC 포커스 복귀로 방금 닫은 패널이 다시 열리는 것 방지 */
     if (skipGnbFocus.current) {
       skipGnbFocus.current = false;
       return;
@@ -72,7 +71,7 @@ export default function UserHeader() {
 
   const handleGnbKeyDown = (event) => {
     if (event.key === 'Escape') {
-      // 카드가 열려 있는 1차 메뉴로 포커스를 돌려보낸다
+      /** 카드가 열린 1차 메뉴로 포커스 복귀 */
       const menuLink = gnbRef.current.querySelector(
         `[data-gnb-menu="${gnbIndex}"] > a`,
       );
@@ -93,7 +92,8 @@ export default function UserHeader() {
   };
 
   const closeNotification = useCallback(
-    () => setOpenMenu((current) => (current === 'notification' ? null : current)),
+    () =>
+      setOpenMenu((current) => (current === 'notification' ? null : current)),
     [],
   );
 
@@ -161,7 +161,7 @@ export default function UserHeader() {
           </nav>
         </div>
 
-        {/* 알림 패널이 이 묶음의 오른쪽 끝에 맞춰지도록 relative를 준다 */}
+        {/** 알림 패널을 묶음 오른쪽 끝에 맞추는 relative */}
         <div className="relative flex items-center gap-2 justify-self-end">
           <NotificationDropdown
             isOpen={openMenu === 'notification'}
@@ -176,7 +176,7 @@ export default function UserHeader() {
             onClick={openChat}
           >
             <MessageCircle size={24} />
-            {/* 안 읽은 채팅 수는 KSJ의 채팅 API에서 온다. 연결하기 전까지는 0이라 배지가 숨겨진다 */}
+            {/** 안 읽은 채팅 수(KSJ 채팅 API 연결 전 0) */}
             <CountBadge count={0} className="absolute right-px top-[5px]" />
           </button>
           <ProfileDropdown

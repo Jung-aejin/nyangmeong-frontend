@@ -1,10 +1,11 @@
 import { getCurrentYm, shiftYm } from '@/utils/yearMonth';
 import { EXPND_CLSF_LIST, PET_STTS } from './expenseCodes';
 
-// 가짜 응답: 가계부 API(SJM 백엔드)가 나오기 전까지 쓴다.
-// 함수 이름과 경로 주석은 실제 API와 같게 두고, API가 나오면 본문만 api 요청으로 바꾼다.
-// 아직 정해지지 않은 키: petNm·petStts(지출에 남은 반려동물의 이름·상태), mmExpndLimAmt(월 한도),
-// pets·expndMonths(overview). 집계는 지금 화면이 하고 서버가 주면 그 값으로 바꾼다
+/**
+ * [가계부 가짜 API]
+ * - SJM 백엔드 API 나오기 전까지 사용 -> 나오면 본문만 api 요청으로 교체
+ * - 미확정 키: petNm·petStts·mmExpndLimAmt·pets·expndMonths
+ */
 const [HOSPITAL, FEED, SNACK, SUPPLY, GROOM, CARE, ETC] = EXPND_CLSF_LIST.map(
   (clsf) => clsf.code,
 );
@@ -20,7 +21,7 @@ const fakePets = [
   { petSn: 8, petNm: '모리', petStts: PET_STTS.DELETED },
 ];
 
-// [일, petSn(null은 공용), 카테고리, 금액, 내용]. 일은 28일까지만 써서 어느 달에도 있다
+/** [일, petSn(null은 공용), 카테고리, 금액, 내용] 템플릿 */
 const TEMPLATE = [
   [1, 1, FEED, 38000, '연어 사료 5kg'],
   [2, null, SUPPLY, 21000, '배변패드 대용량'],
@@ -48,7 +49,7 @@ const TEMPLATE = [
   [28, 3, ETC, 11000, '이름표 제작'],
 ];
 
-// 이번 달 24건, 지난달 12건, 2개월 전 6건, 5개월 전 2건
+/** 월별 지출 건수 */
 const MONTH_PLANS = [
   { offset: 0, rows: TEMPLATE, rate: 1 },
   { offset: -1, rows: TEMPLATE.slice(0, 12), rate: 0.9 },
@@ -78,13 +79,13 @@ const buildFakeExpenses = () => {
 };
 
 let fakeExpenses = buildFakeExpenses();
-// 처음에는 한도를 설정하지 않은 상태다
+/** 한도 미설정 초기 상태 */
 let fakeLimit = null;
 
 const fakeDelay = (data) =>
   new Promise((resolve) => setTimeout(() => resolve(data), 200));
 
-// GET /expenses?fromYm=&toYm=. 두 값이 없으면 전체 기간
+/** 기간별 지출 목록 조회 (GET /expenses) */
 export const getExpenses = ({ fromYm, toYm }) =>
   fakeDelay(
     fakeExpenses.filter((expense) => {
@@ -93,7 +94,7 @@ export const getExpenses = ({ fromYm, toYm }) =>
     }),
   );
 
-// GET /expenses/overview. 월 한도, 연동된 동물(등록순), 지출이 있는 연월
+/** 월 한도·연동 동물·지출 연월 조회 (GET /expenses/overview) */
 export const getExpenseOverview = () =>
   fakeDelay({
     mmExpndLimAmt: fakeLimit,
@@ -103,19 +104,19 @@ export const getExpenseOverview = () =>
     ].sort(),
   });
 
-// PUT /expenses/limit. 처음 저장하면 서버가 한도 알림 수신을 켠다
+/** 월 한도 저장 (PUT /expenses/limit) */
 export const saveExpenseLimit = (mmExpndLimAmt) => {
   fakeLimit = mmExpndLimAmt;
   return fakeDelay(null);
 };
 
-// DELETE /expenses/{expndSn}
+/** 지출 단건 삭제 (DELETE /expenses/{expndSn}) */
 export const deleteExpense = (expndSn) => {
   fakeExpenses = fakeExpenses.filter((expense) => expense.expndSn !== expndSn);
   return fakeDelay(null);
 };
 
-// DELETE /expenses. 선택한 지출을 한 번에 지운다
+/** 선택 지출 일괄 삭제 (DELETE /expenses) */
 export const deleteExpenses = (expndSns) => {
   fakeExpenses = fakeExpenses.filter(
     (expense) => !expndSns.includes(expense.expndSn),

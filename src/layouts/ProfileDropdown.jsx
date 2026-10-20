@@ -17,7 +17,7 @@ const MENU_LINKS = [
 const itemClass =
   'flex h-11 w-full items-center rounded-lg px-3 text-left text-base text-[#1a3234] hover:bg-[#f4f6f6]';
 
-// 열려 있을 때만 마운트해서, 페이지를 열 때마다 회원 요약 요청이 나가지 않게 한다
+/** 열릴 때만 마운트: 열 때마다 회원 요약 요청 */
 function ProfileMenuPanel({ onClose, onLogout }) {
   const { data: summary } = useMemberSummary();
 
@@ -26,7 +26,7 @@ function ProfileMenuPanel({ onClose, onLogout }) {
       role="menu"
       className="absolute right-0 top-[61px] z-40 w-60 rounded-[14px] border border-[#e2e7e7] bg-white p-2 shadow-lg"
     >
-      {/* 요약을 불러오는 동안에도 상자 크기가 변하지 않게 min-h를 둔다 */}
+      {/** 요약 로딩 중 상자 크기 고정(min-h) */}
       <div className="mb-1 min-h-[71px] border-b border-[#edf1f1] px-3 pb-2 pt-3.5">
         <p className="text-base font-bold leading-[26px] text-[#1a3234]">
           {summary?.mbrNcnm}
@@ -72,7 +72,7 @@ export default function ProfileDropdown({
   const chatModal = useChatModal();
   const logout = useLogout();
 
-  // 토글 버튼이 rootRef 안에 있어서, 버튼 클릭이 바깥 클릭으로 처리되어 닫았다가 바로 다시 열리는 일이 없다
+  /** 토글 버튼이 rootRef 안: 닫자마자 다시 열리는 것 방지 */
   useEffect(() => {
     if (!isOpen) return undefined;
     const handleMouseDown = (event) => {
@@ -92,9 +92,7 @@ export default function ProfileDropdown({
     };
   }, [isOpen, onClose]);
 
-  // 모달이 닫힌 뒤에 포커스를 프로필 아이콘으로 돌려준다. 핸들러에서 바로 focus()를 부르면 이어지는 언마운트에서
-  // ConfirmModal의 dialog.close()가 포커스를 이미 사라진 로그아웃 메뉴 항목으로 되돌려 body로 간다.
-  // 자식의 정리(cleanup)가 부모의 effect보다 먼저 돌기 때문에 이 effect는 close() 뒤에 실행된다
+  /** 모달 닫힘 후 프로필 아이콘 포커스 복귀: 자식 cleanup이 부모 effect보다 먼저 실행되는 순서 이용 */
   const wasConfirmOpenRef = useRef(false);
   useEffect(() => {
     if (wasConfirmOpenRef.current && !isConfirmOpen) buttonRef.current.focus();
@@ -116,7 +114,7 @@ export default function ProfileDropdown({
       onSuccess: () => {
         closeAiWindow();
         chatModal.close();
-        // 다음 로그인 때 이전 회원의 캐시가 보이지 않게 비운다
+        /** 이전 회원 캐시 비우기 */
         queryClient.clear();
         setIsConfirmOpen(false);
         navigate(PATHS.HOME);

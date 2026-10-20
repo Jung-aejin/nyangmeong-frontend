@@ -9,7 +9,7 @@ import {
   splitList,
 } from './petFormat';
 
-// 알레르기·기저질환은 이 개수까지만 보이고 나머지는 [외 N개]로 접는다
+/** 알레르기·기저질환 표시 개수 상한 */
 const VISIBLE_LIST_COUNT = 2;
 
 const NAV_BUTTON =
@@ -17,7 +17,7 @@ const NAV_BUTTON =
 const CARD_BUTTON =
   'inline-flex h-10 items-center justify-center rounded-md border border-line bg-white px-4 font-semibold hover:bg-surface-2 hover:border-line-strong';
 
-// children은 ◀ N / 총마리 ▶ 오른쪽(카드 아래)에 놓인다. 등록 버튼이 들어온다
+/** children 자리: 카드 아래 페이지 표시 오른쪽 (등록 버튼) */
 export default function PetSlide({
   pets,
   index,
@@ -157,7 +157,7 @@ function PetFace({ pet }) {
       />
     );
   }
-  // 캐릭터 이미지 API(LJS)가 나오기 전과 캐릭터가 없는 동물은 종별 기본 얼굴을 쓴다
+  /** 캐릭터 없을 때 종별 기본 얼굴 */
   const Icon = pet.petSeCd === PET_SE.CAT ? Cat : Dog;
   return (
     <div className="grid size-28 shrink-0 place-items-center rounded-full bg-surface-2 text-line-strong shadow-[inset_0_0_0_1px_var(--color-line-strong)]">
@@ -203,7 +203,7 @@ function InfoRow({ label, children }) {
   );
 }
 
-// 한 줄을 넘치는 특징만 끝을 …으로 줄이고 [더보기]를 보인다
+/** 한 줄 초과 특징 말줄임·[더보기] */
 function ChrcRow({ value }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isOverflow, setIsOverflow] = useState(false);
@@ -286,7 +286,7 @@ function ListRow({ label, value }) {
   );
 }
 
-// 바깥을 누르면 닫히도록 화면 전체를 덮는 투명한 막을 깔고 그 위에 목록을 띄운다
+/** 바깥 클릭 닫힘용 투명 막 */
 function ListLayer({ title, items, text, onClose }) {
   return (
     <>

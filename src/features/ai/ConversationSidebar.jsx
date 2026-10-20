@@ -2,7 +2,7 @@ import { Menu, PawPrint, Plus, User } from 'lucide-react';
 import { groupConversations } from './groupConversations';
 import { useConversations } from './queries';
 
-// pets와 nickname은 다른 도메인(pet, member) 데이터라 페이지가 넘긴다
+/** 대화 목록 사이드바 */
 export default function ConversationSidebar({
   pets,
   nickname,
@@ -22,7 +22,7 @@ export default function ConversationSidebar({
   } = useConversations(selectedPetSn);
 
   return (
-    // 접어도 펼칠 단추는 남아야 해서 폭을 56px까지만 줄인다. 폭이 바뀌는 동안 안쪽은 펼친 폭을 그대로 두어 글자가 줄바꿈되지 않고 잘려 나간다
+    /** 접힘 폭 56px: 펼침 단추 유지, 안쪽은 펼친 폭 고정으로 글자 줄바꿈 방지 */
     <aside
       className={`relative shrink-0 overflow-hidden border-r border-[#e2e7e7] bg-white transition-[width] duration-200 ease-out motion-reduce:transition-none ${
         isCollapsed ? 'w-14' : 'w-[296px]'

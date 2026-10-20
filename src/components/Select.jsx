@@ -1,6 +1,6 @@
 import { ChevronDown } from 'lucide-react';
 
-// options: [{ value, label }]. value는 문자열로 비교한다
+/** options: [{ value, label }], value는 문자열 비교 */
 export default function Select({
   value,
   onChange,

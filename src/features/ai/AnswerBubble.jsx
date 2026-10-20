@@ -8,7 +8,7 @@ const NOTE_MARK = '\n\n※';
 const softButtonClass =
   'inline-flex h-8 items-center gap-1 rounded-full bg-[#e9f2f2] px-3 text-sm font-medium text-[#285a5c] hover:bg-[#cde0e0]';
 
-// 본문 끝의 의료 판단 제한 고지는 서버가 본문에 붙여 저장한다. 화면에서만 구분선 아래로 나눠 보인다
+/** 의료 판단 제한 고지: 서버가 본문에 붙여 저장, 화면에서만 구분선 아래로 분리 */
 const splitNote = (text) => {
   const index = text.indexOf(NOTE_MARK);
   if (index === -1) return { body: text, note: null };
@@ -37,8 +37,7 @@ function TypingDots() {
   );
 }
 
-// status: waiting(첫 글자 전) | streaming | done | incomplete(미완료) | error(첫 글자 전 실패)
-// shortcuts는 응답을 받은 직후에만 넘긴다(저장하지 않는다). onRetry는 error, onRegenerate는 incomplete의 버튼이다
+/** AI 답변 말풍선 */
 export default function AnswerBubble({
   status,
   text = '',

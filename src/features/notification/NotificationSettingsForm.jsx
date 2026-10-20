@@ -15,7 +15,7 @@ import Toggle from '@/components/Toggle';
 import { PATHS } from '@/routes/paths';
 import { useSaveNotificationSettings } from './queries';
 
-// 저장 요청에 담는 키. acntEml·expndLimSetYn은 서버가 주는 표시용 값이라 보내지 않는다
+/** 저장 요청 키 (acntEml·expndLimSetYn은 서버 표시용이라 제외) */
 const SAVE_KEYS = [
   'emlNotiRcptnYn',
   'inappNotiRcptnYn',
@@ -58,7 +58,7 @@ function SettingRow({ title, description, children }) {
   );
 }
 
-// settings는 서버 값이다. draft는 화면에서 고치는 값이고, 저장하면 서버 값이 draft와 같아진다
+/** settings 서버 값, draft 화면 편집 값 */
 export default function NotificationSettingsForm({ settings }) {
   const [draft, setDraft] = useState(settings);
   const { mutate: save, isPending } = useSaveNotificationSettings();

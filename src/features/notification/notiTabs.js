@@ -1,4 +1,4 @@
-// 알림 유형 코드(AIMG02)가 정해지기 전의 가짜 값이다. 실제 코드값으로 바꿀 때 이 파일만 고친다
+/** 알림 유형 코드 (AIMG02 확정 전 가짜 값, 확정 시 이 파일만 수정) */
 export const NOTI_TYPE = {
   CARE_SCHDL: 'CARE_SCHDL',
   EXPND_LIM: 'EXPND_LIM',
@@ -11,7 +11,7 @@ export const NOTI_TYPE = {
   NTC: 'NTC',
 };
 
-// 탭은 알림 유형을 묶어서 보여 줄 뿐이다. types가 null이면 전체다
+/** 유형 묶음 탭 (types null은 전체) */
 export const NOTI_TABS = [
   { key: 'all', label: '전체', types: null },
   {

@@ -1,6 +1,9 @@
-// 공통코드 값은 백엔드 db/..._insert_com_cd_*.sql 과 같아야 한다
+/**
+ * [반려동물 공통코드]
+ * - 백엔드 db/..._insert_com_cd_*.sql 값과 일치
+ */
 
-// PETG01 반려동물구분
+/** PETG01 반려동물구분 */
 export const PET_SE = {
   DOG: 'PETC0001',
   CAT: 'PETC0002',
@@ -11,13 +14,13 @@ export const PET_SE_OPTIONS = [
   { code: PET_SE.CAT, name: '고양이' },
 ];
 
-// PETG02 반려동물성별
+/** PETG02 반려동물성별 */
 export const PET_GNDR_OPTIONS = [
   { code: 'PETC0003', name: '수컷' },
   { code: 'PETC0004', name: '암컷' },
 ];
 
-// PETG03 털색. 강아지·고양이 선택지가 달라 종류마다 목록을 따로 둔다
+/** PETG03 털색 (종류별 목록 분리) */
 export const COLR_DRCT_INPT = 'PETC0017';
 
 const COLR = {
@@ -63,10 +66,10 @@ export const COLR_OPTIONS = {
   ],
 };
 
-// 주양육 동물 등록 상한. 공동양육 동물은 세지 않는다
+/** 주양육 동물 등록 상한 */
 export const MAX_OWN_PETS = 10;
 
-// 주양육/공동양육 구분. 공통코드가 아직 없어 백엔드를 만들 때 값을 맞춘다
+/** 주양육·공동양육 구분 (공통코드 생기면 값 맞춤) */
 export const PET_REL = {
   OWNER: 'OWNER',
   CO_PARENT: 'CO_PARENT',

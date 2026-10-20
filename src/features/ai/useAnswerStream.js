@@ -3,26 +3,27 @@ import { useQueryClient } from '@tanstack/react-query';
 import { streamAnswer } from './api';
 import { aiKeys } from './queries';
 
-// 첫 글자가 이 시간 안에 오지 않으면 오류로 본다 (FN-AIM-002-07)
+/** 첫 글자 대기 제한 */
 const FIRST_TOKEN_TIMEOUT_MS = 10_000;
-// 답변 하나를 받는 데 걸리는 전체 시간의 상한이다
+/** 답변 전체 시간 제한 */
 const TOTAL_TIMEOUT_MS = 60_000;
 
+/** 상태: idle | waiting | streaming | done | error | incomplete */
 const idleState = {
-  status: 'idle', // idle | waiting | streaming | done | error | incomplete
+  status: 'idle',
   text: '',
   shortcuts: [],
   question: '',
   aiCnvrsRoomSn: null,
-  // 이 답이 화면에서 대신하는 저장된 메시지들이다. 목록에서 빼서 두 번 보이지 않게 한다
+  /** 화면이 대신하는 저장 메시지 */
   hiddenMsgSns: [],
 };
 
-// 질문 하나에 대한 AI 답변을 받는 동안의 화면 상태를 맡는다. 저장은 서버(가짜)가 한다
+/** 답변 수신 화면 상태 */
 export default function useAnswerStream() {
   const queryClient = useQueryClient();
   const [state, setState] = useState(idleState);
-  // 이미 버린 요청의 늦은 응답이 화면을 덮어쓰지 않게 요청마다 번호를 매긴다
+  /** 늦은 응답 덮어쓰기 방지용 요청 번호 */
   const runIdRef = useRef(0);
   const abortRef = useRef(null);
   const timersRef = useRef([]);
@@ -39,10 +40,10 @@ export default function useAnswerStream() {
     setState(idleState);
   }, []);
 
-  // 창이 닫힐 때 진행 중인 요청과 타이머를 정리한다
+  /** 창 닫힘 시 정리 */
   useEffect(() => reset, [reset]);
 
-  // replaceMsgSn이 있으면 그 AI 메시지를 새 답으로 바꾼다(다시 생성)
+  /** 답변 시작 */
   const start = useCallback(
     async ({ aiCnvrsRoomSn, question, replaceMsgSn }) => {
       runIdRef.current += 1;
@@ -88,7 +89,7 @@ export default function useAnswerStream() {
         if (!isCurrent()) return;
         clearTimers();
 
-        // 첫 글자를 받기 전에 끊겼다
+        /** 첫 글자 전 끊김 */
         if (text === '') {
           setState((prev) => ({ ...prev, status: 'error' }));
           return;
@@ -109,7 +110,7 @@ export default function useAnswerStream() {
       } catch {
         if (!isCurrent()) return;
         clearTimers();
-        // 받은 글자가 있으면 지우지 않고 미완료로 남긴다
+        /** 미완료 보존 */
         setState((prev) => ({
           ...prev,
           status: text === '' ? 'error' : 'incomplete',

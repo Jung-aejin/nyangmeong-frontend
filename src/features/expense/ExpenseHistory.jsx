@@ -28,7 +28,7 @@ import {
 import { CARD } from './expenseStyles';
 import { useExpenseOverview, useExpenses } from './queries';
 
-// 기간 지정에서 종료가 시작보다 앞서면 서로 바꿔 쓴다
+/** 기간 순서 보정 */
 const getSortedPeriod = (range) =>
   range.fromYm <= range.toYm
     ? { fromYm: range.fromYm, toYm: range.toYm }
@@ -42,7 +42,7 @@ const getQueryRange = (range, isEditing, ym) => {
   return getSortedPeriod(range);
 };
 
-// initialYm: 전체 내역으로 들어올 때 보고 있던 달. 올바르지 않으면 이번 달이다
+/** initialYm: 진입 시 보던 달 */
 export default function ExpenseHistory({ initialYm }) {
   const [maxYm] = useState(getCurrentYm);
   const [ym, setYm] = useState(() =>
@@ -87,7 +87,7 @@ export default function ExpenseHistory({ initialYm }) {
   const isResultAllSelected =
     filtered.length > 0 && selectedItems.length === filtered.length;
 
-  // 편집 중 [기간 지정]에서 고를 수 있는 달: 지출이 있는 달과 보던 달
+  /** 기간 지정 선택 가능 달 */
   const rangeMonths = [...new Set([...overview.expndMonths, ym])].sort();
   const scope =
     range.mode === RANGE_MODE.ALL
@@ -110,7 +110,7 @@ export default function ExpenseHistory({ initialYm }) {
       ? '전체 카테고리'
       : EXPND_CLSF[categoryFilter].name;
 
-  // 보는 조건(달·필터·정렬)이 바뀌면 1페이지로 돌아가고, 편집 중이었다면 편집을 끝낸다
+  /** 조회 조건 변경 시 1페이지·편집 종료 */
   const resetView = () => {
     setPage(1);
     setIsEditing(false);
@@ -167,7 +167,7 @@ export default function ExpenseHistory({ initialYm }) {
     setSelected(new Set());
     setIsBulkOpen(false);
   };
-  // 지출 수정 모달(SCR-MYP-031)을 만들 때 연결한다
+  /** SCR-MYP-031 수정 모달 연결 예정 */
   const handleEditItem = () => showToast('준비 중인 기능이에요');
 
   return (

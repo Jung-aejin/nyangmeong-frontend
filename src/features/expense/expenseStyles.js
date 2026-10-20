@@ -5,7 +5,7 @@ export const CARD_HEAD =
 export const CARD_BODY = 'px-[22px] pt-5 pb-[22px]';
 export const CARD_TITLE = 'text-lg font-bold tracking-[-0.01em]';
 
-// 날짜별 상세와 내역 리스트가 같은 줄·날짜 머리 모양을 쓴다
+/** 날짜별 상세·내역 리스트 공통 줄·날짜 머리 */
 export const DAY_HEAD =
   'flex items-center justify-between gap-2 bg-surface-2 px-4 py-2 text-sm font-semibold text-ink-2';
 export const EXPENSE_ROW =

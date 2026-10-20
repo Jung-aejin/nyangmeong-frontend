@@ -1,6 +1,6 @@
-// 공통코드 값은 백엔드 db/..._insert_com_cd_*.sql 과 같아야 한다
+/** 공통코드 값: 백엔드 db/..._insert_com_cd_*.sql 과 일치 */
 
-// MYPG05 가계부카테고리. 배지 색과 원그래프 색은 카테고리마다 같은 톤을 쓴다
+/** MYPG05 가계부카테고리 */
 export const EXPND_CLSF_LIST = [
   {
     code: 'MYPC0012',
@@ -50,7 +50,7 @@ export const EXPND_CLSF = Object.fromEntries(
   EXPND_CLSF_LIST.map((clsf) => [clsf.code, clsf]),
 );
 
-// petStts: 지출에 남은 반려동물의 현재 상태. 키 이름은 백엔드를 만들 때 맞춘다
+/** 지출에 남은 반려동물 상태 */
 export const PET_STTS = {
   ACTIVE: 'ACTIVE',
   UNLINKED: 'UNLINKED',

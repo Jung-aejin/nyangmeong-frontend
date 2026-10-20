@@ -6,7 +6,7 @@ import { showToast } from '@/components/toastStore';
 import { useSaveExpenseLimit } from './queries';
 
 const FORM_ID = 'expense-limit-form';
-// 한도는 decimal(13,0)이라 13자리까지 받는다
+/** 한도 입력 최대 자리수 */
 const MAX_DIGITS = 13;
 
 export default function ExpenseLimitModal({ mmExpndLimAmt, onClose }) {

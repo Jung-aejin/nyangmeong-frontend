@@ -7,7 +7,7 @@ const ITEM =
 export default function Pagination({ page, pageCount, onChange }) {
   if (pageCount <= 1) return null;
 
-  // 현재 페이지를 가운데에 두고 VISIBLE_PAGE_COUNT개까지만 보인다
+  /** 현재 페이지 중심의 표시 범위 */
   const start = Math.max(
     1,
     Math.min(

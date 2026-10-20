@@ -1,7 +1,7 @@
 import { showToast } from '@/components/toastStore';
 import { useDeletePet } from './queries';
 
-// 이름은 영문·숫자·특수문자로 끝날 수 있어, 완성형 한글이 아니면 받침을 알 수 없어 "을(를)"을 쓴다
+/** 목적격 조사 선택 (영문·숫자 끝 이름은 "을(를)") */
 const withObjectParticle = (name) => {
   const code = name.charCodeAt(name.length - 1) - 0xac00;
   if (code < 0 || code > 11171) return `${name}을(를)`;

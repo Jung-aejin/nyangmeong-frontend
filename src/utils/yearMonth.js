@@ -1,4 +1,4 @@
-// 연월은 'YYYY-MM' 문자열로 다룬다. 문자열 비교가 곧 시간순이다
+/** 연월은 'YYYY-MM' 문자열, 문자열 비교가 시간순 */
 const pad = (value) => String(value).padStart(2, '0');
 
 export const getCurrentYm = () => {

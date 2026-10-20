@@ -3,11 +3,11 @@ import { X } from 'lucide-react';
 import { useChatModal } from '@/context/chatModal';
 import ChatModalPlaceholder from './ChatModalPlaceholder';
 
-// 모달 겉틀. 목록·대화·입력은 KSJ가 안쪽(ChatModalPlaceholder 자리)을 채운다
+/** 채팅 모달 겉틀 */
 export default function ChatModal() {
   const { isOpen, close } = useChatModal();
 
-  // 열려 있는 동안 뒤 본문 스크롤을 막는다. 스크롤바가 사라지며 화면이 밀리지 않게 그 폭만큼 padding을 채운다
+  /** 모달 열림 중 본문 스크롤 잠금 */
   useEffect(() => {
     if (!isOpen) return undefined;
     const root = document.documentElement;
@@ -26,7 +26,7 @@ export default function ChatModal() {
 
   return (
     <>
-      {/* 헤더(z-30)보다 아래에 둬서 모달이 떠 있어도 헤더를 누를 수 있다 */}
+      {/** 헤더(z-30) 아래 배치: 모달 중에도 헤더 클릭 가능 */}
       <div className="fixed inset-0 z-20 bg-[#0f1723]/45" aria-hidden="true" />
       <div
         role="dialog"
@@ -44,7 +44,7 @@ export default function ChatModal() {
             <X size={22} />
           </button>
         </header>
-        {/* 가짜 방은 확인용이라 개발 환경에서만 보인다. KSJ의 목록·대화 영역으로 바꾸면 이 조건을 없앤다 */}
+        {/** 가짜 방(개발 환경 전용 확인용) */}
         {import.meta.env.DEV && <ChatModalPlaceholder />}
       </div>
     </>

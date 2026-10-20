@@ -1,4 +1,7 @@
-// 알림 한 행. 읽지 않은 알림(prslDt가 null)은 배경과 점으로 구분한다
+/**
+ * [알림 행]
+ * - 미읽음(prslDt null)은 배경·점으로 구분
+ */
 export default function NotificationItem({ notification, onClick }) {
   const isUnread = notification.prslDt === null;
 

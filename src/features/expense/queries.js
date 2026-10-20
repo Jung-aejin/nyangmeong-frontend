@@ -18,7 +18,7 @@ export const expenseKeys = {
   overview: () => ['expenses', 'overview'],
 };
 
-// 월을 바꿀 때 목록이 비었다 채워지며 깜박이지 않게 이전 결과를 유지한다
+/** 월 전환 시 깜박임 방지용 이전 결과 유지 */
 export const useExpenses = (range) =>
   useQuery({
     queryKey: expenseKeys.list(range),
