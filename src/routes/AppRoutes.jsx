@@ -17,6 +17,9 @@ const NotificationSettingsPage = lazy(
 // ai
 const AiChatPage = lazy(() => import('@/pages/ai/AiChatPage'));
 
+// mypage
+const PetListPage = lazy(() => import('@/pages/mypage/PetListPage'));
+
 // admin
 const AdminHomePage = lazy(() => import('@/pages/admin/AdminHomePage'));
 
@@ -31,6 +34,9 @@ export default function AppRoutes() {
             path={PATHS.SETTINGS_NOTIFICATIONS}
             element={<NotificationSettingsPage />}
           />
+
+          {/* mypage. 로그인 API(AIC)가 나오면 ProtectedRoute 아래로 옮긴다 */}
+          <Route path={PATHS.MYPAGE_PETS} element={<PetListPage />} />
         </Route>
 
         {/* ai: 별도 창 전체 화면이라 UserLayout 밖에 둔다 */}
