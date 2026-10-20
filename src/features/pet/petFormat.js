@@ -29,3 +29,18 @@ export const formatWeight = (kg) => `${kg}kg`;
 
 // "새우,닭고기" → ['새우', '닭고기']
 export const splitList = (value) => (value ? value.split(',') : []);
+
+// "3살 2개월". 생일이 없으면 빈 문자열
+export const formatAge = (petBrdt, today = new Date()) => {
+  if (!petBrdt) return '';
+  const birth = new Date(petBrdt);
+  let months =
+    (today.getFullYear() - birth.getFullYear()) * 12 +
+    today.getMonth() -
+    birth.getMonth();
+  if (today.getDate() < birth.getDate()) months -= 1;
+  const years = Math.floor(months / 12);
+  const rest = months % 12;
+  if (years === 0) return `${rest}개월`;
+  return rest === 0 ? `${years}살` : `${years}살 ${rest}개월`;
+};
