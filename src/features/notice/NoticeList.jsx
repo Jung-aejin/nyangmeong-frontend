@@ -1,7 +1,9 @@
-import { ChevronLeft, Search } from 'lucide-react';
+import { ChevronLeft } from 'lucide-react';
 import { useState } from 'react';
 import { generatePath, Link } from 'react-router-dom';
 import BoardPagination from '@/components/BoardPagination';
+import EmptyResult from '@/components/EmptyResult';
+import SearchInput from '@/components/SearchInput';
 import { PATHS } from '@/routes/paths';
 import { formatDate } from '@/utils/formatDate';
 
@@ -14,11 +16,6 @@ export default function NoticeList({
   const [input, setInput] = useState(keyword);
   const { content, page, totalElements, totalPages } = notices;
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    onSearch(input.trim());
-  };
-
   const handleReset = () => {
     setInput('');
     onSearch('');
@@ -30,46 +27,30 @@ export default function NoticeList({
         <p className="text-base leading-[1.6] text-[#566465]">
           전체 <b className="font-bold text-[#1a3234]">{totalElements}</b> 건
         </p>
-        <form
-          onSubmit={handleSubmit}
-          className="relative w-[300px] max-[760px]:w-full"
-        >
-          <input
-            type="search"
-            value={input}
-            onChange={(event) => setInput(event.target.value)}
-            placeholder="제목 또는 내용 검색"
-            aria-label="제목 또는 내용 검색"
-            className="h-10 w-full rounded-md border border-[#d3dae2] bg-white pr-10 pl-[15px] text-base placeholder:text-[#8c9899]"
-          />
-          <button
-            type="submit"
-            aria-label="검색"
-            className="absolute top-[9px] right-[9px] text-[#566465]"
-          >
-            <Search size={20} />
-          </button>
-        </form>
+        <SearchInput
+          value={input}
+          onChange={setInput}
+          onSubmit={() => onSearch(input.trim())}
+          placeholder="제목 또는 내용 검색"
+          className="w-[300px] max-[760px]:w-full"
+        />
       </div>
 
       {content.length === 0 ? (
-        <div className="rounded-[14px] border border-[#e2e7e7] bg-white px-6 py-14">
-          <div className="flex h-[320px] flex-col items-center justify-center gap-8 text-center">
-            <p className="text-lg text-[#566465]">
-              {keyword ? '검색한 공지가 없어요' : '등록된 공지가 없어요'}
-            </p>
-            {keyword && (
-              <button
-                type="button"
-                onClick={handleReset}
-                className="inline-flex cursor-pointer items-center gap-1.5 text-base leading-normal font-medium text-[#566465] hover:underline"
-              >
-                <ChevronLeft size={14} />
-                전체 공지 보기
-              </button>
-            )}
-          </div>
-        </div>
+        <EmptyResult
+          title={keyword ? '검색한 공지가 없어요' : '등록된 공지가 없어요'}
+        >
+          {keyword && (
+            <button
+              type="button"
+              onClick={handleReset}
+              className="inline-flex cursor-pointer items-center gap-1.5 text-base leading-normal font-medium text-[#566465] hover:underline"
+            >
+              <ChevronLeft size={14} />
+              전체 공지 보기
+            </button>
+          )}
+        </EmptyResult>
       ) : (
         <div className="overflow-hidden rounded-[14px] border border-[#e2e7e7] bg-white">
           <div className="flex h-12 items-center border-b border-[#e2e7e7] bg-[#f4f6f6] text-sm font-medium text-[#566465] max-[760px]:hidden">

@@ -10,7 +10,11 @@ const MENUS = [
     to: PATHS.NOTICES,
     description: '냥멍케어의 새로운 소식과 서비스 안내를 알려 드려요',
   },
-  { label: '자주 묻는 질문', to: PATHS.FAQS },
+  {
+    label: '자주 묻는 질문',
+    to: PATHS.FAQS,
+    description: '궁금한 점을 빠르게 찾아보세요',
+  },
   { label: '1:1 문의', to: PATHS.INQUIRIES },
 ];
 
