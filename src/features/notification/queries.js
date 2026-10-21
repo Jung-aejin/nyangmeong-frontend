@@ -14,10 +14,12 @@ export const notificationKeys = {
   settings: ['notifications', 'settings'],
 };
 
+/** 배치(09:00) 생성 알림을 열린 창에도 반영하는 1분 주기 조회 */
 export const useUnreadCount = () =>
   useQuery({
     queryKey: notificationKeys.unreadCount,
     queryFn: getUnreadCount,
+    refetchInterval: 60_000,
   });
 
 /** tab별 캐시 알림 목록 */
