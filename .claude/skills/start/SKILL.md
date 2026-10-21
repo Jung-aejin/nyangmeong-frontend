@@ -11,6 +11,11 @@ argument-hint: [화면 ID 예: COM-003]
 `<이름>`은 브랜치 이름이다(`/`가 있으면 앞부분). 고르기와 기획은 한 턴에 끝낸다. 그래야 이 스킬의 모델(Opus)로 기획한다.
 
 1. 브랜치가 `develop`·`main`이면 "자기 이니셜 브랜치로 옮긴 뒤 다시 시작하세요"라고 하고 멈춘다.
+1-1. 원격과 로컬을 맞춘다(2번에서 파일을 읽기 전에). 규칙은 `docs/convention/git.md`를 따라 merge 커밋으로 합치고 rebase는 쓰지 않는다.
+   - `git fetch origin` 뒤 `git rev-list --left-right --count HEAD...origin/<브랜치>`와 `HEAD...origin/develop`로 차이를 보고, `git log --oneline HEAD..origin/<브랜치>`·`HEAD..origin/develop`로 들어올 커밋 제목을 본다.
+   - 들어올 커밋이 없으면 넘어간다. 있으면 `git diff --name-only HEAD origin/<브랜치>`, `HEAD origin/develop`와 `git status --porcelain`을 견줘 미커밋 변경과 겹치는 파일을 찾는다. 겹치면 합치지 않고 파일 목록을 보여 주며 멈춘다(사람이 커밋하거나 되돌린 뒤 다시 `/start`).
+   - 겹치지 않으면 `git merge origin/<브랜치>`(원격 개인 브랜치에 더 있을 때), 이어서 `git merge origin/develop`를 한다. 미커밋 변경은 그대로 둔다. 충돌이 나면 `git merge --abort`하고 충돌 파일을 보여 주며 멈춘다. 푸시는 하지 않는다.
+   - 보고 맨 앞에 합친 커밋 수와 눈에 띄는 변화(다른 사람이 끝낸 마일스톤, 새 `features/` 폴더)를 한두 줄로 적는다. 이후 2번부터는 합친 파일 기준으로 읽는다.
 2. `handoff/<이름>.md`를 읽는다. 없으면 `## 지금 하는 것`, `## 다음에 할 것` 두 절로 만든다.
 3. 설정 파일: 예시 파일의 키 중 실제 파일에 없거나 값이 빈 것을 이름만 모은다(값은 출력하지 않는다).
    - 프론트: `.env.example` → `.env.local`. 백엔드: `src/main/resources/application.properties.example` → `application.properties`.
@@ -21,7 +26,7 @@ argument-hint: [화면 ID 예: COM-003]
    - 마일스톤 파일이 없거나 형식이 다르면(절 제목이 `## SCR-…`로 시작하지 않으면) `docs/convention/milestone.md` 절차로 새로 만든다. git 이력에서 되살리지 않는다.
 5. `sh scripts/verify-loop.sh status`로 검증 루프 잠금을 본다. 지우지 않는다(`clear`는 사람만 한다). 잠금이 있으면(이전 세션이 `/end` 없이 끝났다) `sh scripts/verify-loop.sh pause`로 보관한다. 보관된 루프가 있으면 기획을 새로 쓰지 않고 그 마일스톤을 이어 간다. 보고 맨 위에 "검증 루프가 <N>회차 실패로 보관돼 있어 이어 갑니다. 기획과 기준 파일은 그대로입니다. 루프를 버리고 새로 기획하려면 `! sh scripts/verify-loop.sh clear` 후 `/start`를 다시 실행하세요"라고 적고, 8번의 `승인` 없이 `/impl`로 이어 가라고 안내한다. "지금 하는 것"에 승인 안 된 이전 기획이 있으면 지우고 그 마일스톤을 `대기`로 되돌린다. 고른 작업과 시작 시각을 적고, `milestones/<이름>.md`에서 그 절 제목의 상태를 `진행`으로 고친다(보고만 하지 않고 파일을 고친다).
 6. 기획을 "지금 하는 것" 아래에 먼저 쓴다(끊겨도 `/verify`가 읽을 수 있게).
-   - 기능명세서: DMS에서 그 화면 ID의 기능 설명("기능 목록")을 읽는다.
+   - 기능명세서: 문서 전체를 읽지 않는다. DMS `search_documents`로 `<도메인>_기능명세서`를 찾아 최신 파일명을 정한 뒤, `.cache/dms/<파일명>`이 없으면 `get_download_url`의 링크를 `curl -sSf -o`로 저장한다. 그다음 `sh scripts/spec-extract.sh .cache/dms/<파일명> <SCR-ID>`의 출력만 읽는다.
    - 화면설계서: 문서 전체를 읽지 않는다. DMS `search_documents`로 `<도메인>_화면설계서`(도메인은 기능명세서 파일명 앞부분)를 찾고, 없으면 `화면설계서`로 검색한 목록에서 고른다. 목록을 보기 전에는 없다고 판단하지 않는다. 최신 파일명을 정한 뒤, `.cache/dms/<파일명>`이 없으면 `get_download_url`의 링크를 `curl -sSf -o`로 저장한다. 그다음 `sh scripts/scr-extract.sh .cache/dms/<파일명> <SCR-ID>`의 출력만 읽는다.
    - 디자인(프론트만): `docs/convention/ui.md`의 디자인 기준 순서로 찾는다. 기획 단계에서는 PNG와 `show`, HTML 내용을 읽지 않는다.
      - `.env.local`에 `FIGMA_TOKEN`이 있으면 `node scripts/figma.mjs list <SCR-ID>`로 프레임을 찾는다. 캐시가 없다고 나올 때만 `node scripts/figma.mjs pull`을 한 번 돌린다(API 한도가 적어 `--refresh`는 사람이 디자인이 바뀌었다고 할 때만). Figma MCP는 부르지 않는다. 찾으면 기획에 `디자인:` 줄로 노드 ID와 PNG 경로를 적는다.

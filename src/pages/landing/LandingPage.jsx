@@ -3,7 +3,7 @@ import { PATHS } from '@/routes/paths';
 
 export default function LandingPage() {
   const { search } = useLocation();
-  // 복귀 경로를 그대로 로그인 화면에 넘긴다. 검증은 로그인 성공 뒤에 한다
+  /** 복귀 경로를 로그인 화면에 전달(검증은 로그인 성공 뒤) */
   const redirect = new URLSearchParams(search).get('redirect');
   const loginTo = redirect
     ? `${PATHS.LOGIN}?redirect=${encodeURIComponent(redirect)}`

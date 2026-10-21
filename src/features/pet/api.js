@@ -1,9 +1,10 @@
-import { PET_REL, PET_SE } from './petCodes';
+import { PET_REL, PET_SE } from './shared/petCodes';
 
-// 가짜 응답: 반려동물 API(SJM 백엔드)와 품종 마스터(KSJ)가 나오기 전까지 쓴다.
-// 함수 이름과 경로 주석은 실제 API와 같게 두고, API가 나오면 본문만 api 요청으로 바꾼다.
-// 아직 정해지지 않은 키: lastBdwgRcd(가장 최근 체중 기록), vrtyNm(품종명), rprsYn(대표 여부),
-// petRelCd(주양육/공동양육), chrcFaceUrl(캐릭터 얼굴, LJS). 백엔드를 만들 때 맞춘다
+/**
+ * [반려동물 가짜 API]
+ * - 반려동물 API(SJM)·품종 마스터(KSJ) 전까지 쓰는 가짜 응답, 나오면 본문만 api 요청으로 교체
+ * - 미정 키: lastBdwgRcd, vrtyNm, rprsYn, petRelCd, chrcFaceUrl
+ */
 const basePet = {
   vrtySn: null,
   vrtyNm: null,
@@ -198,14 +199,14 @@ const findVrtyNm = (petSeCd, vrtySn) =>
 const fakeDelay = (data) =>
   new Promise((resolve) => setTimeout(() => resolve(data), 200));
 
-// GET /pets
+/** 목록 조회 GET /pets */
 export const getPets = () => fakeDelay(fakePets);
 
-// GET /pets/{petSn}
+/** 상세 조회 GET /pets/{petSn} */
 export const getPet = (petSn) =>
   fakeDelay(fakePets.find((pet) => pet.petSn === petSn));
 
-// POST /pets
+/** 등록 POST /pets */
 export const createPet = (body) => {
   const pet = {
     ...basePet,
@@ -217,7 +218,7 @@ export const createPet = (body) => {
   return fakeDelay(pet);
 };
 
-// PUT /pets/{petSn}. 체중 기록이 있으면 서버가 petBdwg를 바꾸지 않는다
+/** 수정 PUT /pets/{petSn} */
 export const updatePet = ({ petSn, ...body }) => {
   const prev = fakePets.find((pet) => pet.petSn === petSn);
   const pet = {
@@ -230,12 +231,12 @@ export const updatePet = ({ petSn, ...body }) => {
   return fakeDelay(pet);
 };
 
-// DELETE /pets/{petSn}. 공동양육 연동 해제와 알림은 서버가 처리한다
+/** 삭제 DELETE /pets/{petSn} */
 export const deletePet = (petSn) => {
   fakePets = fakePets.filter((pet) => pet.petSn !== petSn);
   return fakeDelay(null);
 };
 
-// GET /varieties?petSeCd= (KSJ 품종 마스터)
+/** 품종 목록 조회 GET /varieties?petSeCd= (KSJ) */
 export const getVarieties = (petSeCd) =>
   fakeDelay(fakeVarieties[petSeCd] ?? []);

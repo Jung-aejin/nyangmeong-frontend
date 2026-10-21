@@ -1,6 +1,6 @@
 import { useChatModal } from '@/context/chatModal';
 
-// 채팅 API가 없어 확인용으로 둔 가짜 방. KSJ의 목록·대화 영역으로 바꾼다
+/** 채팅 API 전 확인용 가짜 방 */
 const FAKE_ROOMS = ['room-a', 'room-b', 'room-c'];
 
 export default function ChatModalPlaceholder() {
@@ -25,7 +25,7 @@ export default function ChatModalPlaceholder() {
       </ul>
       <div className="flex flex-1 flex-col items-start gap-4 p-6 text-[#566465]">
         <p>선택된 방: {roomSn ?? '없음'}</p>
-        {/* 게시글 [채팅하기]가 open(방)을 부르는 상황을 흉내 낸다 */}
+        {/** 게시글 [채팅하기]의 open(방) 호출 흉내 */}
         <button
           type="button"
           className="h-10 rounded-lg border border-[#e2e7e7] px-4 text-sm hover:bg-[#f4f6f6]"

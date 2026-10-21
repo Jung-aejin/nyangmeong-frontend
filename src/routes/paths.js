@@ -1,43 +1,45 @@
-// 도메인별 구획 안에 추가한다. 맨 끝에 붙이면 병합할 때 충돌한다
+/** 도메인별 구획 안에 추가: 맨 끝 추가 시 병합 충돌 */
 export const PATHS = {
-  // 공통
+  /** 공통 */
   HOME: '/',
   NOTICES: '/notices',
   FAQS: '/faqs',
   INQUIRIES: '/inquiries',
   SETTINGS_NOTIFICATIONS: '/settings/notifications',
 
-  // account
+  /** account */
   LOGIN: '/login',
 
-  // main
+  /** main */
   MAIN: '/main',
 
-  // ai
+  /** ai */
   AI: '/ai',
 
-  // health
+  /** health */
   HEALTH: '/health',
   HEALTH_DIARY: '/health/diary',
   HEALTH_CALENDAR: '/health/calendar',
 
-  // place
+  /** place */
   PLACES: '/places',
 
-  // community
+  /** community */
   COMMUNITY: '/community',
   COMMUNITY_MISSING: '/community/missing',
   COMMUNITY_NEWS: '/community/news',
   COMMUNITY_PETCARE: '/community/petcare',
 
-  // mypage
+  /** mypage */
   MYPAGE: '/mypage',
   MYPAGE_EXPENSES: '/mypage/expenses',
   MYPAGE_CHARACTERS: '/mypage/characters',
+  MYPAGE_POINTS: '/mypage/points',
 
-  // mypage
+  /** mypage */
   MYPAGE_PETS: '/mypage/pets',
+  MYPAGE_EXPENSES_ALL: '/mypage/expenses/all',
 
-  // admin
+  /** admin */
   ADMIN: '/admin',
 };

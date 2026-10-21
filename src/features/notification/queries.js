@@ -14,13 +14,15 @@ export const notificationKeys = {
   settings: ['notifications', 'settings'],
 };
 
+/** 배치(09:00) 생성 알림을 열린 창에도 반영하는 1분 주기 조회 */
 export const useUnreadCount = () =>
   useQuery({
     queryKey: notificationKeys.unreadCount,
     queryFn: getUnreadCount,
+    refetchInterval: 60_000,
   });
 
-// tab은 notiTabs.js의 탭 하나다. 탭마다 따로 캐시한다
+/** tab별 캐시 알림 목록 */
 export const useNotifications = (tab) =>
   useQuery({
     queryKey: [...notificationKeys.list, tab.key],

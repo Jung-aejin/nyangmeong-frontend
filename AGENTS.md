@@ -37,10 +37,10 @@
 ```
 src/
 ├─ api/         서버 통신 공통 설정(axios.js, env.js). 도메인을 모른다
-├─ features/    도메인별 코드. 도메인 1개 = 폴더 1개 (api.js, queries.js, 그 도메인 UI)
+├─ features/    도메인별 코드. 도메인 1개 = 폴더 1개 (api.js, queries.js, shared/, 화면별 폴더)
 ├─ pages/       URL 1개 = 파일 1개. features·components 조립만 한다 (관리자 화면은 pages/admin/)
 ├─ layouts/     화면 겉틀. 헤더·푸터·사이드바 + <Outlet/>
-├─ routes/      URL과 페이지 연결 (AppRoutes.jsx, ProtectedRoute.jsx, paths.js)
+├─ routes/      URL과 페이지 연결 (AppRoutes.jsx 진입점, domains/<도메인>Routes.js, ProtectedRoute.jsx, paths.js)
 ├─ components/  도메인을 모르는 공통 UI
 ├─ hooks/  utils/  constants/  context/  assets/
 ```
@@ -79,7 +79,7 @@ api/axios     서버 통신
 | 서버에 요청을 보내거나 응답·오류를 다룰 때 | `docs/convention/api.md` |
 | 새 폴더·공통 파일을 만들 때, 실행 환경(Yarn·Node)을 다룰 때 | `docs/convention/structure.md` |
 | 환경변수(`.env*`)를 다룰 때, 핸드오프를 쓸 때 | `docs/convention/config.md` |
-| `routes/paths.js`, `routes/AppRoutes.jsx`를 고칠 때 | `docs/convention/shared-files.md` |
+| 새 라우트를 붙일 때, `routes/paths.js`·`routes/AppRoutes.jsx`를 고칠 때 | `docs/convention/shared-files.md` |
 | 새 화면 URL을 정하거나 바꿀 때 | `docs/routes.md`: 새 화면 URL은 이 문서의 규칙을 따른다. URL 값은 `routes/paths.js`가 정본이다. AI 대상(✓) URL을 바꾸면 AI 서버의 라우팅 매핑도 같이 고친다 |
 | 브랜치·커밋·PR을 만들 때 | `docs/convention/git.md` |
 | 내 담당 화면·API를 마일스톤으로 나눌 때 | `docs/convention/milestone.md` |
@@ -91,7 +91,7 @@ api/axios     서버 통신
 - 이 파일은 이미 읽혀 있으므로 다시 읽지 않는다. `docs/convention/`은 위 표에서 해당하는 파일만 연다.
 - 파일은 필요한 부분만 읽는다. 위치를 모르면 먼저 검색하고 그 주변만 읽는다. `node_modules/`, `dist/`는 읽지 않는다.
 - 검증 명령은 `yarn -s lint`, `yarn -s build`다. 실패한 부분만 본다. `/end`가 이 명령들의 종료 코드가 0이 아니면 마일스톤을 끝내지 않는다.
-- 기능 구현은 기획(`/start`, Opus) → 사람 승인(`승인` 또는 `/impl`) → 구현과 검증 루프(`/impl`: 구현은 Sonnet, 검증은 대화를 보지 않는 별도 에이전트 Opus, `실패`면 고쳐서 최대 3회, 그래도 실패면 사람에게 넘긴다) → 사람 확인(README "사람 확인") → `/end` 순서다. 첫 검증 실패 뒤에는 기준 파일(기획·검증 명령·의존성·테스트)을 고칠 수 없다(`scripts/verify-loop.sh` 훅). 세션을 끊어도 잠금은 보관됐다가 이어지고, 루프를 버리는 것(`clear`)은 사람만 한다. 기획이 승인되기 전에는 코드를 쓰지 않는다. 승인된 뒤 사람이 기획에 없는 것을 요청하면 다시 기획하지 않고, 고치기 전에 `handoff/<이름>.md`의 `### 추가 요청`에 먼저 적는다(형식은 `.claude/skills/impl/SKILL.md` 6번). `/impl` 밖의 대화에서 요청받아도 같다.
+- 기능 구현은 기획(`/start`, Opus) → 사람 승인(`승인` 또는 `/impl`) → 구현과 검증 루프(`/impl`: 구현은 Sonnet, 검증은 대화를 보지 않는 별도 에이전트 Opus, `실패`면 고쳐서 최대 3회, 그래도 실패면 사람에게 넘긴다) → 사람 확인(README "사람 확인") → `/end` 순서다. 첫 검증 실패 뒤에는 기준 파일(기획·검증 명령·의존성·테스트)을 고칠 수 없다(`scripts/verify-loop.sh` 훅). 세션을 끊어도 잠금은 보관됐다가 이어지고, 루프를 버리는 것(`clear`)은 사람만 한다. 예외는 `/end`가 사람 확인을 거쳐 마일스톤을 `끝`으로 판정할 때 보관된 루프를 버리는 것이다. 기획이 승인되기 전에는 코드를 쓰지 않는다. 승인된 뒤 사람이 기획에 없는 것을 요청하면 다시 기획하지 않고, 고치기 전에 `handoff/<이름>.md`의 `### 추가 요청`에 먼저 적는다(형식은 `.claude/skills/impl/SKILL.md` 6번). `/impl` 밖의 대화에서 요청받아도 같다.
 - `화면:` 완료 조건은 `yarn dev`를 띄우고 Playwright MCP로 확인한다. dev 서버는 끄지 않고 띄워 둔다(이미 떠 있으면 그것을 쓴다). 사람이 이어서 같은 서버로 확인한다. API가 없어 확인하지 못한 조건은 이유와 함께 보고한다.
   - 서버가 안 떠 있으면 에이전트 셸에서 떼어 띄운다: `nohup yarn dev </dev/null >/dev/null 2>&1 &`. 포그라운드나 `run_in_background`로 띄우면 서버가 에이전트 셸의 자식이라 서버가 끝날 때까지 에이전트 세션이 닫히지 않는다.
   - 띄운 뒤 `lsof -iTCP:5173 -sTCP:LISTEN`에 나올 때까지 확인한다. 로그를 `/dev/null`로 버리므로 서버가 바로 죽어도 보이지 않는다.

@@ -1,15 +1,27 @@
-// 알림 API(LJS 백엔드)가 생기기 전까지 쓰는 가짜 응답이다. api.get()으로 바꾸고 실제 필드 이름에 맞춘다
-// notiTypeCd 값은 AIMG02 코드값이 정해지기 전의 가짜다. mvmnPath는 docs/routes.md의 알림 클릭 이동 대상이다
-// 개발 환경에서만 ?fakeUnread=0, ?fakeUnread=120으로 미읽음 수를, ?fakeNotifications=0으로 알림 0건을 확인할 수 있다
+/**
+ * [알림 가짜 API]
+ * - 알림 API(LJS 백엔드) 전까지 사용, api.get()으로 교체
+ * - notiTypeCd는 AIMG02 확정 전 가짜 값, mvmnPath는 docs/routes.md 기준
+ * - ?fakeUnread=0·120, ?fakeNotifications=0은 개발 환경 전용
+ */
 const fakeNotifications = [
+  {
+    inappNotiSn: 8,
+    notiTypeCd: 'CARE_SCHDL',
+    notiTypeCdNm: '케어 일정',
+    notiTtl: '초코 예방접종 일정이 D-1 남았어요',
+    notiCn: '',
+    mvmnPath: '/health/calendar',
+    prslDt: null,
+  },
   {
     inappNotiSn: 7,
     notiTypeCd: 'CARE_SCHDL',
     notiTypeCdNm: '케어 일정',
-    notiTtl: '초코 심장사상충 예방일이 내일이에요',
+    notiTtl: '보리 정기검진 일정이 오늘이에요',
     notiCn: '',
     mvmnPath: '/health/calendar',
-    prslDt: null,
+    prslDt: '2026-10-19T09:00:00',
   },
   {
     inappNotiSn: 6,
@@ -84,7 +96,7 @@ const getFakeUnreadCount = () => {
 export const getUnreadCount = () =>
   Promise.resolve({ unreadCount: getFakeUnreadCount() });
 
-// notiTypeCd는 유형 코드 배열이다. 없으면 전체를 준다
+/** notiTypeCd 유형 코드 배열 필터 */
 export const getNotifications = ({ notiTypeCd, size = 5 }) => {
   const list = getFakeList().filter(
     (item) => !notiTypeCd || notiTypeCd.includes(item.notiTypeCd),
@@ -102,9 +114,7 @@ export const readNotification = (inappNotiSn) => {
   return Promise.resolve();
 };
 
-// 알림 설정 가짜다. GET·PUT /members/me/notification-settings(LJS 백엔드)가 생기면 api.get()·api.put()으로 바꾼다
-// 기본값은 명세 FN-COM-008-13이고, 실제 기본값은 서버가 정한다. 새로고침하면 처음 값으로 돌아간다
-// 개발 환경에서만 ?fakeLimitSet=0으로 한도 미설정을, ?fakeSaveError=1로 저장 실패를 확인할 수 있다
+/** 알림 설정 가짜 응답 (기본값 FN-COM-008-13, 개발 환경 ?fakeLimitSet=0·?fakeSaveError=1) */
 const fakeSettings = {
   acntEml: 'jin****@gmail.com',
   emlNotiRcptnYn: true,
@@ -120,7 +130,7 @@ const fakeSettings = {
   expndLimNotiRcptnYn: false,
 };
 
-// expndLimSetYn은 서버가 계산해 주는 값이라 저장 대상이 아니다
+/** 설정 응답 (expndLimSetYn은 서버 계산값) */
 const getFakeSettingsResponse = () => ({
   ...fakeSettings,
   expndLimSetYn: getQueryParam('fakeLimitSet') !== '0',

@@ -1,21 +1,21 @@
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
 import { showToast } from '@/components/toastStore';
-import PetDeleteDialog from '@/features/pet/PetDeleteDialog';
-import PetEmpty from '@/features/pet/PetEmpty';
-import PetFormModal from '@/features/pet/PetFormModal';
-import PetSlide from '@/features/pet/PetSlide';
-import { MAX_OWN_PETS, PET_REL } from '@/features/pet/petCodes';
+import PetDeleteDialog from '@/features/pet/list/PetDeleteDialog';
+import PetEmpty from '@/features/pet/list/PetEmpty';
+import PetFormModal from '@/features/pet/list/PetFormModal';
+import PetSlide from '@/features/pet/list/PetSlide';
+import { MAX_OWN_PETS, PET_REL } from '@/features/pet/shared/petCodes';
 import { usePets } from '@/features/pet/queries';
 
 export default function PetListPage() {
   const { data: pets = [], isPending } = usePets();
   const [slideIndex, setSlideIndex] = useState(0);
-  // undefined: 닫힘, null: 등록, 숫자: 그 petSn 수정
+  /** undefined: 닫힘, null: 등록, 숫자: 해당 petSn 수정 */
   const [modalPetSn, setModalPetSn] = useState(undefined);
   const [deletingPet, setDeletingPet] = useState(null);
 
-  // 삭제로 목록이 줄어 위치가 끝을 넘으면 마지막 동물을 보인다
+  /** 삭제로 위치가 끝을 넘으면 마지막 동물 표시 */
   const currentIndex = Math.min(slideIndex, Math.max(pets.length - 1, 0));
   const ownPetCount = pets.filter(
     (pet) => pet.petRelCd === PET_REL.OWNER,

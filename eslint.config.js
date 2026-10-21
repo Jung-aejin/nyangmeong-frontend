@@ -19,7 +19,8 @@ const noOtherFeature = {
 };
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  // html/은 git에 올리지 않는 퍼블리싱 시안(디자인 정본)이라 검사하지 않는다
+  globalIgnores(['dist', 'html']),
   {
     files: ['**/*.{js,jsx}'],
     extends: [

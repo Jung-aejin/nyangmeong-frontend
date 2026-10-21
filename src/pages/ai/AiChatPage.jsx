@@ -1,38 +1,76 @@
 import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import ChatInput from '@/features/ai/ChatInput';
-import ConversationHeader from '@/features/ai/ConversationHeader';
-import ConversationMessages from '@/features/ai/ConversationMessages';
-import ConversationSidebar from '@/features/ai/ConversationSidebar';
-import { fakePets } from '@/features/ai/fakePets';
-import { useConversation, useSendMessage } from '@/features/ai/queries';
-import WelcomeMessage from '@/features/ai/WelcomeMessage';
+import ChatInput from '@/features/ai/chat/ChatInput';
+import ConversationHeader from '@/features/ai/chat/ConversationHeader';
+import ConversationMessages from '@/features/ai/chat/ConversationMessages';
+import AnswerBubble from '@/features/ai/chat/AnswerBubble';
+import ConversationSidebar from '@/features/ai/chat/ConversationSidebar';
+import { OPEN_CHAT_MODAL_MESSAGE } from '@/constants/chatModal';
+import { CHAT_MODAL_ACTION } from '@/features/ai/shared/fakeRoutingMap';
+import { fakePets } from '@/features/ai/chat/fakePets';
+import {
+  getFallbackCount,
+  increaseFallbackCount,
+  resetFallbackCount,
+} from '@/features/ai/shared/fallbackCount';
+import { openInMainWindow } from '@/features/ai/chat/openInMainWindow';
+import {
+  useCancelRegister,
+  useConfirmRegister,
+  useConversation,
+  useSendMessage,
+} from '@/features/ai/queries';
+import PetChoiceChips from '@/features/ai/chat/PetChoiceChips';
+import useAnswerStream from '@/features/ai/chat/useAnswerStream';
+import RouteGuideBubble from '@/features/ai/chat/RouteGuideBubble';
+import WelcomeMessage from '@/features/ai/chat/WelcomeMessage';
 import { useMemberSummary } from '@/features/member/queries';
 import { PATHS } from '@/routes/paths';
 
-// 연결할 때는 fakePets 대신 features/pet의 훅으로 바꾼다
+/** 임시 반려동물 목록 */
 const pets = fakePets;
 const representativePet = pets.find((pet) => pet.rprsPetYn === 'Y');
 
-// 헤더·GNB·푸터가 없는 별도 창 화면이라 UserLayout 밖에서 전체 화면을 쓴다
+/** 별도 창 전체 화면 AI 채팅 */
 export default function AiChatPage() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [selectedPetSn, setSelectedPetSn] = useState(
     representativePet?.petSn ?? null,
   );
-  // null이면 새 대화다. 대화는 첫 메시지를 보낼 때 만들어지므로 지금은 서버에 아무것도 없다
+  /** 선택된 대화 번호 */
   const [selectedRoomSn, setSelectedRoomSn] = useState(null);
-  // 히어로 검색바로 열렸을 때 새 대화의 첫 메시지가 될 문장이다. 창을 연 첫 화면에서만 쓰므로 다른 대화로 가면 비운다
+  /** 첫 메시지 */
   const [searchParams] = useSearchParams();
   const [firstMessage, setFirstMessage] = useState(() => searchParams.get('q'));
 
   const { data: member } = useMemberSummary();
   const { data: conversation, isError } = useConversation(selectedRoomSn);
   const sendMessage = useSendMessage();
+  const confirmRegister = useConfirmRegister();
+  const cancelRegister = useCancelRegister();
+  const answer = useAnswerStream();
+  /** 이동 안내 상태 */
+  const [route, setRoute] = useState(null);
+  /** 이번 화면에서 받은 미리보기 카드: 메시지 번호별 카드·상태·결과 문구 */
+  const [registerCards, setRegisterCards] = useState({});
+  /** 반려동물을 되묻는 칩 */
+  const [petChoices, setPetChoices] = useState(null);
+  /** 선택된 대화의 연속 실패 횟수 */
+  const [fallbackCount, setFallbackCount] = useState(0);
+  const isAnswering =
+    answer.status === 'waiting' || answer.status === 'streaming';
+  const cardSns = Object.keys(registerCards).map(Number);
+  const latestCardSn = cardSns.length > 0 ? Math.max(...cardSns) : null;
+
+  /** 대화를 옮기거나 지울 때 카드·칩 상태 초기화 */
+  const resetRegister = () => {
+    setRegisterCards({});
+    setPetChoices(null);
+  };
 
   const selectedPet = pets.find((pet) => pet.petSn === selectedPetSn);
 
-  // 새 대화면 서버가 이 메시지로 대화를 만들고, 돌려준 방을 선택한다
+  /** 메시지 전송 */
   const handleSend = (aiCnvrsMsgCn) => {
     sendMessage.mutate(
       {
@@ -42,24 +80,120 @@ export default function AiChatPage() {
         aiCnvrsMsgCn,
       },
       {
-        onSuccess: ({ aiCnvrsRoomSn }) => {
+        onSuccess: ({
+          aiCnvrsRoomSn,
+          intent,
+          aiCnvrsMsgSn,
+          route: nextRoute,
+          card,
+          petChoices: nextPetChoices,
+        }) => {
           setFirstMessage(null);
+          setRoute(null);
+          setPetChoices(null);
           setSelectedRoomSn(aiCnvrsRoomSn);
+          if (intent === 'REGISTER') {
+            answer.reset();
+            if (card) {
+              setRegisterCards((prev) => ({
+                ...prev,
+                [aiCnvrsMsgSn]: { card, status: 'pending', resultText: null },
+              }));
+            }
+            if (nextPetChoices) setPetChoices(nextPetChoices);
+          }
+          /** 검색·이동 안내·매칭 실패만 이 화면 처리 */
+          if (intent === 'SEARCH') {
+            answer.start({ aiCnvrsRoomSn, question: aiCnvrsMsgCn });
+          }
+          if (intent === 'ROUTE') {
+            setRoute({ ...nextRoute, aiCnvrsMsgSn, status: 'waiting' });
+          }
+          if (intent === 'FALLBACK') {
+            answer.reset();
+            setFallbackCount(increaseFallbackCount(aiCnvrsRoomSn));
+          }
+          if (intent === 'ROUTE' || intent === 'REGISTER') {
+            setFallbackCount(resetFallbackCount(aiCnvrsRoomSn));
+          }
         },
       },
     );
   };
 
-  // 개발 모드의 StrictMode는 effect를 두 번 실행하므로 ref로 한 번만 보낸다
+  /** 등록·취소 결과를 카드에 반영 */
+  const settleRegisterCard = (mutation, status, aiCnvrsMsgSn) => {
+    mutation.mutate(
+      { aiCnvrsRoomSn: selectedRoomSn, aiCnvrsMsgSn },
+      {
+        onSuccess: ({ aiCnvrsMsgCn }) => {
+          setRegisterCards((prev) => ({
+            ...prev,
+            [aiCnvrsMsgSn]: {
+              ...prev[aiCnvrsMsgSn],
+              status,
+              resultText: aiCnvrsMsgCn,
+            },
+          }));
+        },
+      },
+    );
+  };
+
+  /** 검색 답변 완료 시 실패 횟수 초기화 */
+  useEffect(() => {
+    if (answer.status !== 'done') return;
+    /* eslint-disable-next-line react-hooks/set-state-in-effect -- 답변 완료 시점에 맞춘 초기화 */
+    setFallbackCount(resetFallbackCount(answer.aiCnvrsRoomSn));
+  }, [answer.status, answer.aiCnvrsRoomSn]);
+
+  /** 미완료 답변 재생성 */
+  const handleRegenerate = (message) => {
+    const messages = conversation?.messages ?? [];
+    const index = messages.findIndex(
+      (item) => item.aiCnvrsMsgSn === message.aiCnvrsMsgSn,
+    );
+    const question = messages
+      .slice(0, index)
+      .findLast((item) => item.aiCnvrsMsgRoleCd === 'USER')?.aiCnvrsMsgCn;
+    if (!question) return;
+    answer.start({
+      aiCnvrsRoomSn: selectedRoomSn,
+      question,
+      replaceMsgSn: message.aiCnvrsMsgSn,
+    });
+  };
+
+  /** 유예 종료 후 본창 이동 */
+  const handleRouteElapsed = () => {
+    if (route.action === CHAT_MODAL_ACTION) {
+      /** 본창 없으면 새 탭 */
+      const opener = window.opener;
+      if (opener && !opener.closed) {
+        opener.postMessage(
+          { type: OPEN_CHAT_MODAL_MESSAGE },
+          window.location.origin,
+        );
+        opener.focus();
+      } else {
+        window.open(PATHS.MAIN, '_blank');
+      }
+      window.close();
+    } else {
+      openInMainWindow(route.path);
+    }
+  };
+
+  /** StrictMode effect 이중 실행 방지 */
   const hasSentFirstMessage = useRef(false);
   useEffect(() => {
     if (!firstMessage || hasSentFirstMessage.current) return;
     hasSentFirstMessage.current = true;
     handleSend(firstMessage.slice(0, 1000));
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- 창을 연 직후 한 번만 보낸다
+    /* eslint-disable-next-line react-hooks/exhaustive-deps -- 창을 연 직후 한 번만 전송 */
   }, []);
 
-  // 설정은 이 창 안에서 열지 않고 본창에서 연다. 본창이 닫혔으면 새 탭으로 연다
+  /** 설정은 본창에서 열기 */
   const handleOpenSettings = () => {
     const opener = window.opener;
     if (opener && !opener.closed) {
@@ -81,12 +215,20 @@ export default function AiChatPage() {
         onTogglePanel={() => setIsCollapsed((prev) => !prev)}
         onSelectPet={setSelectedPetSn}
         onSelectRoom={(aiCnvrsRoomSn) => {
+          answer.reset();
+          setRoute(null);
+          resetRegister();
           setFirstMessage(null);
           setSelectedRoomSn(aiCnvrsRoomSn);
+          setFallbackCount(getFallbackCount(aiCnvrsRoomSn));
         }}
         onNewChat={() => {
+          answer.reset();
+          setRoute(null);
+          resetRegister();
           setFirstMessage(null);
           setSelectedRoomSn(null);
+          setFallbackCount(0);
         }}
         onOpenSettings={handleOpenSettings}
       />
@@ -103,7 +245,13 @@ export default function AiChatPage() {
         {conversation && (
           <ConversationHeader
             conversation={conversation}
-            onDeleted={() => setSelectedRoomSn(null)}
+            onDeleted={() => {
+              answer.reset();
+              setRoute(null);
+              resetRegister();
+              setSelectedRoomSn(null);
+              setFallbackCount(0);
+            }}
           />
         )}
         <div className="min-h-0 flex-1 overflow-y-auto px-6 py-8">
@@ -113,7 +261,66 @@ export default function AiChatPage() {
             </p>
           )}
           {conversation && (
-            <ConversationMessages messages={conversation.messages} />
+            <ConversationMessages
+              messages={conversation.messages.filter(
+                (message) =>
+                  !answer.hiddenMsgSns.includes(message.aiCnvrsMsgSn) &&
+                  message.aiCnvrsMsgSn !== route?.aiCnvrsMsgSn,
+              )}
+              fallbackCount={fallbackCount}
+              registerCards={registerCards}
+              latestCardSn={latestCardSn}
+              isRegisterBusy={
+                confirmRegister.isPending || cancelRegister.isPending
+              }
+              hasRegisterError={
+                confirmRegister.isError || cancelRegister.isError
+              }
+              onRegenerate={handleRegenerate}
+              onConfirmRegister={(aiCnvrsMsgSn) =>
+                settleRegisterCard(confirmRegister, 'registered', aiCnvrsMsgSn)
+              }
+              onCancelRegister={(aiCnvrsMsgSn) =>
+                settleRegisterCard(cancelRegister, 'cancelled', aiCnvrsMsgSn)
+              }
+            >
+              {answer.status !== 'idle' && (
+                <AnswerBubble
+                  status={answer.status}
+                  text={answer.text}
+                  shortcuts={answer.shortcuts}
+                  onRetry={() =>
+                    answer.start({
+                      aiCnvrsRoomSn: answer.aiCnvrsRoomSn,
+                      question: answer.question,
+                    })
+                  }
+                  onRegenerate={() =>
+                    answer.start({
+                      aiCnvrsRoomSn: answer.aiCnvrsRoomSn,
+                      question: answer.question,
+                      replaceMsgSn: answer.hiddenMsgSns.at(-1),
+                    })
+                  }
+                />
+              )}
+              {petChoices && (
+                <PetChoiceChips
+                  pets={petChoices}
+                  isDisabled={sendMessage.isPending || isAnswering}
+                  onSelect={handleSend}
+                />
+              )}
+              {route && (
+                <RouteGuideBubble
+                  key={route.aiCnvrsMsgSn}
+                  label={route.label}
+                  status={route.status}
+                  onCancel={() => setRoute({ ...route, status: 'cancelled' })}
+                  onElapsed={handleRouteElapsed}
+                />
+              )}
+            </ConversationMessages>
           )}
           {selectedRoomSn === null && (
             <div className="flex min-h-full items-center justify-center">
@@ -131,7 +338,7 @@ export default function AiChatPage() {
         )}
         <ChatInput
           petNm={selectedPet?.petNm}
-          isDisabled={sendMessage.isPending}
+          isDisabled={sendMessage.isPending || isAnswering}
           onSubmit={handleSend}
         />
       </main>
