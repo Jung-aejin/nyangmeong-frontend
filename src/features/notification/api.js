@@ -6,13 +6,22 @@
  */
 const fakeNotifications = [
   {
-    inappNotiSn: 7,
+    inappNotiSn: 8,
     notiTypeCd: 'CARE_SCHDL',
     notiTypeCdNm: '케어 일정',
-    notiTtl: '초코 심장사상충 예방일이 내일이에요',
+    notiTtl: '초코 예방접종 일정이 D-1 남았어요',
     notiCn: '',
     mvmnPath: '/health/calendar',
     prslDt: null,
+  },
+  {
+    inappNotiSn: 7,
+    notiTypeCd: 'CARE_SCHDL',
+    notiTypeCdNm: '케어 일정',
+    notiTtl: '보리 정기검진 일정이 오늘이에요',
+    notiCn: '',
+    mvmnPath: '/health/calendar',
+    prslDt: '2026-10-19T09:00:00',
   },
   {
     inappNotiSn: 6,

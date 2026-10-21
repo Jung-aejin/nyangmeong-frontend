@@ -2,22 +2,47 @@ import { IS_DEV } from '@/api/env';
 import profile1 from '@/assets/pets/profile1.png';
 import profile2 from '@/assets/pets/profile2.png';
 import profile3 from '@/assets/pets/profile3.png';
-import { addDays, getTodayYmd } from '@/utils/formatDate';
+import { addDays, diffDays, getTodayYmd } from '@/utils/formatDate';
 import { MAX_MAIN_CARE, getNextDueYmd } from './careDue';
+import { HOSPITAL } from './scheduleTypes';
 
 // 케어 캘린더 API(JAJ 백엔드)와 반려동물 목록(SJM)이 생기기 전까지 쓰는 가짜 응답이다. api.get() 등으로 바꾸고 실제 필드 이름에 맞춘다
 // 필드 이름은 ERD 약어 기준 가안이다. 메모리 배열이라 새로고침하면 처음 상태로 돌아간다
 // 개발 환경에서만 ?fakePets=1로 반려동물 1마리를, ?fakeSchedules=0으로 일정 0건을, ?fakeRecords=0으로 완료 기록 0건을 확인할 수 있다
 
-const getQueryParam = (name) =>
+export const getQueryParam = (name) =>
   IS_DEV ? new URLSearchParams(window.location.search).get(name) : null;
 
 const today = getTodayYmd();
 
 const fakePets = [
-  { petSn: 1, petNm: '나비', petSpcsCdNm: '고양이', chrctrImgPath: profile1 },
-  { petSn: 2, petNm: '초코', petSpcsCdNm: '고양이', chrctrImgPath: profile2 },
-  { petSn: 3, petNm: '두리', petSpcsCdNm: '강아지', chrctrImgPath: profile3 },
+  {
+    petSn: 1,
+    petNm: '나비',
+    petSpcsCdNm: '고양이',
+    chrctrImgPath: profile1,
+    nrmlWghtMinVal: 3.6,
+    nrmlWghtMaxVal: 4.4,
+    goalWghtVal: 4.0,
+  },
+  {
+    petSn: 2,
+    petNm: '초코',
+    petSpcsCdNm: '고양이',
+    chrctrImgPath: profile2,
+    nrmlWghtMinVal: 4.0,
+    nrmlWghtMaxVal: 5.0,
+    goalWghtVal: 4.5,
+  },
+  {
+    petSn: 3,
+    petNm: '두리',
+    petSpcsCdNm: '강아지',
+    chrctrImgPath: profile3,
+    nrmlWghtMinVal: 8.0,
+    nrmlWghtMaxVal: 10.0,
+    goalWghtVal: 9.0,
+  },
 ];
 
 const getFakePets = () =>
@@ -190,12 +215,89 @@ export const updateSchedule = ({ schdlSn, ...body }) => {
   return Promise.resolve(toScheduleResponse(target));
 };
 
+/** 일정 삭제 알림을 받을 곳: 검진기록의 연결 일정 해제용(diaryApi) */
+const scheduleDeletedListeners = [];
+
+export const onScheduleDeleted = (listener) =>
+  scheduleDeletedListeners.push(listener);
+
 export const deleteSchedule = (schdlSn) => {
   const index = fakeSchedules.findIndex(
     (schedule) => schedule.schdlSn === schdlSn,
   );
   if (index >= 0) fakeSchedules.splice(index, 1);
+  scheduleDeletedListeners.forEach((listener) => listener(schdlSn));
   return Promise.resolve();
+};
+
+const NEAR_SCHEDULE_DAYS = 7;
+
+const findSameDayHospital = (petSn, ymd) =>
+  fakeSchedules
+    .filter(
+      (schedule) =>
+        schedule.petSn === petSn &&
+        schedule.schdlTypeCd === HOSPITAL &&
+        schedule.schdlYmd === ymd,
+    )
+    .sort((a, b) => a.schdlSn - b.schdlSn)[0];
+
+/** 가까운 예정 병원 일정 1건: 같은 날 병원 일정이 없고 앞뒤 7일 안에 검진기록 없는 일정(FN-HLT-002-46) */
+export const findNearHospitalSchedule = ({ petSn, ckupYmd }) => {
+  if (findSameDayHospital(petSn, ckupYmd)) return Promise.resolve(null);
+  const near = fakeSchedules
+    .filter(
+      (schedule) =>
+        schedule.petSn === petSn &&
+        schedule.schdlTypeCd === HOSPITAL &&
+        schedule.ckupRcdCnt === 0 &&
+        Math.abs(diffDays(ckupYmd, schedule.schdlYmd)) <= NEAR_SCHEDULE_DAYS,
+    )
+    .sort(
+      (a, b) =>
+        Math.abs(diffDays(ckupYmd, a.schdlYmd)) -
+          Math.abs(diffDays(ckupYmd, b.schdlYmd)) || a.schdlSn - b.schdlSn,
+    )[0];
+  return Promise.resolve(near ? toScheduleResponse(near) : null);
+};
+
+/** 검진기록의 병원 일정 연결: 같은 날 일정 → 옮겨 연결(nearSchdlSn) → 새 일정 순, 연결한 일정 번호 반환 */
+export const linkCheckupToSchedule = ({
+  petSn,
+  ckupYmd,
+  hospNm,
+  ckupTypeCd,
+  nearSchdlSn,
+}) => {
+  let target = findSameDayHospital(petSn, ckupYmd);
+  if (!target && nearSchdlSn != null) {
+    target = fakeSchedules.find((schedule) => schedule.schdlSn === nearSchdlSn);
+    target.schdlYmd = ckupYmd;
+  }
+  if (!target) {
+    target = {
+      schdlSn: nextSchdlSn++,
+      petSn,
+      schdlTypeCd: HOSPITAL,
+      ckupTypeCd,
+      hospNm,
+      schdlNm: null,
+      schdlYmd: ckupYmd,
+      schdlTm: null,
+      schdlMemoCn: '',
+      bdgClrCd: null,
+      ckupRcdCnt: 0,
+    };
+    fakeSchedules.push(target);
+  }
+  target.ckupRcdCnt += 1;
+  return target.schdlSn;
+};
+
+/** 검진기록 삭제 시 연결 일정은 남기고 검진기록 수만 감소 */
+export const unlinkCheckupFromSchedule = (schdlSn) => {
+  const target = fakeSchedules.find((schedule) => schedule.schdlSn === schdlSn);
+  if (target) target.ckupRcdCnt = Math.max(0, target.ckupRcdCnt - 1);
 };
 
 // 서비스 기본 항목(FN-HLT-003-12). 기본 항목은 삭제·이름·아이콘 변경 불가, 정기관리는 주기만 바꿀 수 있다

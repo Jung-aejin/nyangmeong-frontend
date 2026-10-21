@@ -67,3 +67,33 @@ const DEBOUNCE_MS = 300;
 - 읽기 좋게 고쳐 지으면 같은 값을 프론트와 백엔드가 다르게 부르게 된다. 이름이 길거나 어색해도 그대로 쓴다.
 - 서버 응답에 없는 값(화면에서 계산한 값, 열림·선택 같은 UI 상태)만 새 이름을 짓는다.
 - 이 규칙은 필드 이름에만 해당한다. 컴포넌트·함수·파일·URL 경로 이름은 뜻이 드러나는 영어를 쓴다(`PetCard`, `getPets`, `/pets`).
+
+## 비동기
+
+비동기 흐름은 `async`/`await`로 쓴다. `new Promise`는 콜백만 주는 것(타이머·이벤트·`AbortSignal`)을 기다릴 때만 쓰고, 그 부분을 작은 함수로 빼서 `await`로 부른다.
+
+- 성공은 `return`, 실패는 `throw`로 쓴다. 함수 본문에서 `resolve`·`reject`를 직접 부르지 않는다.
+- `.then()` 체인을 새로 쓰지 않는다. 오류는 `try/catch`로 받는다.
+- 독립된 요청 여러 개는 `await`를 줄줄이 달지 않고 `await Promise.all([...])`로 함께 기다린다.
+
+```js
+// OK: Promise는 wait 안에만 있고 본문은 async
+const wait = (ms, signal) =>
+  new Promise((resolve, reject) => {
+    const timer = setTimeout(resolve, ms);
+    signal.addEventListener('abort', () => {
+      clearTimeout(timer);
+      reject(new DOMException('중단', 'AbortError'));
+    }, { once: true });
+  });
+
+export const recognizeCheckupReceipt = async ({ file, signal }) => {
+  await wait(2000, signal);
+  if (file.name.includes('error')) throw new Error('일시 오류');
+  return { rcptSn: Date.now() };
+};
+
+// NG: 본문 전체를 new Promise로 감싸 resolve·reject를 직접 부른다
+export const recognizeCheckupReceipt = ({ file, signal }) =>
+  new Promise((resolve, reject) => { /* ... */ });
+```

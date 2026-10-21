@@ -1,7 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import ChatInput from '@/features/ai/chat/ChatInput';
-import ConversationHeader from '@/features/ai/chat/ConversationHeader';
+import ConversationHeader, {
+  DrawerButton,
+  chatHeaderClass,
+} from '@/features/ai/chat/ConversationHeader';
 import ConversationMessages from '@/features/ai/chat/ConversationMessages';
 import AnswerBubble from '@/features/ai/chat/AnswerBubble';
 import ConversationSidebar from '@/features/ai/chat/ConversationSidebar';
@@ -34,6 +37,9 @@ const representativePet = pets.find((pet) => pet.rprsPetYn === 'Y');
 /** 별도 창 전체 화면 AI 채팅 */
 export default function AiChatPage() {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  /** 1100px 미만 대화 목록 drawer */
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const closeDrawer = useCallback(() => setIsDrawerOpen(false), []);
   const [selectedPetSn, setSelectedPetSn] = useState(
     representativePet?.petSn ?? null,
   );
@@ -204,39 +210,53 @@ export default function AiChatPage() {
     }
   };
 
+  const handleSelectRoom = (aiCnvrsRoomSn) => {
+    answer.reset();
+    setRoute(null);
+    resetRegister();
+    setFirstMessage(null);
+    setSelectedRoomSn(aiCnvrsRoomSn);
+    setFallbackCount(getFallbackCount(aiCnvrsRoomSn));
+    setIsDrawerOpen(false);
+  };
+
+  const handleNewChat = () => {
+    answer.reset();
+    setRoute(null);
+    resetRegister();
+    setFirstMessage(null);
+    setSelectedRoomSn(null);
+    setFallbackCount(0);
+    setIsDrawerOpen(false);
+  };
+
+  const openDrawer = () => setIsDrawerOpen(true);
+
   return (
-    <div className="flex h-screen bg-[#faf8f5] font-sans">
+    <div className="flex h-dvh bg-[#faf8f5] font-sans">
       <ConversationSidebar
         pets={pets}
         nickname={member?.mbrNcnm ?? ''}
         selectedPetSn={selectedPetSn}
         selectedRoomSn={selectedRoomSn}
         isCollapsed={isCollapsed}
+        isDrawerOpen={isDrawerOpen}
         onTogglePanel={() => setIsCollapsed((prev) => !prev)}
+        onOpenDrawer={openDrawer}
+        onCloseDrawer={closeDrawer}
         onSelectPet={setSelectedPetSn}
-        onSelectRoom={(aiCnvrsRoomSn) => {
-          answer.reset();
-          setRoute(null);
-          resetRegister();
-          setFirstMessage(null);
-          setSelectedRoomSn(aiCnvrsRoomSn);
-          setFallbackCount(getFallbackCount(aiCnvrsRoomSn));
-        }}
-        onNewChat={() => {
-          answer.reset();
-          setRoute(null);
-          resetRegister();
-          setFirstMessage(null);
-          setSelectedRoomSn(null);
-          setFallbackCount(0);
-        }}
+        onSelectRoom={handleSelectRoom}
+        onNewChat={handleNewChat}
         onOpenSettings={handleOpenSettings}
       />
 
       <main className="flex min-w-0 flex-1 flex-col">
         {selectedRoomSn === null && (
-          <header className="flex h-16 shrink-0 items-center gap-3 border-b border-[#e2e7e7] bg-white px-6">
-            <h1 className="text-lg font-bold text-[#1a3234]">새 대화</h1>
+          <header className={chatHeaderClass}>
+            <DrawerButton onClick={openDrawer} />
+            <h1 className="text-lg font-bold text-[#1a3234] max-[760px]:text-base">
+              새 대화
+            </h1>
             <span className="shrink-0 rounded-full bg-[#e9f2f2] px-2.5 py-0.5 text-xs font-medium text-[#285a5c]">
               {selectedPet?.petNm ?? '전체'}
             </span>
@@ -245,6 +265,8 @@ export default function AiChatPage() {
         {conversation && (
           <ConversationHeader
             conversation={conversation}
+            onOpenDrawer={openDrawer}
+            onNewChat={handleNewChat}
             onDeleted={() => {
               answer.reset();
               setRoute(null);
@@ -254,7 +276,7 @@ export default function AiChatPage() {
             }}
           />
         )}
-        <div className="min-h-0 flex-1 overflow-y-auto px-6 py-8">
+        <div className="min-h-0 flex-1 overflow-y-auto px-6 py-8 max-[760px]:px-4 max-[760px]:py-5">
           {isError && (
             <p role="alert" className="text-center text-[#667374]">
               대화를 불러오지 못했어요. 잠시 뒤 다시 시도해 주세요
