@@ -27,7 +27,7 @@
 | AI 서버가 로그인 쿠키를 확인하는 방법(메인 서버와 `JWT_SECRET` 공유 등)과 CORS 허용 오리진 | 정해지지 않음. AI 서버 담당이 정한다 |
 | 운영 환경의 AI 서버 주소(`VITE_AI_API_URL` 값) | 정해지지 않음 |
 | 목록의 `sort` 값: 대소문자(`popular` / `POPULAR`), 목록에 없는 값이 왔을 때(400 / 기본 정렬) | 정해지지 않음. 정렬이 있는 목록을 처음 만드는 사람이 백엔드 담당과 정한다 |
-| 로그인(Spring Security) 구현 시점 | 백엔드 구현 중 가장 마지막. 그 전에는 새 화면을 `ProtectedRoute`로 감싸지 않고, 헤더에서 `useMe`로 로그인 여부를 가르지 않는다(`/members/me`가 없어 항상 실패한다). 백엔드는 개발 프로필에서 모든 요청을 허용한다. 로그인을 붙일 때 `routes/AppRoutes.jsx`에서 로그인이 필요한 화면을 `ProtectedRoute`로 감싸고, 헤더를 `useMe`에 연결한다 |
+| 로그인(Spring Security) 구현 시점 | 백엔드 구현 중 가장 마지막. 그 전에는 새 화면을 `ProtectedRoute`로 감싸지 않고, 헤더에서 `useMe`로 로그인 여부를 가르지 않는다(`/members/me`가 없어 항상 실패한다). 백엔드는 개발 프로필에서 모든 요청을 허용한다. 로그인을 붙일 때 `routes/domains/*Routes.js`에서 로그인이 필요한 화면 그룹의 `auth`를 `'member'`로 바꾸고(`AppRoutes.jsx`가 `ProtectedRoute`로 감싼다), 헤더를 `useMe`에 연결한다 |
 
 ## 프론트 담당이 정할 것
 
