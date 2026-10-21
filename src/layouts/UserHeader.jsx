@@ -16,7 +16,7 @@ const GNB_OPEN_DELAY = 200;
 const GNB_CLOSE_DELAY = 300;
 
 const iconButton =
-  'relative flex h-[42px] w-[42px] items-center justify-center rounded-full text-[#3d4a4b] hover:bg-[#ebf0f0] hover:text-[#1a3234] max-[760px]:h-12 max-[760px]:w-12';
+  'relative flex h-[42px] w-[42px] items-center justify-center rounded-full text-[#3d4a4b] hover:bg-[#ebf0f0] hover:text-[#1a3234]';
 
 /** 시안 .hd-profile: 40px 원형, 왼쪽 6px, 1px 테두리 */
 const profileButton =
@@ -215,7 +215,7 @@ export default function UserHeader() {
             <button
               ref={hamburgerRef}
               type="button"
-              className={`${iconButton} min-[1101px]:hidden`}
+              className={`${iconButton} min-[1100px]:hidden`}
               aria-label="전체 메뉴 열기"
               aria-controls="nav-drawer"
               aria-expanded={openMenu === 'drawer'}

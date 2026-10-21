@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import footerMoIllust from '@/assets/footer_mo_illust.svg';
 import footerPixel from '@/assets/footer_pixel.svg';
 import { PATHS } from '@/routes/paths';
 
@@ -9,16 +10,21 @@ const EMAIL_PLACEHOLDER = '0000@gmail.com';
 const TEL_PLACEHOLDER = '000-0000-0000';
 const FAX_PLACEHOLDER = '02-0000-0000';
 
-export default function UserFooter() {
+export default function UserFooter({ className = '' }) {
   return (
-    <footer className="relative border-t border-[#e2e7e7] bg-[#f5f2ee] text-[#566465]">
-      {/** 푸터 윗선 위 장식 띠 */}
-      <img
-        src={footerPixel}
-        alt=""
-        aria-hidden="true"
-        className="pointer-events-none absolute bottom-full left-1/2 h-auto w-[calc(100%-4rem)] max-w-[1376px] -translate-x-1/2 max-[760px]:h-14 max-[760px]:w-[calc(100%-2rem)] max-[760px]:object-cover"
-      />
+    <footer
+      className={`relative border-t border-[#e2e7e7] bg-[#f5f2ee] text-[#566465] ${className}`}
+    >
+      {/** 푸터 윗선 위 장식 띠, 760px 이하는 모바일 전용 그림 */}
+      <picture>
+        <source media="(max-width: 759.98px)" srcSet={footerMoIllust} />
+        <img
+          src={footerPixel}
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute bottom-full left-1/2 h-auto w-[calc(100%-4rem)] max-w-[1376px] -translate-x-1/2 max-[760px]:w-[300px] max-[760px]:max-w-[calc(100%-2rem)]"
+        />
+      </picture>
       <div className="mx-auto max-w-[1440px] px-8 py-10 max-[1100px]:pt-0 max-[760px]:px-5">
         {/** 1100px 이하: 링크 줄이 맨 위로 올라가고 세로로 쌓임 */}
         <div className="flex items-start gap-8 max-[1100px]:flex-col max-[1100px]:gap-6">

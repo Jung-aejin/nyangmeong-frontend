@@ -1,18 +1,19 @@
 import { useEffect, useRef } from 'react';
-import { ChevronRight, LogOut, User, X } from 'lucide-react';
+import { ChevronRight, LogOut, X } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
+import userAvatar from '@/assets/user.svg';
 import { useMemberSummary } from '@/features/member/queries';
 import { PATHS } from '@/routes/paths';
 import { GNB_MENUS } from './gnbMenus';
 
 /**
  * [전체 메뉴 drawer]
- * - 1100px 이하 헤더 햄버거로 열림 -> 회원 요약·메뉴·로그아웃
+ * - 1100px 미만 헤더 햄버거로 열림 -> 회원 요약·메뉴·로그아웃
  * - 딤 클릭·ESC·메뉴 이동·화면 확대로 닫힘
  */
 
 /** 헤더 햄버거가 사라지는 폭 */
-const WIDE_QUERY = '(min-width: 1101px)';
+const WIDE_QUERY = '(min-width: 1100px)';
 
 /** 2차 메뉴와 별개인 보조 메뉴 */
 const ETC_LINKS = [
@@ -73,7 +74,7 @@ export default function NavDrawer({ onClose, onLogout }) {
         aria-label="전체 메뉴"
         className="absolute inset-y-0 right-0 flex w-[min(360px,88vw)] flex-col overflow-hidden bg-white shadow-lg max-[760px]:w-full"
       >
-        <div className="flex h-14 shrink-0 items-center justify-between border-b border-[#e2e7e7] pl-8 pr-3">
+        <div className="flex h-16 shrink-0 items-center justify-between border-b border-[#e2e7e7] pl-8 pr-3">
           <b className="text-lg font-bold text-[#1a3234]">전체 메뉴</b>
           <button
             ref={closeRef}
@@ -93,8 +94,13 @@ export default function NavDrawer({ onClose, onLogout }) {
             className="flex items-center gap-4 bg-[#f4f6f6] py-5 pl-8 pr-5"
             onClick={onClose}
           >
-            <span className="grid h-16 w-16 shrink-0 place-items-center rounded-full border border-[#e2e7e7] bg-white text-[#667374]">
-              <User size={36} />
+            <span className="size-16 shrink-0 overflow-hidden rounded-full border border-[#e2e7e7] bg-white">
+              <img
+                src={userAvatar}
+                alt=""
+                aria-hidden="true"
+                className="size-full object-cover"
+              />
             </span>
             <span className="min-w-0 grow">
               <span className="flex items-center gap-0.5 text-xl font-bold leading-[1.4] text-[#1a3234]">
