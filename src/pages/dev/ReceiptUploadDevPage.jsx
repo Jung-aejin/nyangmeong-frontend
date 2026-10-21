@@ -23,7 +23,7 @@ export default function ReceiptUploadDevPage() {
         영수증 업로드 모달 확인
       </h1>
       <p className="mb-4 text-sm text-muted">
-        파일 이름에 slow(20초)·error(오류)·fail(추출 0건)을 넣으면 해당 상황이
+        파일 이름에 slow(20초)·error(오류)·fail(추출 0건)·partial(일부만 인식)을 넣으면 해당 상황이
         나와요
       </p>
       <div className="mb-4 flex gap-2">
@@ -62,8 +62,9 @@ export default function ReceiptUploadDevPage() {
             setMessage(JSON.stringify(result, null, 2));
             setIsOpen(false);
           }}
-          onManualInput={() => {
-            setMessage('직접 입력으로 전환');
+          onManualInput={(options) => {
+            setMessage(`직접 입력으로 전환
+${JSON.stringify(options)}`);
             setIsOpen(false);
           }}
           onClose={() => setIsOpen(false)}
