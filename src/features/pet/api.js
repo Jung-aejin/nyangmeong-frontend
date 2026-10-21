@@ -1,9 +1,10 @@
-import { PET_REL, PET_SE } from './shared/petCodes';
+import { CGVR_ROLE, PET_REL, PET_SE } from './shared/petCodes';
 
 /**
  * [반려동물 가짜 API]
  * - 반려동물 API(SJM)·품종 마스터(KSJ) 전까지 쓰는 가짜 응답, 나오면 본문만 api 요청으로 교체
  * - 미정 키: lastBdwgRcd, vrtyNm, rprsYn, petRelCd, chrcFaceUrl
+ * - 양육관계 미정 키: rltnSn, mbrNcnm, cgvrRoleCd, authrtNm, lnkDt, myYn
  */
 const basePet = {
   vrtySn: null,
@@ -240,3 +241,103 @@ export const deletePet = (petSn) => {
 /** 품종 목록 조회 GET /varieties?petSeCd= (KSJ) */
 export const getVarieties = (petSeCd) =>
   fakeDelay(fakeVarieties[petSeCd] ?? []);
+
+/**
+ * 양육관계 가짜 데이터 (petSn별)
+ * - 주양육자 시점: 연동된 공동양육자(CCG) 전원
+ * - 공동양육자 시점: 주양육자(PCG) + 본인 연동 1건(myYn 'Y'), 다른 공동양육자는 서버가 내려주지 않음
+ */
+let fakeCaregivers = {
+  1: [
+    {
+      rltnSn: 101,
+      mbrNcnm: '이서연',
+      cgvrRoleCd: CGVR_ROLE.CCG,
+      authrtNm: '조회+수정',
+      lnkDt: '2026-07-02',
+      myYn: 'N',
+    },
+    {
+      rltnSn: 102,
+      mbrNcnm: '최민지',
+      cgvrRoleCd: CGVR_ROLE.CCG,
+      authrtNm: '조회+수정',
+      lnkDt: '2026-08-01',
+      myYn: 'N',
+    },
+  ],
+  3: [
+    {
+      rltnSn: 301,
+      mbrNcnm: '이서연',
+      cgvrRoleCd: CGVR_ROLE.CCG,
+      authrtNm: '조회+수정',
+      lnkDt: '2026-06-11',
+      myYn: 'N',
+    },
+    {
+      rltnSn: 302,
+      mbrNcnm: '최민지',
+      cgvrRoleCd: CGVR_ROLE.CCG,
+      authrtNm: '조회',
+      lnkDt: '2026-06-20',
+      myYn: 'N',
+    },
+    {
+      rltnSn: 303,
+      mbrNcnm: '박지호',
+      cgvrRoleCd: CGVR_ROLE.CCG,
+      authrtNm: '조회+수정',
+      lnkDt: '2026-07-05',
+      myYn: 'N',
+    },
+    {
+      rltnSn: 304,
+      mbrNcnm: '정하늘',
+      cgvrRoleCd: CGVR_ROLE.CCG,
+      authrtNm: '조회',
+      lnkDt: '2026-08-19',
+      myYn: 'N',
+    },
+    {
+      rltnSn: 305,
+      mbrNcnm: '강도윤',
+      cgvrRoleCd: CGVR_ROLE.CCG,
+      authrtNm: '조회+수정',
+      lnkDt: '2026-09-02',
+      myYn: 'N',
+    },
+  ],
+  10: [
+    {
+      rltnSn: 1001,
+      mbrNcnm: '김주인',
+      cgvrRoleCd: CGVR_ROLE.PCG,
+      authrtNm: '조회+수정',
+      lnkDt: '2026-07-02',
+      myYn: 'N',
+    },
+    {
+      rltnSn: 1002,
+      mbrNcnm: '이서연',
+      cgvrRoleCd: CGVR_ROLE.CCG,
+      authrtNm: '조회+수정',
+      lnkDt: '2026-07-02',
+      myYn: 'Y',
+    },
+  ],
+};
+
+/** 양육관계 조회 GET /pets/{petSn}/caregivers (SJM 백엔드, 이메일은 내려주지 않음) */
+export const getCaregivers = (petSn) => fakeDelay(fakeCaregivers[petSn] ?? []);
+
+/** 주양육자의 강제 해제 DELETE /pets/{petSn}/caregivers/{rltnSn} (SJM 백엔드) */
+export const deleteCaregiver = ({ petSn, rltnSn }) => {
+  fakeCaregivers = {
+    ...fakeCaregivers,
+    [petSn]: (fakeCaregivers[petSn] ?? []).filter(
+      (caregiver) => caregiver.rltnSn !== rltnSn,
+    ),
+  };
+  return fakeDelay(null);
+};

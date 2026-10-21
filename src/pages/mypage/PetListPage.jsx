@@ -21,6 +21,7 @@ export default function PetListPage() {
     (pet) => pet.petRelCd === PET_REL.OWNER,
   ).length;
   const isFull = ownPetCount >= MAX_OWN_PETS;
+  const showPreparing = () => showToast('준비 중인 기능이에요');
 
   return (
     <div className="mx-auto max-w-5xl py-6">
@@ -36,18 +37,20 @@ export default function PetListPage() {
           onMove={setSlideIndex}
           onEdit={(pet) => setModalPetSn(pet.petSn)}
           onDelete={setDeletingPet}
-          onUnlink={() => showToast('준비 중인 기능이에요')}
-        >
-          <button
-            type="button"
-            onClick={() => setModalPetSn(null)}
-            disabled={isFull}
-            className="inline-flex h-10 items-center justify-center gap-1.5 rounded-md bg-brand-500 px-4 font-semibold text-white hover:bg-brand-600 disabled:cursor-not-allowed disabled:bg-surface-3 disabled:text-line-strong"
-          >
-            <Plus className="size-[18px]" />
-            반려동물 등록
-          </button>
-        </PetSlide>
+          onUnlink={showPreparing}
+          onInvite={showPreparing}
+          action={
+            <button
+              type="button"
+              onClick={() => setModalPetSn(null)}
+              disabled={isFull}
+              className="inline-flex h-10 items-center justify-center gap-1.5 rounded-md bg-brand-500 px-4 font-semibold text-white hover:bg-brand-600 disabled:cursor-not-allowed disabled:bg-surface-3 disabled:text-line-strong"
+            >
+              <Plus className="size-[18px]" />
+              반려동물 등록
+            </button>
+          }
+        />
       )}
       {isFull && (
         <p className="mt-3 text-right text-sm text-subtle">
