@@ -1,4 +1,4 @@
-import { Search } from 'lucide-react';
+import { ChevronLeft, Search } from 'lucide-react';
 import { useState } from 'react';
 import { generatePath, Link } from 'react-router-dom';
 import Pagination from '@/components/Pagination';
@@ -53,17 +53,22 @@ export default function NoticeList({
       </div>
 
       {content.length === 0 ? (
-        <div className="rounded-[14px] border border-[#e2e7e7] bg-white px-6 py-14 text-center text-[#566465]">
-          <p>{keyword ? '검색한 공지가 없어요' : '등록된 공지가 없어요'}</p>
-          {keyword && (
-            <button
-              type="button"
-              onClick={handleReset}
-              className="mt-4 rounded-lg border border-[#285a5c] px-5 py-2 text-sm font-medium text-[#285a5c]"
-            >
-              전체 공지 보기
-            </button>
-          )}
+        <div className="rounded-[14px] border border-[#e2e7e7] bg-white px-6 py-14">
+          <div className="flex h-[320px] flex-col items-center justify-center gap-8 text-center">
+            <p className="text-lg text-[#566465]">
+              {keyword ? '검색한 공지가 없어요' : '등록된 공지가 없어요'}
+            </p>
+            {keyword && (
+              <button
+                type="button"
+                onClick={handleReset}
+                className="inline-flex cursor-pointer items-center gap-1.5 text-base leading-normal font-medium text-[#566465] hover:underline"
+              >
+                <ChevronLeft size={14} />
+                전체 공지 보기
+              </button>
+            )}
+          </div>
         </div>
       ) : (
         <div className="overflow-hidden rounded-[14px] border border-[#e2e7e7] bg-white">

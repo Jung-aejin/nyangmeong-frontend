@@ -7,8 +7,8 @@ SCR-CSC-001 공지사항 (시작 2026-10-19, 끝 2026-10-21) — 상태: 끝 (�
 - 만든 것: `layouts/CustomerCenterLayout.jsx`(「고객센터 › 제목」 헤더·부제·일러스트, 왼쪽 메뉴), `features/notice/{api,queries,NoticeList,NoticeDetail}`, `pages/notice/NoticeListPage·NoticeDetailPage`, `components/Pagination.jsx`, `utils/formatDate.js`, `assets/csc_header_pixel.svg`, 라우트 `/notices`·`/notices/:ntcMttrSn`(`ProtectedRoute` 없이), `PATHS.NOTICE_DETAIL`
 - 디자인: Figma 파일 `JgHlZmTfvqbDfqfuX78OzA` 목록 노드 `815:11964`, 상세 노드 `815:12360`. 공지 API가 없어 가짜 응답(`features/notice/api.js`)이고 `ntcMttrSn` 외 키(`ntcMttrTtl`·`ntcMttrCn`·`fixYn`·`crtDt`·`vwCnt`)는 가정이다
 - 결정: 검색은 제목과 내용(Figma 문구 「제목 또는 내용 검색」), 번호 열을 둔다, 고정 공지는 일반 공지와 별도로 첫 쪽 맨 위에 얹고 「전체 n건」·번호는 일반 공지 기준, 상세 본문 글 영역 최소 높이 200px + 아래 80px 여백 + 구분선 + 「‹ 목록으로」(상단 링크·[목록] 버튼은 없음), 반응형은 develop 공통 레이아웃과 같은 760px·1100px(모바일 Figma 없음), 푸터 일러스트 여백은 LJS가 정한다
-- 추가 요청(유효): 추가-3 상세 하단 구분선·목록으로 링크, 추가-4 반응형, 추가-5 본문 영역 최소 높이 200px + 아래 80px, 추가-6 모바일 번호 숨김(고정 공지 배지는 남김), 추가-7 푸터 아래 여백 제거. 취소: 추가-1(목록 버튼 왼쪽 정렬), 추가-2(푸터 여백 100px)
-- 검증: `yarn -s lint` 0, `yarn -s build` 0
+- 추가 요청(유효): 추가-3 상세 하단 구분선·목록으로 링크, 추가-4 반응형, 추가-5 본문 영역 최소 높이 200px + 아래 80px, 추가-6 모바일 번호 숨김(고정 공지 배지는 남김), 추가-7 푸터 아래 여백 제거, 추가-8·9 검색 결과 없음 박스(안쪽 글 영역 320px + 위아래 56px, 문구 18px, 글 사이 32px, 「‹ 전체 공지 보기」 16px 글자 버튼에 손가락 커서와 호버 밑줄). 취소: 추가-1(목록 버튼 왼쪽 정렬), 추가-2(푸터 여백 100px)
+- 검증: `yarn -s lint` 0, `yarn -s build` 0 (추가-8·9 검증 `통과`, 사람 확인 2026-10-21)
 
 ## 다음에 할 것
 
