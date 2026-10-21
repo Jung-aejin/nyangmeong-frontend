@@ -40,7 +40,7 @@ src/
 ├─ features/    도메인별 코드. 도메인 1개 = 폴더 1개 (api.js, queries.js, shared/, 화면별 폴더)
 ├─ pages/       URL 1개 = 파일 1개. features·components 조립만 한다 (관리자 화면은 pages/admin/)
 ├─ layouts/     화면 겉틀. 헤더·푸터·사이드바 + <Outlet/>
-├─ routes/      URL과 페이지 연결 (AppRoutes.jsx 진입점, domains/<도메인>Routes.js, ProtectedRoute.jsx, paths.js)
+├─ routes/      URL과 페이지 연결 (AppRoutes.jsx 진입점, domains/<도메인>/index.js → <도메인>Routes.js, ProtectedRoute.jsx, paths.js)
 ├─ components/  도메인을 모르는 공통 UI
 ├─ hooks/  utils/  constants/  context/  assets/
 ```

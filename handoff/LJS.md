@@ -2,27 +2,35 @@
 
 ## 지금 하는 것
 
-SCR-AIM-006 케어 일정 사전 알림 · 발송물 (2026-10-21) — 상태: 끝 (검증 `통과`(추가-1 포함 재검증), 사람 확인 2026-10-21)
+SCR-COM-002 레이아웃 추가 작업: 헤더 아이콘 · 모바일 푸터 일러스트 · 바텀 네비 · 라우트 구조 · AI 대화창 반응형 (2026-10-21) — 상태: 끝 (검증 `통과`(추가-9까지 재검증), 사람 확인 2026-10-21)
 
-- 만든 것: `features/notification/api.js` 가짜 케어 알림을 명세 문형 2건으로("초코 예방접종 일정이 D-1 남았어요" 미읽음, "보리 정기검진 일정이 오늘이에요" 읽음), `queries.js`의 `useUnreadCount`에 1분 주기 조회(`refetchInterval: 60_000`). 클릭 이동·99+·수신 해제 URL·09:00 안내 문구는 SCR-COM-004·008에서 이미 있어 화면으로만 확인했다
-- 결정: 배지 갱신은 1분 polling(사람 결정, "1분으로 두자 일단"). 디자인은 새 UI 없음(SCR-COM-004 드롭다운 그대로)
-- 추가 요청(사람이 직접 요청, 확인함): 추가-1 `NotificationDropdown.jsx` 배지를 `right-px`→`left-6`(≤760px `left-7`)로 고정해 `99+`가 종을 가리지 않게. 390px에서 `99+`가 채팅 버튼 영역에 7px 들어가지만 아이콘은 안 가림
-- 검증: `yarn -s lint` 0, `yarn -s build` 0. 새 의존성 없음. 1분 주기 조회는 가짜라 코드로만 확인
+- 명세 ID 없는 사람 요청 작업. 기획 추가-A~D와 추가 요청 1~9(추가-6은 되돌림)
+- 헤더: 알림·채팅·프로필을 Figma `header`(317:2086) 모양 SVG(`src/assets/icons/`)로. Figma MCP 호출 한도로 원본을 못 받아 Material Symbols path로 그렸고 색은 SVG에 고정(기획의 `currentColor`와 다름). 모바일 아이콘 24px·버튼 42px, drawer 아바타도 `profile.svg`, drawer 머리줄 64px
+- 경계: Tailwind 4 `max-[Npx]`는 N 미만이라 `min-[1100px]`·`min-[760px]`·`WIDE_QUERY (min-width: 1100px)`·`<source media="(max-width: 759.98px)">`로 맞춤
+- 푸터: 760px 미만은 `footer_mo_illust.svg`(300×100)
+- 바텀 네비: 760px 미만에서 메인(랜딩 포함)·플레이스를 뺀 사용자 화면은 푸터 대신 `BottomNav`(`layouts/bottomNavMenus.js`의 `paths`는 하위 경로 포함, 가장 길게 일치하는 항목 강조). 건강기록·커뮤니티(GNB 2차)·마이페이지 4항목·고객센터·설정. AI 버튼은 네비 위. 규칙은 `docs/convention/ui.md` "모바일 바텀 네비"
+- 라우트: `AppRoutes.jsx`가 `domains/*/index.js`를 glob, 도메인 폴더마다 `index.js`(import·`export default`만) + `<도메인>Routes.js`. 규칙은 `docs/convention/shared-files.md`(`AGENTS.md`·`structure.md`·`pages.md`·`OPEN_ISSUES.md`도 고침)
+- AI 대화창 `/ai`: 1100px 이상 그대로, 760~1099px 56px 띠 + 320px 겹치는 drawer, 760px 미만 헤더 ☰·새 대화(✎)·전체 폭 drawer·삭제 아이콘만·글자 수 숨김·입력창 하단, `h-dvh`. 안내 문구 `break-keep`은 사람이 직접 고침
+- 추가-6(`/main` 제거, `/`를 메인으로)은 메인 담당(YAY) 일이라 되돌림
+- 추가-10(요청 2026-10-21 13:44 "오키 이대로 진행해", PR 전 `origin/develop` merge 충돌): JAJ PR #37의 헤더 변경(`components/Icon` Material Symbols, `headerStyles.js`, `assets/user.svg` 40px 프로필, 반투명 헤더)을 기준으로 합치고 내 것 중 모바일 아이콘 24px(`HEADER_ICON_CLASS`의 760px 32px 제거, 배지 `left-7` 제거)·햄버거 `min-[1100px]:hidden`만 얹는다. drawer 아바타도 `user.svg`, `src/assets/icons/` SVG 3개는 지운다. 바꿀 파일: `UserHeader.jsx`, `NotificationDropdown.jsx`, `ProfileDropdown.jsx`, `NavDrawer.jsx`, `headerStyles.js`, `src/assets/icons/`. 완료 조건 명령: `yarn -s lint`, `yarn -s build` / 화면: 1440·1100·390px 헤더 아이콘이 Material Symbols, 390px 24px·버튼 42px, 1100px 프로필만·1099px 햄버거만, drawer 아바타가 `user.svg`. JAJ에게 모바일 32px→24px 변경을 PR에서 알린다
 
+이전 작업: SCR-AIM-006 케어 일정 사전 알림 · 발송물 — 끝(검증 `통과`, 사람 확인 2026-10-21. 가짜 케어 알림 명세 문형, 배지 1분 polling, 추가 요청 1건(배지 위치))
 이전 작업: SCR-AIM-010 OCR 인식 실패 · 수동 입력 전환 — 끝(검증 `확인 못 함 있음`(연결 남음뿐) 1회차, 사람 확인 2026-10-21. 추출 0건이면 `onManualInput({ rcptSn })`, 가짜 `partial` 분기, 추가 요청 2건)
-이전 작업: SCR-AIM-008 영수증 촬영 · 업로드 — 끝(검증 `통과`, 사람 확인 2026-10-21. `ReceiptUploadModal`, `receiptFile.js`를 `src/utils/`로, 추가 요청 6건(라우트 `domains/` 분리 포함))
 
 ## 다음에 할 것
 
+- 팀에 알릴 것(PR): 라우트 구조 변경(`routes/domains/<도메인>/index.js` + `<도메인>Routes.js`, 모든 담당의 라우트 파일 위치가 바뀜, `shared-files.md`), 바텀 네비 컨벤션(`ui.md`, 760px 미만 메인·플레이스 외 화면은 푸터 대신 바텀 네비, 새 영역은 `bottomNavMenus.js`), 경계값은 `min-[1100px]`·`min-[760px]`(Tailwind 4 `max-[N]`은 N 미만)
+- 범위 밖 1px 경계(말만, 각 담당): `layouts/SideMenu.jsx`(`min-[1101px]:block`, 정확히 1100px에서 사이드 메뉴·햄버거 둘 다 없음), `features/pet/list/PetSlide.jsx`(SJM)·`pages/health/CareCalendarPage.jsx`(JAJ)의 `min-[1101px]`·`min-[761px]`. `/health/calendar` 사이드 메뉴와 바텀 네비가 둘 다 `aria-label="건강기록 메뉴"`
+- 선택: Figma MCP 한도가 풀리면 헤더 아이콘 원본 SVG(317:2097·317:2106·317:2087)와 비교해 바꾸고, 색을 바꿀 일이 생기면 `currentColor` 인라인 SVG로. AI 대화창 모바일·바텀 네비는 시안 없이 만들었으니 디자인 담당과 맞춘다
 - SCR-AIM-006 연결 남음(가짜로 끝남): 006-01~08·10·15~18·20 사전 알림 배치(LJS 백엔드) — 매일 09:00 KST 스캔으로 케어 캘린더 병원 일정 D-N 대상 추출, 연동 양육자 전원(탈퇴 제외)별 설정(채널·D-0/1/3/7·케어 일정 유형) 적용, 이메일(가입 주소, 제목 `[냥멍케어] {반려동물명}의 {검진유형} 일정이 {D-N} 남았어요`, 당일은 "오늘이에요")·인앱(`CARE_SCHDL`, `mvmnPath` `/health/calendar`) 생성, 이력·10분 간격 3회 재시도·(회원+일정+일정일+시점+채널) 중복 방지. 메일 [케어 캘린더에서 확인하기]는 `/health/calendar`, 수신 해제는 `/settings/notifications`. 006-09·11·12 프론트는 알림 목록·미확인 수 API(LJS 백엔드)로 가짜를 바꿀 때 같이(SCR-COM-004 연결). 006-13 메일 링크 미인증 복귀는 로그인 연결 때 `ProtectedRoute`·`getRedirectPath`(YAY). 배지 1분 polling은 KSJ 채팅 안 읽은 수 방식이 정해지면 맞춘다
 - 선택: 헤더 채팅 배지(`UserHeader.jsx`의 `CountBadge`, `right-px`)도 추가-1처럼 큰 수에서 아이콘을 가릴 수 있다. 지금은 count 0이라 안 보인다(KSJ 연결 때 같이)
-- `milestones/LJS.md`에 `대기`가 남지 않았다. 다음 작업은 "연결 남음" 중 API가 나온 것부터, 또는 마일스톤 재점검(`docs/convention/milestone.md`)
+- `milestones/LJS.md`에 `대기`가 없다. 다음 작업은 "연결 남음" 중 API가 나온 것부터(알림 API는 LJS 백엔드에서 먼저), 또는 새 명세 버전이 오면 마일스톤 재점검
 - SCR-AIM-010 연결 남음(가짜로 끝남): 검진기록 등록·수정 모달(SCR-HLT-002, JAJ)이 `ReceiptUploadModal`의 `onManualInput({ rcptSn? })`으로 빈 폼을 연다. `rcptSn`이 있으면 저장 때 영수증 상태를 인식실패→저장완료로 바꾸는 일은 LJS 백엔드·JAJ 저장 API와 맞춘다(명세 10-06 [확인 필요]). 영수증 인식 결과 확인 모달(SCR-HLT-002, JAJ)은 `onRecognized(result)`를 받는다. 부분 인식은 `ckupYmd`·`ckupAmt`가 `null`일 수 있다
 - 사람이 고치는 문서(SCR-AIM-010 추가 요청): 기능명세서 v0.7 FN-AIM-010-03 [다시 촬영]→[다시 올리기], FN-AIM-010-07 문구 2종 "다시 촬영하거나"→"다시 올리거나". 화면설계서 v0.9 SCR-AIM-010 ② 라벨과 같은 문구도 같이
 - SCR-AIM-012 연결 남음: 대화 API(Python AI 서버, 담당 없음)로 `features/ai/api.js`의 `sendMessage`(REGISTER 분기)·`confirmRegister`·`cancelRegister` 가짜를 바꾸고 `fakeRegisterParser.js`·`fakeDrafts`·`fakePendingCards`·`fakeCareItems`는 지운다. 서버와 먼저 맞출 가정: 서버가 대화별로 되묻는 초안과 확정 전 최근 카드를 기억하고, 확정·취소는 `{aiCnvrsRoomSn, aiCnvrsMsgSn}`만 받는다(서버가 상태를 안 들면 [등록] 때 카드 내용을 같이 보내야 해서 `confirmRegister` 인자와 `RegisterCard`가 바뀐다). 카드 필드 이름은 `schdlCkupTypeCd`·`schdlHsptlNm`·`schdlNm`만 ERD 기준이고 `schdlKndNm`·`schdlYmd`·`schdlTm`·`schdlMemo`·`careArtclNm`·`careRpttTypeCd`·`careCycleNm`·`careLastYmd`·`careNextYmd`·`isDuplicate`는 추정이라 Swagger로 확인. 일정·케어 항목 저장(JAJ, 012-13·14), 반려동물 목록(SJM)으로 `fakePets`를 바꾼다
 - SCR-AIM-008 연결 남음(가짜로 끝남, `ReceiptUploadModal`은 `features/ai/receipt/`, 같은 날 SCR-AIM-010도 이 모달을 고쳤다):
   - 영수증 인식 API(LJS 백엔드): `features/ai/api.js`의 `recognizeCheckupReceipt` 가짜를 `api.post`로 바꾼다. 경로(`POST /receipts/recognize/checkup`)와 응답 필드(`rcptSn`·`petSn`·`items[]`의 `ckupNm`·`ckupYmd`·`ckupAmt`)는 추정이라 Swagger로 확인한다. `signal`은 axios에 넘기고, `waitAbortable`은 지운다. 15초 시간 초과는 모달(`ANALYZE_TIMEOUT_MS`)이 판정하므로 서버 타임아웃(15초, 명세 008-07)과 맞춘다. [취소] 때 영수증 상태 '취소'를 서버에 알릴 API가 필요한지 확인한다
-  - 건강 일지(JAJ, SCR-HLT-002): [영수증으로 등록하기]에서 모달을 연다. `pets`(`usePets`, SJM), `defaultPetSn`(건강 일지에서 선택 중인 반려동물), `onRecognized(result)`(영수증 인식 결과 확인 모달로), `onManualInput()`(검진기록 등록·수정 모달 빈 폼으로)를 넘긴다. 붙인 뒤 확인용 `pages/dev/ReceiptUploadDevPage.jsx`와 `routes/domains/devRoutes.js`(`/dev/receipt-upload`)를 지운다
+  - 건강 일지(JAJ, SCR-HLT-002): [영수증으로 등록하기]에서 모달을 연다. `pets`(`usePets`, SJM), `defaultPetSn`(건강 일지에서 선택 중인 반려동물), `onRecognized(result)`(영수증 인식 결과 확인 모달로), `onManualInput()`(검진기록 등록·수정 모달 빈 폼으로)를 넘긴다. 붙인 뒤 확인용 `pages/dev/ReceiptUploadDevPage.jsx`와 `routes/domains/dev/`(`/dev/receipt-upload`)를 지운다
   - 반려동물 목록(SJM): 모달은 `petNm`과 `vrtyNm`(있으면 "초코 (말티즈)")을 쓴다. `vrtyNm`이 미정 키라 확정되면 확인한다
   - 실패 사유별 문구(FN-AIM-010-07)는 SCR-AIM-010에서 한다. 지금 모달의 실패 3종(`FAILURE`: 추출 0건·15초 초과·API 오류)을 거기서 맞춘다
   - 팀에 알릴 것: SJM에게 `receiptFile.js`를 `src/utils/`로 옮겼다고 PR에 적는다(사전 공지 메시지는 보냄). `common.md` "비동기" 절 추가는 팀 합의 문서라 PR에서 알린다
