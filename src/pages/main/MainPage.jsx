@@ -15,8 +15,8 @@ import HealthWidget from '@/features/dashboard/HealthWidget';
 import HeroAsk from '@/features/dashboard/HeroAsk';
 import MissionList from '@/features/dashboard/MissionList';
 import PetProfileCard from '@/features/pet/PetProfileCard';
-import { PET_SE } from '@/features/pet/petCodes';
-import { getVrtyName } from '@/features/pet/petFormat';
+import { PET_SE } from '@/features/pet/shared/petCodes';
+import { getVrtyName } from '@/features/pet/list/petFormat';
 import { usePets } from '@/features/pet/queries';
 import { PATHS } from '@/routes/paths';
 
