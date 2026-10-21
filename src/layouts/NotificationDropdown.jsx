@@ -126,7 +126,7 @@ export default function NotificationDropdown({
         <Icon name="notifications" className={HEADER_ICON_CLASS} />
         <CountBadge
           count={unread?.unreadCount}
-          className="absolute right-px top-[5px]"
+          className="absolute left-6 top-[5px] max-[760px]:left-7"
         />
       </button>
       {isOpen && (
