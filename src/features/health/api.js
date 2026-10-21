@@ -363,6 +363,9 @@ let nextCareRcdSn = 1;
 const fakeCareItems = [];
 const fakeCareRecords = [];
 
+/** 삭제된 연동 항목: 완료 기록의 항목 이름·아이콘을 남기려고 보관 */
+const removedCareItems = [];
+
 // 기본 항목의 처음 완료 기록은 예정일 배지(오늘·D-n·+n일)가 섞여 보이도록 고른 날짜다
 const BASE_LAST_DONE_DAYS = {
   '귀 청소': -7,
@@ -416,7 +419,8 @@ fakeCareItems.push(
     mainExpsrYn: false,
     baseItemYn: false,
     lnkgTypeCd: 'PRSC',
-    ckupRcdSn: 1,
+    ckupRcdSn: 500,
+    lnkgSn: 1,
     dosEndYmd: addDays(today, 5),
     dayGoalCnt: 2,
     regYmd: addDays(today, -10),
@@ -432,7 +436,8 @@ fakeCareItems.push(
     mainExpsrYn: false,
     baseItemYn: false,
     lnkgTypeCd: 'PRSC',
-    ckupRcdSn: 1,
+    ckupRcdSn: 501,
+    lnkgSn: 2,
     dosEndYmd: addDays(today, 40),
     dayGoalCnt: 1,
     regYmd: addDays(today, -10),
@@ -448,7 +453,8 @@ fakeCareItems.push(
     mainExpsrYn: false,
     baseItemYn: false,
     lnkgTypeCd: 'PRVNT',
-    ckupRcdSn: 1,
+    ckupRcdSn: 501,
+    lnkgSn: 2,
     dosEndYmd: null,
     dayGoalCnt: null,
     regYmd: addDays(today, -20),
@@ -464,7 +470,8 @@ fakeCareItems.push(
     mainExpsrYn: false,
     baseItemYn: false,
     lnkgTypeCd: 'PRVNT',
-    ckupRcdSn: 1,
+    ckupRcdSn: 500,
+    lnkgSn: 1,
     dosEndYmd: null,
     dayGoalCnt: null,
     regYmd: addDays(today, -16),
@@ -490,6 +497,17 @@ const doseChecks = new Map();
 const getFakeRecords = () =>
   getQueryParam('fakeRecords') === '0' ? [] : fakeCareRecords;
 
+/** 완료 기록이 없는 반복 예방 항목은 등록 때 지정한 시작일이 첫 예정일 */
+const getNextSchdYmd = (item, records) => {
+  if (item.rptTypeCd !== 'REGULAR') return null;
+  const hasRecord = records.some(
+    (record) => record.careItemSn === item.careItemSn,
+  );
+  return !hasRecord && item.firstDueYmd
+    ? item.firstDueYmd
+    : getNextDueYmd(item, records);
+};
+
 const toCareItemResponse = (item, records) => {
   const doneToday = records.some(
     (record) =>
@@ -497,8 +515,7 @@ const toCareItemResponse = (item, records) => {
   );
   return {
     ...item,
-    nextSchdYmd:
-      item.rptTypeCd === 'REGULAR' ? getNextDueYmd(item, records) : null,
+    nextSchdYmd: getNextSchdYmd(item, records),
     todayChckCnt: item.dayGoalCnt
       ? (doseChecks.get(item.careItemSn) ?? 0)
       : null,
@@ -514,7 +531,7 @@ export const getCareItems = (petSn) => {
   const careRecords = records
     .filter((record) => record.petSn === petSn)
     .map((record) => {
-      const item = fakeCareItems.find(
+      const item = [...fakeCareItems, ...removedCareItems].find(
         (careItem) => careItem.careItemSn === record.careItemSn,
       );
       return {
@@ -623,4 +640,101 @@ export const createCareItem = ({
   fakeCareItems.push(item);
   if (rptTypeCd === 'REGULAR' && lastCareYmd) addFakeRecord(item, lastCareYmd);
   return Promise.resolve({ ...item });
+};
+
+/** 검진상세 처방약·반복 예방과 이어진 케어 항목 */
+
+const findLinkedItem = ({ lnkgTypeCd, lnkgSn }) =>
+  fakeCareItems.find(
+    (item) => item.lnkgTypeCd === lnkgTypeCd && item.lnkgSn === lnkgSn,
+  );
+
+/** 연동 케어 항목 1건: 없으면 null */
+export const getLinkedCareItem = (link) => {
+  const item = findLinkedItem(link);
+  return item ? toCareItemResponse(item, getFakeRecords()) : null;
+};
+
+/** 연동 항목 삭제: 완료 기록은 남기고 항목만 뺌 */
+export const removeLinkedCareItem = (link) => {
+  const item = findLinkedItem(link);
+  if (!item) return;
+  fakeCareItems.splice(fakeCareItems.indexOf(item), 1);
+  removedCareItems.push(item);
+  doseChecks.delete(item.careItemSn);
+};
+
+/** 처방약 투약 항목 추가·갱신: 하루 목표 횟수는 1일 복용 횟수, 종료일은 복용 종료일 */
+export const saveLinkedDoseItem = ({
+  ckupRcdSn,
+  petSn,
+  lnkgSn,
+  careItemNm,
+  dayGoalCnt,
+  dosEndYmd,
+}) => {
+  const link = { lnkgTypeCd: 'PRSC', lnkgSn };
+  const item = findLinkedItem(link);
+  if (item) {
+    Object.assign(item, { careItemNm, dayGoalCnt, dosEndYmd });
+    return;
+  }
+  fakeCareItems.push({
+    careItemSn: nextCareItemSn++,
+    petSn,
+    careItemNm,
+    careIconCn: 'medication',
+    rptTypeCd: 'DAILY',
+    rptCycleCd: null,
+    rptCycleDayCnt: null,
+    mainExpsrYn: false,
+    baseItemYn: false,
+    lnkgTypeCd: 'PRSC',
+    lnkgSn,
+    ckupRcdSn,
+    dosEndYmd,
+    dayGoalCnt,
+    regYmd: getTodayYmd(),
+  });
+};
+
+/** 반복 예방 정기관리 항목 추가: 시작일이 첫 예정일 */
+export const createLinkedPreventionItem = ({
+  ckupRcdSn,
+  petSn,
+  lnkgSn,
+  careItemNm,
+  rptCycleCd,
+  rptCycleDayCnt,
+  startYmd,
+}) => {
+  fakeCareItems.push({
+    careItemSn: nextCareItemSn++,
+    petSn,
+    careItemNm,
+    careIconCn: 'pest_control',
+    rptTypeCd: 'REGULAR',
+    rptCycleCd,
+    rptCycleDayCnt: rptCycleCd === 'CUSTOM' ? Number(rptCycleDayCnt) : null,
+    mainExpsrYn: false,
+    baseItemYn: false,
+    lnkgTypeCd: 'PRVNT',
+    lnkgSn,
+    ckupRcdSn,
+    dosEndYmd: null,
+    dayGoalCnt: null,
+    regYmd: getTodayYmd(),
+    firstDueYmd: startYmd,
+  });
+};
+
+/** 검진기록의 반려동물이 바뀌면 연동 케어 항목도 함께 옮김 */
+export const moveLinkedCareItems = ({ ckupRcdSn, petSn }) => {
+  fakeCareItems.forEach((item) => {
+    if (item.ckupRcdSn !== ckupRcdSn || !item.lnkgTypeCd) return;
+    item.petSn = petSn;
+    fakeCareRecords.forEach((record) => {
+      if (record.careItemSn === item.careItemSn) record.petSn = petSn;
+    });
+  });
 };
