@@ -2,27 +2,39 @@
 
 ## 지금 하는 것
 
-하네스: PR 본문 템플릿 채우기 · 검증 캡처를 PR Screenshots로 (2026-10-21) — 상태: 끝 (검증 `통과` 2회차(1회차 추가 요청 문구 누락을 고침), 사람 확인 2026-10-21)
+공용 페이지 머리(경로 › 제목)·사이드 메뉴 (2026-10-21) — 상태: 끝 (검증 `통과` 1회차, 사람 확인 2026-10-21)
 
-명세 ID 없는 사람 요청 작업(공용 하네스, 기능 PR과 따로). 근거: 사람 요청 2026-10-21 "프론트엔드 스크린샷은 플레이라이트 검증 시 캡쳐한 걸로", "B로 가자"(릴리스 첨부), "하네스 피알도 진행하자". 규칙 문구는 `docs/convention/git.md` PR 절(PR #43)
-- H-01 `verify` 캡처: `.claude/skills/verify/SKILL.md` 5번에 `화면:` 조건을 확인할 때 바뀐 화면마다 After 캡처를 1440·390 폭으로 `.playwright-mcp/pr/<이니셜>-<YYYYMMDD>-<화면ID>-after-<1440|390>.png`에 남긴다(화면ID 없는 작업은 기획 첫 줄의 짧은 영문 이름). 바뀐 화면이 없으면 남기지 않는다. 7번 보고 형식에 `캡처: <파일 목록> 또는 없음` 한 줄. Before는 자동으로 찍지 않는다(사람이 PR에 붙이고 싶으면 직접)
-- H-02 `end` PR 본문: `.claude/skills/end/SKILL.md` 7번 `PR` 단계의 본문 규칙을 바꾼다. `.github/pull_request_template.md`를 읽어 섹션 제목·순서를 그대로 두고 채운다. 해당 없으면 `없음`, 더 적을 것이 있으면 섹션 추가. 커밋 본문의 기능 ID·추가 요청·"영향:"은 Summary·Changes·Breaking Changes로 옮기고, 검증 판정·사람 확인은 Test Plan `Result:`, 결정은 Design Decisions(`git.md` 범위 규칙)
-- H-03 `end` 캡처 업로드: 같은 단계에서 검증 보고의 `캡처:` 파일을 `gh release upload pr-assets <파일> --clobber`로 올리고 Screenshots 표 After 줄에 `https://github.com/<저장소>/releases/download/pr-assets/<파일>` 이미지로 넣는다. 캡처가 없으면 `없음`. 릴리스가 없으면 만들기 전에 사람에게 묻는다(`gh release create pr-assets --prerelease --title pr-assets --notes "PR 스크린샷 보관"`)
-- H-04 `.agents/skills/` 동기화(`end` 6번 방식)
-- 완료 조건 명령: `yarn -s lint`, `yarn -s build`, `diff -r .claude/skills .agents/skills` 차이 없음 / 확인: `verify` 5·7번과 `end` 7번에 위 문구가 있다. 실제 업로드는 다음 화면 PR에서 사람과 같이 확인(이번 PR은 화면 변경 없음)
-- 영향: 팀 전원의 `/verify`·`/end` 동작이 바뀐다(PR에 적음). 백엔드는 `end` 스킬을 따로 고쳤고 캡처 규칙은 해당 없음
-- 새 의존성: 없음
-- 순서: PR #43 병합 뒤 커밋·PR(열린 PR이 있는 동안 커밋하면 #43에 섞임)
+명세 ID 없는 사람 요청 작업(공통 레이아웃, SCR-COM-002 마일스톤). 근거: 사람 요청 2026-10-21 "브래드크럼이랑 사이드바를 각 페이지에서 공용으로", "공용 컴포넌트만 만들고 건강기록도 담당자가 적용하도록 하자 paths는 내가 수정할게". 디자인 기준 html/SCR-HLT-002.html(디자인 v4-1 `nyangmung-com.css` COM-5·COM-6·COM-PX)
+- P-01 `layouts/subMenus.js`(`SUB_MENUS` 4개 섹션 정본, `gnbMenus.js`가 가져다 씀, `head_myp.svg`·`head_cmu.svg` 추가. 고객센터 그림은 기존 `csc_header_pixel.svg`), P-02 `SideMenu.jsx`(`section`·`active`, `menuLabel` 호환 유지), P-03 `SubPageHead.jsx`, P-04 `SubPageLayout.jsx`, P-05 `/dev/sub-page`, P-06 아래 사용법
+- 결정: 760px 이하 `▾` 시트 없음(바텀 네비가 맡음). `▾`는 버튼으로만 열린다(디자인은 제목 클릭도 열림). FN-COM-002-22 "브레드크럼 미사용"은 디자인 COM-5(경로는 페이지 머리 안)와 같은 뜻으로 봄
 
-이전 작업: 라우트·경로 고정 + PR 컨벤션 — 끝(검증 `통과`, 사람 확인 2026-10-21, PR #43. `domains/index.js` 12개 도메인 고정, `paths.js` 전체 URL 40개, PR 템플릿·`git.md`)
+이전 작업: 하네스 PR 본문 템플릿 · 검증 캡처 — 끝(검증 `통과` 2회차, 사람 확인 2026-10-21)
 
 ## 다음에 할 것
+
+- 공용 페이지 머리·사이드 메뉴 적용(각 담당): 화면을 `@/layouts/SubPageLayout`으로 감싸고, 파일 안의 `PageFrame`·`Chevron`·픽셀 그림·`SideMenu` 호출을 지운다. 메뉴 이름·순서·그림은 `layouts/subMenus.js`(`SUB_MENUS`)만 고친다. 옮길 화면: 건강기록 4개(`HealthSummaryPage`·`HealthDiaryPage`·`CareCalendarPage`·`CheckupDetailPage`, JAJ), 마이페이지(SJM), 고객센터 `CustomerCenterLayout`(KSJ), 커뮤니티(KSJ, 화면 만들 때). 모두 옮기면 `SideMenu`의 `menuLabel` 호환과 `/dev/sub-page`(`pages/dev/SubPageDevPage.jsx`)를 지운다
+
+  | prop | 기본값 | 하는 일 |
+  | --- | --- | --- |
+  | `section` | (필수) | `SUB_MENUS` 키: `health`·`community`·`mypage`·`support` |
+  | `menu` | 현재 경로와 같은 메뉴 | 선택할 사이드 메뉴의 `to`. 경로가 메뉴 아래가 아닌 상세·글쓰기 화면에서 넘긴다 |
+  | `title` | 선택 메뉴 이름 | 넘기면 3단계(섹션 › 메뉴 › 제목) |
+  | `back` | `title`이 있으면 true | 본문 위 `‹ 목록으로`(선택 메뉴로) |
+  | `description` | 없음 | 제목 아래 설명. 없어도 한 줄 높이를 비운다 |
+  | `pixel` | true | false면 머리 그림을 끈다 |
+  | `onLeave` | 없음 | 경로·목록으로 링크를 누르면 이동 대신 `onLeave(to)` 호출(작성 중 나가기 확인) |
+  | `contentClassName` | `min-[1101px]:pt-6` | 본문 위 여백 바꾸기(펫이야기·펫뉴스 `min-[1101px]:pt-0`, 펫돌봄·실종센터 `min-[1101px]:pt-[7px]`) |
+
+  ```jsx
+  <SubPageLayout section="health" description="…">…</SubPageLayout>                                        {/** 목록: 건강기록 › 건강 일지, 761~1100px ▾ */}
+  <SubPageLayout section="health" menu={PATHS.HEALTH_DIARY} title="검진상세">…</SubPageLayout>              {/** 3단계 + ‹ 목록으로 */}
+  <SubPageLayout section="community" menu={PATHS.COMMUNITY} back>…</SubPageLayout>                          {/** 커뮤니티 상세: 커뮤니티 › 펫이야기 + ‹ 목록으로 */}
+  ```
 
 - 하네스 확인: 다음 화면 작업 PR의 `/end`에서 처음으로 `pr-assets` 릴리스를 만들고(사람 확인 후) 캡처 업로드·Screenshots 표 채우기가 되는지 본다. 검증 루프가 `.claude/skills/`도 기준 파일로 잠가 하네스 작업은 실패 뒤 고칠 수 없다(이번엔 사람이 clear). 하네스 작업이면 예외를 둘지 팀과 정한다
 
 - KSJ 확인: 펫이야기 작성·수정 URL을 `/community/posts/new`·`/community/posts/:pstSn/edit`로 해석해 `paths.js`에 넣음
-- 팀에 알릴 것(PR): 라우트 구조 변경(`routes/domains/<도메인>/index.js` + `<도메인>Routes.js`, 모든 담당의 라우트 파일 위치가 바뀜, `shared-files.md`), 바텀 네비 컨벤션(`ui.md`, 760px 미만 메인·플레이스 외 화면은 푸터 대신 바텀 네비, 새 영역은 `bottomNavMenus.js`), 경계값은 `min-[1100px]`·`min-[760px]`(Tailwind 4 `max-[N]`은 N 미만)
-- 범위 밖 1px 경계(말만, 각 담당): `layouts/SideMenu.jsx`(`min-[1101px]:block`, 정확히 1100px에서 사이드 메뉴·햄버거 둘 다 없음), `features/pet/list/PetSlide.jsx`(SJM)·`pages/health/CareCalendarPage.jsx`(JAJ)의 `min-[1101px]`·`min-[761px]`. `/health/calendar` 사이드 메뉴와 바텀 네비가 둘 다 `aria-label="건강기록 메뉴"`
+- 범위 밖 1px 경계(말만, 각 담당): `layouts/SideMenu.jsx`·`SubPageLayout`·`SubPageHead`(`min-[1101px]`·`max-[1101px]`, 디자인 ≤1100 기준. 헤더는 1100에서 GNB라 정확히 1100px에서 GNB와 `▾`가 같이 보임), `features/pet/list/PetSlide.jsx`(SJM)·`pages/health/CareCalendarPage.jsx`(JAJ)의 `min-[1101px]`·`min-[761px]`
 - 선택: Figma MCP 한도가 풀리면 헤더 아이콘 원본 SVG(317:2097·317:2106·317:2087)와 비교해 바꾸고, 색을 바꿀 일이 생기면 `currentColor` 인라인 SVG로. AI 대화창 모바일·바텀 네비는 시안 없이 만들었으니 디자인 담당과 맞춘다
 - SCR-AIM-006 연결 남음(가짜로 끝남): 006-01~08·10·15~18·20 사전 알림 배치(LJS 백엔드) — 매일 09:00 KST 스캔으로 케어 캘린더 병원 일정 D-N 대상 추출, 연동 양육자 전원(탈퇴 제외)별 설정(채널·D-0/1/3/7·케어 일정 유형) 적용, 이메일(가입 주소, 제목 `[냥멍케어] {반려동물명}의 {검진유형} 일정이 {D-N} 남았어요`, 당일은 "오늘이에요")·인앱(`CARE_SCHDL`, `mvmnPath` `/health/calendar`) 생성, 이력·10분 간격 3회 재시도·(회원+일정+일정일+시점+채널) 중복 방지. 메일 [케어 캘린더에서 확인하기]는 `/health/calendar`, 수신 해제는 `/settings/notifications`. 006-09·11·12 프론트는 알림 목록·미확인 수 API(LJS 백엔드)로 가짜를 바꿀 때 같이(SCR-COM-004 연결). 006-13 메일 링크 미인증 복귀는 로그인 연결 때 `ProtectedRoute`·`getRedirectPath`(YAY). 배지 1분 polling은 KSJ 채팅 안 읽은 수 방식이 정해지면 맞춘다
 - 선택: 헤더 채팅 배지(`UserHeader.jsx`의 `CountBadge`, `right-px`)도 추가-1처럼 큰 수에서 아이콘을 가릴 수 있다. 지금은 count 0이라 안 보인다(KSJ 연결 때 같이)
