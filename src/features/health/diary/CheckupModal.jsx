@@ -1,15 +1,13 @@
 import { useState } from 'react';
 import { generatePath, useNavigate } from 'react-router-dom';
 import Icon from '@/components/Icon';
-import Modal from '@/components/Modal';
-import { BTN_PRIMARY, BTN_SECONDARY } from '@/components/buttonStyles';
-import { showToast } from '@/components/toastStore';
 import { PATHS } from '@/routes/paths';
-import { formatDate, getDay, getMonth, getTodayYmd } from '@/utils/formatDate';
+import { getTodayYmd } from '@/utils/formatDate';
 import { useCreateCheckup, useFindNearSchedule } from '../queries';
 import { CHECKUP_TYPES } from '../scheduleTypes';
 import FieldError from './FieldError';
 import FormModal from './FormModal';
+import NearScheduleModal from './NearScheduleModal';
 import {
   INPUT_CLASS,
   LABEL_CLASS,
@@ -27,22 +25,24 @@ const OPTIONAL = (
   <span className="ml-1 text-[13px] font-medium text-[#667374]">선택</span>
 );
 
-/** "9/12" */
-const formatMonthDaySlash = (ymd) => `${getMonth(ymd)}/${getDay(ymd)}`;
-
-const findCheckupTypeNm = (cd) =>
-  CHECKUP_TYPES.find((type) => type.cd === cd)?.nm;
-
 /**
  * [검진기록 등록 모달]
- * - 1단계 방법 선택 → 직접 입력 (FN-HLT-002-33·26~31). 영수증 등록은 따로 만듦
+ * - 1단계 방법 선택 → 직접 입력 (FN-HLT-002-33·26~31). [영수증으로 등록하기]는 onReceipt로 부모가 이어 간다
+ * - initialStep="form"·rcptSn: 영수증 인식에 실패해 [직접 입력]으로 연 경우, 저장 때 이 영수증을 검진기록에 연결한다
  * - 저장하면 같은 날 병원 일정에 연결하고, 없고 앞뒤 7일 안에 예정 일정이 있으면 옮겨 연결할지 먼저 확인
  * - 저장 뒤 새 검진기록의 검진상세로 이동
  */
-export default function CheckupModal({ pets, defaultPetSn, onClose }) {
+export default function CheckupModal({
+  pets,
+  defaultPetSn,
+  initialStep = 'select',
+  rcptSn,
+  onReceipt,
+  onClose,
+}) {
   const navigate = useNavigate();
   const onlyPetSn = pets.length === 1 ? pets[0].petSn : null;
-  const [step, setStep] = useState('select');
+  const [step, setStep] = useState(initialStep);
   const [petSn, setPetSn] = useState(onlyPetSn ?? defaultPetSn);
   const [ckupYmd, setCkupYmd] = useState(getTodayYmd);
   const [hospNm, setHospNm] = useState('');
@@ -73,6 +73,7 @@ export default function CheckupModal({ pets, defaultPetSn, onClose }) {
         ckupCn: ckupCn.trim(),
         ckupMemoCn: ckupMemoCn.trim(),
         nearSchdlSn,
+        rcptSn,
       },
       {
         onSuccess: (checkup) => {
@@ -98,10 +99,6 @@ export default function CheckupModal({ pets, defaultPetSn, onClose }) {
         },
       },
     );
-  };
-
-  const handleReceipt = () => {
-    showToast('영수증으로 등록하는 기능은 준비 중이에요');
   };
 
   return (
@@ -132,7 +129,7 @@ export default function CheckupModal({ pets, defaultPetSn, onClose }) {
             <button
               type="button"
               className="flex flex-col items-center gap-1 rounded-[10px] border border-line px-4 py-6 hover:border-brand-500 hover:bg-brand-50"
-              onClick={handleReceipt}
+              onClick={onReceipt}
             >
               <span className="text-lg/[1.6] font-semibold text-ink">
                 영수증으로 등록하기
@@ -256,52 +253,15 @@ export default function CheckupModal({ pets, defaultPetSn, onClose }) {
       </FormModal>
 
       {nearSchedule && (
-        <Modal
-          isConfirm
-          title={`${formatMonthDaySlash(nearSchedule.schdlYmd)} ${findCheckupTypeNm(nearSchedule.ckupTypeCd)} 일정이 있어요`}
-          description={`이 검진기록과 연결하고 일정을 ${formatMonthDaySlash(ckupYmd)}로 옮길까요?`}
+        <NearScheduleModal
+          rows={[{ key: 'near', schedule: nearSchedule }]}
+          ckupYmd={ckupYmd}
           isPending={isPending}
-          onClose={() => setNearSchedule(null)}
-          footer={
-            <>
-              <button
-                type="button"
-                className={BTN_SECONDARY}
-                disabled={isPending}
-                onClick={() => save()}
-              >
-                새 일정으로 저장하기
-              </button>
-              <button
-                type="button"
-                className={BTN_PRIMARY}
-                disabled={isPending}
-                onClick={() => save(nearSchedule.schdlSn)}
-              >
-                {formatMonthDaySlash(ckupYmd)}로 옮겨 연결하기
-              </button>
-            </>
+          onConfirm={({ near: isMove }) =>
+            save(isMove ? nearSchedule.schdlSn : undefined)
           }
-        >
-          <p className="mt-4 rounded-[8px] bg-surface-2 px-3 py-2 text-ink-2 tabular-nums">
-            [병원]{' '}
-            {formatDate(nearSchedule.schdlYmd, {
-              separator: '-',
-              hasYear: false,
-            })}{' '}
-            · {nearSchedule.petNm} ·{' '}
-            {findCheckupTypeNm(nearSchedule.ckupTypeCd)} · {nearSchedule.hospNm}
-          </p>
-          <button
-            type="button"
-            aria-label="닫기 (저장하지 않음)"
-            disabled={isPending}
-            className="absolute top-3 right-3 grid size-8 place-items-center rounded-md text-subtle hover:bg-surface-2"
-            onClick={() => setNearSchedule(null)}
-          >
-            <Icon name="close" />
-          </button>
-        </Modal>
+          onClose={() => setNearSchedule(null)}
+        />
       )}
     </>
   );

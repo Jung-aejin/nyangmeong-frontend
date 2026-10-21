@@ -459,6 +459,7 @@ export const createCheckup = ({ nearSchdlSn, ...body }) => {
     ckupTypeCd: body.ckupTypeCd,
     ckupCn: body.ckupCn,
     ckupMemoCn: body.ckupMemoCn,
+    rcptSn: body.rcptSn ?? null,
   };
   fakeCheckups = [...fakeCheckups, checkup];
   return Promise.resolve({ ...checkup });
