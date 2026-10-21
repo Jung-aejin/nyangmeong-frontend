@@ -8,6 +8,7 @@ SCR-AIM-008 영수증 촬영 · 업로드 (2026-10-21) — 상태: 끝 (검증 `
 - 결정: 디자인은 `html/SCR-AIM-008.html`(사람이 준 파일). 영수증 검증은 `features/expense/dashboard/receiptFile.js`를 `src/utils/receiptFile.js`로 옮겨 같이 쓴다(SJM에게 공지). 모달은 가계부 컴포넌트를 가져오지 않고 디자인 기준으로 새로 만든다. 실패 문구는 3종(추출 0건·15초 초과·API 오류)
 - 추가 요청(사람이 직접 요청, 확인함): 추가-1 `recognizeCheckupReceipt`를 `async`로(Promise는 `waitAbortable` 안에만) / 추가-2 `docs/convention/common.md`에 "## 비동기" 절 / 추가-3 [촬영하기] 터치 기기에서만(추가-5로 대체) / 추가-4 분석 진행 막대가 실제처럼 차오름(`AnalyzeProgress`) / 추가-5 [촬영하기]를 화면 폭 ≤1100px에서만
 - 검증: `yarn -s lint` 0, `yarn -s build` 0. 새 의존성 없음
+- 추가 요청(PR 전, 사람이 직접 요청): 추가-6 `routes/AppRoutes.jsx`의 도메인별 라우트를 `routes/domains/<도메인>Routes.js`로 나누고 `AppRoutes.jsx`는 `import.meta.glob`으로 모아 레이아웃에 끼우는 진입점으로 만든다(요청 2026-10-21 10:18 "메인 진입점이랑 도메인 진입점 나누고 하나의 피알로 붙이자"). 완료 조건: `yarn -s lint`·`yarn -s build` 0, 옮기기 전후 라우트 목록(경로·레이아웃) 동일, 기존 경로가 전과 같이 열림. 공유 파일 규칙(`shared-files.md`)과 AGENTS.md `routes/` 설명을 같이 고친다
 
 이전 작업: SCR-AIM-012 대화창 · 일정 생성 확인 — 끝(검증 `통과` 1회차(새 루프), 사람 확인 2026-10-20. 가짜 `sendMessage`의 `REGISTER` 분기, `RegisterCard`·`PetChoiceChips`, `confirmRegister`·`cancelRegister`, 추가 요청 2건(`api.js` async화, `src/utils/formatDate.js`))
 
