@@ -21,6 +21,12 @@ SCR-MYP-006 공동양육 연동 해제(자진 탈퇴) — 끝 (승인 2026-10-21
 
 새 의존성: 없음
 
+### 추가 요청
+
+| 번호 | 바꿀 파일 | 완료 조건 | 요청 |
+| --- | --- | --- | --- |
+| 추가-1 | `pages/mypage/PetListPage.jsx`, `PointPage.jsx`, `ExpensePage.jsx`, `ExpenseAllPage.jsx`, `ProfileEditPage.jsx` | `명령:` `yarn -s lint`, `yarn -s build` / `화면:` 다섯 화면에 경로 머리와 마이페이지 사이드 메뉴가 보이고, 전체 내역의 ‹ 목록으로가 `/mypage/expenses`로 간다 | 요청 2026-10-21 21:09 "화면 머리를 공용 SubPageLayout(SCR-COM-002)으로 바꾼 것은 의도한 변경이다" (커밋 25e6e1a, PR 올림, 사람 확인 완료) |
+
 ## 다음에 할 것
 - SCR-MYP-006 연결 남음: 자진 해제 API(SJM 백엔드)가 나오면 `features/pet/api.js`의 가짜 `leavePet`(추정 `DELETE /pets/{petSn}/caregivers/me`)를 실제 요청으로 바꾼다. 로그인(AIC)이 나오면 내 연동을 서버가 회원으로 가리는지 맞춘다. 화면으로 못 본 것: 해제 실패 토스트, 공동양육 동물만 있다가 해제해 빈 화면이 되는 경우(가짜 데이터에 없음)
 - SCR-MYP-006 팀에 확인: 해제 팝업은 기획의 `components/ConfirmModal` 대신 `PetDeleteDialog`처럼 직접 만들었다(ConfirmModal에 설명 문단 자리가 없음)
@@ -41,7 +47,7 @@ SCR-MYP-006 공동양육 연동 해제(자진 탈퇴) — 끝 (승인 2026-10-21
 - 목표체중 오류 문구 "0보다 큰 숫자로 입력해 주세요"는 화면설계서에 없지만 필요해서 유지한다(2026-10-20 사람 결정). 명세에 문구를 넣을지는 팀에 확인한다
 - `index.css`의 그림자 토큰을 시안 이름에 맞춰 바꿨다(2026-10-20 사람 결정): `shadow-depth-sm`·`md`·`lg`(구 card·pop·modal), `ring-focus`·`ring-error`(`@utility`, 구 focus·error). Tailwind 기본 `shadow-sm`·`lg`를 쓰는 다른 화면이 있어 `depth`를 붙였다. `OPEN_ISSUES.md` 스타일링 항목에 제안으로 적었고, 팀이 합의하면 확정한다
 - 디자인 반영 때 정한 스타일 결정(토큰을 `@theme`에, Pretendard CDN, 브랜드 색 #285a5c 계열, 아이콘은 lucide 대응, 가계부용 tone·warn 색 토큰 추가)을 팀과 맞춘 뒤 `docs/OPEN_ISSUES.md` 스타일링 항목을 갱신한다
-- SCR-MYP-001을 만들 때 마이페이지 사이드 메뉴와 페이지 머리(경로)를 레이아웃으로 만든다. 지금은 가계부·반려동물 화면 모두 사이드 메뉴 없이 본문만 있다
+- SCR-MYP-001을 만들 때 마이페이지 홈도 `SubPageLayout section="mypage"`(`layouts/`, LJS 공용)로 감싼다. 반려동물 관리·포인트·가계부·전체 내역·회원정보 수정은 이미 이 레이아웃의 경로 머리와 사이드 메뉴를 쓴다(추가-1). 픽셀 캐릭터(SCR-MYP-010)·공동양육자 추가(SCR-MYP-005) 화면도 같은 방식으로 만든다
 - 털색 신규 6개(강아지 황색·세이블·멀, 고양이 젖소·카오스·포인트)는 백엔드가 코드 번호를 정하면 `features/pet/shared/petCodes.js`의 `COLR`와 `COLR_OPTIONS`에 넣는다. 이름 변경(블랙탄·파티)과 순서는 커밋 08c33cf에 반영됨
 - SCR-MYP-010 캐릭터 만들기 1단계는 털색을 읽기 전용으로 보이고 생성 요청에 `colrCd`·`colrDrctInptNm`을 넣는다(FN-MYP-010-08)
 - 등록 상한은 주양육 동물만 센다. 슬라이드 "N / 총마리"는 공동양육을 포함한다(명세대로)
