@@ -5,6 +5,7 @@ const PetListPage = lazy(() => import('@/pages/mypage/PetListPage'));
 const ExpensePage = lazy(() => import('@/pages/mypage/ExpensePage'));
 const ExpenseAllPage = lazy(() => import('@/pages/mypage/ExpenseAllPage'));
 const PointPage = lazy(() => import('@/pages/mypage/PointPage'));
+const ProfileEditPage = lazy(() => import('@/pages/mypage/ProfileEditPage'));
 
 export default [
   {
@@ -16,6 +17,7 @@ export default [
       { path: PATHS.MYPAGE_EXPENSES, Component: ExpensePage },
       { path: PATHS.MYPAGE_EXPENSES_ALL, Component: ExpenseAllPage },
       { path: PATHS.MYPAGE_POINTS, Component: PointPage },
+      { path: PATHS.MYPAGE_PROFILE, Component: ProfileEditPage },
     ],
   },
 ];
