@@ -21,6 +21,7 @@ background: false
    - `sh scripts/verify-loop.sh check`가 파일을 출력하면 첫 실패 뒤 기준 파일(기획·검증 명령·의존성·테스트)이 바뀐 것이다. `기준 변경:`에 적는다.
      - `handoff/`·`milestones/`는 진행 기록도 바뀌므로 함께 나온 `git diff --no-index` 명령으로 첫 실패 때 사본과 비교한다. 기획(기능 ID·완료 조건·새 의존성·검증 명령)이나 마일스톤의 기능 ID가 바뀌거나 빠졌을 때만 기준 변경이다. 진행 상태·시각·"다음에 할 것"·회차 기록은 세지 않는다.
 5. `화면:` 완료 조건은 AGENTS.md의 방법으로 확인한다. 못 하면 이유를 적고 둘 중 하나로 나눈다.
+   - 프론트: 확인한 화면 중 이번 작업으로 바뀐 화면마다 After 캡처를 1440·390 폭으로 남긴다(PR Screenshots에 쓴다, `docs/convention/git.md`). 파일은 `.playwright-mcp/pr/<이니셜>-<YYYYMMDD>-<화면ID>-after-<1440|390>.png`이고, 화면 ID가 없는 작업은 기획 첫 줄의 짧은 영문 이름을 쓴다. 바뀐 화면이 없으면 남기지 않는다. Before는 찍지 않는다.
    - `연결 남음`: 기다리는 것이 `milestones/<이름>.md`의 그 마일스톤 "API가 남의 것"·"기다리는 것"에 있거나, `docs/convention/milestone.md` 담당 표에서 남의 화면·라우트일 때만. 기다리는 것과 담당을 적는다.
    - `내 것`: 그 밖 전부(가짜 값을 바꿀 수 없음, 이 마일스톤 코드의 빠진 부분 등). 확인할 수 있게 하는 방법을 적는다.
 6. 판정이 `실패`면 `sh scripts/verify-loop.sh fail "<실패 항목 한 줄>"`을 돌려 나온 회차를 적는다. 아니면 `sh scripts/verify-loop.sh clear`.
@@ -35,6 +36,7 @@ background: false
 연결 남음: <기능 ID> (<기다리는 것>, <담당>) 또는 없음
 판정: 통과 / 실패 / 확인 못 함 있음
 회차: <verify-loop.sh 출력> (실패일 때만)
+캡처: <.playwright-mcp/pr/ 파일 목록> 또는 없음 (프론트만)
 
 사람 확인:
 - 띄우기: <명령>(어느 저장소에서)
