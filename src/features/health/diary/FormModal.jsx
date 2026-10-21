@@ -6,15 +6,21 @@ import { BTN_PRIMARY, BTN_SECONDARY } from '@/components/buttonStyles';
  * [건강 일지 입력 모달 틀]
  * - 머리 아이콘·제목·✕, 본문, 하단 줄(필수 안내·취소·저장)
  * - ESC·✕·취소로 닫음. 저장 중에는 닫지 않음
+ * - cancelLabel·onCancel: 왼쪽 버튼을 닫기가 아닌 다른 일(예: 다시 촬영하기)로 바꿀 때
+ * - hasRequiredNote: 하단 왼쪽 "* 표시는 필수 항목이에요", isSubmitDisabled: 저장 비활성
  */
 export default function FormModal({
   icon,
   title,
   submitLabel = '저장하기',
+  cancelLabel = '취소',
   isPending = false,
+  isSubmitDisabled = false,
+  hasRequiredNote = true,
   hasFooter = true,
   widthClassName = 'w-[min(720px,calc(100%-32px))]',
   onSubmit,
+  onCancel,
   onClose,
   children,
 }) {
@@ -33,7 +39,7 @@ export default function FormModal({
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    if (!isPending) onSubmit();
+    if (!isPending && !isSubmitDisabled) onSubmit();
   };
 
   return (
@@ -72,21 +78,23 @@ export default function FormModal({
 
         {hasFooter && (
           <footer className="flex items-center justify-end gap-2 rounded-b-[20px] border-t border-[#e2e7e7] bg-[#fbfcfd] px-7 py-4">
-            <p className="mr-auto text-[#566465]">
-              <span className="font-bold text-[#b4473a]">*</span> 표시는 필수
-              항목이에요
-            </p>
+            {hasRequiredNote && (
+              <p className="mr-auto text-[#566465]">
+                <span className="font-bold text-[#b4473a]">*</span> 표시는 필수
+                항목이에요
+              </p>
+            )}
             <button
               type="button"
               disabled={isPending}
-              className={`${BTN_SECONDARY} min-w-24`}
-              onClick={onClose}
+              className={`${BTN_SECONDARY} min-w-24 ${hasRequiredNote ? '' : 'mr-auto'}`}
+              onClick={onCancel ?? onClose}
             >
-              취소
+              {cancelLabel}
             </button>
             <button
               type="submit"
-              disabled={isPending}
+              disabled={isPending || isSubmitDisabled}
               className={`${BTN_PRIMARY} min-w-24`}
             >
               {submitLabel}

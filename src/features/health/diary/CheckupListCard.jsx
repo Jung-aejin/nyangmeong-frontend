@@ -30,8 +30,9 @@ const findCheckupTypeNm = (cd) =>
  * [검진기록 카드]
  * - 조회 연도 드롭다운·검진 건수 필터 칩 2종·검진기록 리스트·[검진기록 등록] (FN-HLT-002-05·06·14)
  * - 병원명을 누르면 검진상세로 이동하고, [삭제]는 확인 후 검진기록만 삭제
+ * - 등록 방법 선택에서 영수증을 고르면 이 모달을 닫고 onReceipt로 페이지가 영수증 등록을 이어 간다
  */
-export default function CheckupListCard({ pet, pets }) {
+export default function CheckupListCard({ pet, pets, onReceipt }) {
   const currentYear = getYear(getTodayYmd());
   const [year, setYear] = useState(currentYear);
   const [isVaccinationOnly, setIsVaccinationOnly] = useState(false);
@@ -187,6 +188,10 @@ export default function CheckupListCard({ pet, pets }) {
         <CheckupModal
           pets={pets}
           defaultPetSn={pet.petSn}
+          onReceipt={() => {
+            setIsModalOpen(false);
+            onReceipt();
+          }}
           onClose={() => setIsModalOpen(false)}
         />
       )}
