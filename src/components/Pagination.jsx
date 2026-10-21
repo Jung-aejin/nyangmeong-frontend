@@ -1,53 +1,54 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-const PAGE_GROUP_SIZE = 10;
+const VISIBLE_PAGE_COUNT = 5;
+const ITEM =
+  'grid h-9 min-w-9 place-items-center rounded-full px-2 font-medium text-ink-2 hover:enabled:bg-surface-3 disabled:cursor-not-allowed disabled:text-line-strong';
 
-// 번호는 10개씩 묶어 보여 준다. ‹는 2쪽부터, ›는 마지막 쪽 전까지 한 쪽씩 옮긴다. page는 1부터 시작한다
-export default function Pagination({ page, totalPages, onChange }) {
-  if (totalPages < 1) return null;
+export default function Pagination({ page, pageCount, onChange }) {
+  if (pageCount <= 1) return null;
 
-  const start = Math.floor((page - 1) / PAGE_GROUP_SIZE) * PAGE_GROUP_SIZE + 1;
-  const end = Math.min(start + PAGE_GROUP_SIZE - 1, totalPages);
+  /** 현재 페이지 중심의 표시 범위 */
+  const start = Math.max(
+    1,
+    Math.min(
+      page - Math.floor(VISIBLE_PAGE_COUNT / 2),
+      pageCount - VISIBLE_PAGE_COUNT + 1,
+    ),
+  );
+  const end = Math.min(pageCount, start + VISIBLE_PAGE_COUNT - 1);
   const pages = Array.from({ length: end - start + 1 }, (_, i) => start + i);
-  const buttonClass =
-    'flex size-9 items-center justify-center rounded-full text-base font-medium text-[#3d4a4b] hover:bg-[#e9f2f2] max-[760px]:size-8';
 
   return (
-    <nav
-      aria-label="페이지 이동"
-      className="flex flex-wrap items-center justify-center gap-1 max-[760px]:gap-0.5"
-    >
-      {page > 1 && (
-        <button
-          type="button"
-          aria-label="이전 페이지"
-          onClick={() => onChange(page - 1)}
-          className={`${buttonClass} mr-2`}
-        >
-          <ChevronLeft size={18} />
-        </button>
-      )}
+    <nav aria-label="페이지" className="flex items-center justify-center gap-1">
+      <button
+        type="button"
+        onClick={() => onChange(page - 1)}
+        disabled={page === 1}
+        aria-label="이전 페이지"
+        className={ITEM}
+      >
+        <ChevronLeft className="size-4" />
+      </button>
       {pages.map((number) => (
         <button
           key={number}
           type="button"
-          aria-current={number === page ? 'page' : undefined}
           onClick={() => onChange(number)}
-          className={`${buttonClass} ${number === page ? 'bg-[#285a5c] font-bold text-white hover:bg-[#285a5c]' : ''}`}
+          aria-current={number === page ? 'page' : undefined}
+          className={`${ITEM} ${number === page ? 'bg-brand-500 font-bold text-white hover:enabled:bg-brand-500' : ''}`}
         >
           {number}
         </button>
       ))}
-      {page < totalPages && (
-        <button
-          type="button"
-          aria-label="다음 페이지"
-          onClick={() => onChange(page + 1)}
-          className={`${buttonClass} ml-2`}
-        >
-          <ChevronRight size={18} />
-        </button>
-      )}
+      <button
+        type="button"
+        onClick={() => onChange(page + 1)}
+        disabled={page === pageCount}
+        aria-label="다음 페이지"
+        className={ITEM}
+      >
+        <ChevronRight className="size-4" />
+      </button>
     </nav>
   );
 }

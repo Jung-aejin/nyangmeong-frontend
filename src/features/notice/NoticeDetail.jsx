@@ -8,7 +8,7 @@ const LATEST_SIZE = 5;
 
 export default function NoticeDetail({ notice }) {
   const { data: latest } = useNotices({ page: 1, size: LATEST_SIZE });
-  // 고정 공지는 첫 쪽에 따로 얹혀 오므로 최신 공지에서는 뺀다
+  /** 최신 공지: 고정 공지 제외 */
   const latestNotices = latest?.content.filter((item) => !item.fixYn);
 
   return (
@@ -37,7 +37,7 @@ export default function NoticeDetail({ notice }) {
           <span className="text-sm text-[#667374]">조회 {notice.vwCnt}</span>
         </div>
 
-        {/* 글 영역은 최소 높이만 두어 긴 글은 늘어나고, 본문 아래에는 항상 80px 여백을 둔다(모든 게시판 공통 규칙) */}
+        {/** 본문 글 영역 최소 높이 + 아래 80px 여백: 모든 게시판 공통 */}
         <div className="mt-6 pb-20">
           <div className="min-h-[200px] text-base leading-[1.6] text-[#1a3234]">
             {notice.ntcMttrCn.split('\n\n').map((paragraph) => (

@@ -1,17 +1,29 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { OPEN_CHAT_MODAL_MESSAGE } from '@/constants/chatModal';
 import { ChatModalContext } from './chatModal';
 
-// 열림 상태와 마지막으로 본 방만 가진다. 모달 안쪽 화면은 KSJ가 만든다
+/** 열림 상태와 마지막으로 본 방 */
 export default function ChatModalProvider({ children }) {
   const [isOpen, setIsOpen] = useState(false);
-  // 닫아도 지우지 않는다. 다시 열 때 마지막으로 본 방이 선택된다
+  /** 닫아도 유지: 다시 열 때 마지막 방 선택 */
   const [roomSn, setRoomSn] = useState(null);
+
+  /** AI 대화창의 채팅 바로가기 요청 수신(FN-AIM-004) */
+  useEffect(() => {
+    const handleMessage = (event) => {
+      if (event.origin !== window.location.origin) return;
+      if (event.data?.type !== OPEN_CHAT_MODAL_MESSAGE) return;
+      setIsOpen(true);
+    };
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
 
   const value = useMemo(
     () => ({
       isOpen,
       roomSn,
-      // 방을 주면 그 방으로, 안 주면 마지막으로 본 방으로 연다. 이미 열려 있으면 방만 바뀐다
+      /** 방 지정 시 해당 방, 아니면 마지막 방으로 열기 */
       open: (nextRoomSn) => {
         if (nextRoomSn !== undefined) setRoomSn(nextRoomSn);
         setIsOpen(true);
@@ -23,5 +35,9 @@ export default function ChatModalProvider({ children }) {
     [isOpen, roomSn],
   );
 
-  return <ChatModalContext.Provider value={value}>{children}</ChatModalContext.Provider>;
+  return (
+    <ChatModalContext.Provider value={value}>
+      {children}
+    </ChatModalContext.Provider>
+  );
 }

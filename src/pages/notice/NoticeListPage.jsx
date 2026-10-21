@@ -14,7 +14,7 @@ export default function NoticeListPage() {
     isError,
   } = useNotices({ page, size: PAGE_SIZE, keyword });
 
-  // 검색어를 바꾸면 첫 페이지부터 본다
+  /** 검색어 변경 시 첫 쪽부터 */
   const handleSearch = (nextKeyword) =>
     setSearchParams(nextKeyword ? { keyword: nextKeyword } : {});
 

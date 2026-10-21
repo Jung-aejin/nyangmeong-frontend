@@ -1,4 +1,4 @@
-// 켜짐·꺼짐 스위치. label은 화면에 보이지 않는 이름이라 스크린리더가 읽는다
+/** 켜짐·꺼짐 스위치(label은 스크린리더용) */
 export default function Toggle({ checked, onChange, label, disabled = false }) {
   return (
     <button

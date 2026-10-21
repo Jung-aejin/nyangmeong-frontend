@@ -3,15 +3,15 @@ import { Bell } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import CountBadge from '@/components/CountBadge';
 import { useChatModal } from '@/context/chatModal';
-import NotificationItem from '@/features/notification/NotificationItem';
-import { NOTI_TABS, NOTI_TYPE } from '@/features/notification/notiTabs';
+import NotificationItem from '@/features/notification/shared/NotificationItem';
+import { NOTI_TABS, NOTI_TYPE } from '@/features/notification/shared/notiTabs';
 import {
   useNotifications,
   useReadNotification,
   useUnreadCount,
 } from '@/features/notification/queries';
 
-// 열려 있을 때만 마운트해서, 페이지를 열 때마다 알림 목록 요청이 나가지 않게 한다. 탭도 열 때마다 처음으로 돌아온다
+/** 열릴 때만 마운트: 알림 목록 요청과 탭 상태를 열 때마다 초기화 */
 function NotificationPanel({ unreadCount, onClose }) {
   const [tab, setTab] = useState(NOTI_TABS[0]);
   const { data } = useNotifications(tab);
@@ -19,11 +19,11 @@ function NotificationPanel({ unreadCount, onClose }) {
   const navigate = useNavigate();
   const chatModal = useChatModal();
 
-  // 읽음 처리가 성공한 뒤에 이동한다. 이미 읽은 알림은 읽음 요청 없이 바로 이동한다
+  /** 읽음 처리 성공 후 이동 */
   const handleItemClick = (notification) => {
     const go = () => {
       onClose();
-      // 펫돌봄 거래 상태는 화면 이동 없이 채팅 모달을 띄운다. 어떤 방을 열지는 SCR-COM-009에서 연결한다
+      /** 펫돌봄 거래 상태는 채팅 모달 열기(방 연결은 SCR-COM-009) */
       if (notification.notiTypeCd === NOTI_TYPE.MTCH_DLNG) {
         chatModal.open();
       } else {
@@ -39,7 +39,7 @@ function NotificationPanel({ unreadCount, onClose }) {
   };
 
   return (
-    <div className="absolute right-0 top-[61px] z-40 w-[380px] overflow-hidden rounded-[14px] border border-[#e2e7e7] bg-white shadow-lg">
+    <div className="absolute right-0 top-[61px] z-40 w-[380px] overflow-hidden rounded-[14px] border border-[#e2e7e7] bg-white shadow-lg max-[760px]:fixed max-[760px]:inset-x-3 max-[760px]:top-[72px] max-[760px]:w-auto">
       <div className="flex items-center justify-between px-[18px] pb-2 pt-3.5">
         <h2 className="text-base font-bold leading-[26px] text-[#1a3234]">
           알림
@@ -91,7 +91,7 @@ export default function NotificationDropdown({
   const buttonRef = useRef(null);
   const { data: unread } = useUnreadCount();
 
-  // 토글 버튼이 rootRef 안에 있어서, 버튼 클릭이 바깥 클릭으로 처리되어 닫았다가 바로 다시 열리는 일이 없다
+  /** 토글 버튼이 rootRef 안: 닫자마자 다시 열리는 것 방지 */
   useEffect(() => {
     if (!isOpen) return undefined;
     const handleMouseDown = (event) => {
@@ -111,7 +111,7 @@ export default function NotificationDropdown({
     };
   }, [isOpen, onClose]);
 
-  // 이 root에는 position을 주지 않는다. 패널이 헤더 오른쪽 묶음의 오른쪽 끝에 맞춰져야 한다
+  /** position 미지정: 패널을 헤더 오른쪽 묶음 끝에 맞춤 */
   return (
     <div ref={rootRef}>
       <button
@@ -122,7 +122,7 @@ export default function NotificationDropdown({
         aria-expanded={isOpen}
         onClick={onToggle}
       >
-        <Bell size={24} />
+        <Bell size={24} className="max-[760px]:size-8" />
         <CountBadge
           count={unread?.unreadCount}
           className="absolute right-px top-[5px]"

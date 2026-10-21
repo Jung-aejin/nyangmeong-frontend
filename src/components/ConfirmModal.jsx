@@ -12,24 +12,24 @@ export default function ConfirmModal({
   const dialogRef = useRef(null);
   const cancelRef = useRef(null);
 
-  // showModal은 dialog를 top layer에 올리고 뒤 페이지를 비활성으로 만들어서, 포털과 포커스 가두기 코드가 필요 없다.
-  // cleanup에서 닫는 이유: StrictMode가 이 effect를 두 번 돌리는데, 이미 열린 dialog에 showModal을 또 부르면 오류가 난다
+  /** showModal로 top layer 사용 */
+  /** cleanup에서 닫기: StrictMode의 effect 이중 실행 시 showModal 중복 호출 오류 방지 */
   useEffect(() => {
     const dialog = dialogRef.current;
     dialog.showModal();
-    // 실수로 Enter를 눌러도 확정되지 않게 안전한 선택지에 포커스를 둔다
+    /** 안전한 선택지에 초기 포커스 */
     cancelRef.current.focus();
     return () => dialog.close();
   }, []);
 
-  // ESC는 cancel 이벤트를 낸다. 브라우저 기본 닫기는 막고, 닫는 것은 이 컴포넌트를 내리는 부모에게 맡긴다
+  /** ESC 기본 닫기 차단, 닫기는 부모에 위임 */
   const handleCancel = (event) => {
     event.preventDefault();
     if (!isPending) onCancel();
   };
 
-  // dialog에 padding이 없어서, dialog 자체가 mousedown 대상이면 배경(backdrop)을 누른 것이다
-  // preventDefault를 하지 않으면 mousedown이 끝난 뒤 브라우저가 포커스를 body로 옮겨서, 부모가 돌려준 포커스가 사라진다
+  /** 배경(backdrop) 클릭 판별 */
+  /** preventDefault: 포커스가 body로 옮겨져 부모가 돌려준 포커스가 사라지는 것 방지 */
   const handleMouseDown = (event) => {
     if (event.target !== event.currentTarget || isPending) return;
     event.preventDefault();

@@ -3,7 +3,7 @@ import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import pixelHead from '@/assets/csc_header_pixel.svg';
 import { PATHS } from '@/routes/paths';
 
-// description은 화면마다 Figma 부제가 있을 때만 적는다
+/** 고객센터 메뉴: description은 화면별 Figma 부제가 있을 때만 */
 const MENUS = [
   {
     label: '공지사항',

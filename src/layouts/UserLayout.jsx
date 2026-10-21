@@ -10,7 +10,7 @@ export default function UserLayout() {
     <ChatModalProvider>
       <div className="flex min-h-screen flex-col bg-[#faf8f5]">
         <UserHeader />
-        <main className="mx-auto w-full max-w-[1440px] flex-1 px-8 py-6">
+        <main className="mx-auto w-full max-w-[1440px] flex-1 px-8 pb-[160px] pt-6 max-[760px]:px-4 max-[760px]:pb-20">
           <Outlet />
         </main>
         <UserFooter />

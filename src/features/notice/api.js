@@ -1,7 +1,9 @@
-// 공지 API(KSJ 백엔드)가 생기기 전까지 쓰는 가짜 응답이다. api.get()으로 바꾸고 실제 필드 이름에 맞춘다
-// ntcMttrSn 외의 키(ntcMttrTtl, ntcMttrCn, fixYn, crtDt, vwCnt)는 서버 Swagger가 나오기 전의 가정이다
-// 조회수 증가는 서버가 상세 조회에서 한다. 가짜는 올리지 않는다
-// 고정 공지는 Figma처럼 일반 공지 41건과 별도로 첫 쪽 맨 위에 얹는다. 서버가 쪽 크기에 고정 공지를 넣는지는 연결 때 확인한다
+/**
+ * [공지 가짜 응답]
+ * - 공지 API(KSJ 백엔드) 연결 전: api.get()으로 교체
+ * - ntcMttrSn 외 키(ntcMttrTtl·ntcMttrCn·fixYn·crtDt·vwCnt): Swagger 전 가정
+ * - 고정 공지: 일반 공지 41건과 별도로 첫 쪽 맨 위, 쪽 크기 포함 여부는 연결 때 확인
+ */
 const fakePinned = {
   ntcMttrSn: 42,
   ntcMttrTtl: '8월 정기 점검 안내 (8/15 02:00~04:00)',
@@ -43,7 +45,7 @@ const fakeRegulars = Array.from({ length: 41 }, (_, index) => {
 
 const fakeNotices = [fakePinned, ...fakeRegulars];
 
-// 제목과 내용 둘 다에서 찾는다
+/** 제목·내용 일치 */
 const matchesKeyword = (item, keyword) =>
   item.ntcMttrTtl.includes(keyword) || item.ntcMttrCn.includes(keyword);
 
@@ -68,5 +70,7 @@ export const getNotices = ({ page = 1, size = 10, keyword = '' } = {}) => {
 
 export const getNotice = (ntcMttrSn) => {
   const target = fakeNotices.find((item) => item.ntcMttrSn === ntcMttrSn);
-  return target ? Promise.resolve({ ...target }) : Promise.reject(new Error());
+  return target
+    ? Promise.resolve({ ...target })
+    : Promise.reject(new Error('공지를 찾지 못했어요'));
 };

@@ -1,7 +1,7 @@
 import { ChevronLeft, Search } from 'lucide-react';
 import { useState } from 'react';
 import { generatePath, Link } from 'react-router-dom';
-import Pagination from '@/components/Pagination';
+import BoardPagination from '@/components/BoardPagination';
 import { PATHS } from '@/routes/paths';
 import { formatDate } from '@/utils/formatDate';
 
@@ -81,7 +81,7 @@ export default function NoticeList({
           <ul className="divide-y divide-[#e2e7e7]">
             {content.map((notice) => (
               <li key={notice.ntcMttrSn} className="h-16 max-[760px]:h-auto">
-                {/* 좁은 화면에서는 제목 한 줄, 그 아래 한 줄에 작성일을 둔다. 번호는 숨기고 고정 공지의 배지만 남긴다 */}
+                {/** 좁은 화면: 제목 한 줄 + 작성일 한 줄, 번호 숨김, 고정 공지 배지 유지 */}
                 <Link
                   to={generatePath(PATHS.NOTICE_DETAIL, {
                     ntcMttrSn: notice.ntcMttrSn,
@@ -114,7 +114,7 @@ export default function NoticeList({
       )}
 
       <div className="mt-12 max-[760px]:mt-8">
-        <Pagination
+        <BoardPagination
           page={page}
           totalPages={totalPages}
           onChange={onPageChange}
