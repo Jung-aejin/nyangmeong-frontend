@@ -5,6 +5,7 @@ import PetDeleteDialog from '@/features/pet/list/PetDeleteDialog';
 import PetEmpty from '@/features/pet/list/PetEmpty';
 import PetFormModal from '@/features/pet/list/PetFormModal';
 import PetSlide from '@/features/pet/list/PetSlide';
+import PetUnlinkDialog from '@/features/pet/list/PetUnlinkDialog';
 import { MAX_OWN_PETS, PET_REL } from '@/features/pet/shared/petCodes';
 import { usePets } from '@/features/pet/queries';
 
@@ -14,6 +15,7 @@ export default function PetListPage() {
   /** undefined: 닫힘, null: 등록, 숫자: 해당 petSn 수정 */
   const [modalPetSn, setModalPetSn] = useState(undefined);
   const [deletingPet, setDeletingPet] = useState(null);
+  const [unlinkingPet, setUnlinkingPet] = useState(null);
 
   /** 삭제로 위치가 끝을 넘으면 마지막 동물 표시 */
   const currentIndex = Math.min(slideIndex, Math.max(pets.length - 1, 0));
@@ -37,7 +39,7 @@ export default function PetListPage() {
           onMove={setSlideIndex}
           onEdit={(pet) => setModalPetSn(pet.petSn)}
           onDelete={setDeletingPet}
-          onUnlink={showPreparing}
+          onUnlink={setUnlinkingPet}
           onInvite={showPreparing}
           action={
             <button
@@ -67,6 +69,12 @@ export default function PetListPage() {
         <PetDeleteDialog
           pet={deletingPet}
           onClose={() => setDeletingPet(null)}
+        />
+      )}
+      {unlinkingPet && (
+        <PetUnlinkDialog
+          pet={unlinkingPet}
+          onClose={() => setUnlinkingPet(null)}
         />
       )}
     </div>

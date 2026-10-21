@@ -7,6 +7,7 @@ import {
   getPet,
   getPets,
   getVarieties,
+  leavePet,
   updatePet,
 } from './api';
 
@@ -72,5 +73,13 @@ export const useDeleteCaregiver = () => {
     mutationFn: deleteCaregiver,
     onSuccess: (_, { petSn }) =>
       qc.invalidateQueries({ queryKey: petKeys.caregivers(petSn) }),
+  });
+};
+
+export const useLeavePet = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: leavePet,
+    onSuccess: () => qc.invalidateQueries({ queryKey: petKeys.all }),
   });
 };
