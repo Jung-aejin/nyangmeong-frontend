@@ -1,5 +1,5 @@
 import { ChevronRight } from 'lucide-react';
-import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import { Link, NavLink, Outlet, useLocation, useMatch } from 'react-router-dom';
 import pixelHead from '@/assets/csc_header_pixel.svg';
 import { PATHS } from '@/routes/paths';
 
@@ -15,12 +15,22 @@ const MENUS = [
     to: PATHS.FAQS,
     description: '궁금한 점을 빠르게 찾아보세요',
   },
-  { label: '1:1 문의', to: PATHS.INQUIRIES },
+  {
+    label: '1:1 문의',
+    to: PATHS.INQUIRIES,
+    description: '궁금한 점을 남겨 주시면 확인 후 답변을 알림으로 보내 드려요',
+  },
 ];
 
 export default function CustomerCenterLayout() {
   const { pathname } = useLocation();
   const current = MENUS.find((menu) => pathname.startsWith(menu.to));
+  /** 1:1 문의 작성·수정은 제목 뒤에 한 단계 더 붙는다 */
+  const isInquiryNew = useMatch(PATHS.INQUIRY_NEW);
+  const isInquiryEdit = useMatch(PATHS.INQUIRY_EDIT);
+  let subTitle = null;
+  if (isInquiryNew) subTitle = '문의 작성';
+  if (isInquiryEdit) subTitle = '문의 수정';
 
   return (
     <div className="pt-6">
@@ -28,7 +38,17 @@ export default function CustomerCenterLayout() {
         <h1 className="flex items-center text-[28px] leading-[1.2] max-[760px]:text-2xl">
           <span className="font-normal text-[#566465]">고객센터</span>
           <ChevronRight size={20} className="mx-1 text-[#b9c4c4]" />
-          <span className="font-bold text-[#1a3234]">{current?.label}</span>
+          {subTitle ? (
+            <>
+              <Link to={current.to} className="font-normal text-[#566465]">
+                {current.label}
+              </Link>
+              <ChevronRight size={20} className="mx-1 text-[#b9c4c4]" />
+              <span className="font-bold text-[#1a3234]">{subTitle}</span>
+            </>
+          ) : (
+            <span className="font-bold text-[#1a3234]">{current?.label}</span>
+          )}
         </h1>
         {current?.description && (
           <p className="mt-2 text-base leading-[1.6] text-[#566465]">

@@ -6,6 +6,9 @@ export const PATHS = {
   NOTICE_DETAIL: '/notices/:ntcMttrSn',
   FAQS: '/faqs',
   INQUIRIES: '/inquiries',
+  INQUIRY_NEW: '/inquiries/new',
+  INQUIRY_DETAIL: '/inquiries/:otoInqrySn',
+  INQUIRY_EDIT: '/inquiries/:otoInqrySn/edit',
   SETTINGS_NOTIFICATIONS: '/settings/notifications',
 
   /** account */
