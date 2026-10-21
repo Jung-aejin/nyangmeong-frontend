@@ -2,7 +2,7 @@
 
 ## 지금 하는 것
 
-SCR-MYP-006 공동양육 연동 해제(자진 탈퇴) — 구현 중 (승인 2026-10-21)
+SCR-MYP-006 공동양육 연동 해제(자진 탈퇴) — 끝 (승인 2026-10-21, 검증 1회차 통과, 사람 확인 완료)
 기준: 기능명세서 v0.4_20261021 FN-MYP-006-01~05, 화면설계서 v0.6_20261021 SCR-MYP-006
 디자인: 시안 폴더(저장소 밖)의 `myp-pets-coparent.html` 안 해제 확인 팝업. 색·폰트는 `00styleguide.html`·`acc.css`. Figma 토큰이 없어 시안 폴더를 쓴다
 
@@ -22,8 +22,10 @@ SCR-MYP-006 공동양육 연동 해제(자진 탈퇴) — 구현 중 (승인 202
 새 의존성: 없음
 
 ## 다음에 할 것
+- SCR-MYP-006 연결 남음: 자진 해제 API(SJM 백엔드)가 나오면 `features/pet/api.js`의 가짜 `leavePet`(추정 `DELETE /pets/{petSn}/caregivers/me`)를 실제 요청으로 바꾼다. 로그인(AIC)이 나오면 내 연동을 서버가 회원으로 가리는지 맞춘다. 화면으로 못 본 것: 해제 실패 토스트, 공동양육 동물만 있다가 해제해 빈 화면이 되는 경우(가짜 데이터에 없음)
+- SCR-MYP-006 팀에 확인: 해제 팝업은 기획의 `components/ConfirmModal` 대신 `PetDeleteDialog`처럼 직접 만들었다(ConfirmModal에 설명 문단 자리가 없음)
 - SCR-MYP-004 연결 남음: 양육관계 조회·강제 해제 API(SJM 백엔드)가 나오면 `features/pet/api.js`의 가짜(`getCaregivers`·`deleteCaregiver`, 추정 키 `rltnSn`·`mbrNcnm`·`cgvrRoleCd`·`authrtNm`·`lnkDt`·`myYn`)를 실제 요청으로 바꾸고 응답에 맞춘다. 공동양육자 시점에서 서버가 주양육자 + 본인 1건만 주는지, 강제 해제를 주양육자만 가능하게 서버가 막는지 맞춘다
-- SCR-MYP-004 연결 남음: 초대 모달(SCR-MYP-005)이 생기면 [가족 초대하기]를 현재 동물 기본 선택으로 연다(자진 해제는 SCR-MYP-006 진행 중). 로그인(AIC)이 나오면 `/mypage/pets`는 `ProtectedRoute` 아래로(기존 항목). 팀에 확인: 공동양육자 시점 "나 (이서연)" 카드는 [공동양육] 배지가 1280px에서 카드 밖으로 28px 넘친다(시안 v5 `.myp-mem-n{white-space:nowrap}`와 같음). 슬라이드 정보 영역과 가족 구분선 사이는 시안(56px)보다 좁힌 32px(사람 요청). 모바일 밀어 넘기기는 시안 문구대로 넣었다. 기능명세서 16:00판은 DMS에 아직 14시판만 있다
+- SCR-MYP-004 연결 남음: 초대 모달(SCR-MYP-005)이 생기면 [가족 초대하기]를 현재 동물 기본 선택으로 연다. 로그인(AIC)이 나오면 `/mypage/pets`는 `ProtectedRoute` 아래로(기존 항목). 팀에 확인: 공동양육자 시점 "나 (이서연)" 카드는 [공동양육] 배지가 1280px에서 카드 밖으로 28px 넘친다(시안 v5 `.myp-mem-n{white-space:nowrap}`와 같음). 슬라이드 정보 영역과 가족 구분선 사이는 시안(56px)보다 좁힌 32px(사람 요청). 모바일 밀어 넘기기는 시안 문구대로 넣었다. 기능명세서 16:00판은 DMS에 아직 14시판만 있다
 - SCR-MYP-040 연결 남음: 회원 조회·수정·검증 API(member, AIC)가 나오면 `features/member/api.js`의 가짜(`getMyProfile`·`verifyPassword`·`checkNickname`·`checkPhone`·`update*`, 추정 키 `acntEml`·`mbrNcnm`·`mbrTelno`·`prflImgUrl`·`snsTyCd`·`dplctYn`·`mbrJoinPathCd`·`mbrRegDt`·`mbrLastLgnDt`)를 실제 요청으로 바꾼다. 사진은 업로드 방식(multipart 여부)을 맞춘다
 - SCR-MYP-040 연결 남음: 회원 탈퇴 화면(SCR-ACC-020, YAY) 경로가 생기면 [회원 탈퇴 ›] 토스트를 `/mypage/withdraw` 이동으로 바꾼다. 로그인(AIC)이 나오면 `/mypage/profile`을 `ProtectedRoute` 아래로 옮긴다
 - SCR-MYP-020 연결 남음: 포인트·케어미션 API(SJM 백엔드)가 나오면 `features/point/api.js` 가짜(`getPointBalance`·`getPointHistory`·`getCareMissions`, 추정 키 `pntBal`·`earnTotAmt`·`pntHstTyCd`·`msnNm`·`cmplYn` 등)를 실제 요청으로 바꾸고 `?fake=empty` 분기를 지운다. 미션 출제·정산·검진기록 20P(FN-MYP-020-05·06·08)는 서버 일이다 (health JAJ, 커뮤니티 KSJ)
@@ -42,7 +44,6 @@ SCR-MYP-006 공동양육 연동 해제(자진 탈퇴) — 구현 중 (승인 202
 - SCR-MYP-001을 만들 때 마이페이지 사이드 메뉴와 페이지 머리(경로)를 레이아웃으로 만든다. 지금은 가계부·반려동물 화면 모두 사이드 메뉴 없이 본문만 있다
 - 털색 신규 6개(강아지 황색·세이블·멀, 고양이 젖소·카오스·포인트)는 백엔드가 코드 번호를 정하면 `features/pet/shared/petCodes.js`의 `COLR`와 `COLR_OPTIONS`에 넣는다. 이름 변경(블랙탄·파티)과 순서는 커밋 08c33cf에 반영됨
 - SCR-MYP-010 캐릭터 만들기 1단계는 털색을 읽기 전용으로 보이고 생성 요청에 `colrCd`·`colrDrctInptNm`을 넣는다(FN-MYP-010-08)
-- SCR-MYP-006을 만들 때 [연동 해제] 버튼("준비 중" 토스트)을 연결한다
 - 등록 상한은 주양육 동물만 센다. 슬라이드 "N / 총마리"는 공동양육을 포함한다(명세대로)
 - 로그인(AIC)이 나오면 `/mypage/pets`·`/mypage/expenses`·`/mypage/expenses/all`을 `ProtectedRoute` 아래로 옮긴다
 - 품종 마스터 API(KSJ)가 나오면 `getVarieties` 가짜 응답을 실제 요청으로 바꾼다
