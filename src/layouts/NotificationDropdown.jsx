@@ -125,7 +125,7 @@ export default function NotificationDropdown({
         <Bell size={24} className="max-[760px]:size-8" />
         <CountBadge
           count={unread?.unreadCount}
-          className="absolute right-px top-[5px]"
+          className="absolute left-6 top-[5px] max-[760px]:left-7"
         />
       </button>
       {isOpen && (

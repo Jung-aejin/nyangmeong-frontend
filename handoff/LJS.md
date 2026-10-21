@@ -2,18 +2,21 @@
 
 ## 지금 하는 것
 
-SCR-AIM-010 OCR 인식 실패 · 수동 입력 전환 (2026-10-21) — 상태: 끝 (검증 `확인 못 함 있음`(연결 남음뿐) 1회차, 사람 확인 2026-10-21)
+SCR-AIM-006 케어 일정 사전 알림 · 발송물 (2026-10-21) — 상태: 끝 (검증 `통과`(추가-1 포함 재검증), 사람 확인 2026-10-21)
 
-- 만든 것: `ReceiptUploadModal.jsx` — 추출 0건이면 `rcptSn`을 기억해 [직접 입력]이 `onManualInput({ rcptSn })`으로 넘긴다(일시 오류·업로드 화면은 `{}`). `features/ai/api.js` 가짜에 `partial` 분기(부분 인식), `ReceiptUploadDevPage.jsx`에 넘어온 값 표시. 판정·안내·재촬영은 SCR-AIM-008에서 이미 있어 화면으로만 확인했다
-- 결정: 디자인은 `html/SCR-AIM-008.html`의 실패 모달 두 개 그대로
-- 추가 요청(사람이 직접 요청, 확인함): 추가-1 실패 안내 [다시 촬영] 라벨을 [다시 올리기]로 / 추가-2 15초 초과·API 오류 문구를 "다시 올리거나 직접 입력해 주세요"로
-- 검증: `yarn -s lint` 0, `yarn -s build` 0. 새 의존성 없음
+- 만든 것: `features/notification/api.js` 가짜 케어 알림을 명세 문형 2건으로("초코 예방접종 일정이 D-1 남았어요" 미읽음, "보리 정기검진 일정이 오늘이에요" 읽음), `queries.js`의 `useUnreadCount`에 1분 주기 조회(`refetchInterval: 60_000`). 클릭 이동·99+·수신 해제 URL·09:00 안내 문구는 SCR-COM-004·008에서 이미 있어 화면으로만 확인했다
+- 결정: 배지 갱신은 1분 polling(사람 결정, "1분으로 두자 일단"). 디자인은 새 UI 없음(SCR-COM-004 드롭다운 그대로)
+- 추가 요청(사람이 직접 요청, 확인함): 추가-1 `NotificationDropdown.jsx` 배지를 `right-px`→`left-6`(≤760px `left-7`)로 고정해 `99+`가 종을 가리지 않게. 390px에서 `99+`가 채팅 버튼 영역에 7px 들어가지만 아이콘은 안 가림
+- 검증: `yarn -s lint` 0, `yarn -s build` 0. 새 의존성 없음. 1분 주기 조회는 가짜라 코드로만 확인
 
+이전 작업: SCR-AIM-010 OCR 인식 실패 · 수동 입력 전환 — 끝(검증 `확인 못 함 있음`(연결 남음뿐) 1회차, 사람 확인 2026-10-21. 추출 0건이면 `onManualInput({ rcptSn })`, 가짜 `partial` 분기, 추가 요청 2건)
 이전 작업: SCR-AIM-008 영수증 촬영 · 업로드 — 끝(검증 `통과`, 사람 확인 2026-10-21. `ReceiptUploadModal`, `receiptFile.js`를 `src/utils/`로, 추가 요청 6건(라우트 `domains/` 분리 포함))
-이전 작업: SCR-AIM-012 대화창 · 일정 생성 확인 — 끝(검증 `통과` 1회차(새 루프), 사람 확인 2026-10-20. 가짜 `sendMessage`의 `REGISTER` 분기, `RegisterCard`·`PetChoiceChips`, `confirmRegister`·`cancelRegister`, 추가 요청 2건(`api.js` async화, `src/utils/formatDate.js`))
 
 ## 다음에 할 것
 
+- SCR-AIM-006 연결 남음(가짜로 끝남): 006-01~08·10·15~18·20 사전 알림 배치(LJS 백엔드) — 매일 09:00 KST 스캔으로 케어 캘린더 병원 일정 D-N 대상 추출, 연동 양육자 전원(탈퇴 제외)별 설정(채널·D-0/1/3/7·케어 일정 유형) 적용, 이메일(가입 주소, 제목 `[냥멍케어] {반려동물명}의 {검진유형} 일정이 {D-N} 남았어요`, 당일은 "오늘이에요")·인앱(`CARE_SCHDL`, `mvmnPath` `/health/calendar`) 생성, 이력·10분 간격 3회 재시도·(회원+일정+일정일+시점+채널) 중복 방지. 메일 [케어 캘린더에서 확인하기]는 `/health/calendar`, 수신 해제는 `/settings/notifications`. 006-09·11·12 프론트는 알림 목록·미확인 수 API(LJS 백엔드)로 가짜를 바꿀 때 같이(SCR-COM-004 연결). 006-13 메일 링크 미인증 복귀는 로그인 연결 때 `ProtectedRoute`·`getRedirectPath`(YAY). 배지 1분 polling은 KSJ 채팅 안 읽은 수 방식이 정해지면 맞춘다
+- 선택: 헤더 채팅 배지(`UserHeader.jsx`의 `CountBadge`, `right-px`)도 추가-1처럼 큰 수에서 아이콘을 가릴 수 있다. 지금은 count 0이라 안 보인다(KSJ 연결 때 같이)
+- `milestones/LJS.md`에 `대기`가 남지 않았다. 다음 작업은 "연결 남음" 중 API가 나온 것부터, 또는 마일스톤 재점검(`docs/convention/milestone.md`)
 - SCR-AIM-010 연결 남음(가짜로 끝남): 검진기록 등록·수정 모달(SCR-HLT-002, JAJ)이 `ReceiptUploadModal`의 `onManualInput({ rcptSn? })`으로 빈 폼을 연다. `rcptSn`이 있으면 저장 때 영수증 상태를 인식실패→저장완료로 바꾸는 일은 LJS 백엔드·JAJ 저장 API와 맞춘다(명세 10-06 [확인 필요]). 영수증 인식 결과 확인 모달(SCR-HLT-002, JAJ)은 `onRecognized(result)`를 받는다. 부분 인식은 `ckupYmd`·`ckupAmt`가 `null`일 수 있다
 - 사람이 고치는 문서(SCR-AIM-010 추가 요청): 기능명세서 v0.7 FN-AIM-010-03 [다시 촬영]→[다시 올리기], FN-AIM-010-07 문구 2종 "다시 촬영하거나"→"다시 올리거나". 화면설계서 v0.9 SCR-AIM-010 ② 라벨과 같은 문구도 같이
 - SCR-AIM-012 연결 남음: 대화 API(Python AI 서버, 담당 없음)로 `features/ai/api.js`의 `sendMessage`(REGISTER 분기)·`confirmRegister`·`cancelRegister` 가짜를 바꾸고 `fakeRegisterParser.js`·`fakeDrafts`·`fakePendingCards`·`fakeCareItems`는 지운다. 서버와 먼저 맞출 가정: 서버가 대화별로 되묻는 초안과 확정 전 최근 카드를 기억하고, 확정·취소는 `{aiCnvrsRoomSn, aiCnvrsMsgSn}`만 받는다(서버가 상태를 안 들면 [등록] 때 카드 내용을 같이 보내야 해서 `confirmRegister` 인자와 `RegisterCard`가 바뀐다). 카드 필드 이름은 `schdlCkupTypeCd`·`schdlHsptlNm`·`schdlNm`만 ERD 기준이고 `schdlKndNm`·`schdlYmd`·`schdlTm`·`schdlMemo`·`careArtclNm`·`careRpttTypeCd`·`careCycleNm`·`careLastYmd`·`careNextYmd`·`isDuplicate`는 추정이라 Swagger로 확인. 일정·케어 항목 저장(JAJ, 012-13·14), 반려동물 목록(SJM)으로 `fakePets`를 바꾼다
@@ -23,7 +26,6 @@ SCR-AIM-010 OCR 인식 실패 · 수동 입력 전환 (2026-10-21) — 상태: �
   - 반려동물 목록(SJM): 모달은 `petNm`과 `vrtyNm`(있으면 "초코 (말티즈)")을 쓴다. `vrtyNm`이 미정 키라 확정되면 확인한다
   - 실패 사유별 문구(FN-AIM-010-07)는 SCR-AIM-010에서 한다. 지금 모달의 실패 3종(`FAILURE`: 추출 0건·15초 초과·API 오류)을 거기서 맞춘다
   - 팀에 알릴 것: SJM에게 `receiptFile.js`를 `src/utils/`로 옮겼다고 PR에 적는다(사전 공지 메시지는 보냄). `common.md` "비동기" 절 추가는 팀 합의 문서라 PR에서 알린다
-- 다음 화면은 `milestones/LJS.md`의 `대기` 중 맨 위(SCR-AIM-006 케어 일정 사전 알림 · 발송물. 진료 사전 알림·알림 저장 백엔드(LJS)와 health 일정 등록(JAJ)이 필요해 기획이 막힐 수 있다)
 - 선택: `src/utils/formatDate.js`로 바꿀 수 있는 곳 — `ConversationHeader.jsx`의 `formatDate`는 `formatDate(crtDt)`, `features/expense/shared/expenseFormat.js`의 `formatMonthDay`는 `formatDate(expndYmd, { hasYear: false, separator: '-' })`. 이번에 안 건드렸다
 - 범위 밖에서 본 것(말만): `ConversationMessages.jsx`의 `{children && <li>…}`가 항상 참이라 대화 목록 끝에 빈 `<li>`가 생긴다
 - 사람이 고치는 문서(SCR-COM-002 반응형): 기능명세서 v0.4 FN-COM-002-23 "햄버거 메뉴 미사용"을 "≤1100px에서 햄버거 사용"으로, FN-COM-002-20 TOP에 "≤760px 미노출"을, FN-COM-006-07 터치 동작의 "반응형 범위 확정 후"를 범위 확정(≤1100px·≤760px)으로. 화면설계서 v0.7 SCR-COM-002 "햄버거[≡]를 두지 않는다", SCR-COM-006 터치(잠정) 문구도 같이
