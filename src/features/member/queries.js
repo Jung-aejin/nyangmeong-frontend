@@ -2,9 +2,12 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   checkNickname,
   checkPhone,
+  getCaptcha,
+  getLoginStatus,
   getMe,
   getMemberSummary,
   getMyProfile,
+  login,
   logout,
   updateNickname,
   updatePassword,
@@ -75,3 +78,9 @@ export const useUpdatePhone = () => {
 
 export const useUpdatePassword = () =>
   useMutation({ mutationFn: updatePassword });
+
+export const useLogin = () => useMutation({ mutationFn: login });
+
+export const useLoginStatus = () => useMutation({ mutationFn: getLoginStatus });
+
+export const useNewCaptcha = () => useMutation({ mutationFn: getCaptcha });

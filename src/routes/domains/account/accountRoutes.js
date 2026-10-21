@@ -1,2 +1,18 @@
-/** 로그인·회원가입·비밀번호 찾기·재설정(YAY). 화면을 만들 때 채움 */
-export default [];
+import { lazy } from 'react';
+import AuthLayout from '@/layouts/AuthLayout';
+import { PATHS } from '@/routes/paths';
+
+const LoginPage = lazy(() => import('@/pages/auth/LoginPage'));
+
+export default [
+  {
+    layout: 'bare',
+    auth: 'public',
+    routes: [
+      {
+        Component: AuthLayout,
+        children: [{ path: PATHS.LOGIN, Component: LoginPage }],
+      },
+    ],
+  },
+];

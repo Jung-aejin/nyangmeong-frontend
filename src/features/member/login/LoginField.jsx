@@ -1,0 +1,93 @@
+import { useState } from 'react';
+import { ArrowBigUpDash, Eye, EyeOff } from 'lucide-react';
+import AiErrorGuide from '@/components/AiErrorGuide';
+import useCapsLock from '@/hooks/useCapsLock';
+
+const WRAP =
+  'flex h-[46px] items-center gap-2 rounded-md border bg-white px-3 focus-within:ring-focus';
+
+// 로그인 입력칸. 오류는 칸 아래 문구로, hasGuide면 AI 안내로도 알린다. 비밀번호는 보기 전환과 Caps Lock 안내가 붙는다
+export default function LoginField({
+  id,
+  label,
+  type = 'text',
+  value,
+  onChange,
+  onBlur,
+  placeholder,
+  autoComplete,
+  inputMode,
+  error,
+  hasGuide,
+}) {
+  const [isVisible, setIsVisible] = useState(false);
+  const { isCapsOn, capsProps } = useCapsLock();
+  const isPassword = type === 'password';
+
+  return (
+    <div className="relative">
+      <label
+        htmlFor={id}
+        className="mb-2 block leading-6 font-semibold text-ink"
+      >
+        {label}
+        <span aria-hidden="true" className="ml-0.5 text-danger">
+          *
+        </span>
+      </label>
+      <div
+        className={`${WRAP} ${
+          error
+            ? 'border-danger focus-within:ring-error'
+            : 'border-input-line focus-within:border-brand-500'
+        }`}
+      >
+        <input
+          id={id}
+          type={isPassword && isVisible ? 'text' : type}
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          onBlur={onBlur}
+          placeholder={placeholder}
+          autoComplete={autoComplete}
+          inputMode={inputMode}
+          aria-required="true"
+          aria-invalid={Boolean(error)}
+          aria-describedby={error ? `${id}-error` : undefined}
+          className="h-full min-w-0 flex-1 bg-transparent placeholder:text-placeholder focus:outline-none"
+          {...(isPassword ? capsProps : {})}
+        />
+        {isPassword && (
+          <button
+            type="button"
+            onClick={() => setIsVisible((prev) => !prev)}
+            aria-label={isVisible ? '비밀번호 숨기기' : '비밀번호 표시'}
+            className="grid place-items-center text-subtle hover:text-ink"
+          >
+            {isVisible ? (
+              <EyeOff className="size-5" />
+            ) : (
+              <Eye className="size-5" />
+            )}
+          </button>
+        )}
+      </div>
+      {isPassword && isCapsOn && (
+        <p className="mt-2 flex items-center gap-1 text-sm text-warn">
+          <ArrowBigUpDash className="size-4" />
+          Caps Lock이 켜져 있습니다.
+        </p>
+      )}
+      {error && (
+        <p
+          id={`${id}-error`}
+          role="alert"
+          className="mt-2 text-sm leading-5 text-danger"
+        >
+          {error}
+        </p>
+      )}
+      {error && hasGuide && <AiErrorGuide message={error} />}
+    </div>
+  );
+}

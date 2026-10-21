@@ -86,3 +86,66 @@ export const updatePhone = ({ mbrTelno }) => {
 
 export const updatePassword = ({ curPswd }) =>
   curPswd === 'wrong' ? fail('MISMATCH') : wait();
+
+/**
+ * [로그인 가짜 API]
+ * - 로그인·보안코드 API(YAY 백엔드) 전까지 사용 -> 나오면 본문만 api 요청으로 교체
+ * - 미확정 키: acntEml·pswd·captchaId·captchaCd·loginFailCnt, 불일치·보안코드 오류가 응답 본문인지 오류 응답인지
+ * - 비밀번호가 wrong이면 불일치, 같은 이메일로 5번 실패하면 보안코드 요구, 그 외는 성공
+ * - 실패 횟수는 새로고침하면 사라진다(실제로는 서버가 유지한다)
+ */
+const LOGIN_FAIL_LIMIT = 5;
+const CAPTCHA_LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const CAPTCHA_DIGITS = '0123456789';
+
+const failCounts = {};
+const issuedCaptchas = {};
+let captchaSeq = 1;
+
+const pick = (chars) => chars[Math.floor(Math.random() * chars.length)];
+
+/** 영문 대문자와 숫자가 각각 1개 이상인 6글자 */
+const makeCaptchaCode = () => {
+  const all = CAPTCHA_LETTERS + CAPTCHA_DIGITS;
+  const chars = [pick(CAPTCHA_LETTERS), pick(CAPTCHA_DIGITS)];
+  while (chars.length < 6) chars.push(pick(all));
+  for (let i = chars.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [chars[i], chars[j]] = [chars[j], chars[i]];
+  }
+  return chars.join('');
+};
+
+const isCaptchaRequired = (acntEml) =>
+  (failCounts[acntEml] ?? 0) >= LOGIN_FAIL_LIMIT;
+
+export const getLoginStatus = ({ acntEml }) =>
+  wait({ captchaRequired: isCaptchaRequired(acntEml) });
+
+export const getCaptcha = () => {
+  const captchaId = `captcha-${captchaSeq++}`;
+  const captchaCd = makeCaptchaCode();
+  issuedCaptchas[captchaId] = captchaCd;
+  return wait({ captchaId, captchaCd });
+};
+
+/** 성공이면 { ok: true }, 실패면 { ok: false, reason: 'mismatch' | 'captcha', captchaRequired } */
+export const login = ({ acntEml, pswd, captchaId, captchaCd }) => {
+  if (isCaptchaRequired(acntEml)) {
+    const issued = issuedCaptchas[captchaId];
+    delete issuedCaptchas[captchaId];
+    if (!issued || issued !== captchaCd) {
+      return wait({ ok: false, reason: 'captcha', captchaRequired: true });
+    }
+  }
+  if (pswd === 'wrong') {
+    failCounts[acntEml] = (failCounts[acntEml] ?? 0) + 1;
+    return wait({
+      ok: false,
+      reason: 'mismatch',
+      captchaRequired: isCaptchaRequired(acntEml),
+    });
+  }
+  delete failCounts[acntEml];
+  return wait({ ok: true });
+};

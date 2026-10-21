@@ -28,3 +28,5 @@ export const formatPhone = (digits = '') =>
 /** 8자 이상, 문자·숫자 조합 */
 export const isValidPassword = (value) =>
   value.length >= 8 && /[a-zA-Z가-힣]/.test(value) && /\d/.test(value);
+
+export const isValidEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
