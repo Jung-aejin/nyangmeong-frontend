@@ -2,6 +2,72 @@
 
 @theme {
   --font-sans: 'Pretendard Variable', Pretendard, system-ui, sans-serif;
+
+  /** 브랜드 */
+  --color-brand-50: #e9f2f2;
+  --color-brand-100: #cde0e0;
+  --color-brand-500: #285a5c;
+  --color-brand-600: #1e4a4c;
+  --color-brand-900: #1a3234;
+
+  /** 글자 */
+  --color-ink: #1a3234;
+  --color-ink-2: #3d4a4b;
+  --color-muted: #566465;
+  --color-subtle: #667374;
+  --color-placeholder: #8c9899;
+
+  /** 면·선 */
+  --color-surface-2: #f4f6f6;
+  --color-surface-3: #ebf0f0;
+  --color-line: #e2e7e7;
+  --color-line-soft: #edf1f1;
+  --color-line-strong: #b9c4c4;
+  --color-input-line: #d3dae2;
+
+  /** 상태·뱃지 */
+  --color-danger: #b4473a;
+  --color-danger-soft: #fbeeec;
+  --color-tone-green-bg: #e6f4ec;
+  --color-tone-green-fg: #22744a;
+  --color-tone-gray-bg: #eef1f4;
+  --color-tone-gray-fg: #59636e;
+  --color-tone-blue-bg: #eaf1fc;
+  --color-tone-blue-fg: #2d5fb8;
+  --color-tone-rose-bg: #fcebea;
+  --color-tone-rose-fg: #b8463f;
+  --color-tone-violet-bg: #efecfa;
+  --color-tone-violet-fg: #5f49b0;
+  --color-tone-amber-bg: #fcf1df;
+  --color-tone-amber-fg: #9a5c0c;
+  --color-warn: #80611a;
+  --color-warn-soft: #faf6e8;
+  --color-warn-line: #e6d7a8;
+
+  /** 글자 크기 */
+  --text-page: 28px;
+  --text-page--line-height: 1.35;
+  --text-badge: 13px;
+
+  /** 둥글기 */
+  --radius-box: 10px;
+  --radius-card: 14px;
+  --radius-modal: 20px;
+
+  /** 깊이 그림자(Tailwind 기본 이름과 겹침 방지용 depth 접미사) */
+  --shadow-depth-sm: 0 8px 24px rgba(26, 50, 52, 0.08);
+  --shadow-depth-md:
+    0 12px 32px -8px rgba(15, 23, 35, 0.18), 0 2px 6px rgba(15, 23, 35, 0.06);
+  --shadow-depth-lg: 0 24px 64px -12px rgba(15, 23, 35, 0.35);
+}
+
+/** 입력칸·선택 컨트롤 포커스·오류 링 */
+@utility ring-focus {
+  box-shadow: 0 0 0 3px rgba(182, 218, 172, 0.5);
+}
+
+@utility ring-error {
+  box-shadow: 0 0 0 3px rgba(180, 71, 58, 0.14);
 }
 
 /* 아이콘은 Material Symbols Rounded 글자(리거처)로 그린다. 값은 퍼블리싱 html/nyangmung.css의 .icon과 같다 */

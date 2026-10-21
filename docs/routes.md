@@ -24,11 +24,11 @@
 | --- | --- | --- | --- | --- |
 | MAN-002 | 랜딩 | `/` (`?redirect=`). 로그인 상태면 `/main` (COM-003-08) | YAY | |
 | MAN-001 | 메인 | `/main`. 복귀 경로 없을 때 목적지 (COM-003-06) | YAY | ✓ |
-| ACC-002 | 로그인 | `/login` (`?redirect=`) | AIC | |
-| ACC-001 | 회원가입 | `/signup`. 1~4단계·SNS 가입·재가입 복구는 같은 URL | AIC | |
-| ACC-011 | 비밀번호 찾기 | `/password/find` | AIC | |
-| ACC-012 | 비밀번호 재설정 | `/password/reset`. 비밀번호를 URL에 노출하지 않음 (ACC-012-08) | AIC | |
-| ACC-020 | 회원탈퇴 | `/mypage/withdraw` | AIC | |
+| ACC-002 | 로그인 | `/login` (`?redirect=`) | YAY | |
+| ACC-001 | 회원가입 | `/signup`. 1~4단계·SNS 가입·재가입 복구는 같은 URL | YAY | |
+| ACC-011 | 비밀번호 찾기 | `/password/find` | YAY | |
+| ACC-012 | 비밀번호 재설정 | `/password/reset`. 비밀번호를 URL에 노출하지 않음 (ACC-012-08) | YAY | |
+| ACC-020 | 회원탈퇴 | `/mypage/withdraw` | YAY | |
 | COM-008 | 알림 설정 | `/settings/notifications` | LJS | ✓ |
 | AIM-011 | AI 대화창(새 창) | `/ai` (COM-007 런처가 엶) | LJS | |
 | COM-009 · CMU-005 | 채팅(새 창) | `/chat` (`?otoChatRoomSn=`). 새 창 확정 (기능 분배 3.1절 20번) | KSJ | |
@@ -37,7 +37,7 @@
 | HLT-003 | 케어 캘린더 | `/health/calendar` (매핑표 11·12행) | JAJ | ✓ |
 | HLT-005 | 검진상세 | `/health/checkups/:ckupRcdSn`. 단독 진입 불가 (매핑표 41행) | JAJ | |
 | HLT-007 | 검사 수치 입력 | `/health/checkups/:ckupRcdSn/inspections`. 검진상세 경유 (매핑표 42행) | JAJ | |
-| HOS-001 | 플레이스 | `/places` (`?category=hospital·beauty·goods·pet-friendly·hotel`) (매핑표 2·17~20행) | AIC | ✓ |
+| HOS-001 | 플레이스 | `/places` (`?category=hospital·beauty·goods·pet-friendly·hotel`) (매핑표 2·17~20행) | YAY | ✓ |
 | CMU-001 | 펫이야기 | `/community` · `/community/posts/:pstSn` · `/new` · `/:pstSn/edit`. 남이 수정 URL로 오면 상세로 (CMU-001-15) | KSJ | ✓ 목록 |
 | CMU-002 | 실종센터 | `/community/missing` · `/:lostTpofSn` | KSJ | ✓ 목록 |
 | CMU-003 | 펫뉴스 | `/community/news` | KSJ | ✓ |
@@ -51,6 +51,7 @@
 | MYP-010 | 픽셀 캐릭터 | `/mypage/characters` | SJM | ✓ |
 | MYP-020 | 포인트·케어미션 | `/mypage/points` | SJM | ✓ |
 | MYP-030 | 가계부 | `/mypage/expenses` | SJM | ✓ |
+| MYP-030 (30-2) | 가계부 전체 내역 | `/mypage/expenses/all` (`?month=YYYY-MM`) | SJM | |
 | MYP-040 | 회원정보 수정 | `/mypage/profile` | SJM | ✓ |
 
 화면 ID 앞의 `SCR-`는 생략했다.
@@ -97,7 +98,7 @@
 | --- | --- | --- |
 | 4 | 채팅을 AI 대상으로 둘지. 매핑표는 "모달 열기"(10행), 실제는 새 창 | LJS, KSJ |
 | 5 | 모달 추정 화면(MYP-003·005·006·031, HLT-007)이 페이지인지. 페이지면 URL 추가 | SJM, JAJ |
-| 6 | 비밀번호 재설정 URL 파라미터(메일 링크로 들어오면 인증 식별값 필요) (ACC-012) | AIC |
-| 7 | PLC-001~004 화면 ID 정리 (매핑표 44행 "보류") | AIC |
+| 6 | 비밀번호 재설정 URL 파라미터(메일 링크로 들어오면 인증 식별값 필요) (ACC-012) | YAY |
+| 7 | PLC-001~004 화면 ID 정리 (매핑표 44행 "보류") | YAY |
 | 8 | 단수·복수 규칙에 어긋난 기존 이름: `/community/missing`(상세가 붙음 → `missing-reports`?) | KSJ |
 | 9 | 관리자 화면 URL(설계서 없음, `paths.js`에 `/admin`만) (매핑표 45행) | 미정 |
