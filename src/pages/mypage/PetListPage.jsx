@@ -8,6 +8,7 @@ import PetSlide from '@/features/pet/list/PetSlide';
 import PetUnlinkDialog from '@/features/pet/list/PetUnlinkDialog';
 import { MAX_OWN_PETS, PET_REL } from '@/features/pet/shared/petCodes';
 import { usePets } from '@/features/pet/queries';
+import SubPageLayout from '@/layouts/SubPageLayout';
 
 export default function PetListPage() {
   const { data: pets = [], isPending } = usePets();
@@ -26,10 +27,7 @@ export default function PetListPage() {
   const showPreparing = () => showToast('준비 중인 기능이에요');
 
   return (
-    <div className="mx-auto max-w-5xl py-6">
-      <h1 className="mb-6 text-page font-bold tracking-[-0.02em]">
-        반려동물 관리
-      </h1>
+    <SubPageLayout section="mypage">
       {isPending ? null : pets.length === 0 ? (
         <PetEmpty onRegister={() => setModalPetSn(null)} />
       ) : (
@@ -77,6 +75,6 @@ export default function PetListPage() {
           onClose={() => setUnlinkingPet(null)}
         />
       )}
-    </div>
+    </SubPageLayout>
   );
 }
