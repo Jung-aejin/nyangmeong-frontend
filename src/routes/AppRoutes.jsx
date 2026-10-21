@@ -16,6 +16,7 @@ const NotificationSettingsPage = lazy(
 
 /** health */
 const CareCalendarPage = lazy(() => import('@/pages/health/CareCalendarPage'));
+const HealthDiaryPage = lazy(() => import('@/pages/health/HealthDiaryPage'));
 
 /** ai */
 const AiChatPage = lazy(() => import('@/pages/ai/AiChatPage'));
@@ -42,6 +43,7 @@ export default function AppRoutes() {
 
           {/** health */}
           <Route path={PATHS.HEALTH_CALENDAR} element={<CareCalendarPage />} />
+          <Route path={PATHS.HEALTH_DIARY} element={<HealthDiaryPage />} />
 
           {/** mypage: 로그인 API(AIC) 후 ProtectedRoute 아래로 이동 */}
           <Route path={PATHS.MYPAGE_PETS} element={<PetListPage />} />

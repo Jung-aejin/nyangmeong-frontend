@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { Bell } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import CountBadge from '@/components/CountBadge';
+import Icon from '@/components/Icon';
 import { useChatModal } from '@/context/chatModal';
 import NotificationItem from '@/features/notification/shared/NotificationItem';
 import { NOTI_TABS, NOTI_TYPE } from '@/features/notification/shared/notiTabs';
@@ -10,6 +10,7 @@ import {
   useReadNotification,
   useUnreadCount,
 } from '@/features/notification/queries';
+import { HEADER_ICON_CLASS } from './headerStyles';
 
 /** 열릴 때만 마운트: 알림 목록 요청과 탭 상태를 열 때마다 초기화 */
 function NotificationPanel({ unreadCount, onClose }) {
@@ -122,7 +123,7 @@ export default function NotificationDropdown({
         aria-expanded={isOpen}
         onClick={onToggle}
       >
-        <Bell size={24} className="max-[760px]:size-8" />
+        <Icon name="notifications" className={HEADER_ICON_CLASS} />
         <CountBadge
           count={unread?.unreadCount}
           className="absolute right-px top-[5px]"
