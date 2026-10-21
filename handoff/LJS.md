@@ -12,6 +12,7 @@ SCR-COM-002 레이아웃 추가 작업: 헤더 아이콘 · 모바일 푸터 일
 - 라우트: `AppRoutes.jsx`가 `domains/*/index.js`를 glob, 도메인 폴더마다 `index.js`(import·`export default`만) + `<도메인>Routes.js`. 규칙은 `docs/convention/shared-files.md`(`AGENTS.md`·`structure.md`·`pages.md`·`OPEN_ISSUES.md`도 고침)
 - AI 대화창 `/ai`: 1100px 이상 그대로, 760~1099px 56px 띠 + 320px 겹치는 drawer, 760px 미만 헤더 ☰·새 대화(✎)·전체 폭 drawer·삭제 아이콘만·글자 수 숨김·입력창 하단, `h-dvh`. 안내 문구 `break-keep`은 사람이 직접 고침
 - 추가-6(`/main` 제거, `/`를 메인으로)은 메인 담당(YAY) 일이라 되돌림
+- 추가-10(요청 2026-10-21 13:44 "오키 이대로 진행해", PR 전 `origin/develop` merge 충돌): JAJ PR #37의 헤더 변경(`components/Icon` Material Symbols, `headerStyles.js`, `assets/user.svg` 40px 프로필, 반투명 헤더)을 기준으로 합치고 내 것 중 모바일 아이콘 24px(`HEADER_ICON_CLASS`의 760px 32px 제거, 배지 `left-7` 제거)·햄버거 `min-[1100px]:hidden`만 얹는다. drawer 아바타도 `user.svg`, `src/assets/icons/` SVG 3개는 지운다. 바꿀 파일: `UserHeader.jsx`, `NotificationDropdown.jsx`, `ProfileDropdown.jsx`, `NavDrawer.jsx`, `headerStyles.js`, `src/assets/icons/`. 완료 조건 명령: `yarn -s lint`, `yarn -s build` / 화면: 1440·1100·390px 헤더 아이콘이 Material Symbols, 390px 24px·버튼 42px, 1100px 프로필만·1099px 햄버거만, drawer 아바타가 `user.svg`. JAJ에게 모바일 32px→24px 변경을 PR에서 알린다
 
 이전 작업: SCR-AIM-006 케어 일정 사전 알림 · 발송물 — 끝(검증 `통과`, 사람 확인 2026-10-21. 가짜 케어 알림 명세 문형, 배지 1분 polling, 추가 요청 1건(배지 위치))
 이전 작업: SCR-AIM-010 OCR 인식 실패 · 수동 입력 전환 — 끝(검증 `확인 못 함 있음`(연결 남음뿐) 1회차, 사람 확인 2026-10-21. 추출 0건이면 `onManualInput({ rcptSn })`, 가짜 `partial` 분기, 추가 요청 2건)
