@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Menu, MessageCircle } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import { Link, NavLink } from 'react-router-dom';
+import chatIcon from '@/assets/icons/chat.svg';
 import logo from '@/assets/nm_logo.svg';
 import CountBadge from '@/components/CountBadge';
 import { useChatModal } from '@/context/chatModal';
@@ -15,7 +16,7 @@ const GNB_OPEN_DELAY = 200;
 const GNB_CLOSE_DELAY = 300;
 
 const iconButton =
-  'relative flex h-[42px] w-[42px] items-center justify-center rounded-full text-[#3d4a4b] hover:bg-[#f4f6f6] max-[760px]:h-12 max-[760px]:w-12';
+  'relative flex h-[42px] w-[42px] items-center justify-center rounded-full text-[#3d4a4b] hover:bg-[#f4f6f6]';
 
 export default function UserHeader() {
   /** 열린 드롭다운 하나: gnb | notification | profile | drawer | null */
@@ -194,7 +195,12 @@ export default function UserHeader() {
               aria-label="채팅"
               onClick={openChat}
             >
-              <MessageCircle size={24} className="max-[760px]:size-8" />
+              <img
+                src={chatIcon}
+                alt=""
+                aria-hidden="true"
+                className="size-6"
+              />
               {/** 안 읽은 채팅 수(KSJ 채팅 API 연결 전 0) */}
               <CountBadge count={0} className="absolute right-px top-[5px]" />
             </button>
@@ -204,19 +210,19 @@ export default function UserHeader() {
                 isOpen={openMenu === 'profile'}
                 onToggle={() => toggle('profile')}
                 onClose={closeProfile}
-                buttonClassName={`${iconButton} border border-[#e2e7e7]`}
+                buttonClassName={iconButton}
               />
             </div>
             <button
               ref={hamburgerRef}
               type="button"
-              className={`${iconButton} min-[1101px]:hidden`}
+              className={`${iconButton} min-[1100px]:hidden`}
               aria-label="전체 메뉴 열기"
               aria-controls="nav-drawer"
               aria-expanded={openMenu === 'drawer'}
               onClick={() => toggle('drawer')}
             >
-              <Menu size={24} className="max-[760px]:size-8" />
+              <Menu size={24} />
             </button>
           </div>
         </div>

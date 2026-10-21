@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Bell } from 'lucide-react';
+import notificationsIcon from '@/assets/icons/notifications.svg';
 import { useNavigate } from 'react-router-dom';
 import CountBadge from '@/components/CountBadge';
 import { useChatModal } from '@/context/chatModal';
@@ -122,10 +122,15 @@ export default function NotificationDropdown({
         aria-expanded={isOpen}
         onClick={onToggle}
       >
-        <Bell size={24} className="max-[760px]:size-8" />
+        <img
+          src={notificationsIcon}
+          alt=""
+          aria-hidden="true"
+          className="size-6"
+        />
         <CountBadge
           count={unread?.unreadCount}
-          className="absolute left-6 top-[5px] max-[760px]:left-7"
+          className="absolute left-6 top-[5px]"
         />
       </button>
       {isOpen && (
