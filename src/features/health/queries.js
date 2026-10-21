@@ -29,6 +29,11 @@ import {
   updateDailyRecord,
   updateObservationRound,
 } from './diaryApi';
+import {
+  getReceiptDetail,
+  prepareReceiptSave,
+  saveReceiptCheckups,
+} from './receiptApi';
 
 export const healthKeys = {
   all: ['health'],
@@ -43,6 +48,7 @@ export const healthKeys = {
   observationList: (petSn) => ['health', 'observations', petSn],
   checkups: ['health', 'checkups'],
   checkupList: (params) => ['health', 'checkups', params],
+  receiptDetail: (rcptSn) => ['health', 'receipt-detail', rcptSn],
 };
 
 const showErrorToast = (error) => showToast(error.message);
@@ -195,3 +201,29 @@ export const useDeleteCheckup = () => useCheckupMutation(deleteCheckup);
 /** 저장 전 가까운 예정 일정 확인: 조회지만 저장 시점에 한 번만 부름 */
 export const useFindNearSchedule = () =>
   useMutation({ mutationFn: findNearSchedule, onError: showErrorToast });
+
+/** 영수증 인식 결과의 나머지 칸. 같은 영수증은 다시 불러오지 않는다 */
+export const useReceiptDetail = (result) =>
+  useQuery({
+    queryKey: healthKeys.receiptDetail(result.rcptSn),
+    queryFn: () => getReceiptDetail(result),
+    staleTime: Infinity,
+  });
+
+/** 저장 전 가계부 중복·가까운 예정 일정 확인. 실패 안내는 모달 안에서 한다 */
+export const usePrepareReceiptSave = () =>
+  useMutation({ mutationFn: prepareReceiptSave });
+
+/** 영수증으로 검진기록 저장. 실패하면 입력값을 유지한 채 모달 안에서 다시 시도하게 한다 */
+export const useSaveReceiptCheckups = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: saveReceiptCheckups,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: healthKeys.checkups });
+      queryClient.invalidateQueries({ queryKey: healthKeys.schedules });
+      queryClient.invalidateQueries({ queryKey: healthKeys.careItems });
+    },
+  });
+};
