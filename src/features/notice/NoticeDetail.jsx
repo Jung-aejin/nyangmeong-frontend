@@ -1,4 +1,4 @@
-import { Megaphone } from 'lucide-react';
+import { ChevronLeft, Megaphone } from 'lucide-react';
 import { generatePath, Link } from 'react-router-dom';
 import { PATHS } from '@/routes/paths';
 import { formatDate } from '@/utils/formatDate';
@@ -13,16 +13,16 @@ export default function NoticeDetail({ notice }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <article className="min-h-[528px] rounded-[14px] border border-[#e2e7e7] bg-white px-9 py-8">
+      <article className="rounded-[14px] border border-[#e2e7e7] bg-white px-9 pt-8 pb-10 max-[760px]:px-5 max-[760px]:pt-6 max-[760px]:pb-8">
         {notice.fixYn && (
           <span className="flex h-6 w-[42px] items-center justify-center rounded-xl bg-[#e9f2f2] text-[13px] leading-none font-medium text-[#1e4a4c]">
             공지
           </span>
         )}
-        <h2 className="mt-[10px] text-2xl leading-[1.35] font-bold tracking-[-0.24px] text-[#1a3234]">
+        <h2 className="mt-[10px] text-2xl leading-[1.35] font-bold tracking-[-0.24px] text-[#1a3234] max-[760px]:text-xl">
           {notice.ntcMttrTtl}
         </h2>
-        <div className="mt-4 flex items-center gap-2 border-b border-[#e2e7e7] pb-6">
+        <div className="mt-4 flex flex-wrap items-center gap-2 border-b border-[#e2e7e7] pb-6">
           <span className="flex size-8 items-center justify-center rounded-full bg-[#e9f2f2] text-[#285a5c]">
             <Megaphone size={18} />
           </span>
@@ -37,16 +37,29 @@ export default function NoticeDetail({ notice }) {
           <span className="text-sm text-[#667374]">조회 {notice.vwCnt}</span>
         </div>
 
-        <div className="mt-6 text-base leading-[1.6] text-[#1a3234]">
-          {notice.ntcMttrCn.split('\n\n').map((paragraph) => (
-            <p key={paragraph} className="mb-5 whitespace-pre-line">
-              {paragraph}
-            </p>
-          ))}
+        {/* 글 영역은 최소 높이만 두어 긴 글은 늘어나고, 본문 아래에는 항상 80px 여백을 둔다(모든 게시판 공통 규칙) */}
+        <div className="mt-6 pb-20">
+          <div className="min-h-[200px] text-base leading-[1.6] text-[#1a3234]">
+            {notice.ntcMttrCn.split('\n\n').map((paragraph) => (
+              <p key={paragraph} className="mb-5 whitespace-pre-line">
+                {paragraph}
+              </p>
+            ))}
+          </div>
+        </div>
+
+        <div className="border-t border-[#e2e7e7] pt-[21px]">
+          <Link
+            to={PATHS.NOTICES}
+            className="inline-flex items-center gap-1.5 text-base leading-normal font-medium text-[#566465]"
+          >
+            <ChevronLeft size={14} />
+            목록으로
+          </Link>
         </div>
       </article>
 
-      <section className="rounded-[14px] border border-[#e2e7e7] bg-white px-9 py-8">
+      <section className="rounded-[14px] border border-[#e2e7e7] bg-white px-9 py-8 max-[760px]:px-5 max-[760px]:py-6">
         <h3 className="text-lg leading-[1.4] font-bold tracking-[-0.18px] text-[#1a3234]">
           최신 공지
         </h3>

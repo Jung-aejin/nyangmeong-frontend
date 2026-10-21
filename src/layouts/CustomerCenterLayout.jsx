@@ -19,11 +19,9 @@ export default function CustomerCenterLayout() {
   const current = MENUS.find((menu) => pathname.startsWith(menu.to));
 
   return (
-    // 푸터 장식 띠(1376×100, 폭이 줄면 같이 줄어듦)가 본문 아래쪽에 겹쳐 놓이므로 그 높이만큼 더해 내용과 띠 사이를 100px로 둔다
-    // main의 아래 여백 24px와 푸터 윗선 1px(띠는 윗선 안쪽에서 재므로 1px 내려앉음)는 75px(100-24-1)에 이미 반영했다
-    <div className="pt-6 pb-[calc(75px+min(100px,(100vw-4rem)*100/1376))]">
-      <header className="relative mb-10">
-        <h1 className="flex items-center text-[28px] leading-[1.2]">
+    <div className="pt-6">
+      <header className="relative mb-10 max-[760px]:mb-6">
+        <h1 className="flex items-center text-[28px] leading-[1.2] max-[760px]:text-2xl">
           <span className="font-normal text-[#566465]">고객센터</span>
           <ChevronRight size={20} className="mx-1 text-[#b9c4c4]" />
           <span className="font-bold text-[#1a3234]">{current?.label}</span>
@@ -36,19 +34,22 @@ export default function CustomerCenterLayout() {
         <img
           src={pixelHead}
           alt=""
-          className="absolute -top-2.5 right-0 w-40"
+          className="absolute -top-2.5 right-0 w-40 max-[760px]:hidden"
         />
       </header>
 
-      <div className="grid grid-cols-[226px_1fr] gap-8">
-        <aside className="-mt-[7px]">
-          <nav aria-label="고객센터 메뉴">
+      <div className="grid grid-cols-[226px_1fr] gap-8 max-[1100px]:grid-cols-[160px_1fr] max-[1100px]:gap-6 max-[760px]:grid-cols-1 max-[760px]:gap-4">
+        <aside className="-mt-[7px] max-[760px]:mt-0">
+          <nav
+            aria-label="고객센터 메뉴"
+            className="max-[760px]:flex max-[760px]:gap-5 max-[760px]:overflow-x-auto"
+          >
             {MENUS.map((menu) => (
               <NavLink
                 key={menu.to}
                 to={menu.to}
                 className={({ isActive }) =>
-                  `flex items-center gap-1 py-2.5 text-base leading-normal ${isActive ? 'font-bold text-[#2f6f57]' : 'font-medium text-[#3d4a4b]'}`
+                  `flex items-center gap-1 py-2.5 text-base leading-normal max-[760px]:shrink-0 max-[760px]:whitespace-nowrap ${isActive ? 'font-bold text-[#2f6f57]' : 'font-medium text-[#3d4a4b]'}`
                 }
               >
                 {({ isActive }) => (

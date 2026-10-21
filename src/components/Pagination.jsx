@@ -10,12 +10,12 @@ export default function Pagination({ page, totalPages, onChange }) {
   const end = Math.min(start + PAGE_GROUP_SIZE - 1, totalPages);
   const pages = Array.from({ length: end - start + 1 }, (_, i) => start + i);
   const buttonClass =
-    'flex size-9 items-center justify-center rounded-full text-base font-medium text-[#3d4a4b] hover:bg-[#e9f2f2]';
+    'flex size-9 items-center justify-center rounded-full text-base font-medium text-[#3d4a4b] hover:bg-[#e9f2f2] max-[760px]:size-8';
 
   return (
     <nav
       aria-label="페이지 이동"
-      className="flex items-center justify-center gap-1"
+      className="flex flex-wrap items-center justify-center gap-1 max-[760px]:gap-0.5"
     >
       {page > 1 && (
         <button
