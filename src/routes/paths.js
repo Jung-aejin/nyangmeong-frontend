@@ -21,6 +21,7 @@ export const PATHS = {
   HEALTH_DIARY: '/health/diary',
   HEALTH_CALENDAR: '/health/calendar',
   HEALTH_CHECKUP_DETAIL: '/health/checkups/:ckupRcdSn',
+  HEALTH_CHECKUP_INSPECTIONS: '/health/checkups/:ckupRcdSn/inspections',
 
   /** place */
   PLACES: '/places',

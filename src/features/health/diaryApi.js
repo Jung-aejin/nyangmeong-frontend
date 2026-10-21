@@ -3,6 +3,7 @@ import {
   findNearHospitalSchedule,
   getQueryParam,
   linkCheckupToSchedule,
+  moveLinkedCareItems,
   onScheduleDeleted,
   unlinkCheckupFromSchedule,
 } from './api';
@@ -474,4 +475,47 @@ export const deleteCheckup = (ckupRcdSn) => {
   );
   if (target?.schdlSn != null) unlinkCheckupFromSchedule(target.schdlSn);
   return Promise.resolve();
+};
+
+/** 검진기록 1건: 없으면 NOT_FOUND */
+export const getCheckup = (ckupRcdSn) => {
+  const checkup = fakeCheckups.find((item) => item.ckupRcdSn === ckupRcdSn);
+  if (!checkup) {
+    return Promise.reject({
+      code: 'NOT_FOUND',
+      message: '검진기록을 찾을 수 없어요',
+      fields: null,
+    });
+  }
+  return Promise.resolve({ ...checkup });
+};
+
+/** 검진일·반려동물이 바뀌면 이 검진기록만 바뀐 날짜의 병원 일정에 다시 연결(같은 날 일정 없으면 새 일정) */
+export const updateCheckup = ({ ckupRcdSn, ...body }) => {
+  const checkup = fakeCheckups.find((item) => item.ckupRcdSn === ckupRcdSn);
+  const isRelinked =
+    checkup.ckupYmd !== body.ckupYmd || checkup.petSn !== body.petSn;
+  let { schdlSn } = checkup;
+  if (isRelinked) {
+    if (schdlSn != null) unlinkCheckupFromSchedule(schdlSn);
+    schdlSn = linkCheckupToSchedule({
+      petSn: body.petSn,
+      ckupYmd: body.ckupYmd,
+      hospNm: body.hospNm,
+      ckupTypeCd: body.ckupTypeCd,
+    });
+  }
+  if (checkup.petSn !== body.petSn) {
+    moveLinkedCareItems({ ckupRcdSn, petSn: body.petSn });
+  }
+  Object.assign(checkup, {
+    petSn: body.petSn,
+    schdlSn,
+    ckupYmd: body.ckupYmd,
+    hospNm: body.hospNm,
+    ckupTypeCd: body.ckupTypeCd,
+    ckupCn: body.ckupCn,
+    ckupMemoCn: body.ckupMemoCn,
+  });
+  return Promise.resolve({ ...checkup });
 };
