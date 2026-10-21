@@ -14,7 +14,7 @@ argument-hint: [화면 ID 예: COM-003]
 1-1. 원격과 로컬을 맞춘다(2번에서 파일을 읽기 전에). 규칙은 `docs/convention/git.md`를 따라 merge 커밋으로 합치고 rebase는 쓰지 않는다.
    - `git fetch origin` 뒤 `git rev-list --left-right --count HEAD...origin/<브랜치>`와 `HEAD...origin/develop`로 차이를 보고, `git log --oneline HEAD..origin/<브랜치>`·`HEAD..origin/develop`로 들어올 커밋 제목을 본다.
    - 들어올 커밋이 없으면 넘어간다. 있으면 `git diff --name-only HEAD origin/<브랜치>`, `HEAD origin/develop`와 `git status --porcelain`을 견줘 미커밋 변경과 겹치는 파일을 찾는다. 겹치면 합치지 않고 파일 목록을 보여 주며 멈춘다(사람이 커밋하거나 되돌린 뒤 다시 `/start`).
-   - 겹치지 않으면 `git merge origin/<브랜치>`(원격 개인 브랜치에 더 있을 때), 이어서 `git merge origin/develop`를 한다. 미커밋 변경은 그대로 둔다. 충돌이 나면 `git merge --abort`하고 충돌 파일을 보여 주며 멈춘다. 푸시는 하지 않는다.
+   - 겹치지 않으면 `git merge origin/<브랜치>`(원격 개인 브랜치에 더 있을 때), 이어서 `git merge origin/develop`를 한다. 미커밋 변경은 그대로 둔다. 충돌이 나면 `git merge --abort` 하지 않고 충돌 상태 그대로 충돌 파일을 보여 주며 멈춘다(`docs/convention/git.md`). 푸시는 하지 않는다.
    - 보고 맨 앞에 합친 커밋 수와 눈에 띄는 변화(다른 사람이 끝낸 마일스톤, 새 `features/` 폴더)를 한두 줄로 적는다. 이후 2번부터는 합친 파일 기준으로 읽는다.
 2. `handoff/<이름>.md`를 읽는다. 없으면 `## 지금 하는 것`, `## 다음에 할 것` 두 절로 만든다.
 3. 설정 파일: 예시 파일의 키 중 실제 파일에 없거나 값이 빈 것을 이름만 모은다(값은 출력하지 않는다).
