@@ -2,12 +2,14 @@
 
 ## 지금 하는 것
 
-SCR-AIM-012 대화창 · 일정 생성 확인 (2026-10-20) — 상태: 끝 (검증 `통과` 1회차(새 루프), 사람 확인 2026-10-20). 앞 루프 실패: 취소 카드에 버튼이 남음·REGISTER 응답 뒤 검색 답변 말풍선 잔존(고침), 결과 날짜 기획 `10-27(화)`가 Figma `10.27(화)`와 어긋남(기획을 고침)
+SCR-AIM-008 영수증 촬영 · 업로드 (2026-10-21) — 상태: 끝 (검증 `통과`: 첫 루프 1회차 실패(`분석 요청` 더블클릭 시 요청 2번) 뒤 통과, 추가 요청마다 재검증 통과. 사람 확인 2026-10-21)
 
-- 만든 것: 가짜 `sendMessage`의 `REGISTER` 분기(되물음·반려동물 칩·미리보기 카드)와 `confirmRegister`·`cancelRegister`, `shared/fakeRegisterParser.js`, `chat/RegisterCard.jsx`·`PetChoiceChips.jsx`, `useConfirmRegister`·`useCancelRegister`, `AiChatPage.jsx`의 카드 state(메시지 번호별, 대화를 옮기면 버림)
-- 추가 요청(사람이 직접 요청, 확인함): 추가-1 `features/ai/api.js`를 `async`·`return`·`throw`로 / 추가-2 `src/utils/formatDate.js`(옵션형 `formatDate`·`parseYmd`·`toYmd`·`WEEKDAYS`), `RegisterCard`·`fakeRegisterParser`가 사용
-- 결정: [등록]은 AI 서버 확정 API로(재검증·결과 이력 저장이 서버 일). 카드 테두리는 Figma 실선, 결과 날짜는 Figma `MM.DD(요일)`. [케어 캘린더에서 보기]는 응답 시점(카드가 대화의 마지막 메시지일 때)에만(명세 012-15)
+- 만든 것: `features/ai/receipt/ReceiptUploadModal.jsx`(반려동물 선택·촬영/파일 선택·썸네일·분석 중 취소·15초 시간 초과·실패 안내·[직접 입력하기]), `features/ai/api.js`의 가짜 `recognizeCheckupReceipt`와 `queries.js`의 `useRecognizeCheckupReceipt`, 확인용 DEV 페이지 `pages/dev/ReceiptUploadDevPage.jsx`(`/dev/receipt-upload`, `IS_DEV`일 때만)
+- 결정: 디자인은 `html/SCR-AIM-008.html`(사람이 준 파일). 영수증 검증은 `features/expense/dashboard/receiptFile.js`를 `src/utils/receiptFile.js`로 옮겨 같이 쓴다(SJM에게 공지). 모달은 가계부 컴포넌트를 가져오지 않고 디자인 기준으로 새로 만든다. 실패 문구는 3종(추출 0건·15초 초과·API 오류)
+- 추가 요청(사람이 직접 요청, 확인함): 추가-1 `recognizeCheckupReceipt`를 `async`로(Promise는 `waitAbortable` 안에만) / 추가-2 `docs/convention/common.md`에 "## 비동기" 절 / 추가-3 [촬영하기] 터치 기기에서만(추가-5로 대체) / 추가-4 분석 진행 막대가 실제처럼 차오름(`AnalyzeProgress`) / 추가-5 [촬영하기]를 화면 폭 ≤1100px에서만
 - 검증: `yarn -s lint` 0, `yarn -s build` 0. 새 의존성 없음
+
+이전 작업: SCR-AIM-012 대화창 · 일정 생성 확인 — 끝(검증 `통과` 1회차(새 루프), 사람 확인 2026-10-20. 가짜 `sendMessage`의 `REGISTER` 분기, `RegisterCard`·`PetChoiceChips`, `confirmRegister`·`cancelRegister`, 추가 요청 2건(`api.js` async화, `src/utils/formatDate.js`))
 
 이전 작업: SCR-COM-002 기본 레이아웃 반응형 — 끝(검증 `통과` 1회차(새 루프), 사람 확인 2026-10-20. `layouts/NavDrawer.jsx`, `LogoutConfirm` 공유, 구간 ≤1100px·≤760px, 푸터 번호는 자리표시 `000-0000-0000`·`02-0000-0000`, 추가 요청 4건(푸터 링크 간격·대표전화 줄·≤760px TOP 숨김·AI 버튼 52px))
 이전 작업: SCR-AIM-005 대화창 · 매칭 실패 폴백 — 끝(검증 `확인 못 함 있음`(연결 남음뿐) 2회차. `features/ai/chat/FallbackBubble.jsx`, `features/ai/shared/fallbackCount.js`(sessionStorage 대화별 횟수), 가짜 `sendMessage`의 `intent: 'FALLBACK'`과 DEV 전용 `?fakeAiFallback=1`. 실패 안내는 서버 저장 문구와 `FALLBACK_MESSAGE` 비교로 알아보고, 칩·FAQ 버튼은 최신 실패 메시지에만 보인다)
@@ -15,7 +17,13 @@ SCR-AIM-012 대화창 · 일정 생성 확인 (2026-10-20) — 상태: 끝 (검�
 ## 다음에 할 것
 
 - SCR-AIM-012 연결 남음: 대화 API(Python AI 서버, 담당 없음)로 `features/ai/api.js`의 `sendMessage`(REGISTER 분기)·`confirmRegister`·`cancelRegister` 가짜를 바꾸고 `fakeRegisterParser.js`·`fakeDrafts`·`fakePendingCards`·`fakeCareItems`는 지운다. 서버와 먼저 맞출 가정: 서버가 대화별로 되묻는 초안과 확정 전 최근 카드를 기억하고, 확정·취소는 `{aiCnvrsRoomSn, aiCnvrsMsgSn}`만 받는다(서버가 상태를 안 들면 [등록] 때 카드 내용을 같이 보내야 해서 `confirmRegister` 인자와 `RegisterCard`가 바뀐다). 카드 필드 이름은 `schdlCkupTypeCd`·`schdlHsptlNm`·`schdlNm`만 ERD 기준이고 `schdlKndNm`·`schdlYmd`·`schdlTm`·`schdlMemo`·`careArtclNm`·`careRpttTypeCd`·`careCycleNm`·`careLastYmd`·`careNextYmd`·`isDuplicate`는 추정이라 Swagger로 확인. 일정·케어 항목 저장(JAJ, 012-13·14), 반려동물 목록(SJM)으로 `fakePets`를 바꾼다
-- 다음 화면은 SCR-AIM-008(`대기`, 영수증 촬영·업로드. 영수증 인식 API(LJS 백엔드)·pet 목록(SJM) 필요). 기획이 막히면 `milestones/LJS.md`의 `대기` 중 맨 위
+- SCR-AIM-008 연결 남음(가짜로 끝남, `ReceiptUploadModal`은 `features/ai/receipt/`):
+  - 영수증 인식 API(LJS 백엔드): `features/ai/api.js`의 `recognizeCheckupReceipt` 가짜를 `api.post`로 바꾼다. 경로(`POST /receipts/recognize/checkup`)와 응답 필드(`rcptSn`·`petSn`·`items[]`의 `ckupNm`·`ckupYmd`·`ckupAmt`)는 추정이라 Swagger로 확인한다. `signal`은 axios에 넘기고, `waitAbortable`은 지운다. 15초 시간 초과는 모달(`ANALYZE_TIMEOUT_MS`)이 판정하므로 서버 타임아웃(15초, 명세 008-07)과 맞춘다. [취소] 때 영수증 상태 '취소'를 서버에 알릴 API가 필요한지 확인한다
+  - 건강 일지(JAJ, SCR-HLT-002): [영수증으로 등록하기]에서 모달을 연다. `pets`(`usePets`, SJM), `defaultPetSn`(건강 일지에서 선택 중인 반려동물), `onRecognized(result)`(영수증 인식 결과 확인 모달로), `onManualInput()`(검진기록 등록·수정 모달 빈 폼으로)를 넘긴다. 붙인 뒤 확인용 `pages/dev/ReceiptUploadDevPage.jsx`와 `AppRoutes.jsx`의 `/dev/receipt-upload` 라우트·`IS_DEV`·lazy import를 지운다
+  - 반려동물 목록(SJM): 모달은 `petNm`과 `vrtyNm`(있으면 "초코 (말티즈)")을 쓴다. `vrtyNm`이 미정 키라 확정되면 확인한다
+  - 실패 사유별 문구(FN-AIM-010-07)는 SCR-AIM-010에서 한다. 지금 모달의 실패 3종(`FAILURE`: 추출 0건·15초 초과·API 오류)을 거기서 맞춘다
+  - 팀에 알릴 것: SJM에게 `receiptFile.js`를 `src/utils/`로 옮겼다고 PR에 적는다(사전 공지 메시지는 보냄). `common.md` "비동기" 절 추가는 팀 합의 문서라 PR에서 알린다
+- 다음 화면은 `milestones/LJS.md`의 `대기` 중 맨 위(SCR-AIM-010 영수증 인식 실패. 검진기록 등록·수정 모달(JAJ 화면)·영수증 인식 결과 확인 모달(JAJ 화면)이 필요해 기획이 막히면 SCR-AIM-006)
 - 선택: `src/utils/formatDate.js`로 바꿀 수 있는 곳 — `ConversationHeader.jsx`의 `formatDate`는 `formatDate(crtDt)`, `features/expense/shared/expenseFormat.js`의 `formatMonthDay`는 `formatDate(expndYmd, { hasYear: false, separator: '-' })`. 이번에 안 건드렸다
 - 범위 밖에서 본 것(말만): `ConversationMessages.jsx`의 `{children && <li>…}`가 항상 참이라 대화 목록 끝에 빈 `<li>`가 생긴다
 - 사람이 고치는 문서(SCR-COM-002 반응형): 기능명세서 v0.4 FN-COM-002-23 "햄버거 메뉴 미사용"을 "≤1100px에서 햄버거 사용"으로, FN-COM-002-20 TOP에 "≤760px 미노출"을, FN-COM-006-07 터치 동작의 "반응형 범위 확정 후"를 범위 확정(≤1100px·≤760px)으로. 화면설계서 v0.7 SCR-COM-002 "햄버거[≡]를 두지 않는다", SCR-COM-006 터치(잠정) 문구도 같이

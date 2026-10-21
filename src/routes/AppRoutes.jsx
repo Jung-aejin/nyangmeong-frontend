@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { Route, Routes } from 'react-router-dom';
+import { IS_DEV } from '@/api/env';
 import { MEMBER_ROLE } from '@/constants/memberRole';
 import AdminLayout from '@/layouts/AdminLayout';
 import UserLayout from '@/layouts/UserLayout';
@@ -16,6 +17,10 @@ const NotificationSettingsPage = lazy(
 
 /** ai */
 const AiChatPage = lazy(() => import('@/pages/ai/AiChatPage'));
+/** DEV 전용: 건강 일지(JAJ)가 영수증 모달을 열면 지움 */
+const ReceiptUploadDevPage = lazy(
+  () => import('@/pages/dev/ReceiptUploadDevPage'),
+);
 
 /** mypage */
 const PetListPage = lazy(() => import('@/pages/mypage/PetListPage'));
@@ -36,6 +41,13 @@ export default function AppRoutes() {
             path={PATHS.SETTINGS_NOTIFICATIONS}
             element={<NotificationSettingsPage />}
           />
+
+          {IS_DEV && (
+            <Route
+              path="/dev/receipt-upload"
+              element={<ReceiptUploadDevPage />}
+            />
+          )}
 
           {/** mypage: 로그인 API(AIC) 후 ProtectedRoute 아래로 이동 */}
           <Route path={PATHS.MYPAGE_PETS} element={<PetListPage />} />

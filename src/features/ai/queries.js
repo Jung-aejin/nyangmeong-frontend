@@ -5,6 +5,7 @@ import {
   deleteConversation,
   getConversation,
   getConversations,
+  recognizeCheckupReceipt,
   sendMessage,
 } from './api';
 
@@ -72,3 +73,7 @@ export const useSendMessage = () => {
     },
   });
 };
+
+/** 검진 영수증 인식 */
+export const useRecognizeCheckupReceipt = () =>
+  useMutation({ mutationFn: recognizeCheckupReceipt });

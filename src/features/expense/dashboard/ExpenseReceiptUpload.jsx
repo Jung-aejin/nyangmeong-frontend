@@ -7,7 +7,7 @@ import {
   RECEIPT_ACCEPT,
   RECEIPT_HELP,
   validateReceiptFile,
-} from './receiptFile';
+} from '@/utils/receiptFile';
 
 const isNothingRecognized = (result) =>
   result.expndYmd == null &&

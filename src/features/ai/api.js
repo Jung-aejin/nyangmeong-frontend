@@ -454,3 +454,36 @@ ${HEALTH_NOTE}`
       : [],
   };
 };
+
+/** 가짜 응답 대기: signal이 중단되면 AbortError */
+const waitAbortable = (ms, signal) =>
+  new Promise((resolve, reject) => {
+    const abort = () => reject(new DOMException('중단', 'AbortError'));
+    if (signal.aborted) return abort();
+    const timer = setTimeout(() => {
+      signal.removeEventListener('abort', onAbort);
+      resolve();
+    }, ms);
+    const onAbort = () => {
+      clearTimeout(timer);
+      abort();
+    };
+    signal.addEventListener('abort', onAbort, { once: true });
+  });
+
+/**
+ * 검진 영수증 인식 (POST /receipts/recognize/checkup 추정)
+ * 가짜 응답: 파일 이름의 slow(20초)·error(오류)·fail(추출 0건)에 따른 상황
+ * 연결 때 Swagger로 경로·필드 확인
+ */
+export const recognizeCheckupReceipt = async ({ file, petSn, signal }) => {
+  await waitAbortable(file.name.includes('slow') ? 20000 : 2000, signal);
+  if (file.name.includes('error')) throw new Error('일시 오류');
+  const rcptSn = Date.now();
+  if (file.name.includes('fail')) return { rcptSn, petSn, items: [] };
+  return {
+    rcptSn,
+    petSn,
+    items: [{ ckupNm: '종합검진', ckupYmd: '2026-09-26', ckupAmt: 85000 }],
+  };
+};
