@@ -1,5 +1,14 @@
 @import 'tailwindcss';
 
+/* Pretendard Variable 로컬 글꼴. 퍼블리싱 html/fonts/pretendard.css와 같고 CDN을 쓸 수 없는 환경에서도 시안과 같은 글꼴이 나오게 한다(OFL 1.1) */
+@font-face {
+  font-family: 'Pretendard Variable';
+  font-weight: 45 920;
+  font-style: normal;
+  font-display: swap;
+  src: url('./fonts/PretendardVariable.woff2') format('woff2-variations');
+}
+
 @theme {
   --font-sans: 'Pretendard Variable', Pretendard, system-ui, sans-serif;
 

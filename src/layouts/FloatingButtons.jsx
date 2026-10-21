@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Bot } from 'lucide-react';
 import useAiWindow from '@/hooks/useAiWindow';
 
-export default function FloatingButtons() {
+export default function FloatingButtons({ hasBottomNav = false }) {
   const openAiWindow = useAiWindow();
   const [blocked, setBlocked] = useState(false);
 
@@ -11,7 +11,14 @@ export default function FloatingButtons() {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-30 flex flex-col items-center gap-3">
+    /** 바텀 네비(60px)가 있으면 그 위로 올림 */
+    <div
+      className={`fixed bottom-6 right-6 z-30 flex flex-col items-center gap-3 ${
+        hasBottomNav
+          ? 'max-[760px]:bottom-[calc(76px+env(safe-area-inset-bottom))]'
+          : ''
+      }`}
+    >
       <div className="relative">
         {blocked && (
           <div

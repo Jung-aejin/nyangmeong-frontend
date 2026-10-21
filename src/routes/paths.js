@@ -1,7 +1,49 @@
-/** 도메인별 구획 안에 추가: 맨 끝 추가 시 병합 충돌 */
+/**
+ * 전체 URL 고정: docs/routes.md 1장을 모두 반영. 새 URL은 docs/routes.md를 먼저 고치고 팀에 알린 뒤 따로 PR
+ * 구획은 routes/domains 폴더와 같음
+ */
 export const PATHS = {
-  /** 공통 */
+  /** main */
   HOME: '/',
+  MAIN: '/main',
+
+  /** account */
+  LOGIN: '/login',
+  SIGNUP: '/signup',
+  PASSWORD_FIND: '/password/find',
+  PASSWORD_RESET: '/password/reset',
+
+  /** settings */
+  SETTINGS_NOTIFICATIONS: '/settings/notifications',
+
+  /** ai */
+  AI: '/ai',
+
+  /** chat */
+  CHAT: '/chat',
+
+  /** health */
+  HEALTH: '/health',
+  HEALTH_DIARY: '/health/diary',
+  HEALTH_CALENDAR: '/health/calendar',
+  HEALTH_CHECKUP_DETAIL: '/health/checkups/:ckupRcdSn',
+  HEALTH_CHECKUP_INSPECTIONS: '/health/checkups/:ckupRcdSn/inspections',
+
+  /** place */
+  PLACES: '/places',
+
+  /** community */
+  COMMUNITY: '/community',
+  COMMUNITY_POST_NEW: '/community/posts/new',
+  COMMUNITY_POST_DETAIL: '/community/posts/:pstSn',
+  COMMUNITY_POST_EDIT: '/community/posts/:pstSn/edit',
+  COMMUNITY_MISSING: '/community/missing',
+  COMMUNITY_MISSING_DETAIL: '/community/missing/:lostTpofSn',
+  COMMUNITY_NEWS: '/community/news',
+  COMMUNITY_PETCARE: '/community/petcare',
+  COMMUNITY_PETCARE_DETAIL: '/community/petcare/:petPrtcRcrtSn',
+
+  /** support */
   NOTICES: '/notices',
   NOTICE_DETAIL: '/notices/:ntcMttrSn',
   FAQS: '/faqs',
@@ -9,40 +51,17 @@ export const PATHS = {
   INQUIRY_NEW: '/inquiries/new',
   INQUIRY_DETAIL: '/inquiries/:otoInqrySn',
   INQUIRY_EDIT: '/inquiries/:otoInqrySn/edit',
-  SETTINGS_NOTIFICATIONS: '/settings/notifications',
-
-  /** account */
-  LOGIN: '/login',
-
-  /** main */
-  MAIN: '/main',
-
-  /** ai */
-  AI: '/ai',
-
-  /** health */
-  HEALTH: '/health',
-  HEALTH_DIARY: '/health/diary',
-  HEALTH_CALENDAR: '/health/calendar',
-
-  /** place */
-  PLACES: '/places',
-
-  /** community */
-  COMMUNITY: '/community',
-  COMMUNITY_MISSING: '/community/missing',
-  COMMUNITY_NEWS: '/community/news',
-  COMMUNITY_PETCARE: '/community/petcare',
 
   /** mypage */
   MYPAGE: '/mypage',
-  MYPAGE_EXPENSES: '/mypage/expenses',
+  MYPAGE_PETS: '/mypage/pets',
+  MYPAGE_CAREGIVERS: '/mypage/caregivers',
   MYPAGE_CHARACTERS: '/mypage/characters',
   MYPAGE_POINTS: '/mypage/points',
-
-  /** mypage */
-  MYPAGE_PETS: '/mypage/pets',
+  MYPAGE_EXPENSES: '/mypage/expenses',
   MYPAGE_EXPENSES_ALL: '/mypage/expenses/all',
+  MYPAGE_PROFILE: '/mypage/profile',
+  MYPAGE_WITHDRAW: '/mypage/withdraw',
 
   /** admin */
   ADMIN: '/admin',
