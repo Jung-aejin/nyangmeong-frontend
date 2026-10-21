@@ -154,6 +154,15 @@ const buildSecondSeedStore = () => ({
   ],
 });
 
+/** 종합 건강기록 검사 수치 추이용: 502·503에 신장 수치 이력(검진기록 500의 CREA·BUN과 이어짐) */
+const buildHistorySeedStore = (crea, bun) => ({
+  ...makeEmptyStore(),
+  blood: [
+    makeBlood('KID', 'BUN', bun, 'mg/dL', 7, 27),
+    makeBlood('KID', 'CREA', crea, 'mg/dL', 0.8, 1.5),
+  ],
+});
+
 const stores = new Map();
 
 const getStore = (ckupRcdSn) => {
@@ -164,6 +173,8 @@ const getStore = (ckupRcdSn) => {
     if (!isSeedOff && ckupRcdSn === SECOND_SEED_CHECKUP_SN) {
       store = buildSecondSeedStore();
     }
+    if (!isSeedOff && ckupRcdSn === 502) store = buildHistorySeedStore(1.2, 26);
+    if (!isSeedOff && ckupRcdSn === 503) store = buildHistorySeedStore(1.4, 29);
     stores.set(ckupRcdSn, store);
   }
   return stores.get(ckupRcdSn);

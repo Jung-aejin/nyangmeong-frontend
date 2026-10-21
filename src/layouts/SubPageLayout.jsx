@@ -1,0 +1,68 @@
+import { Link, useLocation } from 'react-router-dom';
+import SideMenu from './SideMenu';
+import SubPageHead from './SubPageHead';
+import { findActiveItem, SUB_MENUS } from './subMenus';
+
+/**
+ * [사이드 메뉴가 있는 서브 화면 틀]
+ * - 페이지 머리(전체 폭) + 사이드 메뉴 210px + 본문(디자인 COM-5)
+ * - 사용법·prop 표: handoff/LJS.md
+ */
+export default function SubPageLayout({
+  section,
+  menu,
+  title,
+  back,
+  description,
+  pixel = true,
+  onLeave,
+  contentClassName = 'min-[1101px]:pt-6',
+  children,
+}) {
+  const { pathname } = useLocation();
+  const sectionMenu = SUB_MENUS[section];
+  const activeItem = findActiveItem(sectionMenu, menu, pathname);
+  const hasBack = (back ?? Boolean(title)) && Boolean(activeItem);
+
+  return (
+    <div className="grid grid-cols-1 pt-6 pb-[126px] text-ink leading-[1.6] break-keep min-[1101px]:grid-cols-[210px_minmax(0,1fr)] min-[1101px]:gap-x-12">
+      <SubPageHead
+        section={sectionMenu}
+        activeItem={activeItem}
+        title={title}
+        description={description}
+        pixel={pixel ? sectionMenu.pixel : null}
+        hasSwitch={!title && !hasBack}
+        onLeave={onLeave}
+      />
+      <SideMenu section={section} active={activeItem?.to} />
+      <div className={`flex min-w-0 flex-col ${contentClassName}`}>
+        {hasBack && <BackLink to={activeItem.to} onLeave={onLeave} />}
+        {children}
+      </div>
+    </div>
+  );
+}
+
+/** 상세·글쓰기·수정 화면의 ‹ 목록으로 */
+function BackLink({ to, onLeave }) {
+  const handleClick = (event) => {
+    if (!onLeave) return;
+    event.preventDefault();
+    onLeave(to);
+  };
+
+  return (
+    <Link
+      to={to}
+      onClick={handleClick}
+      className="-mt-1 mb-4 inline-flex h-6 items-center gap-2 self-start text-base leading-none font-medium text-muted transition-colors hover:text-ink"
+    >
+      <span
+        aria-hidden="true"
+        className="ml-[3px] size-2 rotate-45 border-b-2 border-l-2 border-current"
+      />
+      목록으로
+    </Link>
+  );
+}

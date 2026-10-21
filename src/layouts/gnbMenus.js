@@ -1,20 +1,24 @@
 import { PATHS } from '@/routes/paths';
+import { SUB_MENUS } from './subMenus';
 
 const place = (category) => ({
   pathname: PATHS.PLACES,
   search: `?category=${category}`,
 });
 
+/** 섹션 메뉴의 2차 메뉴: NavDrawer가 to.pathname을 읽어 객체로 */
+const sectionItems = (key) =>
+  SUB_MENUS[key].items.map(({ label, to }) => ({
+    label,
+    to: { pathname: to },
+  }));
+
 /** 1차 메뉴는 첫 화면 이동, items는 2차 메뉴(SCR-COM-006) */
 export const GNB_MENUS = [
   {
     label: '건강기록',
     to: { pathname: PATHS.HEALTH },
-    items: [
-      { label: '종합 건강기록', to: { pathname: PATHS.HEALTH } },
-      { label: '건강 일지', to: { pathname: PATHS.HEALTH_DIARY } },
-      { label: '케어 캘린더', to: { pathname: PATHS.HEALTH_CALENDAR } },
-    ],
+    items: sectionItems('health'),
   },
   {
     label: '플레이스',
@@ -30,11 +34,6 @@ export const GNB_MENUS = [
   {
     label: '커뮤니티',
     to: { pathname: PATHS.COMMUNITY },
-    items: [
-      { label: '펫이야기', to: { pathname: PATHS.COMMUNITY } },
-      { label: '우리동네 펫돌봄', to: { pathname: PATHS.COMMUNITY_PETCARE } },
-      { label: '실종센터', to: { pathname: PATHS.COMMUNITY_MISSING } },
-      { label: '펫뉴스', to: { pathname: PATHS.COMMUNITY_NEWS } },
-    ],
+    items: sectionItems('community'),
   },
 ];
