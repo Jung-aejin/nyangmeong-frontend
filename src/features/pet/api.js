@@ -341,3 +341,15 @@ export const deleteCaregiver = ({ petSn, rltnSn }) => {
   };
   return fakeDelay(null);
 };
+
+/** 공동양육자 본인의 자진 해제 DELETE /pets/{petSn}/caregivers/me (SJM 백엔드, 본인 연동만 끊고 반려동물 데이터는 그대로) */
+export const leavePet = (petSn) => {
+  fakePets = fakePets.filter((pet) => pet.petSn !== petSn);
+  fakeCaregivers = {
+    ...fakeCaregivers,
+    [petSn]: (fakeCaregivers[petSn] ?? []).filter(
+      (caregiver) => caregiver.myYn !== 'Y',
+    ),
+  };
+  return fakeDelay(null);
+};
