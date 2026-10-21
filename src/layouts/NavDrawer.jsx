@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { ChevronRight, LogOut, X } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
-import profileIcon from '@/assets/icons/profile.svg';
+import userAvatar from '@/assets/user.svg';
 import { useMemberSummary } from '@/features/member/queries';
 import { PATHS } from '@/routes/paths';
 import { GNB_MENUS } from './gnbMenus';
@@ -94,12 +94,14 @@ export default function NavDrawer({ onClose, onLogout }) {
             className="flex items-center gap-4 bg-[#f4f6f6] py-5 pl-8 pr-5"
             onClick={onClose}
           >
-            <img
-              src={profileIcon}
-              alt=""
-              aria-hidden="true"
-              className="size-16 shrink-0"
-            />
+            <span className="size-16 shrink-0 overflow-hidden rounded-full border border-[#e2e7e7] bg-white">
+              <img
+                src={userAvatar}
+                alt=""
+                aria-hidden="true"
+                className="size-full object-cover"
+              />
+            </span>
             <span className="min-w-0 grow">
               <span className="flex items-center gap-0.5 text-xl font-bold leading-[1.4] text-[#1a3234]">
                 {summary?.mbrNcnm}

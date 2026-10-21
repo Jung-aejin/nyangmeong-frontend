@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
-import profileIcon from '@/assets/icons/profile.svg';
+import userAvatar from '@/assets/user.svg';
 import ConfirmModal from '@/components/ConfirmModal';
 import { useChatModal } from '@/context/chatModal';
 import { useLogout, useMemberSummary } from '@/features/member/queries';
@@ -149,7 +149,7 @@ export default function ProfileDropdown({
         aria-expanded={isOpen}
         onClick={onToggle}
       >
-        <img src={profileIcon} alt="" aria-hidden="true" className="size-9" />
+        <img src={userAvatar} alt="" className="size-full object-cover" />
       </button>
       {isOpen && (
         <ProfileMenuPanel onClose={onClose} onLogout={handleLogoutClick} />
