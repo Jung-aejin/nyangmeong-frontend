@@ -7,11 +7,11 @@ import ProtectedRoute from './ProtectedRoute';
 
 /**
  * [라우트 진입점]
- * - routes/domains/*Routes.js를 모두 모아 레이아웃에 끼움, 새 도메인은 파일만 추가
- * - 도메인 파일: [{ layout: 'user' | 'bare' | 'admin', auth: 'public' | 'member' | 'admin', routes }]
+ * - routes/domains/<도메인>/index.js를 모두 모아 레이아웃에 끼움, 새 도메인은 폴더만 추가
+ * - index.js는 그 도메인의 <도메인>Routes.js를 합침: [{ layout: 'user' | 'bare' | 'admin', auth: 'public' | 'member' | 'admin', routes }]
  */
 const groups = Object.values(
-  import.meta.glob('./domains/*Routes.js', { eager: true }),
+  import.meta.glob('./domains/*/index.js', { eager: true }),
 ).flatMap((module) => module.default);
 
 const pick = (layout, auth) =>

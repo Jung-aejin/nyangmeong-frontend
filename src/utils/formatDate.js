@@ -100,3 +100,9 @@ export const formatTime = (hhmm) => {
   const displayHour = hour % 12 === 0 ? 12 : hour % 12;
   return `${period} ${displayHour}:${pad(minute)}`;
 };
+
+// 지금 시각 "13:05"
+export const getNowHm = () => {
+  const now = new Date();
+  return `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+};
