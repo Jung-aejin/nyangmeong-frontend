@@ -12,6 +12,7 @@
 
 ## 다음에 할 것
 
+- 채팅 화면 이관(2026-10-21, KSJ와 합의, 화면만): `milestones/LJS.md`에 SCR-COM-009 채팅 모달 셸(18개)·SCR-CMU-005 펫돌봄 채팅(11개)을 `대기`로 추가. 채팅 API는 KSJ라 목록·대화·읽음·소켓 이벤트의 요청·응답 모양을 KSJ와 먼저 맞추고, 그전에는 가짜 응답으로 만든다. `docs/routes.md` 36행은 `/chat`을 새 창으로 적었는데 구현(`layouts/ChatModal.jsx`)은 모달이라 첫 기획 때 정한다(같은 문서 101행 쟁점). 백엔드 저장소의 `docs/convention/milestone.md` 담당 표도 같은 내용으로 고친다(이번엔 프론트만 고침). CMU-005는 KSJ의 SCR-CMU-004 돌봄 게시글을 기다린다
 - 공용 페이지 머리·사이드 메뉴 적용(각 담당): 화면을 `@/layouts/SubPageLayout`으로 감싸고, 파일 안의 `PageFrame`·`Chevron`·픽셀 그림·`SideMenu` 호출을 지운다. 메뉴 이름·순서·그림은 `layouts/subMenus.js`(`SUB_MENUS`)만 고친다. 옮길 화면: 건강기록 4개(`HealthSummaryPage`·`HealthDiaryPage`·`CareCalendarPage`·`CheckupDetailPage`, JAJ), 마이페이지(SJM), 고객센터 `CustomerCenterLayout`(KSJ), 커뮤니티(KSJ, 화면 만들 때). 모두 옮기면 `SideMenu`의 `menuLabel` 호환과 `/dev/sub-page`(`pages/dev/SubPageDevPage.jsx`)를 지운다
 
   | prop | 기본값 | 하는 일 |
