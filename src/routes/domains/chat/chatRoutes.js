@@ -1,2 +1,13 @@
-/** 채팅 새 창(KSJ). 화면을 만들 때 채움 */
-export default [];
+import { lazy } from 'react';
+import { PATHS } from '@/routes/paths';
+
+const ChatPage = lazy(() => import('@/pages/chat/ChatPage'));
+
+export default [
+  {
+    /** 별도 창 전체 화면이라 UserLayout 밖 */
+    layout: 'bare',
+    auth: 'public',
+    routes: [{ path: PATHS.CHAT, Component: ChatPage }],
+  },
+];
