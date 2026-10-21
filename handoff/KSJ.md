@@ -2,13 +2,28 @@
 
 ## 지금 하는 것
 
-SCR-CSC-003 1:1 문의 (시작 2026-10-21, 끝 2026-10-21) — 상태: 끝 (검증 판정 `확인 못 함 있음`: 내 것 없음, 연결 남음만. 사람 확인 2026-10-21)
+SCR-CMU-003 펫뉴스 (시작 2026-10-21) — 상태: 구현 중 (승인 2026-10-21 15:00)
 
-- 만든 것: `features/inquiry/{api,queries,InquiryList,InquiryDetail,InquiryForm,InquiryImages,InquiryStatusBadge}`, `pages/inquiry/{InquiryListPage,InquiryWritePage,InquiryDetailPage,InquiryEditPage}`, `components/DropdownSelect.jsx`, 라우트 `/inquiries`·`/inquiries/new`·`/inquiries/:otoInqrySn`·`/inquiries/:otoInqrySn/edit`(`ProtectedRoute` 없이), `PATHS.INQUIRY_NEW·INQUIRY_DETAIL·INQUIRY_EDIT`, `CustomerCenterLayout`의 1:1 문의 부제와 하위 제목(「문의 작성」·「문의 수정」)
-- 디자인: Figma 파일 `JgHlZmTfvqbDfqfuX78OzA` 리스트 `815:13136`·작성 `815:13525`·상세 `815:13880`·수정 `815:14191` + 디자인 폴더 `CSC/SCR-CSC-003-01~04.html`(`html/`에 복사, git 제외). 문의 API가 없어 가짜 응답(`features/inquiry/api.js`, 메모리 배열 12건, 첫 로드 `?fakeEmpty`면 0건)이고 `otoInqrySn` 외 키(`inqryTyNm`·`inqryTtl`·`inqryCn`·`atchFiles`·`ansCn`·`ansDt`·`crtDt`)는 가정이다
-- 결정: 0건이면 목록 대신 작성 화면으로 `replace` 이동(003-03), 수정 중 이탈 확인은 [취소]·[목록으로] 모달과 새로고침·닫기 브라우저 확인창까지(앱이 `BrowserRouter`라 `useBlocker`를 못 써서 메뉴·헤더 링크 이동은 못 막음), 답변 완료 문의는 [문의 수정] 버튼을 숨기고 문구만 표시(추가-3), 문의 유형은 직접 그리는 `DropdownSelect`(추가-9)
-- 추가 요청(유효): 추가-1 버튼 왼쪽 아이콘 삭제, 추가-2 「선택」 삭제·개수 이동, 추가-3 답변 완료 시 수정 버튼 숨김, 추가-4·6·11·12 제목·내용 칸 글 길이에 맞춰 늘고 줄어듦(내용 최소 300px·상한 600px, 창 크기 변경에도 다시 맞춤, 제목은 Enter 불가), 추가-5 10장이면 추가 칸 숨김, 추가-7·8 모바일 제목 줄바꿈·썸네일 X 항상 표시, 추가-9 유형 드롭다운 디자인, 추가-10 「* 표시는…」 문장 삭제
-- 검증: `yarn -s lint` 0, `yarn -s build` 0 (1회차 `실패`: 제출 뒤 목록 대신 작성 화면으로 튕김 → `InquiryListPage`가 다시 가져오는 중에는 옛 0건으로 판단하지 않게 고침, 이후 모든 회차 `통과`)
+- 근거: 커뮤니티_기능명세서_v0.7_20261019 FN-CMU-003-01~06, 커뮤니티_화면설계서_v0.7_20261019 SCR-CMU-003-01(리스트)·02(상세)
+- 디자인: html/SCR-CMU-003-01.html(리스트)·html/SCR-CMU-003-02.html(상세). 디자인 폴더 `CMU/`에서 받은 것(CSS·폰트는 `html/SCR-CMU-003/`). Figma 파일 `JgHlZmTfvqbDfqfuX78OzA` 노드 `774-3`(CMU)이 같은 디자인이지만 토큰이 없어 HTML 기준
+- API: 뉴스 API는 KSJ 백엔드인데 아직 없다 → 가짜 응답으로 먼저 만들고 나중에 연결. 가짜는 `features/news/api.js`(메모리 배열 약 25건: 외부 언론사 + 관리자 등록 섞음, 카테고리 4종). 키는 ERD 뉴스 테이블(`NEWS_*`)을 camelCase로 바꾼 것(`newsSn`·`newsClsfCd`·`newsSrcCd`·`newsTtl`·`newsCn`·`srcPressNm`·`orgtxtPath`·`pblcnDt`·`thmbUrlPath`·`atchFileSn`)이고 Swagger 전이라 변환 결과는 가정이다. 요약 컬럼이 없어 목록 요약은 `newsCn` 앞부분을 자른다. 카테고리 코드(`newsClsfCd`): 건강 `CMUC0018`·생활 `CMUC0019`·정책 `CMUC0020`·여행 `CMUC0021`, 출처 코드(`newsSrcCd`): 외부 언론사 `CMUC0022`·관리자 등록 `CMUC0023`(사람이 DB에서 확인함). 첨부 이미지(`atchFileSn`)는 응답 모양을 본 뒤로 미룬다
+- URL: 상세 `/community/news/:newsSn`을 새로 둔다(`docs/routes.md` CMU-003 행을 먼저 고치고 `PATHS.COMMUNITY_NEWS_DETAIL` 추가). 목록 필터·검색·쪽은 쿼리(`?category=건강&keyword=…&page=2`, 값은 이름이고 서버에는 코드로 바꿔 보낸다). AI 대상 URL(`/community/news`)은 그대로라 AI 매핑은 안 바뀐다
+- 겉틀: 커뮤니티 화면 4개가 같이 쓰는 하위 메뉴(펫이야기·우리동네 펫돌봄·실종센터·펫뉴스)를 `layouts/CommunityLayout.jsx`로 만들고 `routes/domains/community/communityRoutes.js`에 펫뉴스 라우트 2개를 붙인다(`ProtectedRoute` 없이, 로그인 구현 전 public)
+
+| 기능 ID | 바꿀 파일 | API | 완료 조건 |
+| --- | --- | --- | --- |
+| FN-CMU-003-01 뉴스 목록 조회 | `features/news/{api,queries,NewsList,NewsSourceBadge}.js(x)`, `pages/news/NewsListPage.jsx`, `layouts/CommunityLayout.jsx`, 라우트·`paths.js` | 뉴스 목록(KSJ, 가짜) | 명령: `yarn -s lint`, `yarn -s build` / 화면: `/community/news`에 최신순 10건(썸네일·제목·출처·요약 2줄·작성일), `newsSrcCd`가 관리자 등록(`CMUC0023`)이면 「관리자 등록」 배지로 구분, 쪽 번호 최대 10개이고 첫 쪽에는 ‹ 없음(`BoardPagination`) |
+| FN-CMU-003-02 카테고리 필터 | `features/news/NewsList.jsx` | 같은 목록(`category`) | 화면: 건강·생활·정책·여행 칩 하나만 선택되고 누르면 즉시 목록이 걸러지며 1쪽으로 간다. 선택한 칩을 다시 누르면 해제(전체) |
+| FN-CMU-003-03 키워드 검색 | `features/news/NewsList.jsx`(`components/SearchInput` 재사용) | 같은 목록(`keyword`) | 화면: 제목 또는 본문에 든 단어로 검색되고 칩과 함께 적용, 0건이면 `EmptyResult` |
+| FN-CMU-003-04 뉴스 상세 조회 | `features/news/NewsDetail.jsx`, `pages/news/NewsDetailPage.jsx` | 뉴스 상세·최신 5건(KSJ, 가짜) | 화면: [‹ 펫뉴스]가 보던 목록(쿼리 유지)으로 돌아가고, 출처·작성일, 외부 기사는 요약+[원문보기 ↗](새 창), 관리자 등록은 `newsCn` 전문만 있고 원문보기 없음(`newsSrcCd` 기준), 아래 최신 5건(제목·MM-DD)을 누르면 그 상세로 간다, 댓글·좋아요 없음, 없는 번호는 「없는 뉴스」 안내 |
+| FN-CMU-003-05 공유하기 | `features/news/NewsShare.jsx` | 없음 | 화면: 상세에만 [공유하기]가 있고 누르면 패널에 [링크 복사](복사 뒤 토스트)와, 브라우저가 지원하면 [다른 앱으로 공유](`navigator.share`)가 나온다. 목록에는 없다 |
+| FN-CMU-003-06 뉴스 수집 | 없음 | — | 화면 없음(서버 RSS 수집) |
+
+- 질문: 디자인 파일이 없습니다. 1:1 문의 때처럼 디자인 폴더(`CMU/SCR-CMU-003-*.html`)나 Figma 노드가 있으면 경로를 알려 주세요. `html/SCR-CMU-003-01.html` 등으로 복사해 씁니다. AI가 초안을 만들거나 화면설계서 기준으로 갈 수도 있습니다. (추천: 경로가 있으면 경로, 없으면 공지사항·1:1 문의 화면의 모양을 따라 화면설계서 기준)
+  - 결정: 디자인 폴더 `CMU/SCR-CMU-003-01·02.html`을 쓴다(사람이 경로 제공 2026-10-21)
+- 질문: 상세 URL의 PK 이름을 `nwsSn`으로 가정했습니다. 백엔드 테이블 PK가 다르면 알려 주세요(`/community/news/:<PK>`). (추천: 정해진 게 없으면 `nwsSn`)
+  - 결정: `newsSn` (ERD 뉴스 테이블 PK `NEWS_SN`, 사람이 확인 2026-10-21)
+- 새 의존성: 없음 (카카오톡 공유 SDK는 넣지 않고 링크 복사 + `navigator.share`만)
 
 ## 다음에 할 것
 
