@@ -34,6 +34,7 @@ export const PATHS = {
   MYPAGE: '/mypage',
   MYPAGE_EXPENSES: '/mypage/expenses',
   MYPAGE_CHARACTERS: '/mypage/characters',
+  MYPAGE_POINTS: '/mypage/points',
 
   /** mypage */
   MYPAGE_PETS: '/mypage/pets',
