@@ -2,23 +2,21 @@
 
 ## 지금 하는 것
 
-SCR-COM-002 레이아웃 추가 작업: 헤더 아이콘 · 모바일 푸터 일러스트 · 바텀 네비 · 라우트 구조 · AI 대화창 반응형 (2026-10-21) — 상태: 끝 (검증 `통과`(추가-9까지 재검증), 사람 확인 2026-10-21)
+라우트·경로 고정 + PR 컨벤션 (2026-10-21) — 상태: 끝 (검증 `통과`(추가-1 포함), 사람 확인 2026-10-21)
 
-- 명세 ID 없는 사람 요청 작업. 기획 추가-A~D와 추가 요청 1~9(추가-6은 되돌림)
-- 헤더: 알림·채팅·프로필을 Figma `header`(317:2086) 모양 SVG(`src/assets/icons/`)로. Figma MCP 호출 한도로 원본을 못 받아 Material Symbols path로 그렸고 색은 SVG에 고정(기획의 `currentColor`와 다름). 모바일 아이콘 24px·버튼 42px, drawer 아바타도 `profile.svg`, drawer 머리줄 64px
-- 경계: Tailwind 4 `max-[Npx]`는 N 미만이라 `min-[1100px]`·`min-[760px]`·`WIDE_QUERY (min-width: 1100px)`·`<source media="(max-width: 759.98px)">`로 맞춤
-- 푸터: 760px 미만은 `footer_mo_illust.svg`(300×100)
-- 바텀 네비: 760px 미만에서 메인(랜딩 포함)·플레이스를 뺀 사용자 화면은 푸터 대신 `BottomNav`(`layouts/bottomNavMenus.js`의 `paths`는 하위 경로 포함, 가장 길게 일치하는 항목 강조). 건강기록·커뮤니티(GNB 2차)·마이페이지 4항목·고객센터·설정. AI 버튼은 네비 위. 규칙은 `docs/convention/ui.md` "모바일 바텀 네비"
-- 라우트: `AppRoutes.jsx`가 `domains/*/index.js`를 glob, 도메인 폴더마다 `index.js`(import·`export default`만) + `<도메인>Routes.js`. 규칙은 `docs/convention/shared-files.md`(`AGENTS.md`·`structure.md`·`pages.md`·`OPEN_ISSUES.md`도 고침)
-- AI 대화창 `/ai`: 1100px 이상 그대로, 760~1099px 56px 띠 + 320px 겹치는 drawer, 760px 미만 헤더 ☰·새 대화(✎)·전체 폭 drawer·삭제 아이콘만·글자 수 숨김·입력창 하단, `h-dvh`. 안내 문구 `break-keep`은 사람이 직접 고침
-- 추가-6(`/main` 제거, `/`를 메인으로)은 메인 담당(YAY) 일이라 되돌림
-- 추가-10(요청 2026-10-21 13:44 "오키 이대로 진행해", PR 전 `origin/develop` merge 충돌): JAJ PR #37의 헤더 변경(`components/Icon` Material Symbols, `headerStyles.js`, `assets/user.svg` 40px 프로필, 반투명 헤더)을 기준으로 합치고 내 것 중 모바일 아이콘 24px(`HEADER_ICON_CLASS`의 760px 32px 제거, 배지 `left-7` 제거)·햄버거 `min-[1100px]:hidden`만 얹는다. drawer 아바타도 `user.svg`, `src/assets/icons/` SVG 3개는 지운다. 바꿀 파일: `UserHeader.jsx`, `NotificationDropdown.jsx`, `ProfileDropdown.jsx`, `NavDrawer.jsx`, `headerStyles.js`, `src/assets/icons/`. 완료 조건 명령: `yarn -s lint`, `yarn -s build` / 화면: 1440·1100·390px 헤더 아이콘이 Material Symbols, 390px 24px·버튼 42px, 1100px 프로필만·1099px 햄버거만, drawer 아바타가 `user.svg`. JAJ에게 모바일 32px→24px 변경을 PR에서 알린다
+- R-01·02: `routes/domains/index.js`가 12개 도메인(main·account·settings·ai·chat·health·place·community·support·mypage·admin·dev)의 `<도메인>Routes.js`를 고정 import. `common/`은 `main/`(랜딩)·`settings/`로 나눔, 빈 도메인은 `export default []`, `AppRoutes.jsx`는 glob 없이 `import domainRoutes from './domains'`
+- R-03: `paths.js`에 `docs/routes.md` 1장 URL 전부(40개), 구획 = 도메인 폴더. 최신 명세 9종(10-21) 대조 결과 빠진 URL 화면 없음(HOS-002는 카드라 URL 없음)
+- R-04: `shared-files.md`(둘 다 고정, 새 도메인·URL은 따로 PR), `AGENTS.md`·`structure.md`·`docs/routes.md`
+- 추가-1: `.github/pull_request_template.md`, `git.md` 커밋 종류 10개·범위 표기 금지, PR 섹션(Summary·Changes·Screenshots/Features·Test Plan·Design Decisions·Breaking Changes·Related Issues), 없음 규칙, 백엔드(backend-d0)와 문구 맞춤. Screenshots는 검증 캡처를 릴리스 `pr-assets`에 올려 씀(규칙만, 자동화는 하네스 PR)
 
+이전 작업: SCR-COM-002 레이아웃 추가 작업(헤더 아이콘·바텀 네비·라우트 도메인 폴더·AI 대화창 반응형) — 끝(검증 `통과`, 사람 확인 2026-10-21, PR #38 병합. 추가 요청 10건, 추가-6 되돌림)
 이전 작업: SCR-AIM-006 케어 일정 사전 알림 · 발송물 — 끝(검증 `통과`, 사람 확인 2026-10-21. 가짜 케어 알림 명세 문형, 배지 1분 polling, 추가 요청 1건(배지 위치))
 이전 작업: SCR-AIM-010 OCR 인식 실패 · 수동 입력 전환 — 끝(검증 `확인 못 함 있음`(연결 남음뿐) 1회차, 사람 확인 2026-10-21. 추출 0건이면 `onManualInput({ rcptSn })`, 가짜 `partial` 분기, 추가 요청 2건)
 
 ## 다음에 할 것
 
+- 하네스 PR(이 PR 병합 뒤): `.claude/skills/end` PR 단계가 `.github/pull_request_template.md`를 읽어 제목·순서 그대로 채우기(비면 `없음`), `verify` 화면 확인 때 캡처를 `<이니셜>-<YYYYMMDD>-<화면ID>-<before|after>-<1440|390>.png`로 남기기, `end`가 `gh release upload pr-assets`로 올리고 Screenshots 표에 URL 넣기. 처음 한 번 `gh release create pr-assets --prerelease`(사람 확인 후). `.agents/skills` 동기화
+- KSJ 확인: 펫이야기 작성·수정 URL을 `/community/posts/new`·`/community/posts/:pstSn/edit`로 해석해 `paths.js`에 넣음
 - 팀에 알릴 것(PR): 라우트 구조 변경(`routes/domains/<도메인>/index.js` + `<도메인>Routes.js`, 모든 담당의 라우트 파일 위치가 바뀜, `shared-files.md`), 바텀 네비 컨벤션(`ui.md`, 760px 미만 메인·플레이스 외 화면은 푸터 대신 바텀 네비, 새 영역은 `bottomNavMenus.js`), 경계값은 `min-[1100px]`·`min-[760px]`(Tailwind 4 `max-[N]`은 N 미만)
 - 범위 밖 1px 경계(말만, 각 담당): `layouts/SideMenu.jsx`(`min-[1101px]:block`, 정확히 1100px에서 사이드 메뉴·햄버거 둘 다 없음), `features/pet/list/PetSlide.jsx`(SJM)·`pages/health/CareCalendarPage.jsx`(JAJ)의 `min-[1101px]`·`min-[761px]`. `/health/calendar` 사이드 메뉴와 바텀 네비가 둘 다 `aria-label="건강기록 메뉴"`
 - 선택: Figma MCP 한도가 풀리면 헤더 아이콘 원본 SVG(317:2097·317:2106·317:2087)와 비교해 바꾸고, 색을 바꿀 일이 생기면 `currentColor` 인라인 SVG로. AI 대화창 모바일·바텀 네비는 시안 없이 만들었으니 디자인 담당과 맞춘다

@@ -40,7 +40,7 @@
 [LJS] fix: 체중 기록 삭제 후 목록이 갱신되지 않는 문제 수정
 ```
 
-종류는 `feat`, `fix`, `refactor`, `test`, `docs`, `chore`다. 이니셜은 자기 브랜치 이름과 같게 쓴다. 관련 기능명세서 ID가 있으면 본문에 적는다(예: `FN-MYP-003-01`).
+종류는 `feat`(새 기능), `fix`(버그 수정), `refactor`(동작 변화 없는 구조 개선), `perf`(성능 개선), `test`, `docs`, `style`(포맷팅), `chore`(빌드·설정·의존성), `ci`, `revert`다. Conventional Commits의 범위 표기(`feat(pet):`)와 `!`는 쓰지 않는다. 이니셜은 자기 브랜치 이름과 같게 쓴다. 관련 기능명세서 ID가 있으면 본문에 적는다(예: `FN-MYP-003-01`).
 
 커밋 메시지에 `Co-Authored-By:` 줄을 넣지 않는다. AI 도구가 자동으로 붙인 줄은 setup이 등록하는 커밋 훅(`.githooks/commit-msg`)이 지운다. GitHub은 이 줄에 적힌 계정을 그 커밋의 공동 작성자로 표시한다.
 
@@ -50,7 +50,24 @@
 - PR을 올리기 전에 `yarn lint`와 `yarn build`가 통과하는지 확인한다. CI가 설정되기 전에는 PR을 올리는 사람이 로컬에서 돌린다.
 - 제목은 커밋 형식과 같게 쓴다.
 - PR을 열면(초안은 리뷰 가능으로 바꿀 때) `.github/workflows/pr-notify.yml`이 디스코드 채널로 알린다. 병합·닫힘은 알리지 않는다. 웹훅 주소는 저장소 시크릿 `DISCORD_WEBHOOK_URL`에만 둔다(공개 저장소라 파일에 적지 않는다). 프론트와 백엔드는 채널이 다르다.
-- 본문에 관련 FN ID나 화면 ID, 무엇을 왜 바꿨는지, 어떻게 확인했는지를 적는다. 화면이 바뀌면 캡처를 붙인다.
+- 본문은 `.github/pull_request_template.md`를 채운다. 백엔드 저장소와 같은 규칙이다(백엔드는 `Screenshots` 자리에 `Features`).
+  - 섹션 제목은 영어, 내용은 한국어로 쓴다. 순서를 바꾸지 않는다.
+  - 해당 없는 섹션은 지우지 않고 `없음`이라고 쓴다. 더 적을 것이 있으면 섹션을 추가해도 된다.
+  - 리뷰어 섹션은 두지 않는다(리뷰어 없이 병합한다).
+
+| 순서 | 섹션 | 쓰는 것 |
+| --- | --- | --- |
+| 1 | `## Summary` | 화면 ID·기능 ID와 이 PR이 하는 일 1~3줄 |
+| 2 | `## Changes` | 파일·모듈 단위 변경 목록 |
+| 3 | `## Screenshots`(프론트) / `## Features`(백엔드) | 아래 참고 |
+| 4 | `## Test Plan` | 체크박스(lint·build, 직접 확인한 시나리오)와 `Result:`(검증 판정·확인 결과) |
+| 5 | `## Design Decisions` | `Decision` / `Why` / `Alternatives Considered` |
+| 6 | `## Breaking Changes` | 다른 담당 코드에 영향 가는 변경(공유 파일, 라우트 위치, 응답 형식, DB) |
+| 7 | `## Related Issues` | `Closes #<이슈 번호>` |
+
+- 프론트 `## Screenshots`: 그 PR에서 구현·변경한 화면 캡처를 `| | PC (1440) | Mobile (390) |` 표의 Before·After 줄에 넣는다. 새 화면이면 After만 쓴다. 캡처는 검증(Playwright) 때 찍은 것을 쓰고, 저장소 릴리스 `pr-assets`(prerelease)에 `gh release upload pr-assets <파일>`로 올린 뒤 그 다운로드 URL을 넣는다. 파일 이름은 `<이니셜>-<YYYYMMDD>-<화면ID>-<before|after>-<1440|390>.png`다.
+- `## Design Decisions`에는 기획과 달라진 것과 다른 담당·백엔드에 영향 가는 선택만 쓴다. 사소한 구현 선택은 쓰지 않는다. `Alternatives Considered`는 실제로 비교한 대안이 있을 때만 쓴다.
+- 백엔드 `## Features`: 스크린샷 대신 구현한 기능을 `| 기능 ID | 내용 |` 표로 쓴다. 공통 기반 코드는 기능 ID 칸에 `(기반)`, 여러 ID는 `FN-COM-004-03·04·05`처럼 묶고, 넘긴 것은 내용에 `연결 남음: … (담당)`으로 쓴다.
 
 ## 작업 상태 공유
 
