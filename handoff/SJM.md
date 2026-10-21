@@ -2,30 +2,40 @@
 
 ## 지금 하는 것
 
-SCR-MYP-020 포인트 관리/케어미션 — 끝 (2026-10-21 시작·승인, 검증 판정 `통과` 1회차, 추가 요청 2건 반영, 사람 확인 완료)
-기준: 기능명세서 v0.4_20261020 FN-MYP-020-01~10, 화면설계서 v0.6_20261020 SCR-MYP-020(20-1, 20-2)
-디자인: 시안 폴더(저장소 밖)의 `myp-points.html`(기본), `myp-points-empty.html`(주양육 동물 0마리). 색·폰트는 `00styleguide.html`·`acc.css`. Figma 토큰이 없어 시안 폴더를 쓴다
+SCR-MYP-040 회원정보 수정 — 끝 (2026-10-21 시작·승인, 검증 판정 `확인 못 함 있음`(연결 남음뿐), 추가 요청 4건 반영, 사람 확인 완료)
+기준: 기능명세서 v0.4_20261020 FN-MYP-040-01~12, 화면설계서 v0.6_20261021 SCR-MYP-040(6-1, 6-2, 6-3, 10-21 개정으로 6-2·6-3 배치가 추가 요청으로 바뀜)
+디자인: 시안 폴더(저장소 밖)의 `myp-account.html`(6-1 본인 확인), `myp-account-edit.html`(6-2 일반 회원), `myp-account-edit-sns.html`(6-3 SNS 회원). 색·폰트는 `00styleguide.html`·`acc.css`. Figma 토큰이 없어 시안 폴더를 쓴다
 
-- FN-MYP-020-01 보유 포인트: `features/point/` 새 도메인(api.js·queries.js·화면별 폴더). 포인트 API는 SJM 백엔드 → 가짜 응답을 `api.js`에 둔다. 완료 조건 `화면:` 잔액 숫자가 천 단위 쉼표와 P로 보인다
-- FN-MYP-020-09 포인트 요약: 이번 달 적립·사용(합계·건수), 오늘 미션(완료/전체, 마리 수, 달성률), 기준 일자. 적립·사용 클릭은 내역 영역으로, 오늘 미션 클릭은 케어미션 영역으로 스크롤. [건강 일지](SCR-HLT-002 경로 없음 → "준비 중" 토스트), [캐릭터 꾸미기]는 `/mypage/characters`. 완료 조건 `화면:` 카드 클릭 시 해당 영역으로 이동
-- FN-MYP-020-03 동물 탭: 주양육 동물만 탭, 탭에 이름과 완료 개수. 완료 조건 `화면:` 탭을 바꾸면 그 동물의 미션 8개와 진행률이 바뀐다
-- FN-MYP-020-04 기록·날짜 이동: 완료 개수·달성률·진행률 바, 그날 획득 포인트·남은 미션(남은 포인트), 미션별 배점·완료 상태, ◀▶ 날짜 이동(기본 오늘, 미래 비활성). 완료 조건 `화면:` 날짜를 바꾸면 그날 기록이 보인다
-- FN-MYP-020-02 적립·사용 내역: ◀▶ 월 이동(미래 비활성, 공용 `MonthNav` 사용), 합계, 최신순 목록(고정 높이 안 스크롤), "검진기록 등록" 표기. 완료 조건 `화면:` 월을 바꾸면 그 달 합계와 목록이 바뀐다
-- FN-MYP-020-10 적립 안내: 4단계 카드, [픽셀 캐릭터로 이동] → `/mypage/characters`
-- FN-MYP-020-07 0마리 안내: 주양육 동물이 없으면 케어미션 영역을 등록 유도로 대체, [반려동물 등록하기] → 반려동물 등록 모달(`/mypage/pets`). 포인트·내역은 그대로. 완료 조건 `화면:` 가짜 동물 0마리일 때 안내가 보인다
-- FN-MYP-020-05·06·08 지급 규칙·공동양육자 수행분·검진기록 포인트: 서버 규칙이라 화면 일은 없음. 내역 표기와 배점 표시로만 반영
-- 만들 파일: `pages/mypage/PointPage.jsx`, `routes/paths.js`에 `MYPAGE_POINTS: '/mypage/points'`(docs/routes.md 기준), `AppRoutes.jsx` 등록, `features/point/{api.js,queries.js,summary/,mission/,history/,guide/,shared/}`. 반려동물 목록은 `features/pet` 직접 import 금지 → 미션 응답에 동물 이름을 담은 가짜 응답으로 처리
+- 공통: 회원 조회·수정 API(AIC, 아직 없음) → 가짜 응답을 `features/member/api.js`에 둔다(추정 키 `mbrNcnm`·`acntEml`·`mbrTelno`·`prflImgUrl`·`snsTyCd`). 로그인 전이라 `useMe`·`ProtectedRoute`를 쓰지 않는다. `?fake=sns`면 SNS 회원(카카오) 가짜 응답
+- FN-MYP-040-01 본인 확인: 같은 페이지 안 콘텐츠로 비밀번호 입력 → [확인] 통과 시 같은 자리가 6-2로 바뀐다. 빈 칸이면 [확인] 비활성. SNS 회원은 이 단계 없이 6-3. 가짜 응답은 `wrong`이면 실패. 완료 조건 `화면:` 비밀번호를 넣고 [확인]을 누르면 URL 변화 없이 수정 화면이 보이고, `?fake=sns`면 처음부터 6-3이 보인다
+- FN-MYP-040-02·08 프로필 사진: [사진 변경]으로 파일 선택 → 미리보기와 업로드(가짜), [기본 이미지로]로 기본 이미지. 미등록이면 기본 이미지. 헤더 프로필에는 반영하지 않는다. 완료 조건 `화면:` 사진을 고르면 원 안 이미지가 바뀌고 [기본 이미지로]로 돌아온다
+- FN-MYP-040-03 이메일: 잠금 아이콘과 비활성 입력란, 수정 불가
+- FN-MYP-040-09 계정 표시(SNS): 잠금 아이콘과 "카카오 계정으로 로그인 중"(`snsTyCd`에 따라 카카오·네이버·구글), 이메일·비밀번호 항목 없음
+- FN-MYP-040-04·10 닉네임: 입력란 항상 활성. 최대 10글자, 한글·영문·숫자 외 입력 제한. 현재 값과 다르면 [중복확인] 노출 → 사용 가능하면 "사용 가능한 닉네임입니다."와 [저장]으로 전환, 다시 고치면 [중복확인]으로 돌아간다. 가짜 중복 목록(예: `초코맘2`)이면 중복 문구. 완료 조건 `화면:` 닉네임을 바꾸면 [중복확인]이 나타나고, 통과하면 [저장]으로 바뀐다
+- FN-MYP-040-05·11 휴대폰 번호: [수정] → 같은 자리가 입력란, 버튼이 [중복확인](비었거나 현재 번호와 같으면 비활성). 공백·하이픈 제거, +82 → 0 통일 후 형식 검사. 문구 3종(형식·중복·조회 실패)과 "사용 가능한 휴대전화번호입니다." → [저장], 다시 고치면 [중복확인]. [저장] 때 서버 중복 재검사 결과도 같은 문구로. 완료 조건 `화면:` 형식이 틀린 번호로 [중복확인]하면 "휴대전화번호 형식을 확인해 주세요."가 보인다
+- FN-MYP-040-06 비밀번호 변경: 현재·새·확인 3칸, "8자 이상, 문자·숫자 조합" 안내. 새 비밀번호와 확인이 다르면 확인란 아래 "비밀번호가 일치하지 않아요", 일치하고 정책을 지키고 현재 비밀번호가 차기 전까지 [저장] 비활성. 완료 조건 `화면:` 새 비밀번호와 확인이 다르면 "비밀번호가 일치하지 않아요"가 보이고 [저장]이 비활성이다
+- FN-MYP-040-07·12 회원 탈퇴: [회원 탈퇴 ›] → `/mypage/withdraw`(ACC-020, YAY). 아직 경로·화면이 없으면 "준비 중" 토스트
+- 만들 파일: `pages/mypage/ProfileEditPage.jsx`, `routes/paths.js` mypage 구획에 `MYPAGE_PROFILE: '/mypage/profile'`(docs/routes.md 기준), `AppRoutes.jsx` 등록, `features/member/api.js`·`queries.js`에 가짜 함수와 훅 추가(`getMyProfile`·`verifyPassword`·`checkNickname`·`checkPhone`·`updateProfileImage`·`updateNickname`·`updatePhone`·`updatePassword`), 화면 폴더 `features/member/profile/{PasswordConfirm,ProfileEditForm,ProfileImageField,NicknameField,PhoneField,PasswordChangeField}.jsx`, 닉네임·전화·비밀번호 검사는 `features/member/shared/validate.js`
+- 사이드 메뉴·페이지 머리는 만들지 않는다(SCR-MYP-001에서 레이아웃으로). AI 캐릭터 안내(FN-ACC-002-02)는 화면설계서 v0.6_20261021 수정(2026-10-21 12:24)으로 이 화면에서 빠졌다. 입력란 아래 문구만 있으면 된다
 - 완료 조건 `명령:` `yarn -s lint`, `yarn -s build`
+
+질문: 본인 확인에서 비밀번호가 틀렸을 때 문구가 명세에 없습니다. "비밀번호가 일치하지 않습니다."로 할까요? (추천: 그 문구를 쓰고 팀 확인을 "다음에 할 것"에 남긴다)
+결정: "비밀번호가 일치하지 않습니다."로 한다. 팀 확인은 남기지 않는다(사람 결정 2026-10-21)
 
 새 의존성: 없음
 
 ### 추가 요청
+기준이 바뀜: 화면설계서 v0.6_20261021(`.cache/dms`, DMS에는 아직 20261020까지), 시안 `nmcare-design-v5` 시안 폴더(저장소 밖)의 `myp-account-edit.html`·`myp-account-edit-sns.html`(2026-10-21). 위 기획의 6-2·6-3 배치(카드 2장·입력란 상시 노출·"비밀번호 변경" 카드)는 이 기준으로 대체한다. 6-1 본인 확인은 그대로.
 | 번호 | 바꿀 파일 | 완료 조건 | 근거 |
 | --- | --- | --- | --- |
-| 추가-1 | `features/point/summary/PointSummary.jsx` | 명령: `yarn -s lint`, `yarn -s build`. 화면: "YYYY.MM.DD 기준"이 요약 카드 우측 상단에 보이고, 하단 줄에는 [건강 일지]·[캐릭터 꾸미기]만 오른쪽 정렬로 남는다 | 요청 2026-10-21 "기준 날짜 위치를 우측 상단으로" |
-| 추가-2 | `features/point/summary/PointSummary.jsx` | 명령: `yarn -s lint`, `yarn -s build`. 화면: 보유 포인트 옆 돼지 아이콘 자리에 글자 "P"가 보인다 | 요청 2026-10-21 "돼지 아이콘 말고 P로 바꾸는 거" |
+| 추가-1 | `features/member/profile/{ProfileEditForm,ProfileImageField,NicknameField,PhoneField,PasswordChangeCard}.jsx`, `shared/profileStyles.js` | 명령: `yarn -s lint`, `yarn -s build`. 화면: 기본 정보 카드 맨 위에 사진(연필 아이콘)·닉네임·이메일(잠금, "아이디로 사용 · 수정불가")과 [사진 변경]·[기본 이미지로]가 한 줄로 보이고, 아래에 닉네임·휴대폰 번호·비밀번호가 `항목명 / 값 / [수정]·[변경]` 행으로 보인다. [수정]을 누르면 그 자리에서 입력란이 펼쳐지고 [취소]·[저장]이 보이며, 다른 행의 버튼을 누르면 펼쳐졌던 행은 입력을 버리고 닫힌다. [취소]도 닫는다. SNS 회원은 이메일 자리에 제공자 표시와 "카카오 계정으로 로그인 중 · 연동 계정 · 수정불가"가 보이고 비밀번호 행이 없다 | 요청 2026-10-21 "회원정보 수정화면 전반적으로 수정됐거든 디자인 시안이랑 화면설계서 다시 확인해" (FN-MYP-040-01~06·08~11 변경분) |
+| 추가-2 | `features/member/profile/AccountInfoCard.jsx`(새 파일), `features/member/api.js`(가짜 응답에 `mbrJoinPathCd`·`mbrRegDt`·`mbrLastLgnDt`), `shared/snsCodes.js` | 명령: `yarn -s lint`, `yarn -s build`. 화면: "계정 정보" 카드에 가입 방식("이메일 가입", SNS는 제공자 표시와 "카카오 간편 가입")·가입일(YYYY.MM.DD)·최근 로그인(YYYY.MM.DD HH:MM)이 수정 버튼 없이 보인다 | 같은 요청 (FN-MYP-040-13 신규) |
+| 추가-3 | `pages/mypage/ProfileEditPage.jsx`, `ProfileEditForm.jsx` | 명령: `yarn -s lint`, `yarn -s build`. 화면: 본문 전체 폭에 "기본 정보"·"계정 정보" 영역 제목이 있는 두 카드가 세로로 쌓이고, [회원 탈퇴 ›]는 계정 정보 카드 밖 맨 아래 링크다. 본인 확인(6-1)은 그대로 | 같은 요청 (FN-MYP-040-07·12 위치 변경) |
+| 추가-4 | `features/member/profile/ProfileImageField.jsx` | 명령: `yarn -s lint`, `yarn -s build`. 화면: 파일 입력의 접근성 이름이 "사진 변경" 한 번만 읽히고(연필 아이콘 라벨은 `aria-hidden`), 연필 아이콘을 눌러도 파일 선택이 열린다 | 요청 2026-10-21 "고쳐줘" (파일 입력 이름이 "사진 변경 사진 변경"으로 두 번 읽히는 문제) |
 
 ## 다음에 할 것
+- SCR-MYP-040 연결 남음: 회원 조회·수정·검증 API(member, AIC)가 나오면 `features/member/api.js`의 가짜(`getMyProfile`·`verifyPassword`·`checkNickname`·`checkPhone`·`update*`, 추정 키 `acntEml`·`mbrNcnm`·`mbrTelno`·`prflImgUrl`·`snsTyCd`·`dplctYn`·`mbrJoinPathCd`·`mbrRegDt`·`mbrLastLgnDt`)를 실제 요청으로 바꾼다. 사진은 업로드 방식(multipart 여부)을 맞춘다
+- SCR-MYP-040 연결 남음: 회원 탈퇴 화면(SCR-ACC-020, YAY) 경로가 생기면 [회원 탈퇴 ›] 토스트를 `/mypage/withdraw` 이동으로 바꾼다. 로그인(AIC)이 나오면 `/mypage/profile`을 `ProtectedRoute` 아래로 옮긴다
 - SCR-MYP-020 연결 남음: 포인트·케어미션 API(SJM 백엔드)가 나오면 `features/point/api.js` 가짜(`getPointBalance`·`getPointHistory`·`getCareMissions`, 추정 키 `pntBal`·`earnTotAmt`·`pntHstTyCd`·`msnNm`·`cmplYn` 등)를 실제 요청으로 바꾸고 `?fake=empty` 분기를 지운다. 미션 출제·정산·검진기록 20P(FN-MYP-020-05·06·08)는 서버 일이다 (health JAJ, 커뮤니티 KSJ)
 - SCR-MYP-020 연결 남음: 건강 일지(SCR-HLT-002, JAJ) 경로가 생기면 [건강 일지] 토스트를 이동으로, 픽셀 캐릭터(SCR-MYP-010)를 만들면 `/mypage/characters` 이동이 이어진다
 - SCR-MYP-020 팀에 확인: 지난 날짜에도 "오늘 획득"으로 나오는 문구(시안 문구 그대로), 요약 카드를 눌러 스크롤하면 sticky 헤더에 제목이 가려지므로 `scroll-mt`를 넣을지. 시안 v5(`nmcare-design-v5`)에서 페이지 배경 `#FDFCFB`·푸터 `#FCF9F7`로 바뀌었는데 `UserLayout.jsx`·`UserFooter.jsx`(LJS)는 옛 값 그대로
