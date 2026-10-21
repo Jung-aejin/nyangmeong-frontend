@@ -1,6 +1,7 @@
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
 import { showToast } from '@/components/toastStore';
+import FamilySection from '@/features/pet/list/FamilySection';
 import PetDeleteDialog from '@/features/pet/list/PetDeleteDialog';
 import PetEmpty from '@/features/pet/list/PetEmpty';
 import PetFormModal from '@/features/pet/list/PetFormModal';
@@ -21,6 +22,7 @@ export default function PetListPage() {
     (pet) => pet.petRelCd === PET_REL.OWNER,
   ).length;
   const isFull = ownPetCount >= MAX_OWN_PETS;
+  const showPreparing = () => showToast('준비 중인 기능이에요');
 
   return (
     <div className="mx-auto max-w-5xl py-6">
@@ -36,7 +38,7 @@ export default function PetListPage() {
           onMove={setSlideIndex}
           onEdit={(pet) => setModalPetSn(pet.petSn)}
           onDelete={setDeletingPet}
-          onUnlink={() => showToast('준비 중인 기능이에요')}
+          onUnlink={showPreparing}
         >
           <button
             type="button"
@@ -48,6 +50,13 @@ export default function PetListPage() {
             반려동물 등록
           </button>
         </PetSlide>
+      )}
+      {pets.length > 0 && (
+        <FamilySection
+          pet={pets[currentIndex]}
+          onInvite={showPreparing}
+          onUnlink={showPreparing}
+        />
       )}
       {isFull && (
         <p className="mt-3 text-right text-sm text-subtle">

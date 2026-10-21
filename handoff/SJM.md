@@ -2,38 +2,27 @@
 
 ## 지금 하는 것
 
-SCR-MYP-040 회원정보 수정 — 끝 (2026-10-21 시작·승인, 검증 판정 `확인 못 함 있음`(연결 남음뿐), 추가 요청 4건 반영, 사람 확인 완료)
-기준: 기능명세서 v0.4_20261020 FN-MYP-040-01~12, 화면설계서 v0.6_20261021 SCR-MYP-040(6-1, 6-2, 6-3, 10-21 개정으로 6-2·6-3 배치가 추가 요청으로 바뀜)
-디자인: 시안 폴더(저장소 밖)의 `myp-account.html`(6-1 본인 확인), `myp-account-edit.html`(6-2 일반 회원), `myp-account-edit-sns.html`(6-3 SNS 회원). 색·폰트는 `00styleguide.html`·`acc.css`. Figma 토큰이 없어 시안 폴더를 쓴다
+SCR-MYP-004 공동양육자 목록 — 끝 (2026-10-21 14:02 시작·14:04 승인, 검증 판정 `통과`, 사람 확인 완료)
+기준: 기능명세서 v0.4_20261021 FN-MYP-004-01~04, 화면설계서 v0.6_20261021 SCR-MYP-004(4-1 주양육자 시점, 4-2 공동양육자 시점)
+디자인: 시안 폴더(저장소 밖)의 `myp-pets.html`(4-1), `myp-pets-coparent.html`(4-2). 색·폰트는 `00styleguide.html`·`acc.css`. Figma 토큰이 없어 시안 폴더를 쓴다
 
-- 공통: 회원 조회·수정 API(AIC, 아직 없음) → 가짜 응답을 `features/member/api.js`에 둔다(추정 키 `mbrNcnm`·`acntEml`·`mbrTelno`·`prflImgUrl`·`snsTyCd`). 로그인 전이라 `useMe`·`ProtectedRoute`를 쓰지 않는다. `?fake=sns`면 SNS 회원(카카오) 가짜 응답
-- FN-MYP-040-01 본인 확인: 같은 페이지 안 콘텐츠로 비밀번호 입력 → [확인] 통과 시 같은 자리가 6-2로 바뀐다. 빈 칸이면 [확인] 비활성. SNS 회원은 이 단계 없이 6-3. 가짜 응답은 `wrong`이면 실패. 완료 조건 `화면:` 비밀번호를 넣고 [확인]을 누르면 URL 변화 없이 수정 화면이 보이고, `?fake=sns`면 처음부터 6-3이 보인다
-- FN-MYP-040-02·08 프로필 사진: [사진 변경]으로 파일 선택 → 미리보기와 업로드(가짜), [기본 이미지로]로 기본 이미지. 미등록이면 기본 이미지. 헤더 프로필에는 반영하지 않는다. 완료 조건 `화면:` 사진을 고르면 원 안 이미지가 바뀌고 [기본 이미지로]로 돌아온다
-- FN-MYP-040-03 이메일: 잠금 아이콘과 비활성 입력란, 수정 불가
-- FN-MYP-040-09 계정 표시(SNS): 잠금 아이콘과 "카카오 계정으로 로그인 중"(`snsTyCd`에 따라 카카오·네이버·구글), 이메일·비밀번호 항목 없음
-- FN-MYP-040-04·10 닉네임: 입력란 항상 활성. 최대 10글자, 한글·영문·숫자 외 입력 제한. 현재 값과 다르면 [중복확인] 노출 → 사용 가능하면 "사용 가능한 닉네임입니다."와 [저장]으로 전환, 다시 고치면 [중복확인]으로 돌아간다. 가짜 중복 목록(예: `초코맘2`)이면 중복 문구. 완료 조건 `화면:` 닉네임을 바꾸면 [중복확인]이 나타나고, 통과하면 [저장]으로 바뀐다
-- FN-MYP-040-05·11 휴대폰 번호: [수정] → 같은 자리가 입력란, 버튼이 [중복확인](비었거나 현재 번호와 같으면 비활성). 공백·하이픈 제거, +82 → 0 통일 후 형식 검사. 문구 3종(형식·중복·조회 실패)과 "사용 가능한 휴대전화번호입니다." → [저장], 다시 고치면 [중복확인]. [저장] 때 서버 중복 재검사 결과도 같은 문구로. 완료 조건 `화면:` 형식이 틀린 번호로 [중복확인]하면 "휴대전화번호 형식을 확인해 주세요."가 보인다
-- FN-MYP-040-06 비밀번호 변경: 현재·새·확인 3칸, "8자 이상, 문자·숫자 조합" 안내. 새 비밀번호와 확인이 다르면 확인란 아래 "비밀번호가 일치하지 않아요", 일치하고 정책을 지키고 현재 비밀번호가 차기 전까지 [저장] 비활성. 완료 조건 `화면:` 새 비밀번호와 확인이 다르면 "비밀번호가 일치하지 않아요"가 보이고 [저장]이 비활성이다
-- FN-MYP-040-07·12 회원 탈퇴: [회원 탈퇴 ›] → `/mypage/withdraw`(ACC-020, YAY). 아직 경로·화면이 없으면 "준비 중" 토스트
-- 만들 파일: `pages/mypage/ProfileEditPage.jsx`, `routes/paths.js` mypage 구획에 `MYPAGE_PROFILE: '/mypage/profile'`(docs/routes.md 기준), `AppRoutes.jsx` 등록, `features/member/api.js`·`queries.js`에 가짜 함수와 훅 추가(`getMyProfile`·`verifyPassword`·`checkNickname`·`checkPhone`·`updateProfileImage`·`updateNickname`·`updatePhone`·`updatePassword`), 화면 폴더 `features/member/profile/{PasswordConfirm,ProfileEditForm,ProfileImageField,NicknameField,PhoneField,PasswordChangeField}.jsx`, 닉네임·전화·비밀번호 검사는 `features/member/shared/validate.js`
-- 사이드 메뉴·페이지 머리는 만들지 않는다(SCR-MYP-001에서 레이아웃으로). AI 캐릭터 안내(FN-ACC-002-02)는 화면설계서 v0.6_20261021 수정(2026-10-21 12:24)으로 이 화면에서 빠졌다. 입력란 아래 문구만 있으면 된다
+- 공통: 반려동물 관리 페이지(SCR-MYP-002) 슬라이드 아래에 붙는 섹션이다. 별도 URL 없음. 지금 슬라이드의 동물(`pet`)을 받아 그 동물 기준으로 그린다. 주양육·공동양육 구분은 기존 `petRelCd`(`PET_REL.OWNER`·`CO_PARENT`)를 쓴다
+- 공통 API: 양육관계 조회·강제 해제(SJM 백엔드, 아직 없음) → 가짜 응답으로 먼저 만들고 나중에 연결. 가짜는 `features/pet/api.js`에 `getCaregivers(petSn)`·`deleteCaregiver({ petSn, rltnSn })`(추정 키 `rltnSn`·`mbrNcnm`·`cgvrRoleCd`(PETG05, PCG·CCG)·`authrtNm`("조회+수정")·`lnkDt`·`myYn`). `queries.js`에 `petKeys.caregivers(petSn)`, `useCaregivers`, `useDeleteCaregiver`(성공 시 그 동물 목록 무효화). 가짜 데이터: 초코 2명, 보리 5명(가득 참), 나비 0명, 해피(공동양육)는 주양육자 + 나 1건. 이메일은 응답·화면 모두에 두지 않는다
+- FN-MYP-004-01 가족관리 목록: `features/pet/list/FamilySection.jsx`(새 파일). 주양육자 시점 제목 "가족관리 — {petNm} ({N}/5명)", 공동양육자마다 닉네임·"공동양육" 배지·"{권한} · MM-DD 연동"·[삭제]. [삭제] → 확인 모달(`components/ConfirmModal`) → 강제 해제(가짜) → 목록에서 빠지고 토스트. 0명이면 빈 안내 한 줄. 상한 `MAX_CAREGIVERS = 5`는 `petCodes.js`. 완료 조건 `화면:` 슬라이드 ◀▶로 동물을 바꾸면 목록과 제목의 이름·인원이 그 동물 것으로 바뀐다. [삭제] → 확인하면 그 사람이 빠지고 인원이 1 줄어든다
+- FN-MYP-004-02 가족 초대하기: 같은 파일 [＋ 가족 초대하기]. 5명이면 비활성. 초대 모달(SCR-MYP-005)이 아직 없어 "준비 중인 기능이에요" 토스트(SCR-MYP-005 때 현재 동물 기본 선택으로 연결). 완료 조건 `화면:` 보리(5명)로 넘기면 [＋ 가족 초대하기]가 비활성이다
+- FN-MYP-004-03 주양육자 표시: 공동양육자 시점에서 "주양육자" 줄에 주양육자 닉네임·"주양육" 배지·"이 반려동물을 등록한 사람". 완료 조건 `화면:` 해피(공동양육)로 넘기면 주양육자 줄이 보인다
+- FN-MYP-004-04 내 연동 상태: 공동양육자 시점에서 "내 연동 상태"에 "나 ({닉네임})" 1건과 [연동 해제]만, 다른 공동양육자와 [가족 초대하기]는 없음. [연동 해제]는 SCR-MYP-006 전이라 슬라이드 카드의 [연동 해제]와 같은 "준비 중" 토스트. 완료 조건 `화면:` 해피로 넘기면 내 연동 1건과 [연동 해제]만 보이고 [가족 초대하기]가 없다
+- 바꿀 파일: `pages/mypage/PetListPage.jsx`(슬라이드 아래에 `FamilySection` 조립, 토스트 핸들러 공유), `features/pet/api.js`, `features/pet/queries.js`, `features/pet/shared/petCodes.js`, 새 파일 `features/pet/list/FamilySection.jsx`
 - 완료 조건 `명령:` `yarn -s lint`, `yarn -s build`
 
-질문: 본인 확인에서 비밀번호가 틀렸을 때 문구가 명세에 없습니다. "비밀번호가 일치하지 않습니다."로 할까요? (추천: 그 문구를 쓰고 팀 확인을 "다음에 할 것"에 남긴다)
-결정: "비밀번호가 일치하지 않습니다."로 한다. 팀 확인은 남기지 않는다(사람 결정 2026-10-21)
+결정1: [삭제] 확인 모달은 SCR-MYP-006 자진 해제와 말투를 맞춘다. 제목 "{닉네임}님과의 연동을 해제할까요?", 설명 "해제하면 {닉네임}님은 {반려동물 이름}의 기록을 더 이상 볼 수 없어요.", 버튼 [취소]·[해제], 완료 토스트 "연동을 해제했어요"(사람 결정 2026-10-21)
+결정2: "(N/5명)"의 N은 공동양육자만 센다. 시안 예시 2/5명도 공동양육자 2명 기준이다(사람 결정 2026-10-21)
 
 새 의존성: 없음
 
-### 추가 요청
-기준이 바뀜: 화면설계서 v0.6_20261021(`.cache/dms`, DMS에는 아직 20261020까지), 시안 `nmcare-design-v5` 시안 폴더(저장소 밖)의 `myp-account-edit.html`·`myp-account-edit-sns.html`(2026-10-21). 위 기획의 6-2·6-3 배치(카드 2장·입력란 상시 노출·"비밀번호 변경" 카드)는 이 기준으로 대체한다. 6-1 본인 확인은 그대로.
-| 번호 | 바꿀 파일 | 완료 조건 | 근거 |
-| --- | --- | --- | --- |
-| 추가-1 | `features/member/profile/{ProfileEditForm,ProfileImageField,NicknameField,PhoneField,PasswordChangeCard}.jsx`, `shared/profileStyles.js` | 명령: `yarn -s lint`, `yarn -s build`. 화면: 기본 정보 카드 맨 위에 사진(연필 아이콘)·닉네임·이메일(잠금, "아이디로 사용 · 수정불가")과 [사진 변경]·[기본 이미지로]가 한 줄로 보이고, 아래에 닉네임·휴대폰 번호·비밀번호가 `항목명 / 값 / [수정]·[변경]` 행으로 보인다. [수정]을 누르면 그 자리에서 입력란이 펼쳐지고 [취소]·[저장]이 보이며, 다른 행의 버튼을 누르면 펼쳐졌던 행은 입력을 버리고 닫힌다. [취소]도 닫는다. SNS 회원은 이메일 자리에 제공자 표시와 "카카오 계정으로 로그인 중 · 연동 계정 · 수정불가"가 보이고 비밀번호 행이 없다 | 요청 2026-10-21 "회원정보 수정화면 전반적으로 수정됐거든 디자인 시안이랑 화면설계서 다시 확인해" (FN-MYP-040-01~06·08~11 변경분) |
-| 추가-2 | `features/member/profile/AccountInfoCard.jsx`(새 파일), `features/member/api.js`(가짜 응답에 `mbrJoinPathCd`·`mbrRegDt`·`mbrLastLgnDt`), `shared/snsCodes.js` | 명령: `yarn -s lint`, `yarn -s build`. 화면: "계정 정보" 카드에 가입 방식("이메일 가입", SNS는 제공자 표시와 "카카오 간편 가입")·가입일(YYYY.MM.DD)·최근 로그인(YYYY.MM.DD HH:MM)이 수정 버튼 없이 보인다 | 같은 요청 (FN-MYP-040-13 신규) |
-| 추가-3 | `pages/mypage/ProfileEditPage.jsx`, `ProfileEditForm.jsx` | 명령: `yarn -s lint`, `yarn -s build`. 화면: 본문 전체 폭에 "기본 정보"·"계정 정보" 영역 제목이 있는 두 카드가 세로로 쌓이고, [회원 탈퇴 ›]는 계정 정보 카드 밖 맨 아래 링크다. 본인 확인(6-1)은 그대로 | 같은 요청 (FN-MYP-040-07·12 위치 변경) |
-| 추가-4 | `features/member/profile/ProfileImageField.jsx` | 명령: `yarn -s lint`, `yarn -s build`. 화면: 파일 입력의 접근성 이름이 "사진 변경" 한 번만 읽히고(연필 아이콘 라벨은 `aria-hidden`), 연필 아이콘을 눌러도 파일 선택이 열린다 | 요청 2026-10-21 "고쳐줘" (파일 입력 이름이 "사진 변경 사진 변경"으로 두 번 읽히는 문제) |
-
 ## 다음에 할 것
+- SCR-MYP-004 연결 남음: 양육관계 조회·강제 해제 API(SJM 백엔드)가 나오면 `features/pet/api.js`의 가짜(`getCaregivers`·`deleteCaregiver`, 추정 키 `rltnSn`·`mbrNcnm`·`cgvrRoleCd`·`authrtNm`·`lnkDt`·`myYn`)를 실제 요청으로 바꾸고 응답에 맞춘다. 공동양육자 시점에서 서버가 주양육자 + 본인 1건만 주는지, 강제 해제를 주양육자만 가능하게 서버가 막는지 맞춘다
+- SCR-MYP-004 연결 남음: 초대 모달(SCR-MYP-005)이 생기면 [가족 초대하기]를 현재 동물 기본 선택으로 열고, 자진 해제(SCR-MYP-006)가 생기면 공동양육자 시점 [연동 해제]·슬라이드 카드 [연동 해제]의 "준비 중" 토스트를 바꾼다. 로그인(AIC)이 나오면 `/mypage/pets`는 `ProtectedRoute` 아래로(기존 항목)
 - SCR-MYP-040 연결 남음: 회원 조회·수정·검증 API(member, AIC)가 나오면 `features/member/api.js`의 가짜(`getMyProfile`·`verifyPassword`·`checkNickname`·`checkPhone`·`update*`, 추정 키 `acntEml`·`mbrNcnm`·`mbrTelno`·`prflImgUrl`·`snsTyCd`·`dplctYn`·`mbrJoinPathCd`·`mbrRegDt`·`mbrLastLgnDt`)를 실제 요청으로 바꾼다. 사진은 업로드 방식(multipart 여부)을 맞춘다
 - SCR-MYP-040 연결 남음: 회원 탈퇴 화면(SCR-ACC-020, YAY) 경로가 생기면 [회원 탈퇴 ›] 토스트를 `/mypage/withdraw` 이동으로 바꾼다. 로그인(AIC)이 나오면 `/mypage/profile`을 `ProtectedRoute` 아래로 옮긴다
 - SCR-MYP-020 연결 남음: 포인트·케어미션 API(SJM 백엔드)가 나오면 `features/point/api.js` 가짜(`getPointBalance`·`getPointHistory`·`getCareMissions`, 추정 키 `pntBal`·`earnTotAmt`·`pntHstTyCd`·`msnNm`·`cmplYn` 등)를 실제 요청으로 바꾸고 `?fake=empty` 분기를 지운다. 미션 출제·정산·검진기록 20P(FN-MYP-020-05·06·08)는 서버 일이다 (health JAJ, 커뮤니티 KSJ)
