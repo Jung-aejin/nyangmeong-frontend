@@ -25,6 +25,7 @@ const PetListPage = lazy(() => import('@/pages/mypage/PetListPage'));
 const ExpensePage = lazy(() => import('@/pages/mypage/ExpensePage'));
 const ExpenseAllPage = lazy(() => import('@/pages/mypage/ExpenseAllPage'));
 const PointPage = lazy(() => import('@/pages/mypage/PointPage'));
+const ProfileEditPage = lazy(() => import('@/pages/mypage/ProfileEditPage'));
 
 /** admin */
 const AdminHomePage = lazy(() => import('@/pages/admin/AdminHomePage'));
@@ -52,6 +53,7 @@ export default function AppRoutes() {
             element={<ExpenseAllPage />}
           />
           <Route path={PATHS.MYPAGE_POINTS} element={<PointPage />} />
+          <Route path={PATHS.MYPAGE_PROFILE} element={<ProfileEditPage />} />
         </Route>
 
         {/** ai: 별도 창 전체 화면이라 UserLayout 밖 */}
