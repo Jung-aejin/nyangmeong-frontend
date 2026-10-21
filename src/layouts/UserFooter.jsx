@@ -17,7 +17,7 @@ export default function UserFooter() {
         src={footerPixel}
         alt=""
         aria-hidden="true"
-        className="pointer-events-none absolute bottom-full left-1/2 h-auto w-[calc(100%-4rem)] max-w-[1376px] -translate-x-1/2 max-[760px]:w-[calc(100%-2rem)]"
+        className="pointer-events-none absolute bottom-full left-1/2 h-auto w-[calc(100%-4rem)] max-w-[1376px] -translate-x-1/2 max-[760px]:h-14 max-[760px]:w-[calc(100%-2rem)] max-[760px]:object-cover"
       />
       <div className="mx-auto max-w-[1440px] px-8 py-10 max-[1100px]:pt-0 max-[760px]:px-5">
         {/** 1100px 이하: 링크 줄이 맨 위로 올라가고 세로로 쌓임 */}
