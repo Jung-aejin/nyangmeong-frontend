@@ -23,13 +23,13 @@ const FAILURE = {
   },
   timeout: {
     title: '분석을 끝내지 못했어요',
-    message: '분석이 오래 걸려 멈췄어요. 다시 촬영하거나 직접 입력해 주세요.',
+    message: '분석이 오래 걸려 멈췄어요. 다시 올리거나 직접 입력해 주세요.',
     noteStyle: 'border-warn-line bg-warn-soft text-warn',
   },
   error: {
     title: '분석을 끝내지 못했어요',
     message:
-      '일시적인 오류가 생겼어요. 잠시 후 다시 촬영하거나 직접 입력해 주세요.',
+      '일시적인 오류가 생겼어요. 잠시 후 다시 올리거나 직접 입력해 주세요.',
     noteStyle: 'border-warn-line bg-warn-soft text-warn',
   },
 };
@@ -89,7 +89,8 @@ function AnalyzeProgress() {
 /**
  * 영수증 촬영·업로드 모달 (SCR-AIM-008)
  * pets: [{ petSn, petNm, vrtyNm? }], 목록은 여는 쪽이 넘긴다(features/pet import 금지)
- * onRecognized(result): 인식 성공, onManualInput(): [직접 입력하기]
+ * onRecognized(result): 인식 성공(일부만 인식돼도 실패 안내 없이 여기로)
+ * onManualInput({ rcptSn? }): 직접 입력, 추출 0건 뒤에만 rcptSn(저장 때 영수증 상태를 바꾸는 데 쓴다)
  */
 export default function ReceiptUploadModal({
   pets,
@@ -112,6 +113,8 @@ export default function ReceiptUploadModal({
   const [isCancelled, setIsCancelled] = useState(false);
   /** 'empty' | 'timeout' | 'error' */
   const [failure, setFailure] = useState(null);
+  /** 추출 0건일 때 서버가 만든 영수증 식별자 */
+  const [failedRcptSn, setFailedRcptSn] = useState(null);
   const recognize = useRecognizeCheckupReceipt();
   const isAnalyzing = recognize.isPending;
   const hasPetSelect = pets.length >= 2;
@@ -162,8 +165,9 @@ export default function ReceiptUploadModal({
         onSuccess: (result) => {
           clearTimeout(timerRef.current);
           isRunningRef.current = false;
-          if (result.items.length === 0) setFailure('empty');
-          else onRecognized(result);
+          if (result.items.length > 0) return onRecognized(result);
+          setFailedRcptSn(result.rcptSn);
+          setFailure('empty');
         },
         onError: (error) => {
           clearTimeout(timerRef.current);
@@ -181,6 +185,7 @@ export default function ReceiptUploadModal({
   /** 실패 안내에서 다시 촬영: 이미지를 비우고 업로드 화면으로 */
   const handleRetake = () => {
     setFailure(null);
+    setFailedRcptSn(null);
     setPicked(null);
     setIsCancelled(false);
   };
@@ -188,7 +193,7 @@ export default function ReceiptUploadModal({
   const manualButton = (
     <button
       type="button"
-      onClick={onManualInput}
+      onClick={() => onManualInput({})}
       className="self-center text-sm text-muted underline underline-offset-2 hover:text-ink"
     >
       직접 입력하기
@@ -205,7 +210,9 @@ export default function ReceiptUploadModal({
           <>
             <button
               type="button"
-              onClick={onManualInput}
+              onClick={() =>
+                onManualInput(failedRcptSn ? { rcptSn: failedRcptSn } : {})
+              }
               className={BTN_SECONDARY}
             >
               직접 입력
@@ -215,7 +222,7 @@ export default function ReceiptUploadModal({
               onClick={handleRetake}
               className={BTN_PRIMARY}
             >
-              다시 촬영
+              다시 올리기
             </button>
           </>
         }

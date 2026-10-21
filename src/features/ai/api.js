@@ -481,6 +481,13 @@ export const recognizeCheckupReceipt = async ({ file, petSn, signal }) => {
   if (file.name.includes('error')) throw new Error('일시 오류');
   const rcptSn = Date.now();
   if (file.name.includes('fail')) return { rcptSn, petSn, items: [] };
+  if (file.name.includes('partial')) {
+    return {
+      rcptSn,
+      petSn,
+      items: [{ ckupNm: '종합검진', ckupYmd: null, ckupAmt: null }],
+    };
+  }
   return {
     rcptSn,
     petSn,
