@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Menu, MessageCircle } from 'lucide-react';
 import { Link, NavLink } from 'react-router-dom';
 import logo from '@/assets/nm_logo.svg';
 import CountBadge from '@/components/CountBadge';
+import Icon from '@/components/Icon';
 import { useChatModal } from '@/context/chatModal';
 import { PATHS } from '@/routes/paths';
 import GnbDropdown from './GnbDropdown';
 import { GNB_MENUS } from './gnbMenus';
+import { HEADER_ICON_CLASS } from './headerStyles';
 import NavDrawer from './NavDrawer';
 import NotificationDropdown from './NotificationDropdown';
 import ProfileDropdown, { LogoutConfirm } from './ProfileDropdown';
@@ -15,7 +16,11 @@ const GNB_OPEN_DELAY = 200;
 const GNB_CLOSE_DELAY = 300;
 
 const iconButton =
-  'relative flex h-[42px] w-[42px] items-center justify-center rounded-full text-[#3d4a4b] hover:bg-[#f4f6f6] max-[760px]:h-12 max-[760px]:w-12';
+  'relative flex h-[42px] w-[42px] items-center justify-center rounded-full text-[#3d4a4b] hover:bg-[#ebf0f0] hover:text-[#1a3234] max-[760px]:h-12 max-[760px]:w-12';
+
+/** 시안 .hd-profile: 40px 원형, 왼쪽 6px, 1px 테두리 */
+const profileButton =
+  'relative ml-1.5 flex size-10 items-center justify-center overflow-hidden rounded-full border border-[#e2e7e7] bg-white hover:bg-[#ebf0f0]';
 
 export default function UserHeader() {
   /** 열린 드롭다운 하나: gnb | notification | profile | drawer | null */
@@ -125,8 +130,8 @@ export default function UserHeader() {
 
   return (
     <>
-      <header className="sticky top-0 z-30 h-16 border-b border-[#e2e7e7] bg-white">
-        <div className="mx-auto grid h-full max-w-[1440px] grid-cols-[1fr_auto_1fr] items-center px-8 max-[1100px]:flex max-[1100px]:gap-3 max-[760px]:px-4">
+      <header className="sticky top-0 z-40 h-16 border-b border-[#e2e7e7] bg-white/[.92] backdrop-blur-[10px] backdrop-saturate-[1.4]">
+        <div className="mx-auto grid h-full max-w-[1440px] grid-cols-[1fr_auto_1fr] items-center gap-6 px-8 max-[1100px]:flex max-[1100px]:gap-3 max-[760px]:px-4">
           <Link to={PATHS.MAIN} className="justify-self-start">
             <img src={logo} alt="냥멍케어" className="h-8 w-[121px]" />
           </Link>
@@ -139,7 +144,7 @@ export default function UserHeader() {
             onBlur={handleGnbBlur}
             onKeyDown={handleGnbKeyDown}
           >
-            <nav className="flex h-16 items-center gap-1">
+            <nav className="flex h-16 items-center gap-2">
               {GNB_MENUS.map((menu, index) => (
                 <div
                   key={menu.label}
@@ -152,14 +157,14 @@ export default function UserHeader() {
                     to={menu.to}
                     onClick={closeGnb}
                     className={({ isActive }) =>
-                      `relative rounded-lg px-4 py-2 text-base hover:bg-[#ebf0f0] ${
+                      `flex h-[38px] items-center rounded-lg px-4 text-base hover:bg-[#ebf0f0] ${
                         openMenu === 'gnb' && gnbIndex === index
                           ? 'bg-[#ebf0f0]'
                           : ''
                       } ${
                         isActive
                           ? 'font-bold text-[#1a3234]'
-                          : 'font-normal text-[#3d4a4b]'
+                          : 'font-semibold text-[#3d4a4b]'
                       }`
                     }
                   >
@@ -167,7 +172,7 @@ export default function UserHeader() {
                       <>
                         {menu.label}
                         {isActive && (
-                          <span className="absolute inset-x-4 -bottom-1 h-0.5 rounded-sm bg-[#285a5c]" />
+                          <span className="absolute inset-x-4 -bottom-px h-0.5 rounded-sm bg-[#285a5c]" />
                         )}
                       </>
                     )}
@@ -181,7 +186,7 @@ export default function UserHeader() {
           </div>
 
           {/** 알림 패널을 묶음 오른쪽 끝에 맞추는 relative */}
-          <div className="relative flex items-center gap-2 justify-self-end max-[1100px]:ml-auto max-[760px]:gap-1">
+          <div className="relative flex items-center gap-3 justify-self-end max-[1100px]:ml-auto max-[760px]:gap-1">
             <NotificationDropdown
               isOpen={openMenu === 'notification'}
               onToggle={() => toggle('notification')}
@@ -194,7 +199,7 @@ export default function UserHeader() {
               aria-label="채팅"
               onClick={openChat}
             >
-              <MessageCircle size={24} className="max-[760px]:size-8" />
+              <Icon name="chat" className={HEADER_ICON_CLASS} />
               {/** 안 읽은 채팅 수(KSJ 채팅 API 연결 전 0) */}
               <CountBadge count={0} className="absolute right-px top-[5px]" />
             </button>
@@ -204,7 +209,7 @@ export default function UserHeader() {
                 isOpen={openMenu === 'profile'}
                 onToggle={() => toggle('profile')}
                 onClose={closeProfile}
-                buttonClassName={`${iconButton} border border-[#e2e7e7]`}
+                buttonClassName={profileButton}
               />
             </div>
             <button
@@ -216,7 +221,7 @@ export default function UserHeader() {
               aria-expanded={openMenu === 'drawer'}
               onClick={() => toggle('drawer')}
             >
-              <Menu size={24} className="max-[760px]:size-8" />
+              <Icon name="menu" className={HEADER_ICON_CLASS} />
             </button>
           </div>
         </div>
