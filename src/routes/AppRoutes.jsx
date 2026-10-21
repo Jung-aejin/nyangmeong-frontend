@@ -3,6 +3,7 @@ import { Route, Routes } from 'react-router-dom';
 import { MEMBER_ROLE } from '@/constants/memberRole';
 import AdminLayout from '@/layouts/AdminLayout';
 import UserLayout from '@/layouts/UserLayout';
+import PlaceLayout from '@/layouts/PlaceLayout';
 import ProtectedRoute from './ProtectedRoute';
 import { PATHS } from './paths';
 
@@ -26,6 +27,8 @@ const PetListPage = lazy(() => import('@/pages/mypage/PetListPage'));
 // admin
 const AdminHomePage = lazy(() => import('@/pages/admin/AdminHomePage'));
 
+const PlacePage = lazy(() => import('@/pages/place/PlacePage'));
+
 export default function AppRoutes() {
   return (
     <Suspense fallback={null}>
@@ -43,6 +46,10 @@ export default function AppRoutes() {
 
           {/* mypage. 로그인 API(AIC)가 나오면 ProtectedRoute 아래로 옮긴다 */}
           <Route path={PATHS.MYPAGE_PETS} element={<PetListPage />} />
+        </Route>
+
+        <Route element={<PlaceLayout />}>
+          <Route path={PATHS.PLACES} element={<PlacePage />} />
         </Route>
 
         {/* ai: 별도 창 전체 화면이라 UserLayout 밖에 둔다 */}
