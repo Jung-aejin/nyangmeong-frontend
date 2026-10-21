@@ -1,4 +1,7 @@
 import { IS_DEV } from '@/api/env';
+import profile1 from '@/assets/pets/profile1.png';
+import profile2 from '@/assets/pets/profile2.png';
+import profile3 from '@/assets/pets/profile3.png';
 import { addDays, getTodayYmd } from '@/utils/formatDate';
 import { MAX_MAIN_CARE, getNextDueYmd } from './careDue';
 
@@ -12,9 +15,9 @@ const getQueryParam = (name) =>
 const today = getTodayYmd();
 
 const fakePets = [
-  { petSn: 1, petNm: '나비', petSpcsCdNm: '고양이', chrctrImgPath: null },
-  { petSn: 2, petNm: '초코', petSpcsCdNm: '고양이', chrctrImgPath: null },
-  { petSn: 3, petNm: '두리', petSpcsCdNm: '강아지', chrctrImgPath: null },
+  { petSn: 1, petNm: '나비', petSpcsCdNm: '고양이', chrctrImgPath: profile1 },
+  { petSn: 2, petNm: '초코', petSpcsCdNm: '고양이', chrctrImgPath: profile2 },
+  { petSn: 3, petNm: '두리', petSpcsCdNm: '강아지', chrctrImgPath: profile3 },
 ];
 
 const getFakePets = () =>
@@ -319,6 +322,38 @@ fakeCareItems.push(
   {
     careItemSn: nextCareItemSn++,
     petSn: 1,
+    careItemNm: '영양제',
+    careIconCn: 'medication',
+    rptTypeCd: 'DAILY',
+    rptCycleCd: null,
+    rptCycleDayCnt: null,
+    mainExpsrYn: false,
+    baseItemYn: false,
+    lnkgTypeCd: 'PRSC',
+    ckupRcdSn: 1,
+    dosEndYmd: addDays(today, 40),
+    dayGoalCnt: 1,
+    regYmd: addDays(today, -10),
+  },
+  {
+    careItemSn: nextCareItemSn++,
+    petSn: 1,
+    careItemNm: '구충제',
+    careIconCn: 'pest_control',
+    rptTypeCd: 'REGULAR',
+    rptCycleCd: '1M',
+    rptCycleDayCnt: null,
+    mainExpsrYn: false,
+    baseItemYn: false,
+    lnkgTypeCd: 'PRVNT',
+    ckupRcdSn: 1,
+    dosEndYmd: null,
+    dayGoalCnt: null,
+    regYmd: addDays(today, -20),
+  },
+  {
+    careItemSn: nextCareItemSn++,
+    petSn: 1,
     careItemNm: '심장사상충 예방',
     careIconCn: 'pest_control',
     rptTypeCd: 'REGULAR',
@@ -341,6 +376,10 @@ fakeCareItems
       addFakeRecord(item, addDays(today, -1));
     if (['양치', '발 관리'].includes(item.careItemNm))
       addFakeRecord(item, addDays(today, -2));
+    // 기록 내용 "더보기"를 확인할 수 있게 오래된 기록을 더 둔다
+    if (item.careItemNm === '양치')
+      for (let days = 3; days <= 14; days += 1)
+        addFakeRecord(item, addDays(today, -days));
   });
 
 // 투약 항목의 오늘 체크 횟수. 서버에서는 체크 기록으로 센다

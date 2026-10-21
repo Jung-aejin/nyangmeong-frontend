@@ -27,7 +27,7 @@ export default function Card({
           },
           <span className="truncate">{title}</span>,
           sub && (
-            <small className="text-sm font-normal text-[#566465]">{sub}</small>
+            <small className="text-base font-medium text-[#667374]">{sub}</small>
           ),
         )}
         {action}

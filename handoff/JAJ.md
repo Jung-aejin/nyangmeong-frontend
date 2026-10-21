@@ -2,7 +2,7 @@
 
 ## 지금 하는 것
 
-SCR-HLT-003 케어 캘린더 (시작 2026-10-19) — 상태: 끝남 (승인 2026-10-19 10:14, 사람 확인 2026-10-19)
+SCR-HLT-003 케어 캘린더 (시작 2026-10-19) — 상태: 끝남 (승인 2026-10-19 10:14, 사람 확인 2026-10-19, 추가-14~16 사람 확인 2026-10-21)
 
 기준: 건강기록_기능명세서_v1.0_20261014, 건강기록_화면설계서_v1.0_20261014 (DMS)
 
@@ -42,12 +42,16 @@ API는 모두 아직 없다. 일정·케어 항목은 내 백엔드(JAJ), 반려
 | 추가-11 | `features/health/MonthCalendar.jsx` | 명령: `yarn -s lint`, `yarn -s build`. 화면: 날짜 칸에 일정 태그는 1건만 보이고 2건 이상이면 날짜 옆에 …가 나온다, 태그는 두 줄(1줄 반려동물 이름, 2줄 종류)이다, 칸 높이 80px는 그대로다 | 요청 2026-10-19 "일정은 하나만 보이게 하고 더 있으면 ...표시해줘 두줄로 바꿔주고" (추가-9의 2건 표시, 추가-10의 한 줄 태그를 대체) |
 | 추가-12 | `features/health/MonthCalendar.jsx` | 명령: `yarn -s lint`, `yarn -s build`. 화면: 일정이 2건 이상인 칸은 날짜 옆에 나머지 일정의 종류 색 점(최대 3개)과 `+n`이 나온다, `…`는 없다, 칸 높이 80px는 그대로다 | 요청 2026-10-19 "A+C 조합으로 적용해줘" (추가-11의 …를 대체, 시안에 없는 표시) |
 | 추가-13 | `features/health/MonthCalendar.jsx` | 명령: `yarn -s lint`, `yarn -s build`. 화면: 일정이 2건 이상인 칸에는 날짜 옆에 `+n`만 나오고 색 점은 없다 | 요청 2026-10-19 "색점줄은 빼" (추가-12의 색 점을 제외) |
+| 추가-14 | `features/health/CareItemModal.jsx` | 명령: `yarn -s lint`, `yarn -s build`. 화면: 관리 항목 추가 모달이 시안 `#m-care`(`.pm-sm`: 머리 아이콘 playlist_add·구분선, 필수/선택 표시, 아이콘 5열 격자(기타는 점선), 반복 유형·주기 구분 버튼(`.seg`), 일수 입력칸 안 "일마다", 하단 줄의 "* 표시는 필수 항목이에요"·취소·추가하기)과 같다 | 요청 2026-10-21 "CareItemModal을 시안에 맞춰줘" |
+| 추가-15 | `features/health/api.js`(가짜 반려동물 이미지 경로), `assets/pets/profile1~3.png`(새 파일, `html/assets/pets/` 복사), `PetTabs.jsx`, `CareList.jsx`, `CareTile.jsx`, `CareRecordList.jsx` | 명령: `yarn -s lint`, `yarn -s build`. 화면: 토탈 케어리스트 반려동물 칩에 시안 `.pet-ph`(원형 28px, 1px 테두리) 캐릭터 이미지가 나온다, 토탈 케어리스트의 글자 크기·굵기·색·간격이 `html/hlt-calendar.html`의 `.tile`·`.zone-k`·`.main-bar`·`.rec`와 같다 | 요청 2026-10-21 "반려동물 칩에 들어가는 이미지 넣어주고 토탈케어리스트도 글자 크기 등을 html과 맞춰줘" |
+| 추가-16 | `features/health/api.js`(가짜 항목에 구충제·영양제 추가, 오래된 기록 추가), `CareRecordList.jsx`, `CareList.jsx` | 명령: `yarn -s lint`, `yarn -s build`. 화면: 토탈 케어리스트 항목이 시안과 같다(정기관리에 구충제, 일상관리에 영양제 포함), 기록 내용은 날짜 10줄씩 페이지로 나뉘고 아래에 페이지 번호·이전/다음 버튼이 나온다(시안 `.pager`, 안쪽 스크롤 없음), 기록 내용 설명 글자는 16px이다 | 요청 2026-10-21 "토탈케어리스트 항목 html파일과 같이 해주고 아래 기록내용은 10개씩 보여줘" |
 
 ## 다음에 할 것
 
 - 연결 남음: 반려동물 목록·프로필 조회 `getPets` (SJM), 캐릭터 이미지 조회 (LJS), 케어 완료의 케어미션·포인트 반영 (SJM), 일정·케어 API `features/health/api.js` 가짜 응답을 실제 호출로 교체 (JAJ 백엔드)
 - 사이드 메뉴 "종합 건강기록"(`/health`)·"건강 일지"(`/health/diary`)는 라우트가 아직 없어 누르면 빈 화면. 해당 화면 작업 때 연결
-- 결정 필요: `CareItemModal`·공용 `ConfirmModal`을 시안 스타일로 맞출지, 우측 아래 플로팅 버튼(시안은 고양이 이미지)을 맞출지(LJS 파일)
+- 결정 필요: 공용 `ConfirmModal`을 시안 스타일로 맞출지, 우측 아래 플로팅 버튼(시안은 고양이 이미지)을 맞출지(LJS 파일). `CareItemModal`은 추가-14로 맞췄다
+- 정리: `features/health/api.js` 주석에 "더보기"라는 옛 표현이 남아 있다(지금은 페이지 나눔). 본문 줄 높이는 시안 1.6(25.6px), 우리는 Tailwind 기본 24px라 다르다(앱 전체 기준이라 팀 결정 필요)
 - 채팅 아이콘의 안 읽은 수 배지는 KSJ 채팅 API 연결 전이라 숨김
 - 다음 마일스톤: SCR-HLT-002 건강 일지(`/start HLT-002`)
-- 알릴 것(LJS): 공용 `layouts/UserHeader.jsx` 수정, `eslint.config.js`에 `html` 제외, 새 공용 컴포넌트 `Card`·`Badge`·`Icon`·`SideMenu`
+- 알릴 것(LJS): 공용 `layouts/UserHeader.jsx` 수정, `eslint.config.js`에 `html` 제외, 새 공용 컴포넌트 `Card`·`Badge`·`Icon`·`SideMenu`, `Card`의 부제(`sub`) 스타일을 시안 `.card-title small`(16px, 중간 굵기)로 변경

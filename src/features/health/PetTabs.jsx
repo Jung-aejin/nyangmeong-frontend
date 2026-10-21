@@ -17,37 +17,31 @@ export default function PetTabs({ pets, selectedPetSn, onSelect }) {
             type="button"
             role="tab"
             aria-selected={isSelected}
-            className={`inline-flex h-9 items-center gap-1.5 rounded-full border pr-3.5 pl-1 text-base ${
+            className={`inline-flex h-9 items-center gap-1.5 rounded-full border pr-3.5 pl-1 text-base font-normal ${
               isSelected
-                ? 'border-[#285a5c] bg-[#285a5c] font-semibold text-white'
+                ? 'border-[#285a5c] bg-[#285a5c] text-white'
                 : 'border-[#e2e7e7] bg-white text-[#1a3234] hover:bg-[#f4f6f6]'
             }`}
             onClick={() => onSelect(pet.petSn)}
           >
-            {pet.chrctrImgPath ? (
-              <img
-                src={pet.chrctrImgPath}
-                alt=""
-                className="size-7 rounded-full object-cover"
-              />
-            ) : (
-              <span
-                aria-hidden="true"
-                className={`grid size-7 place-items-center rounded-full text-sm font-bold ${
-                  isSelected
-                    ? 'bg-white text-[#285a5c]'
-                    : 'bg-[#f4f6f6] text-[#285a5c]'
-                }`}
-              >
-                {pet.petNm.slice(0, 1)}
-              </span>
-            )}
-            {pet.petNm}
             <span
-              className={`text-sm font-normal ${
-                isSelected ? 'text-white' : 'text-[#667374]'
+              aria-hidden="true"
+              className={`grid size-7 place-items-center overflow-hidden rounded-full border border-[#e2e7e7] text-sm font-bold text-[#285a5c] ${
+                isSelected ? 'bg-white' : 'bg-[#f4f6f6]'
               }`}
             >
+              {pet.chrctrImgPath ? (
+                <img
+                  src={pet.chrctrImgPath}
+                  alt=""
+                  className="size-full object-cover"
+                />
+              ) : (
+                pet.petNm.slice(0, 1)
+              )}
+            </span>
+            {pet.petNm}
+            <span className={isSelected ? 'text-white' : 'text-[#667374]'}>
               {pet.petSpcsCdNm}
             </span>
           </button>

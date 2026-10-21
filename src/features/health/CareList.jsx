@@ -77,7 +77,7 @@ export default function CareList({ petSn }) {
         action={
           <button
             type="button"
-            className="inline-flex h-8 shrink-0 items-center rounded-[6px] bg-[#e9f2f2] px-3 text-sm font-semibold text-[#1e4a4c] hover:bg-[#cde0e0]"
+            className="inline-flex h-8 shrink-0 items-center rounded-[6px] bg-[#e9f2f2] px-3 text-base font-semibold text-[#1e4a4c] hover:bg-[#cde0e0]"
             onClick={() => setIsAdding(true)}
           >
             관리 항목 추가
@@ -103,6 +103,7 @@ export default function CareList({ petSn }) {
         {renderZone('일상관리(DAILY)', dailyItems, null, 'mt-8')}
 
         <CareRecordList
+          key={petSn}
           records={careRecords}
           onCancel={(record) => cancelCareRecord.mutate(record.careRcdSn)}
         />

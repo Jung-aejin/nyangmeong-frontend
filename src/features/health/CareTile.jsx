@@ -50,7 +50,7 @@ export default function CareTile({
               item.todayDoneYn ? 'text-[#1e4a4c]' : 'text-[#566465]'
             }`}
           >
-            <Icon name={item.careIconCn} className="text-2xl" />
+            <Icon name={item.careIconCn} />
           </span>
           <span
             className={`min-w-0 flex-1 ${item.todayDoneYn ? 'text-[#1e4a4c]' : 'text-[#1a3234]'}`}
@@ -117,7 +117,7 @@ export default function CareTile({
             <button
               type="button"
               disabled={item.todayChckCnt === 0}
-              className="text-sm font-semibold text-[#1e4a4c] hover:underline hover:underline-offset-[3px] disabled:opacity-40 disabled:hover:no-underline"
+              className="text-sm text-[#1e4a4c] hover:underline hover:underline-offset-[3px] disabled:opacity-40 disabled:hover:no-underline"
               onClick={() => onCancelLastDose(item)}
             >
               마지막 1회 취소
@@ -126,7 +126,7 @@ export default function CareTile({
           {item.lnkgTypeCd && item.ckupRcdSn && (
             <Link
               to={getSourcePath(item)}
-              className="text-sm font-semibold text-[#1e4a4c] hover:underline hover:underline-offset-[3px]"
+              className="text-sm text-[#1e4a4c] hover:underline hover:underline-offset-[3px]"
             >
               출처 보기
             </Link>

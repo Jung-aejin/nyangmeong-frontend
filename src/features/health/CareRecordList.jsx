@@ -1,18 +1,31 @@
+import { useState } from 'react';
 import Icon from '@/components/Icon';
 import { formatMonthDayDot, getTodayYmd } from '@/utils/formatDate';
 
+const PAGE_SIZE = 10;
+
 // 기록 내용(FN-HLT-003-12). 토탈 케어리스트 카드 안에 놓는다. 아이콘을 누르면 그날 완료 기록이 취소되고, 마우스를 올리면 아이콘이 ✕로 바뀐다
+// 날짜 10줄씩 페이지로 나눠 보여 준다. 기록을 취소해 줄어들면 마지막 페이지로 당겨 온다
 export default function CareRecordList({ records, onCancel }) {
+  const [page, setPage] = useState(1);
   const todayYmd = getTodayYmd();
   const dates = [...new Set(records.map((record) => record.careYmd))]
     .sort()
     .reverse();
+  const pageCount = Math.max(1, Math.ceil(dates.length / PAGE_SIZE));
+  const currentPage = Math.min(page, pageCount);
+  const pageDates = dates.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE,
+  );
+  const pagerClass =
+    'grid h-9 min-w-9 place-items-center rounded-full px-2 font-medium';
 
   return (
     <div className="mt-8">
       <div className="mb-2 flex items-baseline gap-3">
         <h3 className="text-lg font-semibold text-[#1a3234]">기록 내용</h3>
-        <span className="text-sm text-[#667374]">
+        <span className="text-[#667374]">
           일상관리·정기관리 완료 기록 통합
         </span>
       </div>
@@ -31,8 +44,8 @@ export default function CareRecordList({ records, onCancel }) {
           </div>
         </div>
       ) : (
-        <ul className="max-h-48 overflow-y-auto">
-          {dates.map((ymd) => (
+        <ul>
+          {pageDates.map((ymd) => (
             <li
               key={ymd}
               className="flex items-start gap-3.5 border-b border-[#edf1f1] py-3.5 last:border-b-0"
@@ -78,6 +91,48 @@ export default function CareRecordList({ records, onCancel }) {
             </li>
           ))}
         </ul>
+      )}
+      {pageCount > 1 && (
+        <nav
+          aria-label="기록 내용 페이지"
+          className="mt-6 flex items-center justify-center gap-1"
+        >
+          <button
+            type="button"
+            aria-label="이전 페이지"
+            disabled={currentPage === 1}
+            className={`${pagerClass} text-[#3d4a4b] hover:bg-[#ebf0f0] disabled:pointer-events-none disabled:text-[#b9c4c4]`}
+            onClick={() => setPage(currentPage - 1)}
+          >
+            <Icon name="chevron_left" />
+          </button>
+          {Array.from({ length: pageCount }, (_, index) => index + 1).map(
+            (number) => (
+              <button
+                key={number}
+                type="button"
+                aria-current={number === currentPage ? 'page' : undefined}
+                className={`${pagerClass} ${
+                  number === currentPage
+                    ? 'bg-[#285a5c] font-bold text-white'
+                    : 'text-[#3d4a4b] hover:bg-[#ebf0f0]'
+                }`}
+                onClick={() => setPage(number)}
+              >
+                {number}
+              </button>
+            ),
+          )}
+          <button
+            type="button"
+            aria-label="다음 페이지"
+            disabled={currentPage === pageCount}
+            className={`${pagerClass} text-[#3d4a4b] hover:bg-[#ebf0f0] disabled:pointer-events-none disabled:text-[#b9c4c4]`}
+            onClick={() => setPage(currentPage + 1)}
+          >
+            <Icon name="chevron_right" />
+          </button>
+        </nav>
       )}
     </div>
   );
