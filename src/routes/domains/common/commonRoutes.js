@@ -1,7 +1,7 @@
 import { lazy } from 'react';
 import { PATHS } from '@/routes/paths';
 
-const LandingPage = lazy(() => import('@/pages/main/LandingPage'));
+const LandingPage = lazy(() => import('@/pages/landing/LandingPage'));
 const NotificationSettingsPage = lazy(
   () => import('@/pages/settings/NotificationSettingsPage'),
 );
