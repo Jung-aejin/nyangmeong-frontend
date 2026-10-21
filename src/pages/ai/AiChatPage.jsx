@@ -8,7 +8,6 @@ import ConversationHeader, {
 import ConversationMessages from '@/features/ai/chat/ConversationMessages';
 import AnswerBubble from '@/features/ai/chat/AnswerBubble';
 import ConversationSidebar from '@/features/ai/chat/ConversationSidebar';
-import { OPEN_CHAT_MODAL_MESSAGE } from '@/constants/chatModal';
 import { CHAT_MODAL_ACTION } from '@/features/ai/shared/fakeRoutingMap';
 import { fakePets } from '@/features/ai/chat/fakePets';
 import {
@@ -28,6 +27,7 @@ import useAnswerStream from '@/features/ai/chat/useAnswerStream';
 import RouteGuideBubble from '@/features/ai/chat/RouteGuideBubble';
 import WelcomeMessage from '@/features/ai/chat/WelcomeMessage';
 import { useMemberSummary } from '@/features/member/queries';
+import useChatWindow from '@/hooks/useChatWindow';
 import { PATHS } from '@/routes/paths';
 
 /** 임시 반려동물 목록 */
@@ -55,6 +55,7 @@ export default function AiChatPage() {
   const confirmRegister = useConfirmRegister();
   const cancelRegister = useCancelRegister();
   const answer = useAnswerStream();
+  const openChatWindow = useChatWindow();
   /** 이동 안내 상태 */
   const [route, setRoute] = useState(null);
   /** 이번 화면에서 받은 미리보기 카드: 메시지 번호별 카드·상태·결과 문구 */
@@ -173,18 +174,12 @@ export default function AiChatPage() {
   /** 유예 종료 후 본창 이동 */
   const handleRouteElapsed = () => {
     if (route.action === CHAT_MODAL_ACTION) {
-      /** 본창 없으면 새 탭 */
-      const opener = window.opener;
-      if (opener && !opener.closed) {
-        opener.postMessage(
-          { type: OPEN_CHAT_MODAL_MESSAGE },
-          window.location.origin,
-        );
-        opener.focus();
+      /** 팝업 차단 시 이 창을 채팅 화면으로 */
+      if (openChatWindow()) {
+        window.close();
       } else {
-        window.open(PATHS.MAIN, '_blank');
+        window.location.href = PATHS.CHAT;
       }
-      window.close();
     } else {
       openInMainWindow(route.path);
     }

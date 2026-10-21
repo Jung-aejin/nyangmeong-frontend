@@ -33,7 +33,7 @@
 | ACC-020 | 회원탈퇴 | `/mypage/withdraw` | YAY | |
 | COM-008 | 알림 설정 | `/settings/notifications` | LJS | ✓ |
 | AIM-011 | AI 대화창(새 창) | `/ai` (COM-007 런처가 엶) | LJS | |
-| COM-009 · CMU-005 | 채팅(새 창) | `/chat` (`?otoChatRoomSn=`). 새 창 확정 (기능 분배 3.1절 20번) | KSJ | |
+| COM-009 · CMU-005 | 채팅(새 창) | `/chat` (`?otoChatRoomSn=`). 새 창 확정 (기능 분배 3.1절 20번) | LJS | |
 | HLT-011 | 종합 건강기록 | `/health` | JAJ | ✓ |
 | HLT-002 | 건강 일지 | `/health/diary` (매핑표 13행) | JAJ | ✓ |
 | HLT-003 | 케어 캘린더 | `/health/calendar` (매핑표 11·12행) | JAJ | ✓ |
