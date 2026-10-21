@@ -1,12 +1,9 @@
-import { Plus, User } from 'lucide-react';
+import { Plus, User, X } from 'lucide-react';
 import { useState } from 'react';
 import Badge from '@/components/Badge';
 import { showToast } from '@/components/toastStore';
 import { useCaregivers, useDeleteCaregiver } from '../queries';
 import { CGVR_ROLE, MAX_CAREGIVERS } from '../shared/petCodes';
-
-const ROW_BUTTON =
-  'inline-flex h-10 shrink-0 items-center justify-center rounded-md border border-line bg-white px-4 font-semibold hover:bg-surface-2 hover:border-line-strong';
 
 /** 'YYYY-MM-DD' → 'MM-DD' */
 const formatLinkDate = (lnkDt) => lnkDt.slice(5);
@@ -74,38 +71,51 @@ function CaregiverDeleteDialog({ pet, caregiver, onClose }) {
   );
 }
 
-function CaregiverRow({ name, badge, sub, action }) {
+const MEMBER_CARD =
+  'relative flex min-w-0 items-center gap-2.5 rounded-card border border-line bg-white px-3.5 py-3 text-left';
+
+function Avatar({ children }) {
   return (
-    <li className="flex items-center gap-4 px-5 py-6 not-last:border-b not-last:border-line">
-      <span className="grid size-11 shrink-0 place-items-center rounded-full bg-surface-3 text-muted">
-        <User className="size-5" aria-hidden="true" />
-      </span>
-      <div className="min-w-0 flex-1">
-        <p className="flex flex-wrap items-center gap-2 font-semibold">
+    <span className="grid size-9 shrink-0 place-items-center rounded-full bg-surface-3 text-muted">
+      {children ?? <User className="size-[18px]" aria-hidden="true" />}
+    </span>
+  );
+}
+
+function MemberCard({ name, badge, lines, onRemove, removeLabel }) {
+  return (
+    <li className={MEMBER_CARD}>
+      <Avatar />
+      <div className={`flex min-w-0 flex-col ${onRemove ? 'pr-5' : ''}`}>
+        <p className="flex items-center gap-1.5 font-semibold whitespace-nowrap">
           {name}
           {badge}
         </p>
-        <p className="mt-1 text-sm text-subtle">{sub}</p>
+        {lines.map((line) => (
+          <p key={line} className="truncate text-xs text-subtle">
+            {line}
+          </p>
+        ))}
       </div>
-      {action}
+      {onRemove && (
+        <button
+          type="button"
+          onClick={onRemove}
+          aria-label={removeLabel}
+          className="absolute top-1 right-1 grid size-7 place-items-center rounded-full text-subtle hover:bg-surface-2 hover:text-ink"
+        >
+          <X className="size-4" aria-hidden="true" />
+        </button>
+      )}
     </li>
   );
 }
 
-function SectionTitle({ id, children, sub }) {
-  return (
-    <h2
-      id={id}
-      className="flex items-baseline gap-2 text-xl font-bold tracking-[-0.02em]"
-    >
-      {children}
-      {sub && <small className="font-medium text-subtle">{sub}</small>}
-    </h2>
-  );
-}
+const GRID =
+  'grid grid-cols-2 gap-3 min-[761px]:grid-cols-3 min-[1101px]:grid-cols-5';
 
-/** 반려동물 슬라이드 아래 가족관리 영역: 주양육자는 연동 전원, 공동양육자는 본인 연동 1건 */
-export default function FamilySection({ pet, onInvite, onUnlink }) {
+/** 슬라이드 카드 안 가족 영역: 주양육자는 연동 전원, 공동양육자는 주양육자와 본인 연동 1건 */
+export default function FamilySection({ pet, onInvite }) {
   const { data: caregivers = [], isPending } = useCaregivers(pet.petSn);
   const [deletingCaregiver, setDeletingCaregiver] = useState(null);
 
@@ -118,108 +128,96 @@ export default function FamilySection({ pet, onInvite, onUnlink }) {
     (caregiver) => caregiver.cgvrRoleCd === CGVR_ROLE.CCG,
   );
 
-  /** 공동양육자 시점: 주양육자 줄과 내 연동 1건만 */
+  /** 공동양육자 시점: 주양육자와 나만, 삭제·초대 없음 */
   if (owner) {
     const mine = coParents.find((caregiver) => caregiver.myYn === 'Y');
     return (
-      <div className="mt-8 grid gap-x-8 gap-y-12 border-t border-line pt-12 min-[761px]:grid-cols-2 min-[761px]:items-start">
-        <section aria-labelledby="family-owner" className="flex flex-col gap-5">
-          <SectionTitle id="family-owner">주양육자</SectionTitle>
-          <ul className="rounded-modal border border-line bg-white shadow-depth-sm">
-            <CaregiverRow
-              name={owner.mbrNcnm}
-              badge={
-                <Badge className="bg-tone-green-bg text-tone-green-fg">
-                  주양육
-                </Badge>
-              }
-              sub="이 반려동물을 등록한 사람"
-            />
-          </ul>
-        </section>
-        {mine && (
-          <section
-            aria-labelledby="family-mine"
-            className="flex flex-col gap-5"
-          >
-            <SectionTitle id="family-mine">내 연동 상태</SectionTitle>
-            <ul className="rounded-modal border border-line bg-white shadow-depth-sm">
-              <CaregiverRow
-                name={`나 (${mine.mbrNcnm})`}
-                badge={
-                  <Badge className="bg-tone-gray-bg text-tone-gray-fg">
-                    공동양육
-                  </Badge>
-                }
-                sub={`${mine.authrtNm} · ${formatLinkDate(mine.lnkDt)} 연동`}
-                action={
-                  <button
-                    type="button"
-                    onClick={() => onUnlink(pet)}
-                    className={ROW_BUTTON}
-                  >
-                    연동 해제
-                  </button>
-                }
-              />
-            </ul>
-          </section>
-        )}
-      </div>
-    );
-  }
-
-  /** 주양육자 시점: 연동된 공동양육자 전원, 인원 상한 5명 */
-  const isFull = coParents.length >= MAX_CAREGIVERS;
-  return (
-    <section
-      aria-labelledby="family-list"
-      className="mt-8 flex max-w-[640px] flex-col gap-5 border-t border-line pt-12"
-    >
-      <SectionTitle
-        id="family-list"
-        sub={`${coParents.length}/${MAX_CAREGIVERS}명`}
+      <section
+        aria-labelledby="family-title"
+        className="col-span-full mt-2 border-t border-line-strong pt-6"
       >
-        가족관리 — {pet.petNm}
-      </SectionTitle>
-      {coParents.length > 0 ? (
-        <ul className="rounded-modal border border-line bg-white shadow-depth-sm">
-          {coParents.map((caregiver) => (
-            <CaregiverRow
-              key={caregiver.rltnSn}
-              name={caregiver.mbrNcnm}
+        <h3 id="family-title" className="mb-3 text-lg font-bold">
+          가족
+        </h3>
+        <ul className={GRID}>
+          <MemberCard
+            name={owner.mbrNcnm}
+            badge={
+              <Badge className="bg-tone-green-bg text-tone-green-fg">
+                주양육
+              </Badge>
+            }
+            lines={['등록한 사람']}
+          />
+          {mine && (
+            <MemberCard
+              name={`나 (${mine.mbrNcnm})`}
               badge={
                 <Badge className="bg-tone-gray-bg text-tone-gray-fg">
                   공동양육
                 </Badge>
               }
-              sub={`${caregiver.authrtNm} · ${formatLinkDate(caregiver.lnkDt)} 연동`}
-              action={
-                <button
-                  type="button"
-                  onClick={() => setDeletingCaregiver(caregiver)}
-                  className={ROW_BUTTON}
-                >
-                  삭제
-                </button>
-              }
+              lines={[mine.authrtNm, `${formatLinkDate(mine.lnkDt)} 연동`]}
             />
-          ))}
+          )}
         </ul>
-      ) : (
-        <p className="rounded-modal border border-line bg-white px-5 py-6 text-subtle shadow-depth-sm">
-          아직 함께 돌보는 가족이 없어요
-        </p>
-      )}
-      <button
-        type="button"
-        onClick={() => onInvite(pet)}
-        disabled={isFull}
-        className={`${ROW_BUTTON} w-full gap-1.5 disabled:cursor-not-allowed disabled:bg-surface-3 disabled:text-line-strong`}
+      </section>
+    );
+  }
+
+  /** 주양육자 시점: 연동된 공동양육자 전원 + 남은 자리만큼 점선 초대 카드, 상한 5명 */
+  const remaining = MAX_CAREGIVERS - coParents.length;
+  return (
+    <section
+      aria-labelledby="family-title"
+      className="col-span-full mt-2 border-t border-line-strong pt-6"
+    >
+      <h3
+        id="family-title"
+        className="mb-3 flex items-baseline gap-2 text-lg font-bold"
       >
-        <Plus className="size-[18px]" aria-hidden="true" />
-        가족 초대하기
-      </button>
+        가족
+        {remaining <= 0 && (
+          <small className="text-sm font-medium text-subtle">
+            {MAX_CAREGIVERS}명이 모두 연동돼 더 초대할 수 없어요
+          </small>
+        )}
+      </h3>
+      <ul className={GRID}>
+        {coParents.map((caregiver) => (
+          <MemberCard
+            key={caregiver.rltnSn}
+            name={caregiver.mbrNcnm}
+            lines={[
+              caregiver.authrtNm,
+              `${formatLinkDate(caregiver.lnkDt)} 연동`,
+            ]}
+            onRemove={() => setDeletingCaregiver(caregiver)}
+            removeLabel={`${caregiver.mbrNcnm} 가족에서 삭제`}
+          />
+        ))}
+        {remaining > 0 && (
+          <li className="flex">
+            <button
+              type="button"
+              onClick={() => onInvite(pet)}
+              className={`${MEMBER_CARD} w-full cursor-pointer border-dashed text-brand-600 hover:border-brand-500 hover:bg-brand-50`}
+            >
+              <span className="grid size-9 shrink-0 place-items-center rounded-full border border-dashed border-line-strong">
+                <Plus className="size-[18px]" aria-hidden="true" />
+              </span>
+              <span className="flex min-w-0 flex-col">
+                <span className="font-semibold whitespace-nowrap">
+                  가족 초대
+                </span>
+                <span className="truncate text-xs text-subtle">
+                  {remaining}자리 남음
+                </span>
+              </span>
+            </button>
+          </li>
+        )}
+      </ul>
       {deletingCaregiver && (
         <CaregiverDeleteDialog
           pet={pet}

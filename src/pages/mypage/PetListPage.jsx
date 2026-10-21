@@ -1,7 +1,6 @@
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
 import { showToast } from '@/components/toastStore';
-import FamilySection from '@/features/pet/list/FamilySection';
 import PetDeleteDialog from '@/features/pet/list/PetDeleteDialog';
 import PetEmpty from '@/features/pet/list/PetEmpty';
 import PetFormModal from '@/features/pet/list/PetFormModal';
@@ -39,23 +38,18 @@ export default function PetListPage() {
           onEdit={(pet) => setModalPetSn(pet.petSn)}
           onDelete={setDeletingPet}
           onUnlink={showPreparing}
-        >
-          <button
-            type="button"
-            onClick={() => setModalPetSn(null)}
-            disabled={isFull}
-            className="inline-flex h-10 items-center justify-center gap-1.5 rounded-md bg-brand-500 px-4 font-semibold text-white hover:bg-brand-600 disabled:cursor-not-allowed disabled:bg-surface-3 disabled:text-line-strong"
-          >
-            <Plus className="size-[18px]" />
-            반려동물 등록
-          </button>
-        </PetSlide>
-      )}
-      {pets.length > 0 && (
-        <FamilySection
-          pet={pets[currentIndex]}
           onInvite={showPreparing}
-          onUnlink={showPreparing}
+          action={
+            <button
+              type="button"
+              onClick={() => setModalPetSn(null)}
+              disabled={isFull}
+              className="inline-flex h-10 items-center justify-center gap-1.5 rounded-md bg-brand-500 px-4 font-semibold text-white hover:bg-brand-600 disabled:cursor-not-allowed disabled:bg-surface-3 disabled:text-line-strong"
+            >
+              <Plus className="size-[18px]" />
+              반려동물 등록
+            </button>
+          }
         />
       )}
       {isFull && (
