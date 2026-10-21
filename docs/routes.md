@@ -4,6 +4,8 @@
 
 `src/routes/paths.js`에 넣을 화면 ID → URL. 반영한 뒤에는 `paths.js`가 정본이다.
 
+2026-10-21: 1장의 URL을 `paths.js`에 모두 넣었다(구획은 `routes/domains` 폴더와 같음). 펫이야기 작성·수정은 `/community/posts/new`·`/community/posts/:pstSn/edit`로 해석했다(KSJ 확인). 새 URL은 이 문서를 먼저 고치고 팀에 알린 뒤 `paths.js`에 넣는다.
+
 ## 0. 규칙
 
 | 항목 | 규칙 |
@@ -83,7 +85,7 @@
 
 | # | 내용 | 정할 사람 |
 | --- | --- | --- |
-| 1 | `paths.js`의 `HEALTH_RECORDS`(`/health/records`)·`HEALTH_STATUS`(`/health/status`)가 어느 화면인지. 초안은 `/health/diary`, `/health/calendar` | JAJ |
+| 1 | (해결) `HEALTH_RECORDS`·`HEALTH_STATUS`는 `paths.js`에 없다. `/health/diary`, `/health/calendar`로 반영됨 | JAJ |
 
 ### AI 서버 구현 전
 
