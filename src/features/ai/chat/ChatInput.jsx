@@ -45,7 +45,7 @@ export default function ChatInput({ petNm, isDisabled, onSubmit }) {
     /** 760px 미만: 화면 아래에 붙고 글자 수는 숨김(넘으면 아래 안내가 대신함) */
     <div className="mx-auto w-full max-w-[820px] px-6 pb-4 max-[760px]:px-3 max-[760px]:pb-[calc(8px+env(safe-area-inset-bottom))]">
       <form
-        className="flex items-center gap-3 rounded-[14px] border border-[#d3dae2] bg-white px-4 py-3 max-[760px]:gap-2 max-[760px]:rounded-[22px] max-[760px]:py-2 max-[760px]:pl-4 max-[760px]:pr-2"
+        className="flex items-center gap-3 rounded-[14px] border border-[#d3dae2] bg-white px-4 py-3 max-[760px]:items-end max-[760px]:gap-2 max-[760px]:rounded-[22px] max-[760px]:py-1 max-[760px]:pl-4 max-[760px]:pr-2"
         onSubmit={(event) => {
           event.preventDefault();
           submit();
@@ -56,7 +56,7 @@ export default function ChatInput({ petNm, isDisabled, onSubmit }) {
           rows={1}
           aria-label="메시지 입력"
           placeholder={`${petNm ?? '반려동물'}에 대해 물어보거나, "병원 찾아줘"처럼 말해보세요`}
-          className="max-h-40 min-w-0 flex-1 resize-none bg-transparent text-base text-[#1a3234] outline-none [field-sizing:content] placeholder:text-[#8c9899]"
+          className="max-h-40 min-w-0 flex-1 resize-none bg-transparent text-base text-[#1a3234] outline-none [field-sizing:content] placeholder:text-[#8c9899] max-[760px]:mb-1 max-[760px]:placeholder:text-[13px]/6"
           onChange={handleChange}
           onKeyDown={handleKeyDown}
         />
@@ -67,7 +67,7 @@ export default function ChatInput({ petNm, isDisabled, onSubmit }) {
           type="submit"
           aria-label="전송"
           disabled={!canSubmit}
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-[#285a5c] text-white disabled:bg-[#ebf0f0] disabled:text-[#8c9899] max-[760px]:size-9 max-[760px]:rounded-full"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-[#285a5c] text-white disabled:bg-[#ebf0f0] disabled:text-[#8c9899] max-[760px]:size-8 max-[760px]:rounded-full"
         >
           <ArrowUp size={20} aria-hidden="true" />
         </button>
@@ -79,7 +79,8 @@ export default function ChatInput({ petNm, isDisabled, onSubmit }) {
         </p>
       )}
       <p className="mt-2 text-center text-sm text-[#667374] max-[760px]:mt-1.5 max-[760px]:text-xs break-keep">
-        AI 매니저는 진단·의료 판단을 하지 않습니다. 이상 징후가 있으면 수의사와
+        AI 매니저는 진단·의료 판단을 하지 않습니다.
+        <br className="hidden max-[760px]:inline" /> 이상 징후가 있으면 수의사와
         상담하세요.
       </p>
     </div>

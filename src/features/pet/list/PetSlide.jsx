@@ -1,6 +1,7 @@
 import { Cat, ChevronLeft, ChevronRight, Dog, X } from 'lucide-react';
 import { useLayoutEffect, useRef, useState } from 'react';
 import { PET_REL, PET_SE } from '../shared/petCodes';
+import FamilySection from './FamilySection';
 import {
   formatSpecies,
   formatWeight,
@@ -17,7 +18,10 @@ const NAV_BUTTON =
 const CARD_BUTTON =
   'inline-flex h-10 items-center justify-center rounded-md border border-line bg-white px-4 font-semibold hover:bg-surface-2 hover:border-line-strong';
 
-/** children 자리: 카드 아래 페이지 표시 오른쪽 (등록 버튼) */
+/** 좌우로 밀어서 넘기는 최소 이동 거리(px) */
+const SWIPE_DISTANCE = 50;
+
+/** action 자리: 카드 위 오른쪽 (등록 버튼) */
 export default function PetSlide({
   pets,
   index,
@@ -25,58 +29,89 @@ export default function PetSlide({
   onEdit,
   onDelete,
   onUnlink,
-  children,
+  onInvite,
+  action,
 }) {
   const pet = pets[index];
+  const touchStartX = useRef(null);
+
+  /** 모바일: 카드를 좌우로 밀어 이전·다음 반려동물로 이동 */
+  const handleTouchEnd = (event) => {
+    if (touchStartX.current === null) return;
+    const distance = event.changedTouches[0].clientX - touchStartX.current;
+    touchStartX.current = null;
+    if (distance <= -SWIPE_DISTANCE && index < pets.length - 1) {
+      onMove(index + 1);
+    } else if (distance >= SWIPE_DISTANCE && index > 0) {
+      onMove(index - 1);
+    }
+  };
 
   return (
     <section aria-label="반려동물 슬라이드">
-      <PetCard
-        key={pet.petSn}
-        pet={pet}
-        onEdit={onEdit}
-        onDelete={onDelete}
-        onUnlink={onUnlink}
-      />
-      <div className="mt-3 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => onMove(index - 1)}
-            disabled={index === 0}
-            aria-label="이전 반려동물"
-            className={NAV_BUTTON}
+      {action && <div className="mb-4 flex justify-end">{action}</div>}
+      <div
+        className="relative"
+        onTouchStart={(event) => {
+          touchStartX.current = event.touches[0].clientX;
+        }}
+        onTouchEnd={handleTouchEnd}
+      >
+        <PetCard
+          key={pet.petSn}
+          pet={pet}
+          onEdit={onEdit}
+          onDelete={onDelete}
+          onUnlink={onUnlink}
+          onInvite={onInvite}
+        >
+          <nav
+            aria-label="반려동물 선택"
+            className="absolute inset-x-0 bottom-5 z-[1] flex justify-center gap-2"
           >
-            <ChevronLeft className="size-5" />
-          </button>
-          <p className="min-w-11 text-center text-subtle">
-            <b className="font-semibold text-ink">{index + 1}</b> /{' '}
-            {pets.length}
-          </p>
-          <button
-            type="button"
-            onClick={() => onMove(index + 1)}
-            disabled={index === pets.length - 1}
-            aria-label="다음 반려동물"
-            className={`${NAV_BUTTON} enabled:border-brand-500 enabled:text-brand-600 hover:enabled:bg-brand-50`}
-          >
-            <ChevronRight className="size-5" />
-          </button>
-        </div>
-        {children}
+            {pets.map((dotPet, dotIndex) => (
+              <button
+                key={dotPet.petSn}
+                type="button"
+                onClick={() => onMove(dotIndex)}
+                aria-label={`${dotIndex + 1}번째 반려동물`}
+                aria-current={dotIndex === index ? 'true' : undefined}
+                className={`h-2 rounded-full transition-[width] duration-200 ${dotIndex === index ? 'w-[22px] bg-brand-600' : 'w-2 bg-line-strong'}`}
+              />
+            ))}
+          </nav>
+        </PetCard>
+        <button
+          type="button"
+          onClick={() => onMove(index - 1)}
+          disabled={index === 0}
+          aria-label="이전 반려동물"
+          className={`${NAV_BUTTON} absolute top-1/2 -left-5 z-[2] -translate-y-1/2 shadow-depth-md disabled:shadow-none max-[760px]:hidden`}
+        >
+          <ChevronLeft className="size-5" />
+        </button>
+        <button
+          type="button"
+          onClick={() => onMove(index + 1)}
+          disabled={index === pets.length - 1}
+          aria-label="다음 반려동물"
+          className={`${NAV_BUTTON} absolute top-1/2 -right-5 z-[2] -translate-y-1/2 shadow-depth-md enabled:border-brand-500 enabled:text-brand-600 hover:enabled:bg-brand-50 disabled:shadow-none max-[760px]:hidden`}
+        >
+          <ChevronRight className="size-5" />
+        </button>
       </div>
     </section>
   );
 }
 
-function PetCard({ pet, onEdit, onDelete, onUnlink }) {
+function PetCard({ pet, onEdit, onDelete, onUnlink, onInvite, children }) {
   const isCoParent = pet.petRelCd === PET_REL.CO_PARENT;
   const gndrText = `${getGndrName(pet)}${pet.nutrYn === 'Y' ? '(중성화 완료)' : ''}`;
 
   return (
     <article
       aria-labelledby="pet-name"
-      className="grid gap-5 rounded-modal border border-line bg-white p-5 shadow-depth-sm min-[761px]:grid-cols-[180px_minmax(0,1fr)] min-[761px]:gap-8 min-[761px]:px-8 min-[761px]:py-6 min-[1101px]:grid-cols-[220px_minmax(0,1fr)] min-[1101px]:gap-14 min-[1101px]:px-12 min-[1101px]:pt-12 min-[1101px]:pb-8"
+      className="relative grid gap-5 rounded-modal border border-line bg-white p-5 pb-16 shadow-depth-sm min-[761px]:grid-cols-[180px_minmax(0,1fr)] min-[761px]:gap-x-8 min-[761px]:gap-y-6 min-[761px]:px-8 min-[761px]:pt-6 min-[1101px]:grid-cols-[220px_minmax(0,1fr)] min-[1101px]:gap-x-14 min-[1101px]:px-12 min-[1101px]:pt-12"
     >
       <div className="flex flex-row items-end justify-between gap-5 min-[761px]:flex-col min-[761px]:items-center min-[761px]:justify-center">
         <PetFace pet={pet} />
@@ -143,6 +178,8 @@ function PetCard({ pet, onEdit, onDelete, onUnlink }) {
           </InfoGroup>
         </div>
       </div>
+      <FamilySection pet={pet} onInvite={onInvite} />
+      {children}
     </article>
   );
 }
