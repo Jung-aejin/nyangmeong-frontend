@@ -1,9 +1,15 @@
 import { useState } from 'react';
 import { generatePath, useNavigate } from 'react-router-dom';
 import Icon from '@/components/Icon';
+import Modal from '@/components/Modal';
+import { BTN_PRIMARY, BTN_SECONDARY } from '@/components/buttonStyles';
 import { PATHS } from '@/routes/paths';
 import { getTodayYmd } from '@/utils/formatDate';
-import { useCreateCheckup, useFindNearSchedule } from '../queries';
+import {
+  useCreateCheckup,
+  useFindNearSchedule,
+  useUpdateCheckup,
+} from '../queries';
 import { CHECKUP_TYPES } from '../scheduleTypes';
 import FieldError from './FieldError';
 import FormModal from './FormModal';
@@ -31,29 +37,39 @@ const OPTIONAL = (
  * - initialStep="form"·rcptSn: 영수증 인식에 실패해 [직접 입력]으로 연 경우, 저장 때 이 영수증을 검진기록에 연결한다
  * - 저장하면 같은 날 병원 일정에 연결하고, 없고 앞뒤 7일 안에 예정 일정이 있으면 옮겨 연결할지 먼저 확인
  * - 저장 뒤 새 검진기록의 검진상세로 이동
+ * - checkup: 검진상세 [검진기록 수정]으로 연 수정 상태. 기존 값이 채워지고 방법 선택·예정 일정 확인 없이 저장하며,
+ *   반려동물을 바꾸면 연동 케어 항목도 옮겨진다는 확인 뒤 저장
  */
 export default function CheckupModal({
   pets,
   defaultPetSn,
   initialStep = 'select',
   rcptSn,
+  checkup,
   onReceipt,
   onClose,
 }) {
   const navigate = useNavigate();
   const onlyPetSn = pets.length === 1 ? pets[0].petSn : null;
-  const [step, setStep] = useState(initialStep);
-  const [petSn, setPetSn] = useState(onlyPetSn ?? defaultPetSn);
-  const [ckupYmd, setCkupYmd] = useState(getTodayYmd);
-  const [hospNm, setHospNm] = useState('');
-  const [ckupTypeCd, setCkupTypeCd] = useState('');
-  const [ckupCn, setCkupCn] = useState('');
-  const [ckupMemoCn, setCkupMemoCn] = useState('');
+  const [step, setStep] = useState(checkup ? 'form' : initialStep);
+  const [petSn, setPetSn] = useState(
+    checkup?.petSn ?? onlyPetSn ?? defaultPetSn,
+  );
+  const [ckupYmd, setCkupYmd] = useState(checkup?.ckupYmd ?? getTodayYmd);
+  const [hospNm, setHospNm] = useState(checkup?.hospNm ?? '');
+  const [ckupTypeCd, setCkupTypeCd] = useState(checkup?.ckupTypeCd ?? '');
+  const [ckupCn, setCkupCn] = useState(checkup?.ckupCn ?? '');
+  const [ckupMemoCn, setCkupMemoCn] = useState(checkup?.ckupMemoCn ?? '');
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [nearSchedule, setNearSchedule] = useState(null);
+  const [isMoveConfirmOpen, setIsMoveConfirmOpen] = useState(false);
   const findNearSchedule = useFindNearSchedule();
   const createCheckup = useCreateCheckup();
-  const isPending = findNearSchedule.isPending || createCheckup.isPending;
+  const updateCheckup = useUpdateCheckup();
+  const isPending =
+    findNearSchedule.isPending ||
+    createCheckup.isPending ||
+    updateCheckup.isPending;
 
   const errors = {
     pet: petSn == null,
@@ -87,9 +103,29 @@ export default function CheckupModal({
       },
     );
 
+  /** 수정 저장: 검진일을 바꾸면 이 검진기록만 바뀐 날짜의 병원 일정으로 옮겨짐 */
+  const saveEdit = () =>
+    updateCheckup.mutate(
+      {
+        ckupRcdSn: checkup.ckupRcdSn,
+        petSn,
+        ckupYmd,
+        hospNm: hospNm.trim(),
+        ckupTypeCd,
+        ckupCn: ckupCn.trim(),
+        ckupMemoCn: ckupMemoCn.trim(),
+      },
+      { onSuccess: onClose },
+    );
+
   const handleSubmit = () => {
     setIsSubmitted(true);
     if (Object.values(errors).some(Boolean)) return;
+    if (checkup) {
+      if (petSn === checkup.petSn) saveEdit();
+      else setIsMoveConfirmOpen(true);
+      return;
+    }
     findNearSchedule.mutate(
       { petSn, ckupYmd },
       {
@@ -105,7 +141,7 @@ export default function CheckupModal({
     <>
       <FormModal
         icon="local_hospital"
-        title="검진기록 등록"
+        title={checkup ? '검진기록 수정' : '검진기록 등록'}
         hasFooter={step === 'form'}
         widthClassName="w-[min(560px,calc(100%-32px))]"
         isPending={isPending}
@@ -251,6 +287,37 @@ export default function CheckupModal({
           </>
         )}
       </FormModal>
+
+      {isMoveConfirmOpen && (
+        <Modal
+          isConfirm
+          title={`이 검진기록과 연동된 케어 항목도 ${
+            pets.find((pet) => pet.petSn === petSn)?.petNm
+          }(으)로 옮겨집니다`}
+          isPending={isPending}
+          onClose={() => setIsMoveConfirmOpen(false)}
+          footer={
+            <>
+              <button
+                type="button"
+                className={BTN_SECONDARY}
+                disabled={isPending}
+                onClick={() => setIsMoveConfirmOpen(false)}
+              >
+                취소
+              </button>
+              <button
+                type="button"
+                className={BTN_PRIMARY}
+                disabled={isPending}
+                onClick={saveEdit}
+              >
+                옮기기
+              </button>
+            </>
+          }
+        />
+      )}
 
       {nearSchedule && (
         <NearScheduleModal

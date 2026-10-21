@@ -74,3 +74,12 @@ export const PET_REL = {
   OWNER: 'OWNER',
   CO_PARENT: 'CO_PARENT',
 };
+
+/** 반려동물 1마리에 연동할 수 있는 공동양육자 최대 인원 */
+export const MAX_CAREGIVERS = 5;
+
+/** 양육 역할: 주양육자(PCG)·공동양육자(CCG) (PETG05, 공통코드 생기면 값 맞춤) */
+export const CGVR_ROLE = {
+  PCG: 'PCG',
+  CCG: 'CCG',
+};

@@ -1,0 +1,233 @@
+import { useState } from 'react';
+import { Link, generatePath, useNavigate } from 'react-router-dom';
+import Icon from '@/components/Icon';
+import Modal from '@/components/Modal';
+import { BTN_DANGER, BTN_SECONDARY } from '@/components/buttonStyles';
+import { PATHS } from '@/routes/paths';
+import { formatDate } from '@/utils/formatDate';
+import { useDeleteInspections } from '../queries';
+import { ADD_ROW, BTN_SM, ROW_LINE, TAG, TAG_STRONG } from './checkupStyles';
+import { FUNCTION_TAGS, findName } from './checkupTypes';
+
+/** 참고범위를 벗어난 방향: 초과 'high', 미만 'low', 범위 안이거나 미입력이면 null */
+const getOutDirection = ({ rsltVal, refMinVal, refMaxVal }) => {
+  if (refMinVal != null && rsltVal < refMinVal) return 'low';
+  if (refMaxVal != null && rsltVal > refMaxVal) return 'high';
+  return null;
+};
+
+/**
+ * [혈액검사 결과 목록]
+ * - 기능 태그·태그별 건수, 항목·측정값·참고범위 한 줄, 참고범위 밖은 색 + ▲▼ (FN-HLT-005-02)
+ * - 항목명 클릭 → 검사 수치 입력(수정), 나머지 행 클릭 → 종합 건강기록 검사 수치 추이, [＋ 검사 수치 추가] → 검사 수치 입력
+ * - 체크박스로 고른 항목을 확인 뒤 삭제
+ */
+export default function BloodResultList({ checkup, items }) {
+  const navigate = useNavigate();
+  const { ckupRcdSn } = checkup;
+  const [selectedSns, setSelectedSns] = useState([]);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const deleteInspections = useDeleteInspections();
+
+  const inputPath = generatePath(PATHS.HEALTH_CHECKUP_INSPECTIONS, {
+    ckupRcdSn,
+  });
+  const tagCounts = FUNCTION_TAGS.map((tag) => ({
+    ...tag,
+    count: items.filter((item) => item.fnctTagCd === tag.cd).length,
+  })).filter((tag) => tag.count > 0);
+  const isAllSelected =
+    items.length > 0 &&
+    items.every((item) => selectedSns.includes(item.inspSn));
+
+  const toggleItem = (inspSn) =>
+    setSelectedSns((prev) =>
+      prev.includes(inspSn)
+        ? prev.filter((sn) => sn !== inspSn)
+        : [...prev, inspSn],
+    );
+
+  const handleDelete = () =>
+    deleteInspections.mutate(
+      { ckupRcdSn, inspSns: selectedSns },
+      {
+        onSuccess: () => {
+          setSelectedSns([]);
+          setIsConfirmOpen(false);
+        },
+      },
+    );
+
+  const goTrend = (item) =>
+    navigate(
+      `${PATHS.HEALTH}?inspection=${encodeURIComponent(item.inspItmNm)}`,
+    );
+
+  return (
+    <div>
+      {items.length === 0 ? (
+        <p className="text-muted">결과 없음</p>
+      ) : (
+        <>
+          <div className="mb-3 flex flex-wrap items-baseline gap-x-3 gap-y-2">
+            <h3 className="text-lg/[1.6] font-semibold">혈액검사</h3>
+            <span className="text-subtle tabular-nums">
+              검사일 {formatDate(checkup.ckupYmd)} · {checkup.hospNm} ·{' '}
+              {items.length}건
+            </span>
+          </div>
+          <div
+            aria-label="기능 태그별 건수"
+            className="mb-3 flex flex-wrap gap-2"
+          >
+            {tagCounts.map((tag) => (
+              <span key={tag.cd} className={TAG}>
+                {tag.nm} {tag.count}
+              </span>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-3 border-b border-line py-2">
+            <label className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-md border border-input-line bg-white px-3">
+              <input
+                type="checkbox"
+                checked={isAllSelected}
+                className="size-4 accent-brand-500"
+                onChange={(event) =>
+                  setSelectedSns(
+                    event.target.checked
+                      ? items.map((item) => item.inspSn)
+                      : [],
+                  )
+                }
+              />
+              전체 선택
+            </label>
+            <button
+              type="button"
+              disabled={selectedSns.length === 0}
+              className={`${BTN_SECONDARY} ${BTN_SM} ml-auto`}
+              onClick={() => setIsConfirmOpen(true)}
+            >
+              선택 삭제 ({selectedSns.length})
+            </button>
+          </div>
+
+          <ul className="max-h-96 overflow-y-auto">
+            {items.map((item) => {
+              const direction = getOutDirection(item);
+              const hasRange = item.refMinVal != null && item.refMaxVal != null;
+              return (
+                <li
+                  key={item.inspSn}
+                  className={`flex cursor-pointer items-center gap-3 py-3 hover:bg-surface-2 ${ROW_LINE}`}
+                  onClick={() => goTrend(item)}
+                >
+                  <label
+                    className="inline-flex h-10 cursor-pointer items-center rounded-md border border-input-line bg-white px-3"
+                    onClick={(event) => event.stopPropagation()}
+                  >
+                    <input
+                      type="checkbox"
+                      aria-label={`${item.inspItmNm} 선택`}
+                      checked={selectedSns.includes(item.inspSn)}
+                      className="size-4 accent-brand-500"
+                      onChange={() => toggleItem(item.inspSn)}
+                    />
+                  </label>
+                  {item.fnctTagCd && (
+                    <span
+                      className={`${TAG} min-w-12 justify-center ${direction ? TAG_STRONG : ''}`}
+                    >
+                      {findName(FUNCTION_TAGS, item.fnctTagCd)}
+                    </span>
+                  )}
+                  <span className="min-w-0 flex-1">
+                    <Link
+                      to={{
+                        pathname: inputPath,
+                        search: `?mode=edit&item=${item.inspSn}`,
+                      }}
+                      className="text-lg/[1.6] font-semibold text-ink underline underline-offset-4 hover:text-brand-600"
+                      onClick={(event) => event.stopPropagation()}
+                    >
+                      {item.inspItmNm}
+                    </Link>
+                    {hasRange && (
+                      <span className="block text-sm text-subtle tabular-nums">
+                        참고범위 {item.refMinVal}~{item.refMaxVal} {item.unitNm}
+                      </span>
+                    )}
+                  </span>
+                  <span
+                    className={`text-right text-lg/[1.6] font-semibold whitespace-nowrap tabular-nums ${direction ? 'text-danger' : ''}`}
+                  >
+                    {item.rsltVal}{' '}
+                    <span className="text-sm font-normal text-subtle">
+                      {item.unitNm}
+                    </span>
+                    {direction && (
+                      <>
+                        {' '}
+                        <span
+                          aria-label={
+                            direction === 'high'
+                              ? '참고범위 초과'
+                              : '참고범위 미만'
+                          }
+                        >
+                          {direction === 'high' ? '▲' : '▼'}
+                        </span>
+                      </>
+                    )}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        </>
+      )}
+
+      <Link
+        to={{ pathname: inputPath, search: '?mode=manual' }}
+        className={`${BTN_SECONDARY} ${ADD_ROW} w-full`}
+      >
+        <Icon name="add" className="text-lg" />
+        검사 수치 추가
+      </Link>
+      <p className="mt-3 flex gap-2.5 rounded-[10px] bg-surface-2 px-3.5 py-3 text-muted">
+        <Icon name="info" className="mt-0.5 text-lg text-subtle" />
+        <span>PDF로 받은 결과지는 첨부 자료 탭에서 [PDF 분석]</span>
+      </p>
+
+      {isConfirmOpen && (
+        <Modal
+          isConfirm
+          title={`선택한 ${selectedSns.length}개 항목을 삭제할까요?`}
+          isPending={deleteInspections.isPending}
+          onClose={() => setIsConfirmOpen(false)}
+          footer={
+            <>
+              <button
+                type="button"
+                className={BTN_SECONDARY}
+                disabled={deleteInspections.isPending}
+                onClick={() => setIsConfirmOpen(false)}
+              >
+                취소
+              </button>
+              <button
+                type="button"
+                className={BTN_DANGER}
+                disabled={deleteInspections.isPending}
+                onClick={handleDelete}
+              >
+                삭제하기
+              </button>
+            </>
+          }
+        />
+      )}
+    </div>
+  );
+}

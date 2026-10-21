@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { generatePath, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { generatePath, useLocation, useNavigate } from 'react-router-dom';
 import ReceiptUploadModal from '@/features/ai/receipt/ReceiptUploadModal';
 import AnchorBar from '@/features/health/diary/AnchorBar';
 import CheckupListCard from '@/features/health/diary/CheckupListCard';
@@ -12,7 +12,11 @@ import TodayRecordCard from '@/features/health/diary/TodayRecordCard';
 import TodayRecordForm from '@/features/health/diary/TodayRecordForm';
 import PetTabs from '@/features/health/PetTabs';
 import { MEAL } from '@/features/health/diaryTypes';
-import { useDailyRecords, usePets } from '@/features/health/queries';
+import {
+  useDailyRecords,
+  useObservations,
+  usePets,
+} from '@/features/health/queries';
 import headHlt from '@/assets/head_hlt.svg';
 import SideMenu from '@/layouts/SideMenu';
 import { showToast } from '@/components/toastStore';
@@ -27,6 +31,7 @@ const ANCHORS = [
 
 export default function HealthDiaryPage() {
   const navigate = useNavigate();
+  const { hash } = useLocation();
   const todayYmd = getTodayYmd();
   const [tabPetSn, setTabPetSn] = useState(null);
   /** 오늘 기록하기 입력 영역: null이면 닫힘, token으로 같은 영역을 다른 종류로 다시 엶 */
@@ -47,6 +52,15 @@ export default function HealthDiaryPage() {
   const selectedPetSn = tabPetSn ?? pets?.[0]?.petSn ?? null;
   const { data: recordData, isPending: isRecordsPending } =
     useDailyRecords(selectedPetSn);
+  const { isPending: isObservationsPending } = useObservations(selectedPetSn);
+
+  /** 종합 건강기록에서 #hlt002-obs·#hlt002-exam으로 들어오면 그 영역으로 스크롤 */
+  const isContentReady =
+    selectedPetSn !== null && !isRecordsPending && !isObservationsPending;
+  useEffect(() => {
+    if (!hash || !isContentReady) return;
+    document.getElementById(hash.slice(1))?.scrollIntoView();
+  }, [hash, isContentReady]);
 
   if (isPetsPending)
     return (

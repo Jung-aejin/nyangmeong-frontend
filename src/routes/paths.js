@@ -50,6 +50,7 @@ export const PATHS = {
   INQUIRIES: '/inquiries',
   INQUIRY_NEW: '/inquiries/new',
   INQUIRY_DETAIL: '/inquiries/:otoInqrySn',
+  INQUIRY_EDIT: '/inquiries/:otoInqrySn/edit',
 
   /** mypage */
   MYPAGE: '/mypage',

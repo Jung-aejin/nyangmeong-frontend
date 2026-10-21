@@ -14,6 +14,22 @@ import {
   updateSchedule,
 } from './api';
 import {
+  analyzeLabPdf,
+  cancelPrevention,
+  createAttachment,
+  createEtcInspection,
+  createPrescription,
+  createPrevention,
+  deleteAttachment,
+  deleteEtcInspection,
+  deleteInspections,
+  deletePrescription,
+  getCheckupDetail,
+  replaceAttachment,
+  updateEtcInspection,
+  updatePrescription,
+} from './checkupApi';
+import {
   createCheckup,
   createDailyRecord,
   createObservation,
@@ -26,6 +42,7 @@ import {
   getCheckups,
   getDailyRecords,
   getObservations,
+  updateCheckup,
   updateDailyRecord,
   updateObservationRound,
 } from './diaryApi';
@@ -34,6 +51,7 @@ import {
   prepareReceiptSave,
   saveReceiptCheckups,
 } from './receiptApi';
+import { getHealthSummary } from './summaryApi';
 
 export const healthKeys = {
   all: ['health'],
@@ -48,7 +66,9 @@ export const healthKeys = {
   observationList: (petSn) => ['health', 'observations', petSn],
   checkups: ['health', 'checkups'],
   checkupList: (params) => ['health', 'checkups', params],
+  checkupDetail: (ckupRcdSn) => ['health', 'checkups', 'detail', ckupRcdSn],
   receiptDetail: (rcptSn) => ['health', 'receipt-detail', rcptSn],
+  summary: (petSn) => ['health', 'summary', petSn],
 };
 
 const showErrorToast = (error) => showToast(error.message);
@@ -198,9 +218,87 @@ export const useCreateCheckup = () => useCheckupMutation(createCheckup);
 
 export const useDeleteCheckup = () => useCheckupMutation(deleteCheckup);
 
+export const useUpdateCheckup = () => useCheckupMutation(updateCheckup);
+
+/** 검진상세 한 번에: 검진기록·검사 결과·첨부 자료·처방약·반복 예방 */
+export const useCheckupDetail = (ckupRcdSn) =>
+  useQuery({
+    queryKey: healthKeys.checkupDetail(ckupRcdSn),
+    queryFn: () => getCheckupDetail(ckupRcdSn),
+  });
+
+/** 검진상세 변경: 변수의 ckupRcdSn 상세를 다시 읽고, 케어 항목이 바뀌는 변경은 케어리스트도 다시 읽는다 */
+const useCheckupDetailMutation = (
+  mutationFn,
+  { hasCareItems = false } = {},
+) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn,
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: healthKeys.checkupDetail(variables.ckupRcdSn),
+      });
+      if (hasCareItems) {
+        queryClient.invalidateQueries({ queryKey: healthKeys.careItems });
+      }
+    },
+    onError: showErrorToast,
+  });
+};
+
+export const useCreateAttachment = () =>
+  useCheckupDetailMutation(createAttachment);
+
+export const useReplaceAttachment = () =>
+  useCheckupDetailMutation(replaceAttachment);
+
+export const useDeleteAttachment = () =>
+  useCheckupDetailMutation(deleteAttachment);
+
+/** PDF 분석: 데이터를 바꾸지 않는 요청이라 무효화 없이 결과만 돌려준다 */
+export const useAnalyzeLabPdf = () =>
+  useMutation({ mutationFn: analyzeLabPdf, onError: showErrorToast });
+
+export const useDeleteInspections = () =>
+  useCheckupDetailMutation(deleteInspections);
+
+export const useCreateEtcInspection = () =>
+  useCheckupDetailMutation(createEtcInspection);
+
+export const useUpdateEtcInspection = () =>
+  useCheckupDetailMutation(updateEtcInspection);
+
+export const useDeleteEtcInspection = () =>
+  useCheckupDetailMutation(deleteEtcInspection);
+
+export const useCreatePrescription = () =>
+  useCheckupDetailMutation(createPrescription, { hasCareItems: true });
+
+export const useUpdatePrescription = () =>
+  useCheckupDetailMutation(updatePrescription, { hasCareItems: true });
+
+export const useDeletePrescription = () =>
+  useCheckupDetailMutation(deletePrescription, { hasCareItems: true });
+
+export const useCreatePrevention = () =>
+  useCheckupDetailMutation(createPrevention, { hasCareItems: true });
+
+export const useCancelPrevention = () =>
+  useCheckupDetailMutation(cancelPrevention, { hasCareItems: true });
+
 /** 저장 전 가까운 예정 일정 확인: 조회지만 저장 시점에 한 번만 부름 */
 export const useFindNearSchedule = () =>
   useMutation({ mutationFn: findNearSchedule, onError: showErrorToast });
+
+/** 종합 건강기록: 반려동물별로 한 번에. 화면을 열 때마다 다시 읽어 다른 화면에서 바꾼 값을 반영 */
+export const useHealthSummary = (petSn) =>
+  useQuery({
+    queryKey: healthKeys.summary(petSn),
+    queryFn: () => getHealthSummary(petSn),
+    enabled: petSn != null,
+  });
 
 /** 영수증 인식 결과의 나머지 칸. 같은 영수증은 다시 불러오지 않는다 */
 export const useReceiptDetail = (result) =>
