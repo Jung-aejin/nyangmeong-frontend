@@ -30,7 +30,8 @@
    │   └─ UserLayout.jsx, AuthLayout.jsx, AdminLayout.jsx
    │
    ├─ routes/           URL과 페이지 연결
-   │   ├─ AppRoutes.jsx       <Routes> 트리. React.lazy, ProtectedRoute 적용
+   │   ├─ AppRoutes.jsx       진입점. domains/를 모아 레이아웃·ProtectedRoute에 끼움
+   │   ├─ domains/            도메인 1개 = 파일 1개(healthRoutes.js). React.lazy, 레이아웃·로그인 구분
    │   ├─ ProtectedRoute.jsx  로그인·역할(allowedRoles) 검사 후 <Outlet/>
    │   └─ paths.js            경로 문자열 상수
    │

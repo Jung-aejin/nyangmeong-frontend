@@ -40,7 +40,7 @@ src/
 ├─ features/    도메인별 코드. 도메인 1개 = 폴더 1개 (api.js, queries.js, shared/, 화면별 폴더)
 ├─ pages/       URL 1개 = 파일 1개. features·components 조립만 한다 (관리자 화면은 pages/admin/)
 ├─ layouts/     화면 겉틀. 헤더·푸터·사이드바 + <Outlet/>
-├─ routes/      URL과 페이지 연결 (AppRoutes.jsx, ProtectedRoute.jsx, paths.js)
+├─ routes/      URL과 페이지 연결 (AppRoutes.jsx 진입점, domains/<도메인>Routes.js, ProtectedRoute.jsx, paths.js)
 ├─ components/  도메인을 모르는 공통 UI
 ├─ hooks/  utils/  constants/  context/  assets/
 ```
@@ -79,7 +79,7 @@ api/axios     서버 통신
 | 서버에 요청을 보내거나 응답·오류를 다룰 때 | `docs/convention/api.md` |
 | 새 폴더·공통 파일을 만들 때, 실행 환경(Yarn·Node)을 다룰 때 | `docs/convention/structure.md` |
 | 환경변수(`.env*`)를 다룰 때, 핸드오프를 쓸 때 | `docs/convention/config.md` |
-| `routes/paths.js`, `routes/AppRoutes.jsx`를 고칠 때 | `docs/convention/shared-files.md` |
+| 새 라우트를 붙일 때, `routes/paths.js`·`routes/AppRoutes.jsx`를 고칠 때 | `docs/convention/shared-files.md` |
 | 새 화면 URL을 정하거나 바꿀 때 | `docs/routes.md`: 새 화면 URL은 이 문서의 규칙을 따른다. URL 값은 `routes/paths.js`가 정본이다. AI 대상(✓) URL을 바꾸면 AI 서버의 라우팅 매핑도 같이 고친다 |
 | 브랜치·커밋·PR을 만들 때 | `docs/convention/git.md` |
 | 내 담당 화면·API를 마일스톤으로 나눌 때 | `docs/convention/milestone.md` |
