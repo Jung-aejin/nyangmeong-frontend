@@ -1,12 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { generatePath, useLocation, useNavigate } from 'react-router-dom';
 import PageSkeleton from '@/components/PageSkeleton';
 import SkeletonCard from '@/components/SkeletonCard';
 import ReceiptUploadModal from '@/features/ai/receipt/ReceiptUploadModal';
-import AnchorBar from '@/features/health/diary/AnchorBar';
 import CheckupListCard from '@/features/health/diary/CheckupListCard';
 import CheckupModal from '@/features/health/diary/CheckupModal';
 import DailyTrendCard from '@/features/health/diary/DailyTrendCard';
+import DiaryTabs from '@/features/health/diary/DiaryTabs';
 import ObservationCard from '@/features/health/diary/ObservationCard';
 import ReceiptResultStep from '@/features/health/diary/ReceiptResultStep';
 import RecentRecordTable from '@/features/health/diary/RecentRecordTable';
@@ -25,17 +25,23 @@ import { showToast } from '@/components/toastStore';
 import { PATHS } from '@/routes/paths';
 import { getTodayYmd } from '@/utils/formatDate';
 
-const ANCHORS = [
+const SECTION_TABS = [
   { id: 'hlt002-graph', label: '건강기록 변화' },
   { id: 'hlt002-obs', label: '지속 관찰' },
   { id: 'hlt002-exam', label: '검진기록' },
 ];
+
+/** 종합 건강기록 등에서 #hlt002-obs·#hlt002-exam으로 오면 그 탭으로 시작 */
+const getTabFromHash = (hash) =>
+  SECTION_TABS.find((tab) => tab.id === hash.slice(1))?.id ??
+  SECTION_TABS[0].id;
 
 export default function HealthDiaryPage() {
   const navigate = useNavigate();
   const { hash } = useLocation();
   const todayYmd = getTodayYmd();
   const [tabPetSn, setTabPetSn] = useState(null);
+  const [sectionId, setSectionId] = useState(() => getTabFromHash(hash));
   /** 오늘 기록하기 입력 영역: null이면 닫힘, token으로 같은 영역을 다른 종류로 다시 엶 */
   const [recordForm, setRecordForm] = useState(null);
   /**
@@ -56,14 +62,6 @@ export default function HealthDiaryPage() {
     useDailyRecords(selectedPetSn);
   const { isPending: isObservationsPending } = useObservations(selectedPetSn);
 
-  /** 종합 건강기록에서 #hlt002-obs·#hlt002-exam으로 들어오면 그 영역으로 스크롤 */
-  const isContentReady =
-    selectedPetSn !== null && !isRecordsPending && !isObservationsPending;
-  useEffect(() => {
-    if (!hash || !isContentReady) return;
-    document.getElementById(hash.slice(1))?.scrollIntoView();
-  }, [hash, isContentReady]);
-
   /** 첫 진입: 칩·탭까지 대시보드 틀 스켈레톤 */
   const isFirstLoading =
     isPetsPending ||
@@ -71,7 +69,7 @@ export default function HealthDiaryPage() {
   if (isFirstLoading)
     return (
       <PageFrame>
-        <PageSkeleton chips={pets?.length || 3} tabs={ANCHORS.length}>
+        <PageSkeleton chips={pets?.length || 3} tabs={SECTION_TABS.length}>
           <div className="grid gap-5 min-[1101px]:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
             <SkeletonCard className="h-[485px] max-[760px]:h-[424px]" />
             <SkeletonCard className="h-[485px] max-[760px]:h-[498px]" />
@@ -128,14 +126,20 @@ export default function HealthDiaryPage() {
         label="반려동물 선택"
         onSelect={setTabPetSn}
       />
-      <AnchorBar items={ANCHORS} />
+      <DiaryTabs
+        items={SECTION_TABS}
+        activeId={sectionId}
+        onSelect={setSectionId}
+      />
 
-      {selectedPet && (
-        <>
-          <div
-            id="hlt002-graph"
-            className="grid scroll-mt-28 items-stretch gap-5 min-[1101px]:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]"
-          >
+      {selectedPet && sectionId === 'hlt002-graph' && (
+        <div
+          id="hlt002-graph"
+          role="tabpanel"
+          aria-labelledby="hlt002-graph-tab"
+          className="flex min-w-0 flex-col gap-7"
+        >
+          <div className="grid items-stretch gap-5 min-[1101px]:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
             <DailyTrendCard
               pet={selectedPet}
               records={records}
@@ -160,16 +164,16 @@ export default function HealthDiaryPage() {
           )}
 
           <RecentRecordTable records={records} todayYmd={todayYmd} />
-        </>
+        </div>
       )}
 
-      {selectedPet && (
-        <div id="hlt002-obs" className="scroll-mt-28">
+      {selectedPet && sectionId === 'hlt002-obs' && (
+        <div id="hlt002-obs" role="tabpanel" aria-labelledby="hlt002-obs-tab">
           <ObservationCard petSn={selectedPet.petSn} />
         </div>
       )}
-      {selectedPet && (
-        <div id="hlt002-exam" className="scroll-mt-28">
+      {selectedPet && sectionId === 'hlt002-exam' && (
+        <div id="hlt002-exam" role="tabpanel" aria-labelledby="hlt002-exam-tab">
           <CheckupListCard
             key={selectedPet.petSn}
             pet={selectedPet}

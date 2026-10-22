@@ -34,7 +34,11 @@ export default function TodayRecordCard({
   return (
     <Card
       title="오늘의 기록"
-      sub={formatDate(todayYmd, { weekday: true })}
+      sub={
+        <span className="text-sm">
+          {formatDate(todayYmd, { weekday: true })}
+        </span>
+      }
       className="min-w-0"
       bodyClassName="pt-2!"
       action={
