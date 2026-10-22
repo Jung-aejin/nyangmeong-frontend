@@ -40,6 +40,7 @@ export const PATHS = {
   COMMUNITY_MISSING: '/community/missing',
   COMMUNITY_MISSING_DETAIL: '/community/missing/:lostTpofSn',
   COMMUNITY_NEWS: '/community/news',
+  COMMUNITY_NEWS_DETAIL: '/community/news/:newsSn',
   COMMUNITY_PETCARE: '/community/petcare',
   COMMUNITY_PETCARE_DETAIL: '/community/petcare/:petPrtcRcrtSn',
 
