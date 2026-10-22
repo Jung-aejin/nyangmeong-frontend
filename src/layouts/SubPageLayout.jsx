@@ -35,7 +35,7 @@ export default function SubPageLayout({
         hasSwitch={!title && !hasBack}
         onLeave={onLeave}
       />
-      <SideMenu section={section} active={activeItem?.to} />
+      <SideMenu section={section} active={activeItem?.to} onLeave={onLeave} />
       <div className={`flex min-w-0 flex-col ${contentClassName}`}>
         {hasBack && <BackLink to={activeItem.to} onLeave={onLeave} />}
         {children}

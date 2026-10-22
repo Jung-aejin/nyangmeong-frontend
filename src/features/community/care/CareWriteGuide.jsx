@@ -11,7 +11,7 @@ const ITEMS = [
 /** 글쓰기·글수정 오른쪽 「이렇게 쓰면 매칭이 빨라요」 */
 export default function CareWriteGuide() {
   return (
-    <aside aria-label="글쓰기 안내" className="min-w-0 max-[1100px]:mt-6">
+    <aside aria-label="글쓰기 안내" className="min-w-0 max-[1101px]:mt-6">
       <section aria-labelledby="care-guide-title">
         <h2
           id="care-guide-title"

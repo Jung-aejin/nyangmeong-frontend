@@ -255,7 +255,7 @@ export default function CareForm({
     : '아직 고르지 않았어요';
 
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)_280px] items-start gap-8 max-[1100px]:grid-cols-1 max-[1100px]:gap-6">
+    <div className="grid grid-cols-[minmax(0,1fr)_280px] items-start gap-8 max-[1101px]:grid-cols-1 max-[1101px]:gap-6">
       <section
         aria-labelledby="care-form-title"
         className="rounded-[14px] border border-line bg-white px-9 pt-8 pb-7 shadow-sm max-[760px]:px-5 max-[760px]:pt-[22px] max-[760px]:pb-5"
@@ -386,7 +386,7 @@ export default function CareForm({
                 <Required />
               </legend>
               <div className="grid grid-cols-2 gap-8 max-[760px]:grid-cols-1">
-                <div className="flex flex-col gap-1.5">
+                <div className="flex min-w-0 flex-col gap-1.5">
                   <span className="text-sm font-semibold text-ink-2">기간</span>
                   <div className="flex items-center gap-2">
                     <input
@@ -397,7 +397,7 @@ export default function CareForm({
                       onChange={(event) =>
                         set({ fromDate: event.target.value }, ['when'])
                       }
-                      className={`${INPUT_CLASS} ${borderOf(errors.when)}`}
+                      className={`${INPUT_CLASS} min-w-0 flex-1 ${borderOf(errors.when)}`}
                     />
                     <span aria-hidden="true" className="shrink-0 text-subtle">
                       ~
@@ -410,7 +410,7 @@ export default function CareForm({
                       onChange={(event) =>
                         set({ toDate: event.target.value }, ['when'])
                       }
-                      className={`${INPUT_CLASS} ${borderOf(errors.when)}`}
+                      className={`${INPUT_CLASS} min-w-0 flex-1 ${borderOf(errors.when)}`}
                     />
                   </div>
                 </div>
@@ -596,7 +596,7 @@ export default function CareForm({
             <div
               className={`flex flex-col gap-1.5 rounded-lg border px-4 py-3.5 ${errors.agree ? 'border-danger' : 'border-line'} bg-surface-2`}
             >
-              <label className="flex cursor-pointer items-start gap-2.5">
+              <label className="flex min-h-8 cursor-pointer items-start gap-2.5">
                 <input
                   type="checkbox"
                   checked={values.agree}

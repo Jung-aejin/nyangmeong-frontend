@@ -83,7 +83,7 @@ export default function CareDetail({ post }) {
   const closeModal = () => setModal('');
 
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)_280px] items-start gap-8 max-[1100px]:grid-cols-1 max-[1100px]:gap-10">
+    <div className="grid grid-cols-[minmax(0,1fr)_280px] items-start gap-8 max-[1101px]:grid-cols-1 max-[1101px]:gap-10">
       <article className={ARTICLE_CLASS} aria-labelledby="care-title">
         <div className="flex flex-wrap gap-1.5">
           <CareStatusBadge post={post} />

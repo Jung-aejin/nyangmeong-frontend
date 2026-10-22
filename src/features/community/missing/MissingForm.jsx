@@ -507,7 +507,7 @@ export default function MissingForm({
             <div
               className={`flex flex-col gap-1.5 rounded-lg border px-4 py-3.5 ${errors.agree ? 'border-danger' : 'border-line'} bg-surface-2`}
             >
-              <label className="flex cursor-pointer items-start gap-2.5">
+              <label className="flex min-h-8 cursor-pointer items-start gap-2.5">
                 <input
                   type="checkbox"
                   checked={values.agree}

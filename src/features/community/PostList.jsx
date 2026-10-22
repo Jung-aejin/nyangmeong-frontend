@@ -111,17 +111,24 @@ export default function PostList({
                   <h3 className="mt-2.5 truncate text-lg leading-[1.4] font-semibold tracking-[-0.18px] text-[#1a3234] group-hover:text-[#285a5c]">
                     {item.pstTtl}
                   </h3>
-                  <p className="mt-2.5 line-clamp-2 text-base leading-[1.6] text-[#3d4a4b] max-[760px]:text-sm">
+                  <p
+                    className={`mt-2.5 line-clamp-2 text-base leading-[1.6] text-[#3d4a4b] max-[760px]:text-sm ${item.thmbUrlPath ? 'min-h-[3.2em]' : ''}`}
+                  >
                     {item.pstCn}
                   </p>
                 </div>
                 {item.thmbUrlPath && (
-                  <img
-                    src={item.thmbUrlPath}
-                    alt=""
-                    loading="lazy"
-                    className="col-start-2 row-span-2 row-start-1 min-h-[124px] w-full self-stretch rounded-[10px] bg-[#f4f6f6] object-cover max-[760px]:order-1 max-[760px]:col-start-1 max-[760px]:row-span-1 max-[760px]:row-start-auto max-[760px]:aspect-[16/9] max-[760px]:min-h-0"
-                  />
+                  <span
+                    aria-hidden="true"
+                    className="relative col-start-2 row-span-2 row-start-1 min-h-[124px] self-stretch overflow-hidden rounded-[10px] bg-[#f4f6f6] max-[760px]:order-1 max-[760px]:col-start-1 max-[760px]:row-span-1 max-[760px]:row-start-auto max-[760px]:aspect-[16/9] max-[760px]:min-h-0"
+                  >
+                    <img
+                      src={item.thmbUrlPath}
+                      alt=""
+                      loading="lazy"
+                      className="absolute inset-0 size-full object-cover"
+                    />
+                  </span>
                 )}
                 <div className="col-start-1 flex items-center justify-between gap-3 text-sm text-[#667374] max-[760px]:order-3">
                   <span className="inline-flex min-w-0 items-center gap-1.5">

@@ -27,7 +27,7 @@ function Row({ label, index, isWide = false, children }) {
     <div
       role="group"
       aria-label={label}
-      className={`grid min-w-0 grid-cols-1 items-center gap-2 py-3.5 min-[761px]:grid-cols-subgrid min-[761px]:gap-5 max-[1280px]:col-span-full ${isWide ? 'min-[1281px]:col-span-4' : 'min-[1281px]:col-span-2'} ${border}`}
+      className={`grid min-w-0 grid-cols-1 items-center gap-2 py-3.5 min-[761px]:grid-cols-subgrid min-[761px]:gap-5 max-[1281px]:col-span-full ${isWide ? 'min-[1281px]:col-span-4' : 'min-[1281px]:col-span-2'} ${border}`}
     >
       <span className="text-sm font-semibold text-ink-2">{label}</span>
       <div className={`min-w-0 ${isWide ? 'min-[1281px]:col-span-3' : ''}`}>

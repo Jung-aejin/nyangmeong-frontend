@@ -25,9 +25,9 @@ export default function CareCard({ post }) {
         petPrtcRcrtSn: post.petPrtcRcrtSn,
       })}
       state={{ listSearch: search }}
-      className="group grid grid-cols-[minmax(0,1fr)_200px] gap-x-8 gap-y-3.5 rounded-[14px] border border-line bg-white px-7 py-6 shadow-[0_1px_2px_rgba(26,50,52,0.06)] transition hover:border-brand-100 hover:shadow-[0_4px_12px_rgba(26,50,52,0.1)] max-[760px]:grid-cols-[minmax(0,1fr)_88px] max-[760px]:gap-x-4 max-[760px]:px-4 max-[760px]:py-4"
+      className="group grid grid-cols-[minmax(0,1fr)_200px] gap-x-8 gap-y-3.5 rounded-[14px] border border-line bg-white px-7 py-6 shadow-[0_1px_2px_rgba(26,50,52,0.06)] transition hover:border-brand-100 hover:shadow-[0_4px_12px_rgba(26,50,52,0.1)] max-[760px]:grid-cols-1 max-[760px]:gap-3 max-[760px]:px-4 max-[760px]:pt-4 max-[760px]:pb-[18px]"
     >
-      <span className="col-start-1 row-start-1 min-w-0">
+      <span className="col-start-1 row-start-1 min-w-0 max-[760px]:order-2 max-[760px]:row-start-auto">
         <span className="mb-2.5 flex flex-wrap gap-1.5">
           {post.mineYn === 'Y' && <Badge tone="amber">내 글</Badge>}
           <CareStatusBadge post={post} />
@@ -40,7 +40,7 @@ export default function CareCard({ post }) {
         <span className="block truncate text-lg leading-[1.4] font-semibold text-ink group-hover:text-brand-600">
           {post.pstTtl}
         </span>
-        <span className="mt-2 line-clamp-2 block text-ink-2">
+        <span className="mt-2 line-clamp-2 min-h-[3.2em] text-ink-2">
           {post.pstCn.replaceAll('\n', ' ')}
         </span>
         <span className="mt-3.5 flex flex-wrap gap-x-4 gap-y-1.5 text-sm text-ink-2">
@@ -64,20 +64,20 @@ export default function CareCard({ post }) {
       </span>
       <span
         aria-hidden="true"
-        className={`col-start-2 row-span-2 row-start-1 grid min-h-[132px] place-items-center self-stretch overflow-hidden rounded-[10px] border border-dashed border-line-strong bg-surface-2 text-line-strong ${isOpen(post) ? '' : 'opacity-60'}`}
+        className={`relative col-start-2 row-span-2 row-start-1 grid min-h-[132px] place-items-center self-stretch overflow-hidden max-[760px]:order-1 max-[760px]:col-start-1 max-[760px]:row-span-1 max-[760px]:row-start-auto max-[760px]:aspect-[16/9] max-[760px]:min-h-0 rounded-[10px] border border-dashed border-line-strong bg-surface-2 text-line-strong ${isOpen(post) ? '' : 'opacity-60'}`}
       >
         {post.thmbUrlPath ? (
           <img
             src={post.thmbUrlPath}
             alt=""
             loading="lazy"
-            className="size-full object-cover"
+            className="absolute inset-0 size-full object-cover"
           />
         ) : (
           <PawPrint size={40} />
         )}
       </span>
-      <span className="col-start-1 row-start-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 border-t border-line pt-3.5 text-sm text-subtle">
+      <span className="col-start-1 row-start-2 flex flex-wrap items-center max-[760px]:order-3 max-[760px]:row-start-auto gap-x-3 gap-y-1.5 border-t border-line pt-3.5 text-sm text-subtle">
         <span className="flex min-w-0 items-center gap-1.5">
           <span
             aria-hidden="true"

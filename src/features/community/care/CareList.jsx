@@ -26,7 +26,7 @@ export default function CareList({
   const { content, page, totalPages, totalElements } = posts;
 
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)_280px] items-start gap-x-8 gap-y-4 max-[1100px]:grid-cols-1">
+    <div className="grid grid-cols-[minmax(0,1fr)_280px] items-start gap-x-8 gap-y-4 max-[1101px]:grid-cols-1">
       <div className="col-span-full flex min-w-0 flex-col gap-4">
         <div className="flex flex-wrap items-end justify-between gap-x-4 border-b border-input-line">
           <div role="tablist" aria-label="모집 상태" className="flex">
