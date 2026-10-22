@@ -4,7 +4,6 @@ import { PATHS } from '@/routes/paths';
 import { formatDate, formatMonthDayDot } from '@/utils/formatDate';
 import NewsCategoryBadge from './NewsCategoryBadge';
 import NewsShare from './NewsShare';
-import PopularNews from './PopularNews';
 import NewsThumb from './NewsThumb';
 import { NEWS_SRC_ADMIN } from './newsCodes';
 import { useNewsList } from './queries';
@@ -129,7 +128,6 @@ export default function NewsDetail({ news }) {
             ))}
           </ul>
         </section>
-        <PopularNews />
       </aside>
     </div>
   );

@@ -7,7 +7,6 @@ import { PATHS } from '@/routes/paths';
 import { formatDate } from '@/utils/formatDate';
 import NewsCategoryBadge from './NewsCategoryBadge';
 import NewsThumb from './NewsThumb';
-import PopularNews from './PopularNews';
 import { NEWS_CATEGORIES, NEWS_SRC_ADMIN } from './newsCodes';
 
 export default function NewsList({
@@ -27,8 +26,8 @@ export default function NewsList({
     `h-14 shrink-0 cursor-pointer px-4 text-base leading-none whitespace-nowrap max-[760px]:h-12 ${selected ? 'border-b-2 border-[#285a5c] font-bold text-[#1a3234]' : 'font-medium text-[#566465] hover:text-[#1a3234]'}`;
 
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)_280px] gap-x-8 gap-y-5 max-[1100px]:grid-cols-1">
-      <div className="col-span-full mb-1 flex flex-wrap items-end justify-between gap-3 border-b border-[#d3dae2] max-[760px]:flex-col max-[760px]:items-stretch">
+    <div className="flex flex-col gap-5">
+      <div className="mb-1 flex flex-wrap items-end justify-between gap-3 border-b border-[#d3dae2] max-[760px]:flex-col max-[760px]:items-stretch">
         <div
           role="tablist"
           aria-label="뉴스 카테고리"
@@ -146,10 +145,6 @@ export default function NewsList({
           />
         </div>
       </div>
-
-      <aside aria-label="많이 본 뉴스" className="max-[1100px]:mt-10">
-        <PopularNews />
-      </aside>
     </div>
   );
 }

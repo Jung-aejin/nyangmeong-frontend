@@ -1,5 +1,4 @@
 import { lazy } from 'react';
-import CommunityLayout from '@/layouts/CommunityLayout';
 import { PATHS } from '@/routes/paths';
 
 const NewsListPage = lazy(() => import('@/pages/news/NewsListPage'));
@@ -11,13 +10,8 @@ export default [
     layout: 'user',
     auth: 'public',
     routes: [
-      {
-        Component: CommunityLayout,
-        children: [
-          { path: PATHS.COMMUNITY_NEWS, Component: NewsListPage },
-          { path: PATHS.COMMUNITY_NEWS_DETAIL, Component: NewsDetailPage },
-        ],
-      },
+      { path: PATHS.COMMUNITY_NEWS, Component: NewsListPage },
+      { path: PATHS.COMMUNITY_NEWS_DETAIL, Component: NewsDetailPage },
     ],
   },
 ];
