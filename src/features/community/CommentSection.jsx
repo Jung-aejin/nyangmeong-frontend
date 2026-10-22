@@ -6,13 +6,6 @@ import ConfirmModal from '@/components/ConfirmModal';
 import ReportModal from '@/components/ReportModal';
 import { showToast } from '@/components/toastStore';
 import { formatRelativeTime } from '@/utils/formatDate';
-import {
-  useComments,
-  useCreateComment,
-  useDeleteComment,
-  useReportComment,
-} from './queries';
-
 const CMNT_MAX = 500;
 const PREVIEW_MAX = 30;
 
@@ -34,6 +27,7 @@ function Avatar({ className }) {
 }
 
 function CommentInput({
+  inputId,
   placeholder,
   submitLabel,
   isPending,
@@ -41,7 +35,8 @@ function CommentInput({
   onCancel,
 }) {
   const [text, setText] = useState('');
-  const inputId = useId();
+  const generatedId = useId();
+  const id = inputId ?? generatedId;
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -51,11 +46,11 @@ function CommentInput({
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-2">
-      <label className="sr-only" htmlFor={inputId}>
+      <label className="sr-only" htmlFor={id}>
         {placeholder}
       </label>
       <textarea
-        id={inputId}
+        id={id}
         value={text}
         maxLength={CMNT_MAX}
         placeholder={placeholder}
@@ -161,10 +156,11 @@ function CommentRow({
 }) {
   const isDeleted = comment.delYn === 'Y';
   const isMine = comment.mineYn === 'Y';
+  const isFoundNotice = comment.sysAutoCrtYn === 'Y';
 
   return (
     <div
-      className={`grid items-start py-2 ${isReply ? 'grid-cols-[24px_minmax(0,1fr)_auto] gap-2' : 'grid-cols-[40px_minmax(0,1fr)_auto] gap-3 max-[760px]:grid-cols-[32px_minmax(0,1fr)_auto] max-[760px]:gap-2.5'}`}
+      className={`grid items-start ${isFoundNotice ? 'my-2 rounded-lg border border-warn-line bg-warn-soft px-4 py-3.5' : 'py-2'} ${isReply ? 'grid-cols-[24px_minmax(0,1fr)_auto] gap-2' : 'grid-cols-[40px_minmax(0,1fr)_auto] gap-3 max-[760px]:grid-cols-[32px_minmax(0,1fr)_auto] max-[760px]:gap-2.5'}`}
     >
       <span className="flex flex-col self-stretch">
         <Avatar className={isReply ? 'size-6' : 'size-10 max-[760px]:size-8'} />
@@ -180,7 +176,8 @@ function CommentRow({
           <b className="text-base font-semibold text-[#1a3234]">
             {comment.wrtrNcknm}
           </b>
-          {comment.authorYn === 'Y' && (
+          {isFoundNotice && <Badge tone="ok">찾았어요</Badge>}
+          {comment.authorYn === 'Y' && !isFoundNotice && (
             <Badge tone="brand" className="h-[22px] px-2">
               작성자
             </Badge>
@@ -196,7 +193,9 @@ function CommentRow({
             <p className="mt-0.5 text-base leading-[1.6] break-words whitespace-pre-line text-[#1a3234]">
               {comment.cmntCn}
             </p>
-            <p className="mt-0.5 -ml-1.5 flex items-center">
+            <p
+              className={`mt-0.5 -ml-1.5 flex items-center ${isFoundNotice ? 'hidden' : ''}`}
+            >
               <button
                 type="button"
                 onClick={() => onReply(comment)}
@@ -218,7 +217,7 @@ function CommentRow({
         )}
         {replyForm && <div className="mt-2">{replyForm}</div>}
       </div>
-      {!isDeleted && !isMine && (
+      {!isDeleted && !isMine && !isFoundNotice && (
         <CommentMenu comment={comment} onReport={onReport} />
       )}
     </div>
@@ -231,11 +230,22 @@ const REPLY_ITEM_CLASS =
 
 /**
  * 댓글 영역: 댓글 + 대댓글 1단계
+ * - targetSn: 글 번호, hooks: 게시판별 댓글 훅 묶음(useComments·useCreateComment·useDeleteComment·useReportComment)
+ * - title·placeholder: 제목과 입력창 문구(실종센터는 「제보 · 댓글」), inputId: 맨 위 입력창 id(밖에서 포커스를 줄 때)
+ * - sysAutoCrtYn이 Y인 댓글(찾았어요 안내)은 강조해 보이고 답글·신고를 받지 않는다
  * - 답글에 단 답글은 원 댓글 스레드에 이어서 붙는다(prntCmntSn은 항상 원 댓글)
  * - 삭제된 댓글은 문구로 바뀌고 답글은 남는다. 댓글 수는 삭제된 댓글을 뺀다
  */
-export default function CommentSection({ pstSn }) {
-  const { data: comments = [] } = useComments(pstSn);
+export default function CommentSection({
+  targetSn,
+  hooks,
+  title = '댓글',
+  placeholder = '댓글을 입력하세요',
+  inputId,
+}) {
+  const { useComments, useCreateComment, useDeleteComment, useReportComment } =
+    hooks;
+  const { data: comments = [] } = useComments(targetSn);
   const create = useCreateComment();
   const remove = useDeleteComment();
   const report = useReportComment();
@@ -250,7 +260,7 @@ export default function CommentSection({ pstSn }) {
 
   const handleCreate = (prntCmntSn) => (cmntCn, reset) =>
     create.mutate(
-      { pstSn, prntCmntSn, cmntCn },
+      { targetSn, prntCmntSn, cmntCn },
       {
         onSuccess: () => {
           reset();
@@ -285,14 +295,15 @@ export default function CommentSection({ pstSn }) {
 
   return (
     <section
+      id={inputId ? `${inputId}-section` : undefined}
       aria-labelledby="post-cmnt-title"
-      className="rounded-[14px] border border-[#e2e7e7] bg-white px-9 py-8 max-[760px]:px-5 max-[760px]:py-6"
+      className="scroll-mt-24 rounded-[14px] border border-[#e2e7e7] bg-white px-9 py-8 max-[760px]:px-5 max-[760px]:py-6"
     >
       <h2
         id="post-cmnt-title"
         className="text-lg font-bold tracking-[-0.18px] text-[#1a3234]"
       >
-        댓글 <b className="text-[#2f6f57]">{count}</b>
+        {title} <b className="text-[#2f6f57]">{count}</b>
       </h2>
       <ul className="mt-3">
         {roots.map((root) => (
@@ -323,7 +334,8 @@ export default function CommentSection({ pstSn }) {
 
       <div className="mt-6">
         <CommentInput
-          placeholder="댓글을 입력하세요"
+          inputId={inputId}
+          placeholder={placeholder}
           submitLabel="댓글 등록"
           isPending={create.isPending}
           onSubmit={handleCreate(null)}
@@ -338,7 +350,7 @@ export default function CommentSection({ pstSn }) {
           errorMessage={remove.isError && '댓글을 삭제하지 못했어요'}
           onConfirm={() =>
             remove.mutate(
-              { pstSn, cmntSn: deleteTarget.cmntSn },
+              { targetSn, cmntSn: deleteTarget.cmntSn },
               { onSuccess: () => setDeleteTarget(null) },
             )
           }
