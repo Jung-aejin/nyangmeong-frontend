@@ -136,7 +136,7 @@ function MessageItem({ message, isContinued, ctptMbrNcnm }) {
   );
 }
 
-/** 채팅 목록으로 돌아가며 onBack, 나가기 끝나면 onLeft */
+/** 채팅 목록으로 돌아가며 onBack(없으면 ‹ 없음: 목록이 옆에 있는 두 칸), 나가기 끝나면 onLeft */
 export default function ChatConversation({ otoChatRoomSn, onBack, onLeft }) {
   const [isLeaveOpen, setIsLeaveOpen] = useState(false);
   const {
@@ -181,16 +181,18 @@ export default function ChatConversation({ otoChatRoomSn, onBack, onLeft }) {
   if (isRoomError) {
     return (
       <div className="flex min-h-0 flex-1 flex-col">
-        <div className="flex h-[60px] shrink-0 items-center border-b border-line pl-1">
-          <button
-            type="button"
-            aria-label="채팅 목록으로"
-            className="grid size-11 place-items-center rounded-full text-ink-2 hover:bg-surface-3"
-            onClick={onBack}
-          >
-            <Icon name="chevron_left" className="text-[26px]" />
-          </button>
-        </div>
+        {onBack && (
+          <div className="flex h-[60px] shrink-0 items-center border-b border-line pl-1">
+            <button
+              type="button"
+              aria-label="채팅 목록으로"
+              className="grid size-11 place-items-center rounded-full text-ink-2 hover:bg-surface-3"
+              onClick={onBack}
+            >
+              <Icon name="chevron_left" className="text-[26px]" />
+            </button>
+          </div>
+        )}
         <div className="flex flex-col items-center gap-3 px-6 py-16 text-center text-muted">
           <p>{roomError.message}</p>
           <button
