@@ -70,9 +70,9 @@ function Box({ icon, title, children }) {
 
 function Row({ name, children }) {
   return (
-    <div className="flex flex-col py-1.5">
-      <dt className="text-subtle">{name}</dt>
-      <dd>{children}</dd>
+    <div className="flex flex-col border-t border-dashed border-line py-2.5 first:border-t-0">
+      <dt className="text-base/[1.6] font-semibold text-ink">{name}</dt>
+      <dd className="text-sm/[1.6] text-subtle">{children}</dd>
     </div>
   );
 }
