@@ -18,6 +18,7 @@ import {
   cancelPrevention,
   createAttachment,
   createEtcInspection,
+  createInspections,
   createPrescription,
   createPrevention,
   deleteAttachment,
@@ -27,6 +28,7 @@ import {
   getCheckupDetail,
   replaceAttachment,
   updateEtcInspection,
+  updateInspection,
   updatePrescription,
 } from './checkupApi';
 import {
@@ -260,6 +262,12 @@ export const useDeleteAttachment = () =>
 /** PDF 분석: 데이터를 바꾸지 않는 요청이라 무효화 없이 결과만 돌려준다 */
 export const useAnalyzeLabPdf = () =>
   useMutation({ mutationFn: analyzeLabPdf, onError: showErrorToast });
+
+export const useCreateInspections = () =>
+  useCheckupDetailMutation(createInspections);
+
+export const useUpdateInspection = () =>
+  useCheckupDetailMutation(updateInspection);
 
 export const useDeleteInspections = () =>
   useCheckupDetailMutation(deleteInspections);
