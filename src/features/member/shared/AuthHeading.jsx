@@ -1,7 +1,7 @@
 import aiCharacter from '@/assets/ai-character.png';
 
 // AI 안내가 보이는 동안은 캐릭터가 겹치지 않게 제목 위 캐릭터를 가린다
-export default function LoginHeading({
+export default function AuthHeading({
   title,
   subtitle,
   isMascotHidden = false,

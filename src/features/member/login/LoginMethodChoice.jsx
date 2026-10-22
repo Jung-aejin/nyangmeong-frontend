@@ -1,17 +1,14 @@
 import { Mail } from 'lucide-react';
 import { showToast } from '@/components/toastStore';
-import LoginCard from './LoginCard';
-import LoginHeading from './LoginHeading';
+import AuthCard from '../shared/AuthCard';
+import AuthHeading from '../shared/AuthHeading';
 import { LOGIN_MESSAGES as MSG } from './loginMessages';
 import SnsLoginButtons from './SnsLoginButtons';
 
 export default function LoginMethodChoice({ onBack, onSelectEmail }) {
   return (
-    <LoginCard onBack={onBack}>
-      <LoginHeading
-        title="로그인"
-        subtitle="가입한 방법으로 로그인해 주세요."
-      />
+    <AuthCard onBack={onBack}>
+      <AuthHeading title="로그인" subtitle="가입한 방법으로 로그인해 주세요." />
       <SnsLoginButtons />
       <div className="my-6 flex items-center gap-4 text-subtle before:h-px before:flex-1 before:bg-line after:h-px after:flex-1 after:bg-line">
         또는
@@ -34,6 +31,6 @@ export default function LoginMethodChoice({ onBack, onSelectEmail }) {
           회원가입
         </button>
       </div>
-    </LoginCard>
+    </AuthCard>
   );
 }

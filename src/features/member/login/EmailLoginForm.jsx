@@ -1,33 +1,36 @@
+import { useNavigate } from 'react-router-dom';
 import { showToast } from '@/components/toastStore';
+import { PATHS } from '@/routes/paths';
 import CaptchaBlock from './CaptchaBlock';
-import LoginCard from './LoginCard';
-import LoginField from './LoginField';
-import LoginHeading from './LoginHeading';
-import LoginNotice from './LoginNotice';
+import AuthCard from '../shared/AuthCard';
+import AuthField from '../shared/AuthField';
+import AuthHeading from '../shared/AuthHeading';
+import AuthNotice from '../shared/AuthNotice';
 import { LOGIN_MESSAGES as MSG } from './loginMessages';
 import useEmailLogin from './useEmailLogin';
 
 export default function EmailLoginForm({ onBack, onSuccess }) {
+  const navigate = useNavigate();
   const form = useEmailLogin(onSuccess);
   const target = form.guideTarget;
 
   return (
-    <LoginCard onBack={onBack}>
-      <LoginHeading
+    <AuthCard onBack={onBack}>
+      <AuthHeading
         title="이메일로 로그인하기"
         subtitle="이메일 아이디와 비밀번호를 입력하세요."
         isMascotHidden={target !== null}
         isCompact={form.isCaptchaOn}
       />
       {form.notice && (
-        <LoginNotice
+        <AuthNotice
           type={form.notice.type}
           message={form.notice.message}
           hasGuide={target === 'notice'}
         />
       )}
       <form noValidate onSubmit={form.submit} className="flex flex-col gap-5">
-        <LoginField
+        <AuthField
           id="login-email"
           label="아이디(이메일)"
           value={form.email}
@@ -39,7 +42,7 @@ export default function EmailLoginForm({ onBack, onSuccess }) {
           error={form.errors.email}
           hasGuide={target === 'email'}
         />
-        <LoginField
+        <AuthField
           id="login-password"
           label="비밀번호"
           type="password"
@@ -63,7 +66,7 @@ export default function EmailLoginForm({ onBack, onSuccess }) {
         <div className="-mt-2 flex justify-end">
           <button
             type="button"
-            onClick={() => showToast(MSG.notReady)}
+            onClick={() => navigate(PATHS.PASSWORD_FIND)}
             className="text-muted hover:underline hover:underline-offset-[3px]"
           >
             비밀번호 찾기
@@ -87,6 +90,6 @@ export default function EmailLoginForm({ onBack, onSuccess }) {
           회원가입
         </button>
       </div>
-    </LoginCard>
+    </AuthCard>
   );
 }

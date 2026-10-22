@@ -7,19 +7,24 @@ import {
   getMe,
   getMemberSummary,
   getMyProfile,
+  getRecoveryStatus,
   login,
   logout,
+  resetPassword,
+  sendRecoveryCode,
   updateNickname,
   updatePassword,
   updatePhone,
   updateProfileImage,
   verifyPassword,
+  verifyRecoveryCode,
 } from './api';
 
 export const memberKeys = {
   me: ['members', 'me'],
   summary: ['members', 'summary'],
   profile: ['members', 'profile'],
+  recovery: ['members', 'recovery'],
 };
 
 export const useMe = () =>
@@ -84,3 +89,15 @@ export const useLogin = () => useMutation({ mutationFn: login });
 export const useLoginStatus = () => useMutation({ mutationFn: getLoginStatus });
 
 export const useNewCaptcha = () => useMutation({ mutationFn: getCaptcha });
+
+export const useSendRecoveryCode = () =>
+  useMutation({ mutationFn: sendRecoveryCode });
+
+export const useVerifyRecoveryCode = () =>
+  useMutation({ mutationFn: verifyRecoveryCode });
+
+export const useRecoveryStatus = () =>
+  useQuery({ queryKey: memberKeys.recovery, queryFn: getRecoveryStatus });
+
+export const useResetPassword = () =>
+  useMutation({ mutationFn: resetPassword });
