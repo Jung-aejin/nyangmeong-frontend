@@ -28,11 +28,12 @@ import {
   summarizeType,
 } from './recordUtils';
 
-const PERIOD_OPTIONS = [7, 14];
+const PERIOD_OPTIONS = [3, 7, 14];
+const DEFAULT_PERIOD = 3;
 
 const TABLE_COLUMNS = ['날짜', ...RECORD_TYPES.map((type) => type.nm)];
 
-/** 펼친 상세의 종류 순서: 시안은 표 머리와 달리 산책이 배변상태 앞 */
+/** 상세 모달의 종류 순서: 시안은 표 머리와 달리 산책이 배변상태 앞 */
 const DETAIL_ORDER = [WEIGHT, MEAL, WATER, WALK, STOOL];
 
 /** 표 칸의 하루 값: 체중·배변상태는 최신 값, 나머지는 합계와 횟수 */
@@ -45,25 +46,22 @@ const formatDayCell = (summary, typeCd) => {
 
 /**
  * [최근 건강기록 날짜별 표]
- * - 하루치를 종류별 합계(횟수)로 한 줄, [∨]로 그날 상세를 펼침 (FN-HLT-002-13)
- * - 상세의 기록 줄을 누르면 그 줄만 인라인 편집, 삭제는 확인 후 처리
+ * - 하루치를 종류별 합계(횟수)로 한 줄, 행을 누르면 그날 상세 기록 모달 (FN-HLT-002-13)
+ * - 모달의 기록 줄을 누르면 그 줄만 인라인 편집, 삭제는 확인 후 처리
  */
 export default function RecentRecordTable({ records, todayYmd }) {
-  const [periodDays, setPeriodDays] = useState(PERIOD_OPTIONS[0]);
-  const [expandedYmds, setExpandedYmds] = useState(() => new Set([todayYmd]));
+  const [periodDays, setPeriodDays] = useState(DEFAULT_PERIOD);
+  const [detailYmd, setDetailYmd] = useState(null);
   const [editingSn, setEditingSn] = useState(null);
   const [deleteSn, setDeleteSn] = useState(null);
   const deleteRecord = useDeleteDailyRecord();
 
   const ymds = getRecordedYmds(records, todayYmd, periodDays);
 
-  const toggle = (ymd) =>
-    setExpandedYmds((prev) => {
-      const next = new Set(prev);
-      if (next.has(ymd)) next.delete(ymd);
-      else next.add(ymd);
-      return next;
-    });
+  const closeDetail = () => {
+    setDetailYmd(null);
+    setEditingSn(null);
+  };
 
   const handleDelete = () =>
     deleteRecord.mutate(deleteSn, {
@@ -115,7 +113,7 @@ export default function RecentRecordTable({ records, todayYmd }) {
                 ))}
                 <th
                   scope="col"
-                  aria-label="펼치기"
+                  aria-label="상세"
                   className="h-10 w-12 border-b border-line-strong bg-surface-3"
                 />
               </tr>
@@ -126,17 +124,25 @@ export default function RecentRecordTable({ records, todayYmd }) {
                   key={ymd}
                   ymd={ymd}
                   isToday={ymd === todayYmd}
-                  isExpanded={expandedYmds.has(ymd)}
                   dayRecords={records.filter((record) => record.rcdYmd === ymd)}
-                  editingSn={editingSn}
-                  onToggle={() => toggle(ymd)}
-                  onEdit={setEditingSn}
-                  onRequestDelete={setDeleteSn}
+                  onOpen={() => setDetailYmd(ymd)}
                 />
               ))}
             </tbody>
           </table>
         </div>
+      )}
+
+      {detailYmd !== null && (
+        <DetailModal
+          ymd={detailYmd}
+          isToday={detailYmd === todayYmd}
+          dayRecords={records.filter((record) => record.rcdYmd === detailYmd)}
+          editingSn={editingSn}
+          onEdit={setEditingSn}
+          onRequestDelete={setDeleteSn}
+          onClose={closeDetail}
+        />
       )}
 
       {deleteSn !== null && (
@@ -171,121 +177,148 @@ export default function RecentRecordTable({ records, todayYmd }) {
   );
 }
 
-function DayRows({
-  ymd,
-  isToday,
-  isExpanded,
-  dayRecords,
-  editingSn,
-  onToggle,
-  onEdit,
-  onRequestDelete,
-}) {
+function DayRows({ ymd, isToday, dayRecords, onOpen }) {
   const dateText = formatDate(ymd, { hasYear: false, weekday: true });
   const cellClass = `h-12 px-3 tabular-nums ${isToday ? 'bg-brand-50 text-brand-600' : 'text-ink'}`;
-  const detailId = `hlt002-detail-${ymd}`;
 
   return (
-    <>
-      <tr
-        className={`cursor-pointer ${isToday ? '' : 'hover:[&>td]:bg-[#fbfcfc]'}`}
-        onClick={onToggle}
-      >
-        <td className={cellClass}>{isToday ? `오늘 ${dateText}` : dateText}</td>
-        {RECORD_TYPES.map((type) => (
-          <td key={type.cd} className={cellClass}>
-            {formatDayCell(summarizeType(dayRecords, type.cd), type.cd)}
-          </td>
-        ))}
-        <td className={`${cellClass} text-center`}>
-          <button
-            type="button"
-            aria-expanded={isExpanded}
-            aria-controls={detailId}
-            aria-label={`${dateText} 상세 ${isExpanded ? '접기' : '펼치기'}`}
-            className="grid size-9 place-items-center rounded-md text-subtle hover:bg-surface-3"
-          >
-            <Icon name={isExpanded ? 'expand_less' : 'expand_more'} />
-          </button>
+    <tr
+      className={`cursor-pointer ${isToday ? '' : 'hover:[&>td]:bg-[#fbfcfc]'}`}
+      onClick={onOpen}
+    >
+      <td className={cellClass}>{isToday ? `오늘 ${dateText}` : dateText}</td>
+      {RECORD_TYPES.map((type) => (
+        <td key={type.cd} className={cellClass}>
+          {formatDayCell(summarizeType(dayRecords, type.cd), type.cd)}
         </td>
-      </tr>
-      {isExpanded && (
-        <tr id={detailId}>
-          <td colSpan={TABLE_COLUMNS.length + 1} className="bg-surface-2 p-4">
-            <p className="mb-3 text-subtle tabular-nums">
-              {isToday ? `오늘 ${dateText}` : dateText} · 상세 기록
-            </p>
-            <div className="grid grid-cols-2 gap-3 rounded-[10px] border border-line-strong bg-white p-4 min-[761px]:grid-cols-3 min-[1101px]:grid-cols-5">
-              {DETAIL_ORDER.map((typeCd) => (
-                <DayTypeColumn
-                  key={typeCd}
-                  typeCd={typeCd}
-                  summary={summarizeType(dayRecords, typeCd)}
-                  editingSn={editingSn}
-                  onEdit={onEdit}
-                  onRequestDelete={onRequestDelete}
-                />
-              ))}
-            </div>
-          </td>
-        </tr>
-      )}
-    </>
+      ))}
+      <td className={`${cellClass} text-center`}>
+        <button
+          type="button"
+          aria-haspopup="dialog"
+          aria-label={`${dateText} 상세 기록 보기`}
+          className="grid size-9 place-items-center rounded-md text-subtle hover:bg-surface-3"
+        >
+          <Icon name="chevron_right" />
+        </button>
+      </td>
+    </tr>
   );
 }
 
-function DayTypeColumn({
-  typeCd,
-  summary,
+function DetailModal({
+  ymd,
+  isToday,
+  dayRecords,
   editingSn,
   onEdit,
   onRequestDelete,
+  onClose,
 }) {
-  const type = findRecordType(typeCd);
-  const { items, count, sum } = summary;
-
-  const totalText =
-    typeCd === WEIGHT || typeCd === STOOL
-      ? `총 ${count}회`
-      : `총 ${formatAmount(typeCd, sum)} · ${count}회`;
+  const dateText = formatDate(ymd, { hasYear: false, weekday: true });
+  const summaries = DETAIL_ORDER.map((typeCd) => ({
+    typeCd,
+    ...summarizeType(dayRecords, typeCd),
+  }));
+  /** 같은 순번의 기록이 같은 줄에 놓인다. 기록이 하나도 없으면 "-" 한 줄 */
+  const rowCount = Math.max(1, ...summaries.map((summary) => summary.count));
 
   return (
-    <div className="min-w-0">
-      <p className="mb-2 border-b border-line-strong pb-2 text-center text-base/[1.6] text-ink">
-        {type.nm}
-      </p>
-      {count === 0 ? (
-        <p className="text-center text-line-strong">-</p>
-      ) : (
-        <>
-          {items.map((record) =>
-            record.dlyRcdSn === editingSn ? (
-              <RecordEditor
-                key={record.dlyRcdSn}
-                record={record}
-                onClose={() => onEdit(null)}
-                onRequestDelete={() => onRequestDelete(record.dlyRcdSn)}
-              />
-            ) : (
-              <button
-                key={record.dlyRcdSn}
-                type="button"
-                className="group flex w-full items-center justify-between gap-2 border-b border-line py-1 text-left tabular-nums hover:border-line-strong"
-                onClick={() => onEdit(record.dlyRcdSn)}
-              >
-                <span className="text-muted">{record.rcdTm}</span>
-                <b className="font-normal text-ink group-hover:text-brand-600">
-                  {formatRecordValue(record)}
-                </b>
-              </button>
-            ),
-          )}
-          <p className="mt-1 text-right text-subtle tabular-nums">
-            {totalText}
-          </p>
-        </>
-      )}
-    </div>
+    <Modal
+      title={`${isToday ? '오늘 ' : ''}${dateText} 상세 기록`}
+      isWide
+      onClose={onClose}
+      footer={
+        <button type="button" className={BTN_SECONDARY} onClick={onClose}>
+          닫기
+        </button>
+      }
+    >
+      <div className="max-h-[60vh] overflow-auto rounded-[10px] border border-line-strong">
+        <table className="w-full min-w-[640px] table-fixed border-collapse text-sm/[1.6]">
+          <thead>
+            <tr>
+              {summaries.map(({ typeCd }) => (
+                <th
+                  key={typeCd}
+                  scope="col"
+                  className="border-b border-line-strong bg-surface-3 px-3 py-2 text-center text-base/[1.6] font-normal text-ink-2 not-first:border-l not-first:border-l-line-strong"
+                >
+                  {findRecordType(typeCd).nm}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {Array.from({ length: rowCount }, (_, rowIndex) => (
+              <tr key={rowIndex} className="odd:bg-surface-2">
+                {summaries.map(({ typeCd, items }) => {
+                  const record = items[rowIndex];
+                  return (
+                    <td
+                      key={typeCd}
+                      className="border-b border-line px-3 py-1.5 align-middle tabular-nums not-first:border-l not-first:border-l-line-strong"
+                    >
+                      {record ? (
+                        <RecordCell
+                          record={record}
+                          isEditing={record.dlyRcdSn === editingSn}
+                          onEdit={onEdit}
+                          onRequestDelete={onRequestDelete}
+                        />
+                      ) : (
+                        rowIndex === 0 && (
+                          <span className="block text-center text-line-strong">
+                            -
+                          </span>
+                        )
+                      )}
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+          <tfoot>
+            <tr>
+              {summaries.map(({ typeCd, count, sum }) => (
+                <td
+                  key={typeCd}
+                  className="border-t border-line-strong px-3 py-2 text-right font-semibold text-subtle tabular-nums not-first:border-l not-first:border-l-line-strong"
+                >
+                  {typeCd === WEIGHT || typeCd === STOOL
+                    ? `총 ${count}회`
+                    : `총 ${formatAmount(typeCd, sum)} · ${count}회`}
+                </td>
+              ))}
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </Modal>
+  );
+}
+
+function RecordCell({ record, isEditing, onEdit, onRequestDelete }) {
+  if (isEditing)
+    return (
+      <RecordEditor
+        record={record}
+        onClose={() => onEdit(null)}
+        onRequestDelete={() => onRequestDelete(record.dlyRcdSn)}
+      />
+    );
+  return (
+    <button
+      type="button"
+      className="group flex w-full items-center justify-between gap-2 text-left tabular-nums"
+      onClick={() => onEdit(record.dlyRcdSn)}
+    >
+      <span className="text-muted">{record.rcdTm}</span>
+      <b className="font-normal text-ink group-hover:text-brand-600">
+        {formatRecordValue(record)}
+      </b>
+    </button>
   );
 }
 

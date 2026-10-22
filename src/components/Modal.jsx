@@ -1,12 +1,13 @@
 import { X } from 'lucide-react';
 import { useEffect, useId, useRef } from 'react';
 
-/** isConfirm: 가운데 정렬 확인 팝업, 아니면 제목 줄과 ✕가 있는 입력 모달 */
+/** isConfirm: 가운데 정렬 확인 팝업, 아니면 제목 줄과 ✕가 있는 입력 모달. isWide: 표처럼 넓게 보여 줄 내용용 폭 */
 export default function Modal({
   title,
   description,
   footer,
   isConfirm = false,
+  isWide = false,
   isPending = false,
   onClose,
   children,
@@ -37,7 +38,7 @@ export default function Modal({
     <dialog
       ref={dialogRef}
       aria-labelledby={titleId}
-      className="m-auto max-h-[calc(100vh-2rem)] w-[min(440px,calc(100vw-2rem))] rounded-modal bg-white p-0 shadow-depth-lg backdrop:bg-[rgba(15,23,35,0.45)]"
+      className={`m-auto max-h-[calc(100vh-2rem)] ${isWide ? 'w-[min(960px,calc(100vw-2rem))]' : 'w-[min(440px,calc(100vw-2rem))]'} rounded-modal bg-white p-0 shadow-depth-lg backdrop:bg-[rgba(15,23,35,0.45)]`}
       onCancel={handleCancel}
       onMouseDown={handleMouseDown}
     >
