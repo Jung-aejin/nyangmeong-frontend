@@ -106,3 +106,12 @@ export const getNowHm = () => {
   const now = new Date();
   return `${pad(now.getHours())}:${pad(now.getMinutes())}`;
 };
+
+// 채팅 목록 시각 "2026-10-22T14:20:00" → 오늘 "14:20", 어제 "어제", 그 전 "10.04"
+export const formatChatListTime = (dateTime) => {
+  const today = getTodayYmd();
+  const ymd = dateTime.slice(0, 10);
+  if (ymd === today) return dateTime.slice(11, 16);
+  if (ymd === addDays(today, -1)) return '어제';
+  return formatMonthDayDot(ymd);
+};

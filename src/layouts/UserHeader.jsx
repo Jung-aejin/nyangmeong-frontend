@@ -3,7 +3,8 @@ import { Link, NavLink } from 'react-router-dom';
 import logo from '@/assets/nm_logo.svg';
 import CountBadge from '@/components/CountBadge';
 import Icon from '@/components/Icon';
-import { useChatModal } from '@/context/chatModal';
+import { useChatUnreadCount } from '@/features/chat/queries';
+import useChatWindow from '@/hooks/useChatWindow';
 import { PATHS } from '@/routes/paths';
 import GnbDropdown from './GnbDropdown';
 import { GNB_MENUS } from './gnbMenus';
@@ -30,7 +31,8 @@ export default function UserHeader() {
   const hamburgerRef = useRef(null);
   /** GNB 카드를 보여 줄 1차 메뉴 순번 */
   const [gnbIndex, setGnbIndex] = useState(0);
-  const chatModal = useChatModal();
+  const openChatWindow = useChatWindow();
+  const { data: chatUnread } = useChatUnreadCount();
 
   const gnbRef = useRef(null);
   const gnbTimer = useRef(null);
@@ -125,7 +127,7 @@ export default function UserHeader() {
 
   const openChat = () => {
     setOpenMenu(null);
-    chatModal.toggle();
+    openChatWindow();
   };
 
   return (
@@ -200,8 +202,11 @@ export default function UserHeader() {
               onClick={openChat}
             >
               <Icon name="chat" className={HEADER_ICON_CLASS} />
-              {/** 안 읽은 채팅 수(KSJ 채팅 API 연결 전 0) */}
-              <CountBadge count={0} className="absolute right-px top-[5px]" />
+              {/** 안 읽은 채팅 수 합계 */}
+              <CountBadge
+                count={chatUnread?.unreadCnt}
+                className="absolute right-px top-[5px]"
+              />
             </button>
             {/** 1100px 이하에서는 drawer의 회원 요약이 대신함 */}
             <div className="max-[1100px]:hidden">

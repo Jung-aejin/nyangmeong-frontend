@@ -33,7 +33,7 @@
 | ACC-020 | 회원탈퇴 | `/mypage/withdraw` | YAY | |
 | COM-008 | 알림 설정 | `/settings/notifications` | LJS | ✓ |
 | AIM-011 | AI 대화창(새 창) | `/ai` (COM-007 런처가 엶) | LJS | |
-| COM-009 · CMU-005 | 채팅(새 창) | `/chat` (`?otoChatRoomSn=`). 새 창 확정 (기능 분배 3.1절 20번) | KSJ | |
+| COM-009 · CMU-005 | 채팅(새 창) | `/chat` (`?otoChatRoomSn=`). 새 창 확정 (기능 분배 3.1절 20번) | LJS | |
 | HLT-011 | 종합 건강기록 | `/health` | JAJ | ✓ |
 | HLT-002 | 건강 일지 | `/health/diary` (매핑표 13행) | JAJ | ✓ |
 | HLT-003 | 케어 캘린더 | `/health/calendar` (매핑표 11·12행) | JAJ | ✓ |
@@ -50,6 +50,7 @@
 | MYP-001 | 마이페이지 홈 | `/mypage` | SJM | ✓ |
 | MYP-002 | 반려동물 목록 | `/mypage/pets`. AI의 "반려동물 등록"도 여기로 (매핑표 26행) | SJM | ✓ |
 | MYP-004 | 공동양육자 | `/mypage/caregivers` | SJM | ✓ |
+| MYP-005 (5-3) | 공동양육 초대 수락 | `/mypage/invitations/:invitationToken`. 초대 링크·알림으로 들어옴 | SJM | |
 | MYP-010 | 픽셀 캐릭터 | `/mypage/characters` | SJM | ✓ |
 | MYP-020 | 포인트·케어미션 | `/mypage/points` | SJM | ✓ |
 | MYP-030 | 가계부 | `/mypage/expenses` | SJM | ✓ |
@@ -68,7 +69,7 @@
 | `/ai` 안의 상태 | AIM-001·002·004·005·012 |
 | 발송물 | AIM-006(사전 알림 메일·인앱) |
 | 모달 | AIM-008·009·010(영수증, 건강 일지에서), MYP-011(아이템 상점) |
-| 모달 추정 | MYP-003·005·006·031 |
+| 모달 추정 | MYP-003·005(5-1·5-2·5-4)·006·031 |
 | `/places`의 탭 | PLC-001~004 |
 
 ## 3. 다른 곳에서 거는 링크
@@ -86,6 +87,7 @@
 | # | 내용 | 정할 사람 |
 | --- | --- | --- |
 | 1 | (해결) `HEALTH_RECORDS`·`HEALTH_STATUS`는 `paths.js`에 없다. `/health/diary`, `/health/calendar`로 반영됨 | JAJ |
+| 10 | MYP-005 초대 수락 경로 변수 이름 `invitationToken`(가정). 초대 API 경로 변수와 같게 맞춘다 | SJM |
 
 ### AI 서버 구현 전
 
@@ -99,7 +101,7 @@
 | # | 내용 | 정할 사람 |
 | --- | --- | --- |
 | 4 | 채팅을 AI 대상으로 둘지. 매핑표는 "모달 열기"(10행), 실제는 새 창 | LJS, KSJ |
-| 5 | 모달 추정 화면(MYP-003·005·006·031, HLT-007)이 페이지인지. 페이지면 URL 추가 | SJM, JAJ |
+| 5 | 모달 추정 화면(MYP-003·005·006·031, HLT-007)이 페이지인지. 페이지면 URL 추가 (MYP-005 5-3은 페이지로 정함) | SJM, JAJ |
 | 6 | 비밀번호 재설정 URL 파라미터(메일 링크로 들어오면 인증 식별값 필요) (ACC-012) | YAY |
 | 7 | PLC-001~004 화면 ID 정리 (매핑표 44행 "보류") | YAY |
 | 8 | 단수·복수 규칙에 어긋난 기존 이름: `/community/missing`(상세가 붙음 → `missing-reports`?) | KSJ |

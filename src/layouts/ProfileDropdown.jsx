@@ -3,9 +3,9 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
 import userAvatar from '@/assets/user.svg';
 import ConfirmModal from '@/components/ConfirmModal';
-import { useChatModal } from '@/context/chatModal';
 import { useLogout, useMemberSummary } from '@/features/member/queries';
 import { closeAiWindow } from '@/hooks/useAiWindow';
+import { closeChatWindow } from '@/hooks/useChatWindow';
 import { PATHS } from '@/routes/paths';
 
 const MENU_LINKS = [
@@ -62,14 +62,13 @@ function ProfileMenuPanel({ onClose, onLogout }) {
 export function LogoutConfirm({ onClose }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const chatModal = useChatModal();
   const logout = useLogout();
 
   const handleConfirm = () => {
     logout.mutate(undefined, {
       onSuccess: () => {
         closeAiWindow();
-        chatModal.close();
+        closeChatWindow();
         /** 이전 회원 캐시 비우기 */
         queryClient.clear();
         onClose();
