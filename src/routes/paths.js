@@ -55,6 +55,7 @@ export const PATHS = {
   /** mypage */
   MYPAGE: '/mypage',
   MYPAGE_PETS: '/mypage/pets',
+  MYPAGE_INVITATION: '/mypage/invitations/:invitationToken',
   MYPAGE_CAREGIVERS: '/mypage/caregivers',
   MYPAGE_CHARACTERS: '/mypage/characters',
   MYPAGE_POINTS: '/mypage/points',
