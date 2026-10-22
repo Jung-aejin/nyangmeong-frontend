@@ -4,8 +4,8 @@ import { PATHS } from '@/routes/paths';
 /** 고정된 창 이름: window.open이 기존 채팅 창 재사용 */
 const CHAT_WINDOW_NAME = 'nyangmeong-chat';
 
-/** 채팅 창 크기: 디자인 시안의 한 칸 화면(최대 760px) */
-const CHAT_WINDOW_WIDTH = 760;
+/** 채팅 창 크기: 채팅 모달과 같은 두 칸 */
+const CHAT_WINDOW_WIDTH = 1040;
 const CHAT_WINDOW_HEIGHT = 780;
 
 /** 탭이 아닌 별도 창 옵션: 본창 가운데 */
