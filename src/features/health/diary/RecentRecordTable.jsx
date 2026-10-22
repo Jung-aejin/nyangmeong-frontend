@@ -226,7 +226,7 @@ function DetailModal({
   return (
     <Modal
       title={`${isToday ? '오늘 ' : ''}${dateText} 상세 기록`}
-      isWide
+      isLarge
       onClose={onClose}
       footer={
         <button type="button" className={BTN_SECONDARY} onClick={onClose}>
@@ -234,66 +234,69 @@ function DetailModal({
         </button>
       }
     >
-      <div className="max-h-[60vh] overflow-auto rounded-[10px] border border-line-strong">
-        <table className="w-full min-w-[640px] table-fixed border-collapse text-sm/[1.6]">
-          <thead>
-            <tr>
-              {summaries.map(({ typeCd }) => (
-                <th
-                  key={typeCd}
-                  scope="col"
-                  className="border-b border-line-strong bg-surface-3 px-3 py-2 text-center text-base/[1.6] font-normal text-ink-2 not-first:border-l not-first:border-l-line-strong"
-                >
-                  {findRecordType(typeCd).nm}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {Array.from({ length: rowCount }, (_, rowIndex) => (
-              <tr key={rowIndex} className="odd:bg-surface-2">
-                {summaries.map(({ typeCd, items }) => {
-                  const record = items[rowIndex];
-                  return (
-                    <td
-                      key={typeCd}
-                      className="border-b border-line px-3 py-1.5 align-middle tabular-nums not-first:border-l not-first:border-l-line-strong"
-                    >
-                      {record ? (
-                        <RecordCell
-                          record={record}
-                          isEditing={record.dlyRcdSn === editingSn}
-                          onEdit={onEdit}
-                          onRequestDelete={onRequestDelete}
-                        />
-                      ) : (
-                        rowIndex === 0 && (
-                          <span className="block text-center text-line-strong">
-                            -
-                          </span>
-                        )
-                      )}
-                    </td>
-                  );
-                })}
+      {/* isLarge 본문은 여백이 없고 넘침도 막아서 안쪽에서 여백과 스크롤을 준다 */}
+      <div className="min-h-0 flex-1 overflow-auto px-6 py-5">
+        <div className="overflow-x-auto rounded-[10px] border border-line-strong">
+          <table className="w-full min-w-[640px] table-fixed border-collapse text-sm/[1.6]">
+            <thead>
+              <tr>
+                {summaries.map(({ typeCd }) => (
+                  <th
+                    key={typeCd}
+                    scope="col"
+                    className="border-b border-line-strong bg-surface-3 px-3 py-2 text-center text-base/[1.6] font-normal text-ink-2 not-first:border-l not-first:border-l-line-strong"
+                  >
+                    {findRecordType(typeCd).nm}
+                  </th>
+                ))}
               </tr>
-            ))}
-          </tbody>
-          <tfoot>
-            <tr>
-              {summaries.map(({ typeCd, count, sum }) => (
-                <td
-                  key={typeCd}
-                  className="border-t border-line-strong px-3 py-2 text-right font-semibold text-subtle tabular-nums not-first:border-l not-first:border-l-line-strong"
-                >
-                  {typeCd === WEIGHT || typeCd === STOOL
-                    ? `총 ${count}회`
-                    : `총 ${formatAmount(typeCd, sum)} · ${count}회`}
-                </td>
+            </thead>
+            <tbody>
+              {Array.from({ length: rowCount }, (_, rowIndex) => (
+                <tr key={rowIndex} className="odd:bg-surface-2">
+                  {summaries.map(({ typeCd, items }) => {
+                    const record = items[rowIndex];
+                    return (
+                      <td
+                        key={typeCd}
+                        className="border-b border-line px-3 py-1.5 align-middle tabular-nums not-first:border-l not-first:border-l-line-strong"
+                      >
+                        {record ? (
+                          <RecordCell
+                            record={record}
+                            isEditing={record.dlyRcdSn === editingSn}
+                            onEdit={onEdit}
+                            onRequestDelete={onRequestDelete}
+                          />
+                        ) : (
+                          rowIndex === 0 && (
+                            <span className="block text-center text-line-strong">
+                              -
+                            </span>
+                          )
+                        )}
+                      </td>
+                    );
+                  })}
+                </tr>
               ))}
-            </tr>
-          </tfoot>
-        </table>
+            </tbody>
+            <tfoot>
+              <tr>
+                {summaries.map(({ typeCd, count, sum }) => (
+                  <td
+                    key={typeCd}
+                    className="border-t border-line-strong px-3 py-2 text-right font-semibold text-subtle tabular-nums not-first:border-l not-first:border-l-line-strong"
+                  >
+                    {typeCd === WEIGHT || typeCd === STOOL
+                      ? `총 ${count}회`
+                      : `총 ${formatAmount(typeCd, sum)} · ${count}회`}
+                  </td>
+                ))}
+              </tr>
+            </tfoot>
+          </table>
+        </div>
       </div>
     </Modal>
   );

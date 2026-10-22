@@ -14,7 +14,11 @@ import TodayRecordCard from '@/features/health/diary/TodayRecordCard';
 import TodayRecordForm from '@/features/health/diary/TodayRecordForm';
 import PetTabs from '@/features/health/PetTabs';
 import { MEAL } from '@/features/health/diaryTypes';
-import { useDailyRecords, usePets } from '@/features/health/queries';
+import {
+  useDailyRecords,
+  useObservations,
+  usePets,
+} from '@/features/health/queries';
 import headHlt from '@/assets/head_hlt.svg';
 import SideMenu from '@/layouts/SideMenu';
 import { showToast } from '@/components/toastStore';
@@ -56,6 +60,7 @@ export default function HealthDiaryPage() {
   const selectedPetSn = tabPetSn ?? pets?.[0]?.petSn ?? null;
   const { data: recordData, isPending: isRecordsPending } =
     useDailyRecords(selectedPetSn);
+  const { isPending: isObservationsPending } = useObservations(selectedPetSn);
 
   /** 첫 진입: 칩·탭까지 대시보드 틀 스켈레톤 */
   const isFirstLoading =
@@ -64,7 +69,7 @@ export default function HealthDiaryPage() {
   if (isFirstLoading)
     return (
       <PageFrame>
-        <PageSkeleton chips={pets?.length || 3} tabs={ANCHORS.length}>
+        <PageSkeleton chips={pets?.length || 3} tabs={SECTION_TABS.length}>
           <div className="grid gap-5 min-[1101px]:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
             <SkeletonCard className="h-[485px] max-[760px]:h-[424px]" />
             <SkeletonCard className="h-[485px] max-[760px]:h-[498px]" />
@@ -127,12 +132,14 @@ export default function HealthDiaryPage() {
         onSelect={setSectionId}
       />
 
-      {selectedPet && (
-        <>
-          <div
-            id="hlt002-graph"
-            className="grid scroll-mt-28 items-stretch gap-5 min-[1101px]:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]"
-          >
+      {selectedPet && sectionId === 'hlt002-graph' && (
+        <div
+          id="hlt002-graph"
+          role="tabpanel"
+          aria-labelledby="hlt002-graph-tab"
+          className="flex min-w-0 flex-col gap-7"
+        >
+          <div className="grid items-stretch gap-5 min-[1101px]:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
             <DailyTrendCard
               pet={selectedPet}
               records={records}
@@ -148,35 +155,25 @@ export default function HealthDiaryPage() {
             />
           </div>
 
-              {recordForm && (
-                <TodayRecordForm
-                  key={recordForm.token}
-                  petSn={selectedPet.petSn}
-                  initialTypeCd={recordForm.typeCd}
-                />
-              )}
-
-              <RecentRecordTable records={records} todayYmd={todayYmd} />
-            </>
+          {recordForm && (
+            <TodayRecordForm
+              key={recordForm.token}
+              petSn={selectedPet.petSn}
+              initialTypeCd={recordForm.typeCd}
+            />
           )}
+
+          <RecentRecordTable records={records} todayYmd={todayYmd} />
         </div>
       )}
 
       {selectedPet && sectionId === 'hlt002-obs' && (
-        <div
-          id="hlt002-obs"
-          role="tabpanel"
-          aria-labelledby="hlt002-obs-tab"
-        >
+        <div id="hlt002-obs" role="tabpanel" aria-labelledby="hlt002-obs-tab">
           <ObservationCard petSn={selectedPet.petSn} />
         </div>
       )}
       {selectedPet && sectionId === 'hlt002-exam' && (
-        <div
-          id="hlt002-exam"
-          role="tabpanel"
-          aria-labelledby="hlt002-exam-tab"
-        >
+        <div id="hlt002-exam" role="tabpanel" aria-labelledby="hlt002-exam-tab">
           <CheckupListCard
             key={selectedPet.petSn}
             pet={selectedPet}
