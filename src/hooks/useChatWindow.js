@@ -4,8 +4,8 @@ import { PATHS } from '@/routes/paths';
 /** 고정된 창 이름: window.open이 기존 채팅 창 재사용 */
 const CHAT_WINDOW_NAME = 'nyangmeong-chat';
 
-/** 채팅 창 크기: 디자인의 채팅 박스(1040x780) */
-const CHAT_WINDOW_WIDTH = 1040;
+/** 채팅 창 크기: 디자인 시안의 한 칸 화면(최대 760px) */
+const CHAT_WINDOW_WIDTH = 760;
 const CHAT_WINDOW_HEIGHT = 780;
 
 /** 탭이 아닌 별도 창 옵션: 본창 가운데 */
@@ -23,11 +23,12 @@ export function closeChatWindow() {
 }
 
 /**
- * open({ otoChatRoomSn?, pstSn? }) 반환, 창 열림 true·팝업 차단 false
+ * open({ otoChatRoomSn?, pstSn?, listPstSn? }) 반환, 창 열림 true·팝업 차단 false
+ * - listPstSn: 돌봄 글 [채팅 목록 보기]가 그 글의 채팅만 보여 주며 열 때
  * - 클릭 핸들러에서 바로 호출: 요청을 기다린 뒤 부르면 팝업 차단
  */
 export default function useChatWindow() {
-  return useCallback(({ otoChatRoomSn, pstSn } = {}) => {
+  return useCallback(({ otoChatRoomSn, pstSn, listPstSn } = {}) => {
     /** 빈 URL: 기존 창 재사용, 창 옵션은 새로 열 때만 적용 */
     const chatWindow = window.open('', CHAT_WINDOW_NAME, getPopupFeatures());
     if (!chatWindow) return false;
@@ -35,6 +36,7 @@ export default function useChatWindow() {
     const params = new URLSearchParams();
     if (otoChatRoomSn != null) params.set('otoChatRoomSn', otoChatRoomSn);
     if (pstSn != null) params.set('pstSn', pstSn);
+    if (listPstSn != null) params.set('listPstSn', listPstSn);
     const query = params.toString();
 
     /** 새 창이거나 방 지정이면 이동, 아니면 보던 방 그대로 */

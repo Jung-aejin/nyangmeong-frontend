@@ -83,3 +83,29 @@ export const CGVR_ROLE = {
   PCG: 'PCG',
   CCG: 'CCG',
 };
+
+/** 캐릭터 상태 (캐릭터 API LJS, 공통코드 생기면 값 맞춤) */
+export const CHRC_STTS = {
+  NONE: 'NONE',
+  GENERATING: 'GENERATING',
+  DONE: 'DONE',
+  ERROR: 'ERROR',
+};
+
+/** 캐릭터 아이템 부위: 머리·얼굴·목·의상·가방 (공통코드 생기면 값 맞춤) */
+export const ITEM_PART = {
+  HEAD: 'HEAD',
+  FACE: 'FACE',
+  NECK: 'NECK',
+  CLOTHES: 'CLOTHES',
+  BAG: 'BAG',
+};
+
+/** 보관함 탭 순서 */
+export const ITEM_PART_OPTIONS = [
+  { code: ITEM_PART.HEAD, name: '머리' },
+  { code: ITEM_PART.FACE, name: '얼굴' },
+  { code: ITEM_PART.NECK, name: '목' },
+  { code: ITEM_PART.CLOTHES, name: '의상' },
+  { code: ITEM_PART.BAG, name: '가방' },
+];
