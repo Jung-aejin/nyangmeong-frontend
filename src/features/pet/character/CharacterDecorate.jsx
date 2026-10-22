@@ -6,6 +6,7 @@ import { showToast } from '@/components/toastStore';
 import { PATHS } from '@/routes/paths';
 import { useCharacterItems, useUpdateCharacterWear } from '../queries';
 import { ITEM_PART } from '../shared/petCodes';
+import ItemShopModal from './ItemShopModal';
 import ItemStorage from './ItemStorage';
 import WearPreview from './WearPreview';
 
@@ -30,10 +31,11 @@ const toWorn = (items) =>
  * - draft: 저장 전 착용 상태. null이면 서버에 저장된 상태 그대로
  * - [되돌리기]는 draft를 버려 진입 시점(저장된) 상태로, [장착]은 draft를 저장
  */
-export default function CharacterDecorate({ pet }) {
+export default function CharacterDecorate({ pet, pntBal }) {
   const { data: items = [], isPending } = useCharacterItems(pet.petSn);
   const { mutate: saveWear, isPending: isSaving } = useUpdateCharacterWear();
   const [draft, setDraft] = useState(null);
+  const [isShopOpen, setIsShopOpen] = useState(false);
 
   const worn = draft ?? toWorn(items);
 
@@ -134,7 +136,7 @@ export default function CharacterDecorate({ pet }) {
             </h2>
             <button
               type="button"
-              onClick={() => showToast('아이템 상점은 준비 중이에요')}
+              onClick={() => setIsShopOpen(true)}
               className={BTN_PRIMARY}
             >
               아이템 상점
@@ -163,6 +165,15 @@ export default function CharacterDecorate({ pet }) {
           장착
         </button>
       </div>
+      {isShopOpen && (
+        <ItemShopModal
+          pet={pet}
+          worn={worn}
+          ownedItems={items}
+          pntBal={pntBal}
+          onClose={() => setIsShopOpen(false)}
+        />
+      )}
     </>
   );
 }
