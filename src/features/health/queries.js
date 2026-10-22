@@ -51,6 +51,7 @@ import {
   prepareReceiptSave,
   saveReceiptCheckups,
 } from './receiptApi';
+import { getHealthSummary } from './summaryApi';
 
 export const healthKeys = {
   all: ['health'],
@@ -67,6 +68,7 @@ export const healthKeys = {
   checkupList: (params) => ['health', 'checkups', params],
   checkupDetail: (ckupRcdSn) => ['health', 'checkups', 'detail', ckupRcdSn],
   receiptDetail: (rcptSn) => ['health', 'receipt-detail', rcptSn],
+  summary: (petSn) => ['health', 'summary', petSn],
 };
 
 const showErrorToast = (error) => showToast(error.message);
@@ -289,6 +291,14 @@ export const useCancelPrevention = () =>
 /** 저장 전 가까운 예정 일정 확인: 조회지만 저장 시점에 한 번만 부름 */
 export const useFindNearSchedule = () =>
   useMutation({ mutationFn: findNearSchedule, onError: showErrorToast });
+
+/** 종합 건강기록: 반려동물별로 한 번에. 화면을 열 때마다 다시 읽어 다른 화면에서 바꾼 값을 반영 */
+export const useHealthSummary = (petSn) =>
+  useQuery({
+    queryKey: healthKeys.summary(petSn),
+    queryFn: () => getHealthSummary(petSn),
+    enabled: petSn != null,
+  });
 
 /** 영수증 인식 결과의 나머지 칸. 같은 영수증은 다시 불러오지 않는다 */
 export const useReceiptDetail = (result) =>

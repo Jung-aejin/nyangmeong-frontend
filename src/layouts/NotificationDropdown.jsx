@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CountBadge from '@/components/CountBadge';
 import Icon from '@/components/Icon';
-import { useChatModal } from '@/context/chatModal';
 import NotificationItem from '@/features/notification/shared/NotificationItem';
 import { NOTI_TABS, NOTI_TYPE } from '@/features/notification/shared/notiTabs';
 import {
@@ -10,6 +9,7 @@ import {
   useReadNotification,
   useUnreadCount,
 } from '@/features/notification/queries';
+import useChatWindow from '@/hooks/useChatWindow';
 import { HEADER_ICON_CLASS } from './headerStyles';
 
 /** 열릴 때만 마운트: 알림 목록 요청과 탭 상태를 열 때마다 초기화 */
@@ -18,18 +18,27 @@ function NotificationPanel({ unreadCount, onClose }) {
   const { data } = useNotifications(tab);
   const readNotification = useReadNotification();
   const navigate = useNavigate();
-  const chatModal = useChatModal();
+  const openChatWindow = useChatWindow();
 
   /** 읽음 처리 성공 후 이동 */
   const handleItemClick = (notification) => {
+    /** 펫돌봄 거래 상태는 mvmnPath의 방으로 채팅 창 열기: 팝업 차단 때문에 읽음 처리를 기다리지 않음 */
+    if (notification.notiTypeCd === NOTI_TYPE.MTCH_DLNG) {
+      const otoChatRoomSn = new URL(
+        notification.mvmnPath,
+        window.location.origin,
+      ).searchParams.get('otoChatRoomSn');
+      openChatWindow({ otoChatRoomSn });
+      onClose();
+      if (notification.prslDt === null) {
+        readNotification.mutate(notification.inappNotiSn);
+      }
+      return;
+    }
+
     const go = () => {
       onClose();
-      /** 펫돌봄 거래 상태는 채팅 모달 열기(방 연결은 SCR-COM-009) */
-      if (notification.notiTypeCd === NOTI_TYPE.MTCH_DLNG) {
-        chatModal.open();
-      } else {
-        navigate(notification.mvmnPath);
-      }
+      navigate(notification.mvmnPath);
     };
 
     if (notification.prslDt !== null) {
