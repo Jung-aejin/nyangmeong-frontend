@@ -1,4 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 import { showToast } from '@/components/toastStore';
 import {
   cancelCareRecord,
@@ -83,6 +88,7 @@ export const useSchedules = (params) =>
   useQuery({
     queryKey: healthKeys.scheduleList(params),
     queryFn: () => getSchedules(params),
+    placeholderData: keepPreviousData,
   });
 
 const useScheduleMutation = (mutationFn) => {
@@ -139,6 +145,7 @@ export const useDailyRecords = (petSn) =>
     queryKey: healthKeys.dailyRecordList(petSn),
     queryFn: () => getDailyRecords({ petSn }),
     enabled: petSn != null,
+    placeholderData: keepPreviousData,
   });
 
 const useDailyRecordMutation = (mutationFn) => {
@@ -166,6 +173,7 @@ export const useObservations = (petSn) =>
     queryKey: healthKeys.observationList(petSn),
     queryFn: () => getObservations({ petSn }),
     enabled: petSn != null,
+    placeholderData: keepPreviousData,
   });
 
 const useObservationMutation = (mutationFn) => {
@@ -199,6 +207,7 @@ export const useCheckups = (params) =>
     queryKey: healthKeys.checkupList(params),
     queryFn: () => getCheckups(params),
     enabled: params.petSn != null,
+    placeholderData: keepPreviousData,
   });
 
 /** 검진기록 변경은 병원 일정·검진기록 수와 연동 케어 항목에 이어진다 */

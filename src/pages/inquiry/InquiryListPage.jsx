@@ -1,4 +1,7 @@
 import { Navigate, useSearchParams } from 'react-router-dom';
+import PageSkeleton from '@/components/PageSkeleton';
+import Skeleton from '@/components/Skeleton';
+import SkeletonCard from '@/components/SkeletonCard';
 import { INQUIRY_STATUS } from '@/features/inquiry/api';
 import InquiryList from '@/features/inquiry/InquiryList';
 import { useInquiries } from '@/features/inquiry/queries';
@@ -26,7 +29,7 @@ export default function InquiryListPage() {
   const handlePageChange = (nextPage) =>
     setSearchParams({ ...(status && { status }), page: nextPage });
 
-  if (isPending) return <p className="text-[#566465]">불러오는 중이에요</p>;
+  if (isPending) return <InquiryListSkeleton />;
   if (isError) {
     return (
       <p role="alert" className="text-[#566465]">
@@ -38,7 +41,7 @@ export default function InquiryListPage() {
   /** 문의 이력이 없으면 목록을 건너뛰고 작성 화면이 첫 화면 */
   if (inquiries.totalAll === 0) {
     /** 다시 가져오는 중에는 캐시에 남은 옛 0건으로 판단하지 않는다 */
-    if (isFetching) return <p className="text-[#566465]">불러오는 중이에요</p>;
+    if (isFetching) return <InquiryListSkeleton />;
     return <Navigate to={PATHS.INQUIRY_NEW} replace />;
   }
 
@@ -49,5 +52,26 @@ export default function InquiryListPage() {
       onStatusChange={handleStatusChange}
       onPageChange={handlePageChange}
     />
+  );
+}
+
+/** 로딩 자리: 상태 탭 + 목록 카드 + 쪽 번호 */
+function InquiryListSkeleton() {
+  return (
+    <PageSkeleton>
+      <div
+        aria-hidden="true"
+        className="flex min-h-[72px] items-center justify-between gap-3"
+      >
+        <div className="flex gap-6">
+          {[0, 1, 2].map((index) => (
+            <Skeleton key={index} className="h-6 w-16" />
+          ))}
+        </div>
+        <Skeleton className="h-11 w-28" />
+      </div>
+      <SkeletonCard className="h-[699px] max-[760px]:h-[1130px]" />
+      <Skeleton className="mx-auto mt-7 h-9 w-64" />
+    </PageSkeleton>
   );
 }

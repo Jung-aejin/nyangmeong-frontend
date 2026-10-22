@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Card from '@/components/Card';
+import SkeletonCard from '@/components/SkeletonCard';
 import CareItemModal from './CareItemModal';
 import CareRecordList from './CareRecordList';
 import CareTile from './CareTile';
@@ -21,8 +22,13 @@ export default function CareList({ petSn }) {
   const cancelCareRecord = useCancelCareRecord();
   const toggleCareMain = useToggleCareMain();
 
-  if (isPending)
-    return <p className="text-sm text-[#566465]">불러오는 중이에요</p>;
+  if (isPending) {
+    return (
+      <div aria-busy="true">
+        <SkeletonCard className="h-[1538px] max-[760px]:h-[2400px]" />
+      </div>
+    );
+  }
   if (isError) {
     return (
       <div

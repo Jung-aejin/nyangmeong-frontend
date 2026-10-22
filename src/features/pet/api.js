@@ -401,9 +401,9 @@ const item = (itemSn, itemNm, itemPartCd, wearYn = 'N') => ({
 });
 
 const defaultItems = () => [
-  item(1, '야구모자', ITEM_PART.HEAD),
-  item(2, '헤어핀', ITEM_PART.HEAD),
-  item(3, '동그란 안경', ITEM_PART.FACE),
+  item(12, '야구모자', ITEM_PART.HEAD),
+  item(14, '헤어핀', ITEM_PART.HEAD),
+  item(21, '동그란 안경', ITEM_PART.FACE),
 ];
 
 let fakeItems = {
@@ -427,6 +427,58 @@ let fakeItems = {
 /** 보유 아이템 조회 GET /pets/{petSn}/character/items */
 export const getCharacterItems = (petSn) =>
   fakeDelay(fakeItems[petSn] ?? defaultItems());
+
+/**
+ * 상점 아이템 조회 GET /items (LJS)
+ * - 미정 키: itemPrc. itemSn은 보유 아이템(getCharacterItems)과 같은 번호
+ * - 가격(500~900P)은 예시
+ */
+const shopItem = (itemSn, itemNm, itemPartCd, itemPrc) => ({
+  itemSn,
+  itemNm,
+  itemPartCd,
+  itemPrc,
+  itemImgUrl: null,
+});
+
+const SHOP_ITEMS = [
+  shopItem(11, '밀짚모자', ITEM_PART.HEAD, 600),
+  shopItem(12, '야구모자', ITEM_PART.HEAD, 600),
+  shopItem(13, '두건', ITEM_PART.HEAD, 500),
+  shopItem(14, '헤어핀', ITEM_PART.HEAD, 500),
+  shopItem(15, '헤어밴드', ITEM_PART.HEAD, 500),
+  shopItem(16, '겨울모자', ITEM_PART.HEAD, 700),
+  shopItem(17, '왕관', ITEM_PART.HEAD, 900),
+  shopItem(18, '리본핀', ITEM_PART.HEAD, 500),
+  shopItem(19, '털모자', ITEM_PART.HEAD, 700),
+  shopItem(20, '선글라스', ITEM_PART.FACE, 700),
+  shopItem(21, '동그란 안경', ITEM_PART.FACE, 600),
+  shopItem(22, '목도리', ITEM_PART.NECK, 800),
+  shopItem(24, '방울 목걸이', ITEM_PART.NECK, 600),
+  shopItem(23, '체크셔츠', ITEM_PART.CLOTHES, 900),
+  shopItem(25, '후드티', ITEM_PART.CLOTHES, 900),
+  shopItem(26, '한복', ITEM_PART.CLOTHES, 900),
+  shopItem(27, '작은가방', ITEM_PART.BAG, 800),
+  shopItem(28, '배낭', ITEM_PART.BAG, 900),
+  shopItem(29, '보냉백', ITEM_PART.BAG, 800),
+];
+
+export const getShopItems = () => fakeDelay(SHOP_ITEMS);
+
+/**
+ * 아이템 구매 POST /pets/{petSn}/character/items (LJS, itemSn 목록)
+ * - 산 아이템은 그 캐릭터의 보관함으로 들어간다. 포인트 차감은 서버 일이라 가짜는 잔액을 줄이지 않는다
+ */
+export const purchaseCharacterItems = ({ petSn, itemSns }) => {
+  const owned = fakeItems[petSn] ?? defaultItems();
+  const bought = SHOP_ITEMS.filter(
+    (it) =>
+      itemSns.includes(it.itemSn) &&
+      !owned.some((own) => own.itemSn === it.itemSn),
+  ).map((it) => item(it.itemSn, it.itemNm, it.itemPartCd));
+  fakeItems = { ...fakeItems, [petSn]: [...owned, ...bought] };
+  return fakeDelay(null);
+};
 
 /** 착용 저장 PUT /pets/{petSn}/character/items/wear (착용할 itemSn 목록) */
 export const updateCharacterWear = ({ petSn, itemSns }) => {

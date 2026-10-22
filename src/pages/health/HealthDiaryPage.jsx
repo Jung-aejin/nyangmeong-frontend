@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { generatePath, useLocation, useNavigate } from 'react-router-dom';
+import PageSkeleton from '@/components/PageSkeleton';
+import SkeletonCard from '@/components/SkeletonCard';
 import ReceiptUploadModal from '@/features/ai/receipt/ReceiptUploadModal';
 import CheckupListCard from '@/features/health/diary/CheckupListCard';
 import CheckupModal from '@/features/health/diary/CheckupModal';
@@ -55,10 +57,22 @@ export default function HealthDiaryPage() {
   const { data: recordData, isPending: isRecordsPending } =
     useDailyRecords(selectedPetSn);
 
-  if (isPetsPending)
+  /** 첫 진입: 칩·탭까지 대시보드 틀 스켈레톤 */
+  const isFirstLoading =
+    isPetsPending ||
+    (selectedPetSn !== null && (isRecordsPending || isObservationsPending));
+  if (isFirstLoading)
     return (
       <PageFrame>
-        <p className="text-[#566465]">불러오는 중이에요</p>
+        <PageSkeleton chips={pets?.length || 3} tabs={ANCHORS.length}>
+          <div className="grid gap-5 min-[1101px]:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
+            <SkeletonCard className="h-[485px] max-[760px]:h-[424px]" />
+            <SkeletonCard className="h-[485px] max-[760px]:h-[498px]" />
+          </div>
+          <SkeletonCard className="h-[886px] max-[760px]:h-[1095px]" />
+          <SkeletonCard className="h-[943px] max-[760px]:h-[1423px]" />
+          <SkeletonCard className="h-[1145px] max-[760px]:h-[1437px]" />
+        </PageSkeleton>
       </PageFrame>
     );
   if (isPetsError) {
@@ -113,32 +127,26 @@ export default function HealthDiaryPage() {
         onSelect={setSectionId}
       />
 
-      {selectedPet && sectionId === 'hlt002-graph' && (
-        <div
-          id="hlt002-graph"
-          role="tabpanel"
-          aria-labelledby="hlt002-graph-tab"
-          className="flex min-w-0 flex-col gap-7"
-        >
-          {isRecordsPending ? (
-            <p className="text-[#566465]">불러오는 중이에요</p>
-          ) : (
-            <>
-              <div className="grid items-stretch gap-5 min-[1101px]:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
-                <DailyTrendCard
-                  pet={selectedPet}
-                  records={records}
-                  onAddRecord={openRecordForm}
-                />
-                <TodayRecordCard
-                  records={records}
-                  todayYmd={todayYmd}
-                  isFormOpen={recordForm !== null}
-                  onToggleForm={() =>
-                    recordForm ? setRecordForm(null) : openRecordForm(MEAL)
-                  }
-                />
-              </div>
+      {selectedPet && (
+        <>
+          <div
+            id="hlt002-graph"
+            className="grid scroll-mt-28 items-stretch gap-5 min-[1101px]:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]"
+          >
+            <DailyTrendCard
+              pet={selectedPet}
+              records={records}
+              onAddRecord={openRecordForm}
+            />
+            <TodayRecordCard
+              records={records}
+              todayYmd={todayYmd}
+              isFormOpen={recordForm !== null}
+              onToggleForm={() =>
+                recordForm ? setRecordForm(null) : openRecordForm(MEAL)
+              }
+            />
+          </div>
 
               {recordForm && (
                 <TodayRecordForm

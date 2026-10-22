@@ -6,6 +6,7 @@
 import { useEffect, useRef, useState } from 'react';
 import CountBadge from '@/components/CountBadge';
 import Icon from '@/components/Icon';
+import Skeleton from '@/components/Skeleton';
 import { formatChatListTime } from '@/utils/formatDate';
 import { useChatRooms } from '../queries';
 import { ROLE, ROLE_LABEL, getOtherRole } from '../shared/chatCodes';
@@ -166,9 +167,14 @@ export default function ChatRoomList({
 
       <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto">
         {isPending && (
-          <p className="px-5 py-10 text-center text-subtle">
-            불러오는 중이에요
-          </p>
+          <div aria-busy="true" className="space-y-5 px-5 py-4">
+            {Array.from({ length: 5 }, (_, index) => (
+              <div key={index} className="flex items-center gap-3">
+                <Skeleton className="size-11 shrink-0 rounded-full" />
+                <Skeleton lines={2} className="flex-1" />
+              </div>
+            ))}
+          </div>
         )}
         {isError && (
           <div className="flex flex-col items-center gap-3 px-5 py-10 text-center text-muted">

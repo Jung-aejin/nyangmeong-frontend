@@ -5,6 +5,8 @@ import {
   useParams,
   useSearchParams,
 } from 'react-router-dom';
+import PageSkeleton from '@/components/PageSkeleton';
+import SkeletonCard from '@/components/SkeletonCard';
 import LabInput from '@/features/health/labInput/LabInput';
 import { useCheckupDetail } from '@/features/health/queries';
 import SubPageLayout from '@/layouts/SubPageLayout';
@@ -35,7 +37,9 @@ export default function LabInputPage() {
   if (isPending) {
     return (
       <SubPageLayout {...layoutProps}>
-        <p className="text-muted">불러오는 중이에요</p>
+        <PageSkeleton>
+          <SkeletonCard className="h-[573px]" />
+        </PageSkeleton>
       </SubPageLayout>
     );
   }

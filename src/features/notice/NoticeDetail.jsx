@@ -1,5 +1,6 @@
 import { ChevronLeft, Megaphone } from 'lucide-react';
 import { generatePath, Link } from 'react-router-dom';
+import PostBody from '@/components/PostBody';
 import { PATHS } from '@/routes/paths';
 import { formatDate } from '@/utils/formatDate';
 import { useNotices } from './queries';
@@ -37,16 +38,7 @@ export default function NoticeDetail({ notice }) {
           <span className="text-sm text-[#667374]">조회 {notice.vwCnt}</span>
         </div>
 
-        {/** 본문 글 영역 최소 높이 + 아래 80px 여백: 모든 게시판 공통 */}
-        <div className="mt-6 pb-20">
-          <div className="min-h-[200px] text-base leading-[1.6] text-[#1a3234]">
-            {notice.ntcMttrCn.split('\n\n').map((paragraph) => (
-              <p key={paragraph} className="mb-5 whitespace-pre-line">
-                {paragraph}
-              </p>
-            ))}
-          </div>
-        </div>
+        <PostBody content={notice.ntcMttrCn} />
 
         <div className="border-t border-[#e2e7e7] pt-[21px]">
           <Link

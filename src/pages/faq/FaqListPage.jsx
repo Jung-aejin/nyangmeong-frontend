@@ -1,4 +1,6 @@
 import { useSearchParams } from 'react-router-dom';
+import PageSkeleton from '@/components/PageSkeleton';
+import Skeleton from '@/components/Skeleton';
 import FaqList from '@/features/faq/FaqList';
 import { useFaqs } from '@/features/faq/queries';
 
@@ -29,7 +31,34 @@ export default function FaqListPage() {
       page: nextPage,
     });
 
-  if (isPending) return <p className="text-[#566465]">불러오는 중이에요</p>;
+  if (isPending) {
+    return (
+      <PageSkeleton>
+        <div
+          aria-hidden="true"
+          className="flex min-h-[72px] items-center justify-between gap-3 max-[760px]:flex-col max-[760px]:items-stretch"
+        >
+          <div className="flex gap-6">
+            {[0, 1, 2, 3, 4].map((index) => (
+              <Skeleton key={index} className="h-6 w-16" />
+            ))}
+          </div>
+          <Skeleton className="h-12 w-[300px] max-[760px]:w-full" />
+        </div>
+        <div aria-hidden="true" className="flex flex-col gap-3">
+          {Array.from({ length: 10 }, (_, index) => (
+            <div
+              key={index}
+              className="flex h-[74px] items-center rounded-[14px] border border-[#e2e7e7] bg-white px-6"
+            >
+              <Skeleton className="h-4 w-2/3" />
+            </div>
+          ))}
+        </div>
+        <Skeleton className="mx-auto mt-7 h-9 w-64" />
+      </PageSkeleton>
+    );
+  }
   if (isError) {
     return (
       <p role="alert" className="text-[#566465]">

@@ -1,4 +1,7 @@
 import { useSearchParams } from 'react-router-dom';
+import PageSkeleton from '@/components/PageSkeleton';
+import Skeleton from '@/components/Skeleton';
+import SkeletonCard from '@/components/SkeletonCard';
 import NoticeList from '@/features/notice/NoticeList';
 import { useNotices } from '@/features/notice/queries';
 
@@ -21,7 +24,21 @@ export default function NoticeListPage() {
   const handlePageChange = (nextPage) =>
     setSearchParams({ ...(keyword && { keyword }), page: nextPage });
 
-  if (isPending) return <p className="text-[#566465]">불러오는 중이에요</p>;
+  if (isPending) {
+    return (
+      <PageSkeleton>
+        <div
+          aria-hidden="true"
+          className="flex items-center justify-between gap-3 max-[760px]:flex-col max-[760px]:items-stretch"
+        >
+          <Skeleton className="h-5 w-24" />
+          <Skeleton className="h-12 w-[300px] max-[760px]:w-full" />
+        </div>
+        <SkeletonCard className="h-[754px]" />
+        <Skeleton className="mx-auto mt-7 h-9 w-64" />
+      </PageSkeleton>
+    );
+  }
   if (isError) {
     return (
       <p role="alert" className="text-[#566465]">

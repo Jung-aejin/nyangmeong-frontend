@@ -1,4 +1,6 @@
 import { useParams } from 'react-router-dom';
+import PageSkeleton from '@/components/PageSkeleton';
+import SkeletonCard from '@/components/SkeletonCard';
 import NoticeDetail from '@/features/notice/NoticeDetail';
 import { useNotice } from '@/features/notice/queries';
 
@@ -6,7 +8,14 @@ export default function NoticeDetailPage() {
   const ntcMttrSn = Number(useParams().ntcMttrSn);
   const { data: notice, isPending, isError } = useNotice(ntcMttrSn);
 
-  if (isPending) return <p className="text-[#566465]">불러오는 중이에요</p>;
+  if (isPending) {
+    return (
+      <PageSkeleton>
+        <SkeletonCard className="h-[605px]" />
+        <SkeletonCard className="h-[111px]" />
+      </PageSkeleton>
+    );
+  }
   if (isError) {
     return (
       <p role="alert" className="text-[#566465]">
