@@ -19,7 +19,7 @@ const getOutDirection = ({ rsltVal, refMinVal, refMaxVal }) => {
 /**
  * [혈액검사 결과 목록]
  * - 기능 태그·태그별 건수, 항목·측정값·참고범위 한 줄, 참고범위 밖은 색 + ▲▼ (FN-HLT-005-02)
- * - 항목명 클릭 → 검사 수치 입력(수정), 나머지 행 클릭 → 종합 건강기록 검사 수치 추이, [＋ 검사 수치 추가] → 검사 수치 입력
+ * - 행의 어디를 눌러도(체크박스 제외) 검사 수치 입력(수정), [＋ 검사 수치 추가] → 검사 수치 입력
  * - 체크박스로 고른 항목을 확인 뒤 삭제
  */
 export default function BloodResultList({ checkup, items }) {
@@ -58,10 +58,8 @@ export default function BloodResultList({ checkup, items }) {
       },
     );
 
-  const goTrend = (item) =>
-    navigate(
-      `${PATHS.HEALTH}?inspection=${encodeURIComponent(item.inspItmNm)}`,
-    );
+  const goEdit = (item) =>
+    navigate({ pathname: inputPath, search: `?mode=edit&item=${item.inspSn}` });
 
   return (
     <div>
@@ -121,7 +119,7 @@ export default function BloodResultList({ checkup, items }) {
                 <li
                   key={item.inspSn}
                   className={`flex cursor-pointer items-center gap-3 py-3 hover:bg-surface-2 ${ROW_LINE}`}
-                  onClick={() => goTrend(item)}
+                  onClick={() => goEdit(item)}
                 >
                   <label
                     className="inline-flex h-10 cursor-pointer items-center rounded-md border border-input-line bg-white px-3"
