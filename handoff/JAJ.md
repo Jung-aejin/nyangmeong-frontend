@@ -2,19 +2,41 @@
 
 ## 지금 하는 것
 
-SCR-HLT-011 종합 건강기록 (시작 2026-10-21 15:45) — 상태: 끝남 (승인 2026-10-21 16:05, 검증 통과, 사람 확인 2026-10-21)
+SCR-HLT-007 검사 수치 입력 (시작 2026-10-22 09:03) — 상태: 끝남 (승인 2026-10-22 09:20, 검증 통과 수준 `확인 못 함 있음`·실패 항목 없음, 사람 확인 2026-10-22)
 
-기준: 건강기록_기능명세서_v1.1_20261021, 건강기록_화면설계서_v1.1_20261021 (DMS). 디자인: `html/hlt-summary.html`
+기준: 건강기록_기능명세서_v1.1_20261021, 건강기록_화면설계서_v1.1_20261021 (DMS)
 
-기능 FN-HLT-011-01~10, 앵커, 추가 요청 7건 구현과 검증 통과. 기능별 내용은 `milestones/JAJ.md`와 기능명세서. `pages/health/HealthSummaryPage.jsx`가 히어로 + 영역을 조립하고 코드는 `features/health/summary/`, 가짜 응답은 `features/health/summaryApi.js`의 `getHealthSummary(petSn)`(다른 화면의 가짜 저장소를 모음), 훅은 `queries.js`의 `useHealthSummary`다. 화면을 열 때마다 다시 읽으므로 다른 화면에서 바꾼 값이 보인다
+디자인: `html/hlt-lab-input.html` (+ `html/hlt.css`)
 
-- 가짜 확인용 쿼리(개발 환경만): `?fakeSummary=0`(모든 영역 0건·알레르기·기저질환 미입력), `?fakeSummary=1`(검사·관찰 1회차만. 반려동물 1마리는 `?fakePets=1`), `?inspection=<검사 항목>`(검사 수치 추이 처음 항목). 검진상세는 `?fakeCheckupDetail=0`
-- 시안과 달라진 점: 반려동물 선택 탭은 `PetTabs.jsx` 대신 `summary/SummaryHero.jsx`에 직접 만들었다(진한 초록 히어로 안의 칩). `checkupApi.js`에 검진기록 502·503 신장 수치 가짜 이력을 더했고, `HealthDiaryPage.jsx`에 URL 해시 스크롤을 더했다
-- 추가 요청(요청·확인 2026-10-21): 추가-1 타임라인 아이콘 세로 선, 추가-2 타임라인 [전체 보기]를 건강 일지 검진기록으로, 추가-3 타임라인에 반복 예방(시작일 기준), 추가-4 예방·정기검진 카드 [전체 보기] 삭제, 추가-5 히어로 칩·자간·프로필 카드를 시안과 일치, 추가-6 히어로 점 무늬, 추가-7 반려동물 1마리일 때 [반려동물 등록] 칩
+질문: html/hlt-lab-input.html을 디자인으로 쓸까요? 아니면 화면설계서 기준으로 갈까요? (추천: 그 파일을 쓴다. 시안 주석의 기준이 v1.0_20261011이라, v1.1과 다른 곳은 명세를 따른다)
+
+결정: html 기준 (`디자인: html/hlt-lab-input.html` 그대로)
+
+진입 경로(이미 있음): URL `/health/checkups/:ckupRcdSn/inspections`(`routes/domains/health/healthRoutes.js`에 지금 `EmptyPage`). 검진상세가 `?mode=pdf`(state `analyzedItems`, `AttachmentTab.jsx`), `?mode=manual`·`?mode=edit&item=<inspSn>`(`BloodResultList.jsx`)으로 이미 보낸다
+
+- 화면 조립: `pages/health/LabInputPage.jsx` 새로 만들고 `healthRoutes.js`의 `EmptyPage`를 바꾼다. 코드는 `features/health/labInput/`. 겉틀은 `CheckupDetailPage.jsx`의 `PageFrame`과 같은 모양으로 둔다. 완료 조건 `명령:` `yarn -s lint`, `yarn -s build`
+- FN-HLT-007-04 분석 결과 검수: `labInput/AnalysisReview.jsx`. `?mode=pdf`일 때만 ①②③ 노출. 파일명·인식 건수, 인식 행(검사 종류 "혈액검사"·항목·값·단위), 값 클릭 → 인라인 수정(저장 전 확정 안 됨), 인식 실패 행은 빈 값으로 직접 입력, 같은 검진기록에 이미 있는 항목은 "이미 등록됨 · 저장 제외", 하단 AI 주의 문구 상시. API: PDF 분석 (LJS, 가짜 `checkupApi.js` `analyzeLabPdf`). 가짜 응답에 인식 실패 1건·이미 등록 1건(CREA)·혈액검사 아님 1건을 더한다. `화면:` 첨부 자료 탭 [PDF 분석] → 인식 행이 채워진 채 열리고 CREA 행에 "이미 등록됨"이 붙는다 / 실패 행 값이 비어 있고 입력할 수 있다
+- FN-HLT-007-05 검사 종류 표시: 혈액검사 아닌 인식 행은 "혈액검사 항목이 아니라 저장에서 제외" 표시. `화면:` 그 행이 저장 뒤 검사 결과에 들어가지 않는다
+- FN-HLT-007-06 다시 분석 · 직접 입력하기: [다시 분석하기]는 같은 첨부로 `analyzeLabPdf` 재호출(진행 중 버튼 비활성). 첨부 번호가 필요해 `AttachmentTab.jsx`가 `?mode=pdf&atch=<atchSn>`으로 보내게 고친다. 새로고침 등으로 state가 없으면 그 첨부로 다시 분석한다. [직접 입력하기]는 분석 결과를 버리고 `?mode=manual`로 바꾼다. `화면:` 다시 분석 중 버튼이 막히고 결과가 다시 채워진다 / 직접 입력하기 → ①②③이 사라지고 빈 폼
+- FN-HLT-007-01 검사 종류: "혈액검사" 고정 비활성 칸. `화면:` 바꿀 수 없다
+- FN-HLT-007-02 검사 항목: `labInput/LabItemForm.jsx` + `labInput/bloodItems.js`(12종·4태그·한글 이름, 태그 코드는 `checkupTypes.js` `FUNCTION_TAGS`). 드롭다운은 태그 묶음 + 약어 + 한글 이름, 맨 아래 직접입력(태그 없음). 항목·결과값·단위 필수, 참고범위 최소·최대는 둘 다 비우거나 둘 다 입력, 수정 진입 시 항목 비활성. 이미 있는 항목을 고르면 "이미 등록된 항목입니다: CREA" 안내. `화면:` 참고범위 한쪽만 넣으면 [저장하기]가 막힌다 / 수정 진입 시 항목이 비활성이고 기존 값이 채워진다
+- FN-HLT-007-03 취소 · 저장하기: [취소] → 검진상세 검사 결과 탭(입력 폐기). [저장하기] → 검사 결과 생성·수정 후 검진상세로 이동하고 `checkupKeys` 무효화. API: 검사 결과 생성·수정 (JAJ 백엔드, 가짜 `checkupApi.js`에 `createInspections`(여러 건)·`updateInspection` 추가, `queries.js`에 훅 추가). 종합 건강기록 검사 수치 추이는 같은 가짜 저장소를 읽어 따로 할 일 없다. 메모 필드는 지금 가짜 데이터에 없어 `memoCn`으로 더한다. `화면:` 수동 추가로 저장하면 검사 결과 탭에 새 행이 생긴다 / 수정 저장하면 새 행 없이 그 행이 바뀐다 / PDF 저장 시 제외 행은 들어가지 않는다
+
+다음에 할 것에 남길 연결: PDF 분석 호출부 (LJS), 검사 결과 생성·수정 API (JAJ 백엔드)
+
+### 추가 요청
+
+| 번호 | 바꿀 파일 | 완료 조건 | 요청 |
+| --- | --- | --- | --- |
+| 추가-1 | `features/health/checkup/BloodResultList.jsx` | 명령: `yarn -s lint`, `yarn -s build` / 화면: 검진상세 검사 결과 탭의 혈액검사 행을 항목명이 아닌 곳(값·참고범위·빈 곳)을 눌러도 검사 수치 입력 수정 화면(`?mode=edit&item=<번호>`)으로 간다. 체크박스는 그대로 선택만 된다 | 요청 2026-10-22 "03 해당 라인 어느 곳을 눌러도 수정하는 곳으로 갔으면 좋겠어, 지금은 제목만 눌러야 해서 헷갈려" |
 
 새 의존성: 없음
 
 ## 다음에 할 것
+
+- 결정 필요(SCR-HLT-007 추가-1): 검사 결과 행을 어디나 누르면 수정 화면으로 가게 바꾸면서(`BloodResultList.jsx`) 검진상세에서 종합 건강기록 검사 수치 추이(`/health?inspection=<항목>`)로 가는 길이 없어졌다. 기능명세서 FN-HLT-005-02를 고칠지, 추이로 가는 다른 길을 둘지 정한다
+- SCR-HLT-007 참고(실패 아님): [직접 입력하기] 뒤에도 주소가 `?mode=pdf&atch=<번호>`에 남아 새로고침하면 분석이 다시 뜬다(기획은 `?mode=manual`로 바꾸는 것). `labInput/ItemSelect.jsx` 목록에서 묶음 행과 항목 행 key가 `GLU`로 겹쳐 콘솔 경고. PDF 진입 때 아래 입력칸은 선택(비우면 분석 행만 저장)으로 구현했다
+- 연결 남음(SCR-HLT-007): 검사결과지 PDF 분석 호출부 (LJS, `checkupApi.js` `analyzeLabPdf` 가짜, 응답의 `bloodYn`은 가정), 검사 결과 생성·수정 API (JAJ 백엔드, `createInspections`·`updateInspection` 가짜)
 
 - 연결 남음(SCR-HLT-011): 반려동물 목록·프로필(품종·성별·생일·알레르기·기저질환 필드 이름 포함) `getPets` (SJM), 캐릭터 이미지 조회 (LJS), 반려동물별 종합 조회 (JAJ 백엔드, `summaryApi.js` 가짜 응답을 실제 호출로 교체). 첨부 칸의 미리보기·다운로드는 가짜에 파일 주소가 없어 안내 토스트만 뜬다
 - 결정 필요: 추가-3(타임라인에 반복 예방)과 추가-4(예방·정기검진 [전체 보기] 삭제)는 기능명세서 FN-HLT-011-03·04와 달라졌다. 명세를 고칠지 정한다. 종합 화면에서 링크로 `/health/diary#hlt002-exam`에 가면 위쪽 내용이 늦게 그려져 영역이 상단 112px이 아니라 328px에 놓인다(화면 안에는 보임). `HealthSummaryPage`·`HealthDiaryPage`·`CareCalendarPage`의 `PageFrame`이 거의 같아 한 곳으로 합칠 수 있다
