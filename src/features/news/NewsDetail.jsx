@@ -4,6 +4,7 @@ import { PATHS } from '@/routes/paths';
 import { formatDate, formatMonthDayDot } from '@/utils/formatDate';
 import NewsCategoryBadge from './NewsCategoryBadge';
 import NewsShare from './NewsShare';
+import PopularNews from './PopularNews';
 import NewsThumb from './NewsThumb';
 import { NEWS_SRC_ADMIN } from './newsCodes';
 import { useNewsList } from './queries';
@@ -52,7 +53,7 @@ export default function NewsDetail({ news }) {
               <NewsThumb
                 src={news.thmbUrlPath}
                 iconSize={56}
-                className="max-w-[720px] rounded-[14px]"
+                className="aspect-[16/9] max-w-[720px] rounded-[14px]"
               />
               <figcaption className="mt-1.5 text-sm text-[#667374]">
                 사진 출처: {news.srcPressNm}
@@ -96,17 +97,20 @@ export default function NewsDetail({ news }) {
         </div>
       </article>
 
-      <aside aria-label="펫뉴스 더 보기">
+      <aside aria-label="펫뉴스 더 보기" className="flex flex-col gap-10">
         <section aria-labelledby="news-latest-title">
           <h2
             id="news-latest-title"
-            className="pb-2 text-lg leading-[1.4] font-bold text-[#1a3234]"
+            className="pb-3 text-lg leading-[1.4] font-bold text-[#1a3234]"
           >
             펫뉴스 최신 기사
           </h2>
           <ul>
             {latest?.content.map((item) => (
-              <li key={item.newsSn} className="border-t border-[#e2e7e7]">
+              <li
+                key={item.newsSn}
+                className="border-t border-[#e2e7e7] first:border-t-0"
+              >
                 <Link
                   to={generatePath(PATHS.COMMUNITY_NEWS_DETAIL, {
                     newsSn: item.newsSn,
@@ -125,6 +129,7 @@ export default function NewsDetail({ news }) {
             ))}
           </ul>
         </section>
+        <PopularNews />
       </aside>
     </div>
   );

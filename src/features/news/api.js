@@ -140,3 +140,22 @@ export const getNews = (newsSn) => {
     ? Promise.resolve({ ...target })
     : Promise.reject(new Error('뉴스를 찾지 못했어요'));
 };
+
+/**
+ * 많이 본 뉴스: 조회수 컬럼이 ERD에 없어 가짜 순서(제목 기준)로 5건
+ * - 연결 때 서버가 주는 인기 순서(기준·기간 포함)로 교체
+ */
+const POPULAR_TITLES = [
+  '반려동물 등록 의무화, 미등록 과태료 강화',
+  '전북 유기동물 입양 캠페인 확대',
+  '동물병원 진료비 게시 의무, 내년부터 전 병원으로',
+  '가을철 진드기 예방, 산책 후 이것만은 꼭',
+  '반려동물 동반 숙소 1년 새 30% 늘었다',
+];
+
+export const getPopularNews = () =>
+  Promise.resolve(
+    POPULAR_TITLES.map((title) =>
+      fakeRows.find((item) => item.newsTtl === title),
+    ).filter(Boolean),
+  );
