@@ -6,6 +6,8 @@ import {
   useParams,
   useSearchParams,
 } from 'react-router-dom';
+import PageSkeleton from '@/components/PageSkeleton';
+import SkeletonCard from '@/components/SkeletonCard';
 import AttachmentTab from '@/features/health/checkup/AttachmentTab';
 import CheckupInfoCard from '@/features/health/checkup/CheckupInfoCard';
 import DetailTabs from '@/features/health/checkup/DetailTabs';
@@ -54,7 +56,9 @@ function CheckupDetail({ ckupRcdSn }) {
   if (isPending || isPetsPending) {
     return (
       <PageFrame>
-        <p className="text-[#566465]">불러오는 중이에요</p>
+        <PageSkeleton top={<SkeletonCard className="h-[345px]" />} tabs={4}>
+          <SkeletonCard className="h-[735px]" />
+        </PageSkeleton>
       </PageFrame>
     );
   }
