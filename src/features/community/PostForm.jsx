@@ -105,7 +105,7 @@ export default function PostForm({
           id="post-form"
           onSubmit={handleSubmit}
           noValidate
-          className="flex flex-col gap-8"
+          className="flex flex-col gap-9"
         >
           <fieldset className="flex flex-col gap-1.5">
             <legend className={`${LABEL_CLASS} mb-1.5`}>

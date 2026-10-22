@@ -39,6 +39,7 @@ SCR-CMU-004 우리동네 펫돌봄 (시작 2026-10-22) — 상태: 진행 중 (�
 | 추가-8 | `features/community/PostForm.jsx`, `features/community/missing/MissingForm.jsx` | 화면: 펫이야기·실종센터 글쓰기·수정 맨 위 「* 표시는 꼭 입력해야 해요」 삭제(펫돌봄은 추가-5) | 요청 2026-10-22 "CMU의 모든 글쓰기 페이지에서 해당 텍스트 삭제" |
 | 추가-9 | `features/community/missing/MissingFilters.jsx`, `MissingList.jsx`, `pages/community/MissingListPage.jsx` | 화면: 실종센터 목록의 상태 탭·검색·상세 필터·건수가 콘텐츠 전체 너비를 쓰고 그 아래에서 카드 목록(왼쪽)과 레일(오른쪽)이 나뉜다. 필터는 디자인 `SCR-CMU-002-01.html`의 `.cf`처럼 1280px 초과에서 첫 줄 실종 지역 \| 반려동물, 둘째 줄 실종 기간(전체 너비) | 요청 2026-10-22 "실종센터 목록도 필터 영역이 콘텐츠 전체 차지" |
 | 추가-10 | `features/community/PostForm.jsx`, `features/community/missing/MissingForm.jsx`, `features/community/care/CareForm.jsx` | 화면: CMU 글쓰기·수정 폼 모두 입력 요소 사이 간격 32px(`gap-8`), 체크박스·라디오 줄 최소 높이 32px(`min-h-8`) | 요청 2026-10-22 "추가-7과 입력 요소 간격 8을 CMU 모든 글쓰기 폼에 적용" |
+| 추가-11 | `features/community/PostForm.jsx`, `features/community/missing/MissingForm.jsx` | 화면: 펫이야기·실종센터 글쓰기·수정의 입력 요소 사이 세로 간격을 펫돌봄과 같은 36px(`gap-9`)로 맞춘다(세 폼 모두 36px) | 요청 2026-10-22 "세 폼 모두 36px(gap-9)로 맞출게" |
 
 - 확인만 한 요청(변경 없음): 「CMU 댓글: 답글쓰기 옆 삭제 유지, 오른쪽 ⋮ 누르면 신고하기」는 `CommentSection` 한 곳이 펫이야기·실종센터에 같이 쓰이고 이미 그 형태다(내 댓글은 삭제, 남의 댓글은 ⋮ → 신고하기). 펫돌봄은 공개 댓글이 없다
 
