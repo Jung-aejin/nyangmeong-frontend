@@ -6,9 +6,9 @@ import { BTN_PRIMARY, BTN_SECONDARY } from '@/components/buttonStyles';
 import { showToast } from '@/components/toastStore';
 import { PATHS } from '@/routes/paths';
 import { INVT_STTS } from '../api';
-import { formatAge, getVrtyName } from '../list/petFormat';
+import { formatAge, getVrtyName } from '@/utils/petFormat';
 import { useAcceptInvitation, useInvitation } from '../queries';
-import { PET_SE } from '../shared/petCodes';
+import { PET_SE } from '@/utils/petCodes';
 import InvitationRejectDialog from './InvitationRejectDialog';
 
 /**

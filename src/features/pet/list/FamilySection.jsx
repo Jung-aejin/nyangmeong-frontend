@@ -4,7 +4,7 @@ import Badge from '@/components/Badge';
 import Skeleton from '@/components/Skeleton';
 import { showToast } from '@/components/toastStore';
 import { useCaregivers, useDeleteCaregiver } from '../queries';
-import { CGVR_ROLE, MAX_CAREGIVERS } from '../shared/petCodes';
+import { CGVR_ROLE, MAX_CAREGIVERS } from '@/utils/petCodes';
 
 /** 'YYYY-MM-DD' → 'MM-DD' */
 const formatLinkDate = (lnkDt) => lnkDt.slice(5);

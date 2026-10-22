@@ -11,7 +11,7 @@ import PetFormModal from '@/features/pet/list/PetFormModal';
 import PetSlide from '@/features/pet/list/PetSlide';
 import PetUnlinkDialog from '@/features/pet/list/PetUnlinkDialog';
 import SentInvitations from '@/features/pet/list/SentInvitations';
-import { MAX_OWN_PETS, PET_REL } from '@/features/pet/shared/petCodes';
+import { MAX_OWN_PETS, PET_REL } from '@/utils/petCodes';
 import { usePets } from '@/features/pet/queries';
 import SubPageLayout from '@/layouts/SubPageLayout';
 

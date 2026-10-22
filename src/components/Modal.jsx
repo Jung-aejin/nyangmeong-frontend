@@ -1,12 +1,17 @@
 import { X } from 'lucide-react';
 import { useEffect, useId, useRef } from 'react';
 
-/** isConfirm: 가운데 정렬 확인 팝업, 아니면 제목 줄과 ✕가 있는 입력 모달 */
+/**
+ * isConfirm: 가운데 정렬 확인 팝업, 아니면 제목 줄과 ✕가 있는 입력 모달
+ * isLarge: 화면을 크게 덮는 모달. 본문(children)이 남는 높이를 차지하고 푸터는 맨 아래에 구분선과 함께 고정,
+ *          760px 이하에서는 화면 전체
+ */
 export default function Modal({
   title,
   description,
   footer,
   isConfirm = false,
+  isLarge = false,
   isPending = false,
   onClose,
   children,
@@ -37,7 +42,11 @@ export default function Modal({
     <dialog
       ref={dialogRef}
       aria-labelledby={titleId}
-      className="m-auto max-h-[calc(100vh-2rem)] w-[min(440px,calc(100vw-2rem))] rounded-modal bg-white p-0 shadow-depth-lg backdrop:bg-[rgba(15,23,35,0.45)]"
+      className={`m-auto bg-white p-0 shadow-depth-lg backdrop:bg-[rgba(15,23,35,0.45)] ${
+        isLarge
+          ? 'h-[min(660px,calc(100dvh-2rem))] max-h-none w-[min(760px,calc(100vw-2rem))] max-w-none flex-col rounded-modal open:flex max-[760px]:h-dvh max-[760px]:w-screen max-[760px]:rounded-none'
+          : 'max-h-[calc(100vh-2rem)] w-[min(440px,calc(100vw-2rem))] rounded-modal'
+      }`}
       onCancel={handleCancel}
       onMouseDown={handleMouseDown}
     >
@@ -58,7 +67,9 @@ export default function Modal({
         </div>
       ) : (
         <>
-          <header className="flex items-center justify-between gap-3 border-b border-line-soft px-6 py-4">
+          <header
+            className={`flex shrink-0 items-center justify-between gap-3 border-b border-line-soft px-6 ${isLarge ? 'py-2.5' : 'py-4'}`}
+          >
             <h2 id={titleId} className="text-lg font-bold">
               {title}
             </h2>
@@ -72,10 +83,24 @@ export default function Modal({
               <X className="size-5" />
             </button>
           </header>
-          <div className="px-6 py-5">{children}</div>
+          <div
+            className={
+              isLarge
+                ? 'flex min-h-0 flex-1 flex-col overflow-y-auto min-[761px]:overflow-hidden'
+                : 'px-6 py-5'
+            }
+          >
+            {children}
+          </div>
         </>
       )}
-      <footer className="flex gap-2 px-6 pb-6 *:min-w-0 *:flex-1">
+      <footer
+        className={
+          isLarge
+            ? 'flex shrink-0 flex-wrap items-center justify-between gap-3 border-t border-line px-6 py-2.5'
+            : 'flex gap-2 px-6 pb-6 *:min-w-0 *:flex-1'
+        }
+      >
         {footer}
       </footer>
     </dialog>

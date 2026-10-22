@@ -4,20 +4,27 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
+import { pointKeys } from '@/features/point/queries';
 import {
   acceptInvitation,
+  createCharacter,
   createInvitation,
   createPet,
   deleteCaregiver,
   deletePet,
   getCaregivers,
+  getCharacterItems,
   getInvitation,
   getPet,
   getPets,
+  getShopItems,
   getSentInvitations,
   getVarieties,
   leavePet,
+  purchaseCharacterItems,
   rejectInvitation,
+  setRepresentativePet,
+  updateCharacterWear,
   updatePet,
 } from './api';
 
@@ -26,7 +33,9 @@ export const petKeys = {
   list: () => ['pets', 'list'],
   detail: (petSn) => ['pets', petSn],
   caregivers: (petSn) => ['pets', petSn, 'caregivers'],
+  items: (petSn) => ['pets', petSn, 'items'],
   varieties: (petSeCd) => ['varieties', petSeCd],
+  shopItems: () => ['items', 'shop'],
 };
 
 export const invitationKeys = {
@@ -105,6 +114,58 @@ export const useLeavePet = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: leavePet,
+    onSuccess: () => qc.invalidateQueries({ queryKey: petKeys.all }),
+  });
+};
+
+export const useCharacterItems = (petSn) =>
+  useQuery({
+    queryKey: petKeys.items(petSn),
+    queryFn: () => getCharacterItems(petSn),
+    enabled: petSn != null,
+  });
+
+/** 모달이 닫혀도 생성은 이어지므로 갱신은 여기(훅 옵션)에서 한다 */
+export const useCreateCharacter = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body) => {
+      const done = createCharacter(body);
+      /** 요청 즉시 "만드는 중" 상태를 목록에 반영 */
+      qc.invalidateQueries({ queryKey: petKeys.list() });
+      return done;
+    },
+    onSettled: () => qc.invalidateQueries({ queryKey: petKeys.all }),
+  });
+};
+
+export const useUpdateCharacterWear = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: updateCharacterWear,
+    onSuccess: (_, { petSn }) =>
+      qc.invalidateQueries({ queryKey: petKeys.items(petSn) }),
+  });
+};
+
+export const useShopItems = () =>
+  useQuery({ queryKey: petKeys.shopItems(), queryFn: getShopItems });
+
+export const usePurchaseCharacterItems = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: purchaseCharacterItems,
+    onSuccess: (_, { petSn }) => {
+      qc.invalidateQueries({ queryKey: petKeys.items(petSn) });
+      qc.invalidateQueries({ queryKey: pointKeys.balance() });
+    },
+  });
+};
+
+export const useSetRepresentativePet = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: setRepresentativePet,
     onSuccess: () => qc.invalidateQueries({ queryKey: petKeys.all }),
   });
 };

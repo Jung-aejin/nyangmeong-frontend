@@ -1,9 +1,16 @@
-import { CGVR_ROLE, PET_REL, PET_SE } from './shared/petCodes';
+import {
+  CGVR_ROLE,
+  CHRC_STTS,
+  ITEM_PART,
+  PET_REL,
+  PET_SE,
+} from './shared/petCodes';
 
 /**
  * [반려동물 가짜 API]
  * - 반려동물 API(SJM)·품종 마스터(KSJ) 전까지 쓰는 가짜 응답, 나오면 본문만 api 요청으로 교체
  * - 미정 키: lastBdwgRcd, vrtyNm, rprsYn, petRelCd, chrcFaceUrl
+ * - 캐릭터 미정 키: chrcSttsCd, chrcImgUrl, inqryRcptYn
  * - 양육관계 미정 키: rltnSn, mbrNcnm, cgvrRoleCd, authrtNm, lnkDt, myYn
  */
 const basePet = {
@@ -21,12 +28,16 @@ const basePet = {
   rprsYn: 'N',
   petRelCd: PET_REL.OWNER,
   chrcFaceUrl: null,
+  chrcSttsCd: CHRC_STTS.NONE,
+  chrcImgUrl: null,
+  inqryRcptYn: 'N',
 };
 
 let fakePets = [
   {
     ...basePet,
     petSn: 1,
+    chrcSttsCd: CHRC_STTS.DONE,
     petNm: '초코',
     petSeCd: PET_SE.DOG,
     vrtySn: 1,
@@ -48,6 +59,7 @@ let fakePets = [
   {
     ...basePet,
     petSn: 2,
+    chrcSttsCd: CHRC_STTS.DONE,
     petNm: '나비',
     petSeCd: PET_SE.CAT,
     vrtyDrctInptNm: '코리안 숏헤어 믹스',
@@ -63,6 +75,8 @@ let fakePets = [
   {
     ...basePet,
     petSn: 3,
+    chrcSttsCd: CHRC_STTS.DONE,
+    inqryRcptYn: 'Y',
     petNm: '보리',
     petSeCd: PET_SE.DOG,
     vrtySn: 2,
@@ -77,6 +91,7 @@ let fakePets = [
   {
     ...basePet,
     petSn: 4,
+    chrcSttsCd: CHRC_STTS.DONE,
     petNm: '두부',
     petSeCd: PET_SE.DOG,
     vrtySn: 3,
@@ -121,6 +136,8 @@ let fakePets = [
   {
     ...basePet,
     petSn: 7,
+    chrcSttsCd: CHRC_STTS.ERROR,
+    inqryRcptYn: 'Y',
     petNm: '구름',
     petSeCd: PET_SE.CAT,
     vrtySn: 103,
@@ -136,6 +153,7 @@ let fakePets = [
   {
     ...basePet,
     petSn: 8,
+    petRelCd: PET_REL.CO_PARENT,
     petNm: '까미',
     petSeCd: PET_SE.DOG,
     vrtySn: 3,
@@ -150,6 +168,8 @@ let fakePets = [
   {
     ...basePet,
     petSn: 9,
+    chrcSttsCd: CHRC_STTS.ERROR,
+    petRelCd: PET_REL.CO_PARENT,
     petNm: '모모',
     petSeCd: PET_SE.CAT,
     vrtySn: 102,
@@ -164,6 +184,8 @@ let fakePets = [
   {
     ...basePet,
     petSn: 10,
+    chrcSttsCd: CHRC_STTS.DONE,
+    petRelCd: PET_REL.CO_PARENT,
     petNm: '해피',
     petSeCd: PET_SE.DOG,
     vrtySn: 1,
@@ -175,7 +197,6 @@ let fakePets = [
     minBdwg: 26.0,
     maxBdwg: 32.0,
     colrCd: 'PETC0007',
-    petRelCd: PET_REL.CO_PARENT,
   },
 ];
 
@@ -200,8 +221,20 @@ const findVrtyNm = (petSeCd, vrtySn) =>
 const fakeDelay = (data) =>
   new Promise((resolve) => setTimeout(() => resolve(data), 200));
 
-/** 목록 조회 GET /pets */
-export const getPets = () => fakeDelay(fakePets);
+const getQueryParam = (name) =>
+  import.meta.env.DEV
+    ? new URLSearchParams(window.location.search).get(name)
+    : null;
+
+/** 목록 조회 GET /pets (개발 전용 ?fake=empty·owner로 0마리·공동양육 없음 확인) */
+export const getPets = () => {
+  const fake = getQueryParam('fake');
+  if (fake === 'empty') return fakeDelay([]);
+  if (fake === 'owner') {
+    return fakeDelay(fakePets.filter((pet) => pet.petRelCd === PET_REL.OWNER));
+  }
+  return fakeDelay(fakePets);
+};
 
 /** 상세 조회 GET /pets/{petSn} */
 export const getPet = (petSn) =>
@@ -352,6 +385,151 @@ export const leavePet = (petSn) => {
     ),
   };
   return fakeDelay(null);
+};
+
+/**
+ * [캐릭터 가짜 API]
+ * - 캐릭터 API(LJS)·대표 지정 API(SJM 백엔드) 전까지 쓰는 가짜 응답, 나오면 본문만 api 요청으로 교체
+ * - 미정 키: itemSn, itemNm, itemPartCd, itemImgUrl, wearYn
+ */
+const item = (itemSn, itemNm, itemPartCd, wearYn = 'N') => ({
+  itemSn,
+  itemNm,
+  itemPartCd,
+  itemImgUrl: null,
+  wearYn,
+});
+
+const defaultItems = () => [
+  item(12, '야구모자', ITEM_PART.HEAD),
+  item(14, '헤어핀', ITEM_PART.HEAD),
+  item(21, '동그란 안경', ITEM_PART.FACE),
+];
+
+let fakeItems = {
+  1: [
+    item(11, '밀짚모자', ITEM_PART.HEAD, 'Y'),
+    item(12, '야구모자', ITEM_PART.HEAD),
+    item(13, '두건', ITEM_PART.HEAD),
+    item(14, '헤어핀', ITEM_PART.HEAD),
+    item(15, '헤어밴드', ITEM_PART.HEAD),
+    item(16, '겨울모자', ITEM_PART.HEAD),
+    item(17, '왕관', ITEM_PART.HEAD),
+    item(18, '리본핀', ITEM_PART.HEAD),
+    item(19, '털모자', ITEM_PART.HEAD),
+    item(20, '선글라스', ITEM_PART.FACE, 'Y'),
+    item(21, '동그란 안경', ITEM_PART.FACE),
+    item(22, '목도리', ITEM_PART.NECK),
+    item(23, '체크셔츠', ITEM_PART.CLOTHES, 'Y'),
+  ],
+};
+
+/** 보유 아이템 조회 GET /pets/{petSn}/character/items */
+export const getCharacterItems = (petSn) =>
+  fakeDelay(fakeItems[petSn] ?? defaultItems());
+
+/**
+ * 상점 아이템 조회 GET /items (LJS)
+ * - 미정 키: itemPrc. itemSn은 보유 아이템(getCharacterItems)과 같은 번호
+ * - 가격(500~900P)은 예시
+ */
+const shopItem = (itemSn, itemNm, itemPartCd, itemPrc) => ({
+  itemSn,
+  itemNm,
+  itemPartCd,
+  itemPrc,
+  itemImgUrl: null,
+});
+
+const SHOP_ITEMS = [
+  shopItem(11, '밀짚모자', ITEM_PART.HEAD, 600),
+  shopItem(12, '야구모자', ITEM_PART.HEAD, 600),
+  shopItem(13, '두건', ITEM_PART.HEAD, 500),
+  shopItem(14, '헤어핀', ITEM_PART.HEAD, 500),
+  shopItem(15, '헤어밴드', ITEM_PART.HEAD, 500),
+  shopItem(16, '겨울모자', ITEM_PART.HEAD, 700),
+  shopItem(17, '왕관', ITEM_PART.HEAD, 900),
+  shopItem(18, '리본핀', ITEM_PART.HEAD, 500),
+  shopItem(19, '털모자', ITEM_PART.HEAD, 700),
+  shopItem(20, '선글라스', ITEM_PART.FACE, 700),
+  shopItem(21, '동그란 안경', ITEM_PART.FACE, 600),
+  shopItem(22, '목도리', ITEM_PART.NECK, 800),
+  shopItem(24, '방울 목걸이', ITEM_PART.NECK, 600),
+  shopItem(23, '체크셔츠', ITEM_PART.CLOTHES, 900),
+  shopItem(25, '후드티', ITEM_PART.CLOTHES, 900),
+  shopItem(26, '한복', ITEM_PART.CLOTHES, 900),
+  shopItem(27, '작은가방', ITEM_PART.BAG, 800),
+  shopItem(28, '배낭', ITEM_PART.BAG, 900),
+  shopItem(29, '보냉백', ITEM_PART.BAG, 800),
+];
+
+export const getShopItems = () => fakeDelay(SHOP_ITEMS);
+
+/**
+ * 아이템 구매 POST /pets/{petSn}/character/items (LJS, itemSn 목록)
+ * - 산 아이템은 그 캐릭터의 보관함으로 들어간다. 포인트 차감은 서버 일이라 가짜는 잔액을 줄이지 않는다
+ */
+export const purchaseCharacterItems = ({ petSn, itemSns }) => {
+  const owned = fakeItems[petSn] ?? defaultItems();
+  const bought = SHOP_ITEMS.filter(
+    (it) =>
+      itemSns.includes(it.itemSn) &&
+      !owned.some((own) => own.itemSn === it.itemSn),
+  ).map((it) => item(it.itemSn, it.itemNm, it.itemPartCd));
+  fakeItems = { ...fakeItems, [petSn]: [...owned, ...bought] };
+  return fakeDelay(null);
+};
+
+/** 착용 저장 PUT /pets/{petSn}/character/items/wear (착용할 itemSn 목록) */
+export const updateCharacterWear = ({ petSn, itemSns }) => {
+  fakeItems = {
+    ...fakeItems,
+    [petSn]: (fakeItems[petSn] ?? defaultItems()).map((it) => ({
+      ...it,
+      wearYn: itemSns.includes(it.itemSn) ? 'Y' : 'N',
+    })),
+  };
+  return fakeDelay(null);
+};
+
+/** 대표 반려동물 지정 PUT /pets/{petSn}/representative (SJM 백엔드, 주양육 동물만) */
+export const setRepresentativePet = (petSn) => {
+  fakePets = fakePets.map((pet) =>
+    pet.petRelCd === PET_REL.OWNER
+      ? { ...pet, rprsYn: pet.petSn === petSn ? 'Y' : 'N' }
+      : pet,
+  );
+  return fakeDelay(null);
+};
+
+const FAKE_CREATE_MS = 3000;
+
+/**
+ * 캐릭터 생성 POST /pets/{petSn}/character (LJS, 사진 첨부 필수)
+ * - 요청 즉시 생성 중으로 바뀌고 서버 쪽에서 계속 진행, 완료되면 결과를 저장
+ * - 개발 전용 ?fake=fail이면 생성 실패로 끝나 기본 캐릭터 그대로
+ */
+export const createCharacter = ({ petSn, photo, colrCd, colrDrctInptNm }) => {
+  console.debug('createCharacter', {
+    petSn,
+    photo: photo?.name,
+    colrCd,
+    colrDrctInptNm,
+  });
+  const setStatus = (chrcSttsCd) => {
+    fakePets = fakePets.map((pet) =>
+      pet.petSn === petSn ? { ...pet, chrcSttsCd } : pet,
+    );
+  };
+  setStatus(CHRC_STTS.GENERATING);
+  const isFail = getQueryParam('fake') === 'fail';
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      setStatus(isFail ? CHRC_STTS.NONE : CHRC_STTS.DONE);
+      if (isFail) reject(new Error('캐릭터 생성 실패'));
+      else resolve(null);
+    }, FAKE_CREATE_MS);
+  });
 };
 
 /**

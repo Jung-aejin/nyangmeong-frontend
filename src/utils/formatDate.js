@@ -115,3 +115,26 @@ export const formatChatListTime = (dateTime) => {
   if (ymd === addDays(today, -1)) return '어제';
   return formatMonthDayDot(ymd);
 };
+
+// "2026-10-22 14:20:00" → 로컬 Date (시간대 밀림 없이)
+const parseDateTime = (dateTime) => {
+  const [year, month, day] = dateTime.slice(0, 10).split('-').map(Number);
+  const [hour, minute] = dateTime.slice(11, 16).split(':').map(Number);
+  return new Date(year, month - 1, day, hour, minute);
+};
+
+// "2026.10.22 14:20"
+export const formatDateTime = (dateTime) =>
+  `${formatDate(dateTime)} ${dateTime.slice(11, 16)}`;
+
+// 게시글·댓글 시각: "방금 전" · "5분 전" · "3시간 전" · "어제" · "2일 전", 일주일이 지나면 "2026.10.22"
+export const formatRelativeTime = (dateTime, now = new Date()) => {
+  const minutes = Math.floor((now - parseDateTime(dateTime)) / 60000);
+  if (minutes < 1) return '방금 전';
+  if (minutes < 60) return `${minutes}분 전`;
+  if (minutes < 60 * 24) return `${Math.floor(minutes / 60)}시간 전`;
+  const days = diffDays(dateTime, toYmd(now));
+  if (days <= 1) return '어제';
+  if (days < 7) return `${days}일 전`;
+  return formatDate(dateTime);
+};
