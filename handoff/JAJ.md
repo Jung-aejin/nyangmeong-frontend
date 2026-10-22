@@ -2,38 +2,42 @@
 
 ## 지금 하는 것
 
-SCR-HLT-007 검사 수치 입력 (시작 2026-10-22 09:03) — 상태: 끝남 (승인 2026-10-22 09:20, 검증 통과 수준 `확인 못 함 있음`·실패 항목 없음, 사람 확인 2026-10-22)
+SCR-HLT-011 종합 건강기록 다시 열기 (시작 2026-10-22 09:38) — 상태: 끝남 (승인 2026-10-22 11:40, 검증 12회차 통과 수준 `확인 못 함 있음`·실패 항목 없음, 사람 확인 2026-10-22)
 
-기준: 건강기록_기능명세서_v1.1_20261021, 건강기록_화면설계서_v1.1_20261021 (DMS)
+기준: 건강기록_기능명세서_v1.1_20261021, 건강기록_화면설계서_v1.1_20261021 (DMS). 011 절은 v1.0_20261018과 같다(diff 없음). 이번 일은 명세 변경이 아니라 반려동물 도메인(SJM)과 필드 이름·표기 함수를 맞추는 것이다
 
-디자인: `html/hlt-lab-input.html` (+ `html/hlt.css`)
+디자인: `html/hlt-summary.html` (화면 모양은 바꾸지 않는다)
 
-질문: html/hlt-lab-input.html을 디자인으로 쓸까요? 아니면 화면설계서 기준으로 갈까요? (추천: 그 파일을 쓴다. 시안 주석의 기준이 v1.0_20261011이라, v1.1과 다른 곳은 명세를 따른다)
+결정(2026-10-22, 사람, SJM과 합의): 품종·나이·성별 표기 함수와 코드 표는 `utils/`로 올려 같이 쓴다. 기준은 반려동물 파일이다. 건강기록은 반려동물 기준에 맞춘다. 건강 일지·케어 캘린더가 쓰는 건강기록 `getPets`와 알레르기·기저질환·몸무게 필드(`allrgCn`·`undrlDiseCn`·`wghtVal`)는 이번에 바꾸지 않는다
 
-결정: html 기준 (`디자인: html/hlt-lab-input.html` 그대로)
-
-진입 경로(이미 있음): URL `/health/checkups/:ckupRcdSn/inspections`(`routes/domains/health/healthRoutes.js`에 지금 `EmptyPage`). 검진상세가 `?mode=pdf`(state `analyzedItems`, `AttachmentTab.jsx`), `?mode=manual`·`?mode=edit&item=<inspSn>`(`BloodResultList.jsx`)으로 이미 보낸다
-
-- 화면 조립: `pages/health/LabInputPage.jsx` 새로 만들고 `healthRoutes.js`의 `EmptyPage`를 바꾼다. 코드는 `features/health/labInput/`. 겉틀은 `CheckupDetailPage.jsx`의 `PageFrame`과 같은 모양으로 둔다. 완료 조건 `명령:` `yarn -s lint`, `yarn -s build`
-- FN-HLT-007-04 분석 결과 검수: `labInput/AnalysisReview.jsx`. `?mode=pdf`일 때만 ①②③ 노출. 파일명·인식 건수, 인식 행(검사 종류 "혈액검사"·항목·값·단위), 값 클릭 → 인라인 수정(저장 전 확정 안 됨), 인식 실패 행은 빈 값으로 직접 입력, 같은 검진기록에 이미 있는 항목은 "이미 등록됨 · 저장 제외", 하단 AI 주의 문구 상시. API: PDF 분석 (LJS, 가짜 `checkupApi.js` `analyzeLabPdf`). 가짜 응답에 인식 실패 1건·이미 등록 1건(CREA)·혈액검사 아님 1건을 더한다. `화면:` 첨부 자료 탭 [PDF 분석] → 인식 행이 채워진 채 열리고 CREA 행에 "이미 등록됨"이 붙는다 / 실패 행 값이 비어 있고 입력할 수 있다
-- FN-HLT-007-05 검사 종류 표시: 혈액검사 아닌 인식 행은 "혈액검사 항목이 아니라 저장에서 제외" 표시. `화면:` 그 행이 저장 뒤 검사 결과에 들어가지 않는다
-- FN-HLT-007-06 다시 분석 · 직접 입력하기: [다시 분석하기]는 같은 첨부로 `analyzeLabPdf` 재호출(진행 중 버튼 비활성). 첨부 번호가 필요해 `AttachmentTab.jsx`가 `?mode=pdf&atch=<atchSn>`으로 보내게 고친다. 새로고침 등으로 state가 없으면 그 첨부로 다시 분석한다. [직접 입력하기]는 분석 결과를 버리고 `?mode=manual`로 바꾼다. `화면:` 다시 분석 중 버튼이 막히고 결과가 다시 채워진다 / 직접 입력하기 → ①②③이 사라지고 빈 폼
-- FN-HLT-007-01 검사 종류: "혈액검사" 고정 비활성 칸. `화면:` 바꿀 수 없다
-- FN-HLT-007-02 검사 항목: `labInput/LabItemForm.jsx` + `labInput/bloodItems.js`(12종·4태그·한글 이름, 태그 코드는 `checkupTypes.js` `FUNCTION_TAGS`). 드롭다운은 태그 묶음 + 약어 + 한글 이름, 맨 아래 직접입력(태그 없음). 항목·결과값·단위 필수, 참고범위 최소·최대는 둘 다 비우거나 둘 다 입력, 수정 진입 시 항목 비활성. 이미 있는 항목을 고르면 "이미 등록된 항목입니다: CREA" 안내. `화면:` 참고범위 한쪽만 넣으면 [저장하기]가 막힌다 / 수정 진입 시 항목이 비활성이고 기존 값이 채워진다
-- FN-HLT-007-03 취소 · 저장하기: [취소] → 검진상세 검사 결과 탭(입력 폐기). [저장하기] → 검사 결과 생성·수정 후 검진상세로 이동하고 `checkupKeys` 무효화. API: 검사 결과 생성·수정 (JAJ 백엔드, 가짜 `checkupApi.js`에 `createInspections`(여러 건)·`updateInspection` 추가, `queries.js`에 훅 추가). 종합 건강기록 검사 수치 추이는 같은 가짜 저장소를 읽어 따로 할 일 없다. 메모 필드는 지금 가짜 데이터에 없어 `memoCn`으로 더한다. `화면:` 수동 추가로 저장하면 검사 결과 탭에 새 행이 생긴다 / 수정 저장하면 새 행 없이 그 행이 바뀐다 / PDF 저장 시 제외 행은 들어가지 않는다
-
-다음에 할 것에 남길 연결: PDF 분석 호출부 (LJS), 검사 결과 생성·수정 API (JAJ 백엔드)
+- 공용으로 올리기: `features/pet/list/petFormat.js` → `src/utils/petFormat.js`, `features/pet/shared/petCodes.js` → `src/utils/petCodes.js`. 내용은 그대로 옮기고(`git mv`), `petFormat.js` 안의 `../shared/petCodes` import만 `./petCodes`로 바뀐다. import 하는 파일은 경로만 `@/utils/petFormat`·`@/utils/petCodes`로 고친다: `features/pet/api.js`, `invite/InvitationAccept.jsx`, `list/FamilySection.jsx`·`InviteModal.jsx`·`PetFormModal.jsx`·`PetSlide.jsx`, `PetProfileCard.jsx`, `pages/main/MainPage.jsx`, `pages/mypage/PetListPage.jsx`, 그 밖에 grep으로 찾은 것 전부. `shared/` 폴더가 비면 지운다. 완료 조건 `명령:` `yarn -s lint`, `yarn -s build`, `grep -rn "pet/shared/petCodes\|list/petFormat" src`가 비어 있다
+- FN-HLT-011-02 요약 바: `summaryApi.js` `fakeProfiles`의 `brdNm`→`vrtyNm`, `birthYmd`→`petBrdt`, `sexNm`(암컷/수컷 글자)→`petGndrCd`(`PETC0004`=암컷, `PETC0003`=수컷)로 바꾼다. 값은 그대로(1=코리안숏헤어·암컷, 2=러시안블루·수컷, 3=말티즈·수컷). `SummaryHero.jsx`는 `getVrtyName(profile)`·`formatAge(profile.petBrdt, new Date(summary.baseYmd))`·`getGndrName(profile)`을 쓴다. `summaryUtils.js`의 `formatAge`는 지우고 안 쓰게 된 import(`getYear` 등)를 정리한다. `화면:` 종합 건강기록 요약 바가 바꾸기 전과 같은 글자로 나온다(나비 "코리안숏헤어 · N살 N개월 · 암컷", 탭을 바꿔도 품종·성별이 맞다)
+- 다른 화면 확인 `화면:` 마이페이지 반려동물 관리(`/mypage/pets` 쯤, `routes/paths.js`로 확인), 초대 수락(`/mypage/invitations/<토큰>`), 메인, 종합 건강기록이 옮기기 전과 같이 뜬다. 콘솔에 import 오류 없음. 초대 수락은 pet 가짜 API의 토큰으로 연다
 
 ### 추가 요청
 
 | 번호 | 바꿀 파일 | 완료 조건 | 요청 |
 | --- | --- | --- | --- |
-| 추가-1 | `features/health/checkup/BloodResultList.jsx` | 명령: `yarn -s lint`, `yarn -s build` / 화면: 검진상세 검사 결과 탭의 혈액검사 행을 항목명이 아닌 곳(값·참고범위·빈 곳)을 눌러도 검사 수치 입력 수정 화면(`?mode=edit&item=<번호>`)으로 간다. 체크박스는 그대로 선택만 된다 | 요청 2026-10-22 "03 해당 라인 어느 곳을 눌러도 수정하는 곳으로 갔으면 좋겠어, 지금은 제목만 눌러야 해서 헷갈려" |
+| 추가-1 | `features/health/summary/ConditionCard.jsx`, `SummaryParts.jsx`(MoreLink state), `pages/health/HealthSummaryPage.jsx` | 명령: `yarn -s lint`, `yarn -s build` / 화면: 알레르기 · 기저질환 카드의 [수정하러 가기]가 마이페이지 반려동물 관리로 간다 | 요청 2026-10-22 "알레르기와 기저질환 세션에 그 정보를 입력하는 마이페이지 화면으로 넘기는 버튼 추가" |
+| 추가-2 | `features/health/summary/ConditionCard.jsx` | 명령: `yarn -s lint`, `yarn -s build` / 화면: 알레르기·기저질환이 둘 다 비면 링크 글자가 [입력하러 가기], 하나라도 있으면 [수정하러 가기] | 요청 2026-10-22 "추천안으로 버튼 바꿔줘"(둘 다 비었을 때만 입력하러 가기) |
+| 추가-3 | `features/health/summary/PreventionHistoryCard.jsx` | 명령: `yarn -s lint`, `yarn -s build` / 화면: 예방접종·정기검진 각 상자 안 줄 사이에 점선이 있고 첫 줄 위에는 없다(`html/hlt-summary.html`의 `.kv`와 같다) | 요청 2026-10-22 "예방 · 정기검진 이력 세션 사이에 있는 선이 html과 다르게 없어 html확인해서 동일하게 변경" |
+| 추가-4 | `features/health/summary/PreventionHistoryCard.jsx` | 명령: `yarn -s lint`, `yarn -s build` / 화면: 예방 · 정기검진 이력 카드에서 항목명은 더 크고 진한 색, 날짜는 더 작고 회색 | 요청 2026-10-22 "글자 크기 변경: 항목명은 크게, 날짜는 상대적으로 작게 / 글자 색상 변경: 항목명은 진한 색, 날짜는 회색 계열" (정기검진과 이력카드). 시안(`.kv`: 항목명 ink-2, 값 muted)과 다르게 한다 |
+| 추가-5 | `features/health/summary/ConditionCard.jsx` | 명령: `yarn -s lint`, `yarn -s build` / 화면: 알레르기 · 기저질환 카드 제목 옆 "진료 시 반드시 확인"이 지금보다 작다 | 요청 2026-10-22 "알레르기 기저질환 섹션에 있는 진료시 확인 글자 작게해" |
+| 추가-6 | `features/health/summary/PrescriptionHistoryCard.jsx` | 명령: `yarn -s lint`, `yarn -s build` / 화면: 처방 및 투약 이력이 `html/hlt-summary.html`과 같다 — 목록이 제목 선 바로 아래부터 붙고, 마지막 행 아래 선 없음, 화살표 18px, 날짜 숫자 폭 고름, 0건 안내 여백 20/22/22. 첫 행 `monitor_heart` 아이콘은 처방약에 종류 구분이 없어 못 맞춘다 | 요청 2026-10-22 "처방과 투약 섹션 html과 달라 다시 고쳐" |
+| 추가-7 | `features/health/summary/ObservationSummaryCard.jsx`, `AttachmentStrip.jsx` | 명령: `yarn -s lint`, `yarn -s build` / 화면: 관찰 기록 사진 없는 칸 아이콘 52px·연한 회색·글자와 간격 6px, 첨부 자료 1101px 이상에서 칸 폭 160px 고정, 미리보기 칸 아이콘 52px, 오른쪽 위 버튼 아이콘 18px (`html/hlt-summary.html` 기준) | 요청 2026-10-22 "관찰기록과 첨부자료 사이즈 html참조해" |
+| 추가-8 | `pages/health/HealthSummaryPage.jsx`, `features/health/summary/SummaryTabs.jsx`(새 파일), `SummaryParts.jsx`(SectionHead id 제거) | 명령: `yarn -s lint`, `yarn -s build` / 화면: 요약 바 아래 4개 앵커가 탭으로 바뀌어 선택한 묶음만 보인다. 처음은 진료 · 예방 이력, `?inspection=`으로 오면 검사 · 수치 | 요청 2026-10-22 "앵커를 탭으로 바꿔서 해당 세션만 보이게 해줘". 명세 011 처리 조건("탭 전환 대신 앵커, 묶음을 숨기지 않음")과 다르다 |
+| 추가-9 | `features/health/summary/AttachmentStrip.jsx` | 명령: `yarn -s lint`, `yarn -s build` / 화면: 첨부 자료 카드 제목 줄의 [접기]를 누르면 목록이 접히고 [펼치기]를 누르면 다시 펼쳐진다 | 요청 2026-10-22 "첨부자료 접었다가 누르면 펼쳐지는 형태로 바꿔줘"(처음은 펼침으로 구현했다가 아래 추가-10에서 접힘으로 바꿈). 명세 FN-HLT-011-09에는 없다 |
+| 추가-10 | `features/health/summary/AttachmentStrip.jsx`, `LabSection.jsx` | 명령: `yarn -s lint`, `yarn -s build` / 화면: 첨부 자료가 처음에 접혀 있다 / 검사 · 수치 탭을 처음 열면 검사 수치 추이가 기록 2건 이상인 첫 항목(그래프가 그려지는 항목)으로 시작한다 | 요청 2026-10-22 "첨부자료 기본값이 접혀져있는걸로 해주고 검사추이는 기록이 여러개 쌓여서 그래프가 있는 항목이 첫세션화면으로". 검사 수치 추이는 명세 FN-HLT-011-07("기본 선택 = 첫 번째 항목")과 다르다 |
+| 추가-11 | `features/health/summary/AttachmentStrip.jsx` | 명령: `yarn -s lint`, `yarn -s build` / 화면: 첨부 자료 카드 제목 줄에 [전체 보기]가 없고 [접기]·[펼치기]만 있다 | 요청 2026-10-22 "첨부자료에서 전체보기버튼 삭제해". 명세 FN-HLT-011-09의 [전체 보기]와 다르다 |
+| 추가-12 | `components/Card.jsx`(선택 속성 `onHeaderClick`), `features/health/summary/AttachmentStrip.jsx` | 명령: `yarn -s lint`, `yarn -s build` / 화면: 첨부 자료 카드 제목 줄 어디를 눌러도 접힘·펼침이 바뀐다. 다른 카드는 그대로 | 요청 2026-10-22 "첨부자료 해당리스트칸에서 어디를 눌러도 펼쳐지게 해야지" |
+| 추가-13 | `features/health/summary/SummaryHero.jsx` | 명령: `yarn -s lint`, `yarn -s build` / 화면: 히어로 "현재 처방" 칸이 처방명 한 줄, "복용 중" 한 줄의 두 줄로 나온다 | 요청 2026-10-22 "히어로영역 현재 처방에서 복용중이란 글자가 잘려서 내려가는데 두줄표시해". 시안은 `영양제 · 복용 중` 한 줄이다 |
 
 새 의존성: 없음
 
 ## 다음에 할 것
 
+- 결정 필요(SCR-HLT-011 추가 요청): 아래 요청이 명세·시안과 달라졌다. 명세 FN-HLT-011-05(알레르기·기저질환 링크 없음)·011-07(처음 항목은 첫 번째)·011-09(첨부 [전체 보기], 접기 없음), 011 처리 조건(앵커, 탭 아님), 시안 "현재 처방" 한 줄을 고칠지 정한다. 건강 일지·검진상세 등 다른 화면으로 옮길 때 맨 위로 스크롤하는 처리가 앱에 없어 [수정하러 가기] 뒤 반려동물 관리가 스크롤된 채 열린다
+- 연결 남음(SCR-HLT-011 추가-1): 건강기록 `getPets`와 반려동물 도메인 `getPets`를 같은 반려동물 목록으로 쓰면 [수정하러 가기]가 같은 이름의 슬라이드로 열린다(지금 가짜는 petSn이 서로 다름, SJM). 처방약 첫 행 아이콘은 처방약에 종류 구분이 없어 시안(`monitor_heart`)과 다름
 - 결정 필요(SCR-HLT-007 추가-1): 검사 결과 행을 어디나 누르면 수정 화면으로 가게 바꾸면서(`BloodResultList.jsx`) 검진상세에서 종합 건강기록 검사 수치 추이(`/health?inspection=<항목>`)로 가는 길이 없어졌다. 기능명세서 FN-HLT-005-02를 고칠지, 추이로 가는 다른 길을 둘지 정한다
 - SCR-HLT-007 참고(실패 아님): [직접 입력하기] 뒤에도 주소가 `?mode=pdf&atch=<번호>`에 남아 새로고침하면 분석이 다시 뜬다(기획은 `?mode=manual`로 바꾸는 것). `labInput/ItemSelect.jsx` 목록에서 묶음 행과 항목 행 key가 `GLU`로 겹쳐 콘솔 경고. PDF 진입 때 아래 입력칸은 선택(비우면 분석 행만 저장)으로 구현했다
 - 연결 남음(SCR-HLT-007): 검사결과지 PDF 분석 호출부 (LJS, `checkupApi.js` `analyzeLabPdf` 가짜, 응답의 `bloodYn`은 가정), 검사 결과 생성·수정 API (JAJ 백엔드, `createInspections`·`updateInspection` 가짜)

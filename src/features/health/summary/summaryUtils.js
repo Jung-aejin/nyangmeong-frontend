@@ -1,6 +1,5 @@
 import { generatePath } from 'react-router-dom';
 import { PATHS } from '@/routes/paths';
-import { getDay, getMonth, getYear } from '@/utils/formatDate';
 import { FUNCTION_TAGS, findName } from '../checkup/checkupTypes';
 import { CHECKUP_TYPES, TONES } from '../scheduleTypes';
 
@@ -8,18 +7,6 @@ import { CHECKUP_TYPES, TONES } from '../scheduleTypes';
  * [종합 건강기록 표시 계산]
  * - 서버 값(프로필·검진기록·검사 항목)을 화면 문구로 바꾸는 함수
  */
-
-/** "3살 2개월", 1살 미만은 "N개월" */
-export const formatAge = (birthYmd, todayYmd) => {
-  let months =
-    (getYear(todayYmd) - getYear(birthYmd)) * 12 +
-    (getMonth(todayYmd) - getMonth(birthYmd));
-  if (getDay(todayYmd) < getDay(birthYmd)) months -= 1;
-  const years = Math.floor(months / 12);
-  const rest = months % 12;
-  if (years === 0) return `${rest}개월`;
-  return rest === 0 ? `${years}살` : `${years}살 ${rest}개월`;
-};
 
 /** 쉼표로 나눈 항목 수. 비어 있으면 0 */
 export const countItems = (text) =>

@@ -2,7 +2,7 @@ import { CircleAlert, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { showToast } from '@/components/toastStore';
 import { useCaregiversOf, useCreateInvitation } from '../queries';
-import { CGVR_ROLE, MAX_CAREGIVERS, PET_REL } from '../shared/petCodes';
+import { CGVR_ROLE, MAX_CAREGIVERS, PET_REL } from '@/utils/petCodes';
 
 /**
  * [가족 초대하기 모달]

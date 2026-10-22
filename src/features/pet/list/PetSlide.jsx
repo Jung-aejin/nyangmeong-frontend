@@ -1,6 +1,6 @@
 import { Cat, ChevronLeft, ChevronRight, Dog, X } from 'lucide-react';
 import { useLayoutEffect, useRef, useState } from 'react';
-import { PET_REL, PET_SE } from '../shared/petCodes';
+import { PET_REL, PET_SE } from '@/utils/petCodes';
 import FamilySection from './FamilySection';
 import {
   formatSpecies,
@@ -8,7 +8,7 @@ import {
   getColrName,
   getGndrName,
   splitList,
-} from './petFormat';
+} from '@/utils/petFormat';
 
 /** 알레르기·기저질환 표시 개수 상한 */
 const VISIBLE_LIST_COUNT = 2;

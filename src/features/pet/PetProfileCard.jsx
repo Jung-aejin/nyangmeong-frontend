@@ -1,12 +1,12 @@
 import { Cat, Dog } from 'lucide-react';
-import { PET_SE } from './shared/petCodes';
+import { PET_SE } from '@/utils/petCodes';
 import {
   formatAge,
   formatWeight,
   getGndrName,
   getVrtyName,
   splitList,
-} from './list/petFormat';
+} from '@/utils/petFormat';
 
 const TAG = 'rounded-full border border-line px-2 py-0.5 text-xs font-semibold';
 

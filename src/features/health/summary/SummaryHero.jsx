@@ -2,8 +2,9 @@ import { Link } from 'react-router-dom';
 import Icon from '@/components/Icon';
 import { PATHS } from '@/routes/paths';
 import { diffDays, formatDate } from '@/utils/formatDate';
+import { formatAge, getGndrName, getVrtyName } from '@/utils/petFormat';
 import { DOSING } from '../checkup/checkupTypes';
-import { countItems, formatAge, formatRange } from './summaryUtils';
+import { countItems, formatRange } from './summaryUtils';
 
 const REGISTER_PATH = `${PATHS.MYPAGE_PETS}?register=1`;
 
@@ -112,8 +113,9 @@ export default function SummaryHero({
           <div className="min-w-0">
             <p className="text-lg leading-none font-bold">{pet.petNm}</p>
             <p className="mt-1 text-[#dbe8e8]">
-              {profile.brdNm} · {formatAge(profile.birthYmd, summary.baseYmd)} ·{' '}
-              {profile.sexNm}
+              {getVrtyName(profile)} ·{' '}
+              {formatAge(profile.petBrdt, new Date(summary.baseYmd))} ·{' '}
+              {getGndrName(profile)}
             </p>
             <div className="mt-2 flex flex-wrap gap-1">
               <ProfileTag>{profile.wghtVal}kg</ProfileTag>
@@ -153,7 +155,16 @@ export default function SummaryHero({
             label="현재 처방"
             value={dosing.length}
             unit="건"
-            sub={dosing.length > 0 ? `${dosing[0].medNm} · 복용 중` : '복용 중인 처방 없음'}
+            sub={
+              dosing.length > 0 ? (
+                <>
+                  <span className="block">{dosing[0].medNm}</span>
+                  <span className="block">복용 중</span>
+                </>
+              ) : (
+                '복용 중인 처방 없음'
+              )
+            }
           />
         </div>
       </div>

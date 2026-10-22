@@ -7,7 +7,7 @@ import {
   PET_GNDR_OPTIONS,
   PET_SE,
   PET_SE_OPTIONS,
-} from '../shared/petCodes';
+} from '@/utils/petCodes';
 import { useCreatePet, usePet, useUpdatePet, useVarieties } from '../queries';
 
 /** 품종 [직접 입력] 선택 상태 */

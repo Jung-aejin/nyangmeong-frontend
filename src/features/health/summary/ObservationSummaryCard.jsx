@@ -142,8 +142,8 @@ function Photo({ label, round, roundNo, diffFrom, isRecent = false, onView }) {
             className="size-full object-cover"
           />
         ) : (
-          <span className="flex flex-col items-center">
-            <Icon name="image" className="text-[32px]" />
+          <span className="flex flex-col items-center gap-1.5">
+            <Icon name="image" className="text-[52px] text-line-strong" />
             {label}
           </span>
         )}

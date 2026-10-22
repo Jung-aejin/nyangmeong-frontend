@@ -23,10 +23,10 @@ export default function PrescriptionHistoryCard({ prescriptions }) {
           />
         )
       }
-      bodyClassName="px-0! py-2!"
+      bodyClassName="p-0!"
     >
       {prescriptions.length === 0 ? (
-        <div className="px-[18px] py-3 sm:px-[22px]">
+        <div className="px-[18px] pt-4 pb-[18px] sm:px-[22px] sm:pt-5 sm:pb-[22px]">
           <SummaryEmpty
             icon="medication"
             description="검진상세에서 처방약을 등록하면 여기에 모여요"
@@ -39,10 +39,10 @@ export default function PrescriptionHistoryCard({ prescriptions }) {
           {prescriptions.map((prescription) => {
             const isDosing = prescription.dosSttsCd === DOSING;
             return (
-              <li key={prescription.rxSn}>
+              <li key={prescription.rxSn} className="border-b border-line-soft last:border-b-0">
                 <Link
                   to={getCheckupDetailPath(prescription.ckupRcdSn)}
-                  className="flex items-center gap-3.5 border-b border-line-soft px-[18px] py-3.5 hover:bg-surface-2 sm:px-[22px]"
+                  className="flex items-center gap-3.5 px-[18px] py-3.5 hover:bg-surface-2 sm:px-[22px]"
                 >
                   <span className="grid size-10 shrink-0 place-items-center rounded-[10px] border border-line bg-surface-2 text-ink-2">
                     <Icon name="medication" />
@@ -56,13 +56,13 @@ export default function PrescriptionHistoryCard({ prescriptions }) {
                         {isDosing ? '복용 중' : '복용 종료'}
                       </Badge>
                     </span>
-                    <span className="block text-subtle">
+                    <span className="block text-subtle tabular-nums">
                       {formatDate(prescription.dosBgnYmd)} ~{' '}
                       {isDosing ? '현재' : formatDate(prescription.dosEndYmd)} ·
                       1일 {prescription.dayDosCnt}회
                     </span>
                   </span>
-                  <Icon name="chevron_right" className="text-xl text-subtle" />
+                  <Icon name="chevron_right" className="text-[18px] text-subtle" />
                 </Link>
               </li>
             );
