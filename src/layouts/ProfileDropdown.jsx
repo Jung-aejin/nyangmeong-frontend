@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import userAvatar from '@/assets/user.svg';
 import ConfirmModal from '@/components/ConfirmModal';
 import { useLogout, useMemberSummary } from '@/features/member/queries';
+import { useChatModal } from '@/context/chatModal';
 import { closeAiWindow } from '@/hooks/useAiWindow';
 import { closeChatWindow } from '@/hooks/useChatWindow';
 import { PATHS } from '@/routes/paths';
@@ -63,12 +64,14 @@ export function LogoutConfirm({ onClose }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const logout = useLogout();
+  const { close: closeChatModal } = useChatModal();
 
   const handleConfirm = () => {
     logout.mutate(undefined, {
       onSuccess: () => {
         closeAiWindow();
         closeChatWindow();
+        closeChatModal();
         /** 이전 회원 캐시 비우기 */
         queryClient.clear();
         onClose();

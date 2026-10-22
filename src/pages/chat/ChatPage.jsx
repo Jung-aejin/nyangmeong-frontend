@@ -1,14 +1,13 @@
 /**
  * [채팅 창]
- * - 헤더 아이콘·게시글 [채팅하기]·알림이 여는 새 창 (SCR-COM-009, SCR-CMU-005)
- * - 한 칸 화면: 목록 → 채팅방, 방 위 ‹로 목록 복귀
+ * - 채팅 모달의 [새 창으로 띄우기]·AI 대화창이 여는 새 창 (SCR-COM-009, SCR-CMU-005)
+ * - 본문은 모달과 같은 ChatPanes(왼쪽 목록 | 오른쪽 대화, 760px 이하 한 칸)
  * - ?otoChatRoomSn= 선택 방, ?pstSn= 게시글 방 생성 후 그 방으로, ?listPstSn= 그 글의 채팅만 보기
  */
 import { useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Icon from '@/components/Icon';
-import ChatConversation from '@/features/chat/room/ChatConversation';
-import ChatRoomList from '@/features/chat/room/ChatRoomList';
+import ChatPanes from '@/features/chat/room/ChatPanes';
 import { useCreateChatRoom } from '@/features/chat/queries';
 import { PATHS } from '@/routes/paths';
 
@@ -68,49 +67,30 @@ export default function ChatPage() {
     }, CLOSE_CHECK_DELAY);
   };
 
-  const isRoomOpen = selectedRoomSn !== null;
-
   return (
-    <div className="bg-[#fdfcfb]">
-      <div className="mx-auto flex h-dvh max-w-[760px] flex-col border-x border-line bg-white max-[760px]:border-x-0">
-        {!isRoomOpen && (
-          <header className="flex h-[60px] shrink-0 items-center gap-2 border-b border-line pr-4 pl-5">
-            <h1 className="flex-1 text-lg font-bold text-ink">채팅</h1>
-            <button
-              type="button"
-              aria-label="창 닫기"
-              className="grid size-11 place-items-center rounded-full text-ink-2 hover:bg-surface-3"
-              onClick={handleClose}
-            >
-              <Icon name="close" className="text-2xl" />
-            </button>
-          </header>
-        )}
+    <div className="flex h-dvh flex-col bg-white">
+      <header className="flex h-16 shrink-0 items-center gap-1 border-b border-line pr-4 pl-6 max-[760px]:pl-5">
+        <h1 className="flex-1 text-xl font-bold text-ink">채팅</h1>
+        <button
+          type="button"
+          aria-label="창 닫기"
+          title="창 닫기"
+          className="grid size-11 place-items-center rounded-full text-ink-2 hover:bg-surface-3"
+          onClick={handleClose}
+        >
+          <Icon name="close" className="text-2xl" />
+        </button>
+      </header>
 
-        <ChatRoomList
-          isHidden={isRoomOpen}
-          listPstSn={listPstSn}
-          onClearPost={handleClearPost}
-          onSelect={handleSelectRoom}
-        />
-
-        {isRoomOpen && (
-          <ChatConversation
-            key={selectedRoomSn}
-            otoChatRoomSn={selectedRoomSn}
-            onBack={handleBack}
-            onLeft={handleLeft}
-          />
-        )}
-        {!isRoomOpen && pstSn !== null && (
-          <p
-            role="status"
-            className="absolute inset-0 grid place-items-center bg-white/80 text-subtle"
-          >
-            채팅방을 여는 중이에요
-          </p>
-        )}
-      </div>
+      <ChatPanes
+        otoChatRoomSn={selectedRoomSn}
+        pstSn={pstSn}
+        listPstSn={listPstSn}
+        onSelect={handleSelectRoom}
+        onBack={handleBack}
+        onLeft={handleLeft}
+        onClearPost={handleClearPost}
+      />
     </div>
   );
 }

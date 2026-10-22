@@ -27,8 +27,11 @@ export default function ChatRoomHeader({ room, onBack, onLeaveAsk }) {
     const handlePointerDown = (event) => {
       if (!menuRef.current?.contains(event.target)) setIsMenuOpen(false);
     };
+    /** preventDefault: 채팅 모달의 Esc 닫기가 함께 동작하지 않게 */
     const handleKeyDown = (event) => {
-      if (event.key === 'Escape') setIsMenuOpen(false);
+      if (event.key !== 'Escape') return;
+      event.preventDefault();
+      setIsMenuOpen(false);
     };
     document.addEventListener('mousedown', handlePointerDown);
     document.addEventListener('keydown', handleKeyDown);
@@ -39,15 +42,21 @@ export default function ChatRoomHeader({ room, onBack, onLeaveAsk }) {
   }, [isMenuOpen]);
 
   return (
-    <header className="flex h-[60px] shrink-0 items-center gap-2 border-b border-line pr-2 pl-1">
-      <button
-        type="button"
-        aria-label="채팅 목록으로"
-        className="grid size-11 place-items-center rounded-full text-ink-2 hover:bg-surface-3"
-        onClick={onBack}
-      >
-        <Icon name="chevron_left" className="text-[26px]" />
-      </button>
+    <header
+      className={`flex h-[60px] shrink-0 items-center gap-2 border-b border-line pr-2 ${
+        onBack ? 'pl-1' : 'pl-4'
+      }`}
+    >
+      {onBack && (
+        <button
+          type="button"
+          aria-label="채팅 목록으로"
+          className="grid size-11 place-items-center rounded-full text-ink-2 hover:bg-surface-3"
+          onClick={onBack}
+        >
+          <Icon name="chevron_left" className="text-[26px]" />
+        </button>
+      )}
       <div className="flex min-w-0 flex-1 items-center gap-2.5">
         <ChatAvatar name={room.ctptMbrNcnm} />
         <div className="min-w-0">
