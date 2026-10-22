@@ -2,26 +2,14 @@
 
 ## 지금 하는 것
 
-SCR-MYP-005 초대 수락 화면 라우트 별도 PR — 끝 (승인 2026-10-22, 검증 1회차 통과, 사람 확인 완료)
-기준: 이전 기획(SCR-MYP-005, 결정2)과 `docs/routes.md` 0장 규칙, `docs/convention/shared-files.md`. 화면 코드(`InvitationPage`·`InvitationAccept`·`InvitationRejectDialog`)는 이미 develop에 있어 이번에는 고치지 않는다
-디자인: 해당 없음(새 화면 없음. 화면은 SCR-MYP-005 때 시안 `myp-pets-invite.html`로 만든 그대로)
-
-- URL 문서: `docs/routes.md` 1장 MYP 구획(MYP-004 행 뒤)에 `| MYP-005 (5-3) | 공동양육 초대 수락 | `/mypage/invitations/:invitationToken`. 초대 링크·알림으로 들어옴 | SJM | |` 행(AI 대상 아님). 2장 "모달 추정"을 `MYP-003·005(5-1·5-2·5-4)·006·031`로 고친다. 4장 "지금"에 `| 10 | MYP-005 초대 수락 경로 변수 이름 `invitationToken`(가정). 초대 API 경로 변수와 같게 맞춘다 | SJM |` 행(기존 2~9번을 밀지 않도록 새 번호 10). 4장 "나중" 5번에 "MYP-005 5-3은 페이지로 정함" 메모. 완료 조건 `명령:` `yarn -s lint`, `yarn -s build`
-- paths.js: `routes/paths.js` mypage 구획 `MYPAGE_PETS` 다음 줄에 `MYPAGE_INVITATION: '/mypage/invitations/:invitationToken',` 한 줄만 넣는다(다른 줄 정렬·순서는 건드리지 않는다)
-- 라우트 연결: `routes/domains/mypage/mypageRoutes.js`에 `InvitationPage`를 `lazy`로 불러와 같은 그룹(`layout: 'user'`, `auth: 'public'`)에 `{ path: PATHS.MYPAGE_INVITATION, Component: InvitationPage }`를 넣는다. 로그인 전이라 `public`(AGENTS.md 2번). 완료 조건 `화면:` `/mypage/invitations/demo-wait`에 들어가면 서브페이지 머리(마이페이지 · 초대 수락)와 수락 화면이 보이고, [수락] → `/mypage/pets`로 가서 슬라이드에 그 동물이 공동양육으로 보인다
-- 5-3 나중에 하기(FN-MYP-005-06) 재확인: 완료 조건 `화면:` `/mypage/invitations/demo-wait`에서 [나중에 하기] → URL이 `/mypage`
-- 5-4 거절(FN-MYP-005-07·08) 재확인: 완료 조건 `화면:` [거절] → [취소]면 수락 화면 그대로, [거절] 확인 뒤 [수락]이 사라지고 "거절한 초대" 안내가 보인다
-- 만료 초대 재확인: 완료 조건 `화면:` `/mypage/invitations/demo-expired`에 [수락] 대신 만료 안내가 보인다. 없는 토큰(`/mypage/invitations/none`)이면 "초대를 찾을 수 없어요"
-- 캡처: 위 확인 때 1440·390 PC/모바일 캡처를 PR Screenshots용으로 찍는다(`SJM-20261022-SCR-MYP-005-after-1440.png` 등)
-- 바꿀 파일: `docs/routes.md`, `routes/paths.js`, `routes/domains/mypage/mypageRoutes.js` (그 밖은 안 고친다)
-- 브랜치: `SJM`에서 한다(기능마다 브랜치를 만들지 않는다, git.md). 지금 `SJM`은 origin/develop과 같고 열린 PR이 없어 이 PR에는 라우트 변경만 들어간다
-- 범위 밖: 초대 API 연결(SJM 백엔드), 알림 드롭다운에서 초대 알림 클릭 시 이 URL로 보내기(SCR-COM-004, 공통), `docs/routes.md` 3장 알림 링크 줄 수정(COM-004 담당과 맞춘 뒤)
-
-결정: 이 PR에서 정하는 것은 URL 하나다. 경로 변수 이름 `invitationToken`은 여전히 가정이라 routes.md 4장에 남긴다. 팀 알림은 PR을 올릴 때 사람이 한다(shared-files.md "팀에 알린 뒤")
-
-새 의존성: 없음
+SCR-MYP-010 픽셀 캐릭터 관리 — 끝 (승인 2026-10-22, 검증 2회차 통과, 사람 확인 완료)
+카드 목록·공동양육 탭·만들기 모달·꾸미기·0마리 안내를 가짜 API로 만들었다. URL은 `/mypage/characters` 하나(탭 `?tab=shared`, 꾸미기 `?petSn=`). 코드는 `features/pet/character/`, 페이지는 `pages/mypage/CharacterPage.jsx`다
 
 ## 다음에 할 것
+- SCR-MYP-005: 경로 변수 이름 `invitationToken`은 백엔드와 확정 필요(`docs/routes.md` 4장 10번). 새 URL은 PR #57로 develop에 들어갔다
+- SCR-MYP-010 연결 남음: 캐릭터 API(LJS)가 나오면 `features/pet/api.js`의 가짜(`createCharacter`·`getCharacterItems`·`updateCharacterWear`, 추정 키 `chrcSttsCd`·`chrcImgUrl`·`inqryRcptYn`·`itemSn`·`itemNm`·`itemPartCd`·`itemImgUrl`·`wearYn`, 부위·상태 코드 `ITEM_PART`·`CHRC_STTS`는 `petCodes.js`)를 실제 요청으로 바꾼다. 대표 지정 API(SJM 백엔드)가 나오면 `setRepresentativePet`도 바꾼다. 개발 전용 `?fake=empty|owner|fail`은 그때 지운다
+- SCR-MYP-010 연결 남음: 오류 문의(KSJ, SCR-CSC-003)는 `/inquiries/new`로 router state `{ inquiryType: 'PIXEL_CHARACTER', petSn, imageUrl }`를 넘긴다. 문의 작성 화면이 이 state를 받아 유형·이미지를 미리 채우는지, 유형 값을 무엇으로 할지 KSJ와 맞춘다. 생성 완료·오류 처리 인앱 알림(알림 저장 LJS)과 아이템 상점 모달(SCR-MYP-011)도 남았다
+- SCR-MYP-010 팀에 확인: 시안에 캐릭터·아이템 이미지가 없어 lucide 아이콘 자리표시자다(이미지가 나오면 `chrcImgUrl`·`itemImgUrl`로 겹침이 그려진다). 가짜 데이터에서 까미·모모를 공동양육으로 바꿨다(`/mypage/pets`에도 반영). 오류 확인 중 카드에 [대표 지정]이 보이는데 시안엔 없다. 꾸미기의 뒤로 가기 링크는 공용 "목록으로"다
 - SCR-MYP-005 라우트 PR을 올릴 때 새 URL `/mypage/invitations/:invitationToken`을 팀에 알린다. 경로 변수 이름 `invitationToken`은 백엔드와 확정 필요(`docs/routes.md` 4장 10번)
 - SCR-MYP-005 연결 남음: 초대 API(SJM 백엔드)가 나오면 `features/pet/api.js`의 가짜(`createInvitation`·`getSentInvitations`·`getInvitation`·`acceptInvitation`·`rejectInvitation`, 추정 키 `invtSn`·`invitationToken`·`invtEml`·`invtSttsCd`·`invtDt`·`expryDt`·`mbrYn`·`invtrNcnm`·`pets`, 상태 `INVT_STTS`)를 실제 요청으로 바꾸고 만료 판정(`withExpiry`)을 서버 상태로 바꾼다. 인앱 알림·메일 발송(알림 저장 YAY), 알림 드롭다운 진입(SCR-COM-004), 가입 직후 자동 노출(SCR-ACC-001, YAY·AIC)과 맞춘다
 - SCR-MYP-005 팀에 확인: 수락·거절·만료 초대 안내 문구와 "초대를 찾을 수 없어요"는 화면설계서에 없어 새로 썼다. [나중에 하기]는 마이페이지 홈(SCR-MYP-001)이 없어 지금은 빈 화면으로 간다. 거절 팝업은 공용 `components/Modal`(isConfirm)을 썼다
@@ -46,9 +34,9 @@ SCR-MYP-005 초대 수락 화면 라우트 별도 PR — 끝 (승인 2026-10-22,
 - 디자인 반영 때 정한 스타일 결정(토큰을 `@theme`에, Pretendard CDN, 브랜드 색 #285a5c 계열, 아이콘은 lucide 대응, 가계부용 tone·warn 색 토큰 추가)을 팀과 맞춘 뒤 `docs/OPEN_ISSUES.md` 스타일링 항목을 갱신한다
 - SCR-MYP-001을 만들 때 마이페이지 홈도 `SubPageLayout section="mypage"`(`layouts/`, LJS 공용)로 감싼다. 반려동물 관리·포인트·가계부·전체 내역·회원정보 수정은 이미 이 레이아웃의 경로 머리와 사이드 메뉴를 쓴다(추가-1). 픽셀 캐릭터(SCR-MYP-010)·공동양육자 추가(SCR-MYP-005) 화면도 같은 방식으로 만든다
 - 털색 신규 6개(강아지 황색·세이블·멀, 고양이 젖소·카오스·포인트)는 백엔드가 코드 번호를 정하면 `features/pet/shared/petCodes.js`의 `COLR`와 `COLR_OPTIONS`에 넣는다. 이름 변경(블랙탄·파티)과 순서는 커밋 08c33cf에 반영됨
-- SCR-MYP-010 캐릭터 만들기 1단계는 털색을 읽기 전용으로 보이고 생성 요청에 `colrCd`·`colrDrctInptNm`을 넣는다(FN-MYP-010-08)
 - 등록 상한은 주양육 동물만 센다. 슬라이드 "N / 총마리"는 공동양육을 포함한다(명세대로)
 - 로그인(AIC)이 나오면 `/mypage/pets`·`/mypage/expenses`·`/mypage/expenses/all`을 `ProtectedRoute` 아래로 옮긴다
 - 품종 마스터 API(KSJ)가 나오면 `getVarieties` 가짜 응답을 실제 요청으로 바꾼다
 - 반려동물 API(SJM 백엔드)가 나오면 `features/pet/api.js`의 가짜 응답(`getPets`·`getPet`·`createPet`·`updatePet`)을 실제 요청으로 바꾸고, 체중 기록 키 이름(`lastBdwgRcd`)을 응답에 맞춘다
 - 건강 일지(SCR-HLT-002, JAJ) 경로가 생기면 [건강 일지에서 기록하기]를 연결한다
+
