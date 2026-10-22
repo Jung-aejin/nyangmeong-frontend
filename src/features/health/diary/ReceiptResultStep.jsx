@@ -2,6 +2,7 @@ import { useState } from 'react';
 import ConfirmModal from '@/components/ConfirmModal';
 import Icon from '@/components/Icon';
 import Modal from '@/components/Modal';
+import Skeleton from '@/components/Skeleton';
 import { BTN_PRIMARY, BTN_SECONDARY } from '@/components/buttonStyles';
 import { getTodayYmd } from '@/utils/formatDate';
 import {
@@ -82,7 +83,9 @@ export default function ReceiptResultStep({
       onClose={onClose}
     >
       {isPending ? (
-        <p className="text-muted">불러오는 중이에요</p>
+        <div aria-busy="true">
+          <Skeleton lines={4} />
+        </div>
       ) : (
         <div className="flex flex-col items-start gap-3">
           <p role="alert" className="text-muted">

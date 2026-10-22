@@ -6,6 +6,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Icon from '@/components/Icon';
 import Modal from '@/components/Modal';
+import Skeleton from '@/components/Skeleton';
 import { BTN_DANGER, BTN_SECONDARY } from '@/components/buttonStyles';
 import {
   useChatMessages,
@@ -231,7 +232,11 @@ export default function ChatConversation({ otoChatRoomSn, onBack, onLeft }) {
         className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-[#fdfcfb] px-4 pt-4 pb-2"
       >
         {isPending && (
-          <p className="py-10 text-center text-subtle">불러오는 중이에요</p>
+          <div aria-busy="true" className="flex flex-col gap-3">
+            <Skeleton className="h-10 w-1/2 rounded-2xl" />
+            <Skeleton className="h-10 w-2/5 self-end rounded-2xl" />
+            <Skeleton className="h-16 w-3/5 rounded-2xl" />
+          </div>
         )}
         {isError && (
           <div className="flex flex-col items-center gap-3 py-10 text-center text-muted">

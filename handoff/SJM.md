@@ -2,10 +2,13 @@
 
 ## 지금 하는 것
 
-SCR-MYP-011 아이템 상점 모달 — 끝 (승인 2026-10-22, 검증 1회차 통과, 추가 요청 3건, 사람 확인 완료)
-꾸미기 화면의 [아이템 상점]이 여는 큰 모달을 가짜 API로 만들었다(미리보기·원래대로, 부위 탭, 4열 그리드·보유중, 담은 목록, 구매). 코드는 `features/pet/character/ItemShopModal.jsx`다. 공용 `components/Modal.jsx`에 큰 모달용 `isLarge` 옵션을 더했다(760×660, 머리·푸터 고정, 760px 이하 전체 화면)
+SCR-MYP-001 마이페이지 홈 — 끝 (승인 2026-10-22 13:30, 검증 통과, 추가 요청 1건, 사람 확인 완료)
+`/mypage`에 요약 3칸(포인트·이번달 지출액·오늘의 케어미션)과 내 반려동물 카드(대표·공동양육·오류 확인 중 배지, 6마리 + 더보기, 0마리 안내)를 가짜 API로 만들었다. 코드는 `pages/mypage/MyPageHomePage.jsx`, `features/{point,expense,pet}/home/`, 공용 `components/StatLink.jsx`다. 추가-1: 포인트 칸 아이콘을 돼지 저금통에서 P 글자로 바꿨다(요청 2026-10-22)
 
 ## 다음에 할 것
+- SCR-MYP-001 연결 남음: 캐릭터 이미지 API(LJS)가 나오면 홈 카드 얼굴(`chrcFaceUrl`)을 실제 이미지로 바꾼다. 그때 기본 얼굴(종별 아이콘·톤 바탕·오류 흑백)을 `features/pet/shared/PetFace.jsx`로 묶어 `PetMiniCard`·`PetProfileCard`·`PetSlide`가 같이 쓰게 한다. 지금은 `PetMiniCard`가 따로 그린다(기획은 재사용이었으나 `PetProfileCard`의 얼굴이 80px 둥근 사각형 JSX라 그대로 쓸 수 없었다)
+- SCR-MYP-001 결정 남음: 반려동물 관리 카드(`PetProfileCard`·슬라이드)를 전신 캐릭터로 바꿀지. 정해지면 위 `PetFace` 묶음의 모양(원형·사각형·전신)이 달라지므로 같이 정한다
+- SCR-MYP-001 팀에 확인: 홈 반려동물 영역은 불러오는 동안 아무것도 그리지 않는다(기획의 로딩 자리표시보다 약함). 0마리 안내 버튼은 등록 모달을 바로 열지 않고 `/mypage/pets`로 이동만 한다. `?fake=empty`는 이동하면 사라져 가짜 데이터에서는 관리 화면이 10마리로 뜨는데 서버 연결 뒤에는 생기지 않는다. 로그인(AIC)이 나오면 `/mypage`도 `ProtectedRoute` 아래로 옮긴다
 - SCR-MYP-011 연결 남음: 상점 API(LJS)가 나오면 `features/pet/api.js`의 가짜 `getShopItems`·`purchaseCharacterItems`(추정 `GET /items`, `POST /pets/{petSn}/character/items`, 추정 키 `itemPrc`)를 실제 요청으로 바꾼다. 포인트 차감은 서버 일이라 가짜는 잔액이 줄지 않는다. 캐릭터·아이템 이미지(LJS)가 나오면 미리보기 겹침을 화면으로 확인한다(지금은 이미지가 없어 안 보임)
 - SCR-MYP-011 팀에 확인: 기준 문서 `v0.6_20261022`가 DMS에 없어 FN-MYP-011-03·04를 사람이 준 수치(760×660, 카드 간격 등)로 만들었다. 문서가 올라오면 대조한다. 공용 `Modal`에 `isLarge`를 더했으니(LJS 공용) 공용 파일 변경으로 알린다
 - SCR-MYP-005: 경로 변수 이름 `invitationToken`은 백엔드와 확정 필요(`docs/routes.md` 4장 10번). 새 URL은 PR #57로 develop에 들어갔다

@@ -1,6 +1,7 @@
 import { lazy } from 'react';
 import { PATHS } from '@/routes/paths';
 
+const MyPageHomePage = lazy(() => import('@/pages/mypage/MyPageHomePage'));
 const PetListPage = lazy(() => import('@/pages/mypage/PetListPage'));
 const InvitationPage = lazy(() => import('@/pages/mypage/InvitationPage'));
 const CharacterPage = lazy(() => import('@/pages/mypage/CharacterPage'));
@@ -15,6 +16,7 @@ export default [
     layout: 'user',
     auth: 'public',
     routes: [
+      { path: PATHS.MYPAGE, Component: MyPageHomePage },
       { path: PATHS.MYPAGE_PETS, Component: PetListPage },
       { path: PATHS.MYPAGE_INVITATION, Component: InvitationPage },
       { path: PATHS.MYPAGE_CHARACTERS, Component: CharacterPage },

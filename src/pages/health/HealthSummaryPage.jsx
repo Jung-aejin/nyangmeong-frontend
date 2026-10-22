@@ -1,5 +1,8 @@
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import PageSkeleton from '@/components/PageSkeleton';
+import Skeleton from '@/components/Skeleton';
+import SkeletonCard from '@/components/SkeletonCard';
 import { useHealthSummary, usePets } from '@/features/health/queries';
 import AttachmentStrip from '@/features/health/summary/AttachmentStrip';
 import ConditionCard from '@/features/health/summary/ConditionCard';
@@ -48,7 +51,7 @@ export default function HealthSummaryPage() {
   if (isPetsPending) {
     return (
       <PageFrame>
-        <p className="text-muted">불러오는 중이에요</p>
+        <SummarySkeleton />
       </PageFrame>
     );
   }
@@ -79,7 +82,7 @@ export default function HealthSummaryPage() {
   if (!summary) {
     return (
       <PageFrame>
-        <p className="text-muted">불러오는 중이에요</p>
+        <SummarySkeleton />
       </PageFrame>
     );
   }
@@ -156,6 +159,28 @@ export default function HealthSummaryPage() {
         </Panel>
       )}
     </PageFrame>
+  );
+}
+
+/** 로딩 자리: 히어로 + 탭 + 첫 묶음(진료 · 예방 이력) 카드 배치 */
+function SummarySkeleton() {
+  return (
+    <PageSkeleton
+      top={<SkeletonCard className="h-[290px] max-[760px]:h-[848px]" />}
+      tabs={ANCHORS.length}
+    >
+      <div aria-hidden="true" className="flex flex-col gap-2">
+        <Skeleton className="h-6 w-36" />
+        <Skeleton className="h-4 w-72 max-w-full" />
+      </div>
+      <div className="grid gap-5 min-[1101px]:grid-cols-2">
+        <SkeletonCard className="h-[650px] max-[760px]:h-[666px]" />
+        <div className="flex flex-col gap-5">
+          <SkeletonCard className="h-[365px] max-[760px]:h-[587px]" />
+          <SkeletonCard className="h-[265px]" />
+        </div>
+      </div>
+    </PageSkeleton>
   );
 }
 

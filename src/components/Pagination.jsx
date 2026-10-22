@@ -18,11 +18,17 @@ export default function Pagination({ page, pageCount, onChange }) {
   const end = Math.min(pageCount, start + VISIBLE_PAGE_COUNT - 1);
   const pages = Array.from({ length: end - start + 1 }, (_, i) => start + i);
 
+  /** 쪽 이동 + 화면 맨 위로 */
+  const selectPage = (number) => {
+    onChange(number);
+    window.scrollTo(0, 0);
+  };
+
   return (
     <nav aria-label="페이지" className="flex items-center justify-center gap-1">
       <button
         type="button"
-        onClick={() => onChange(page - 1)}
+        onClick={() => selectPage(page - 1)}
         disabled={page === 1}
         aria-label="이전 페이지"
         className={ITEM}
@@ -33,7 +39,7 @@ export default function Pagination({ page, pageCount, onChange }) {
         <button
           key={number}
           type="button"
-          onClick={() => onChange(number)}
+          onClick={() => selectPage(number)}
           aria-current={number === page ? 'page' : undefined}
           className={`${ITEM} ${number === page ? 'bg-brand-500 font-bold text-white hover:enabled:bg-brand-500' : ''}`}
         >
@@ -42,7 +48,7 @@ export default function Pagination({ page, pageCount, onChange }) {
       ))}
       <button
         type="button"
-        onClick={() => onChange(page + 1)}
+        onClick={() => selectPage(page + 1)}
         disabled={page === pageCount}
         aria-label="다음 페이지"
         className={ITEM}

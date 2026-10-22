@@ -4,6 +4,7 @@ import Badge from '@/components/Badge';
 import Card from '@/components/Card';
 import Modal from '@/components/Modal';
 import Pagination from '@/components/Pagination';
+import SkeletonCard from '@/components/SkeletonCard';
 import {
   BTN_DANGER,
   BTN_PRIMARY,
@@ -42,7 +43,13 @@ export default function CheckupListCard({ pet, pets, onReceipt }) {
   const { data, isPending } = useCheckups({ petSn: pet.petSn, year });
   const deleteCheckup = useDeleteCheckup();
 
-  if (isPending) return null;
+  if (isPending) {
+    return (
+      <div aria-busy="true">
+        <SkeletonCard className="h-[1145px] max-[760px]:h-[1437px]" />
+      </div>
+    );
+  }
 
   const checkups = data.content;
   const vaccinationCount = checkups.filter(
