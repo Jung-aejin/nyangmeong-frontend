@@ -286,24 +286,63 @@ export const analyzeLabPdf = async ({ ckupRcdSn, atchSn }) => {
     atchSn,
     items: [
       {
-        inspItmNm: 'WBC',
-        rsltVal: 8.2,
-        unitNm: 'K/μL',
-        refMinVal: 5.5,
-        refMaxVal: 19.5,
+        inspItmNm: 'SDMA',
+        rsltVal: 12,
+        unitNm: 'μg/dL',
+        refMinVal: 0,
+        refMaxVal: 14,
       },
       {
-        inspItmNm: 'ALT',
-        rsltVal: 45,
+        inspItmNm: 'AST',
+        rsltVal: 32,
         unitNm: 'U/L',
-        refMinVal: 10,
-        refMaxVal: 100,
+        refMinVal: 13,
+        refMaxVal: 50,
+      },
+      {
+        inspItmNm: 'PLT',
+        rsltVal: null,
+        unitNm: null,
+        refMinVal: null,
+        refMaxVal: null,
+      },
+      {
+        inspItmNm: 'CREA',
+        rsltVal: 1.8,
+        unitNm: 'mg/dL',
+        refMinVal: 0.8,
+        refMaxVal: 1.5,
+      },
+      {
+        inspItmNm: 'USG',
+        rsltVal: 1.035,
+        unitNm: null,
+        refMinVal: null,
+        refMaxVal: null,
+        bloodYn: false,
       },
     ],
   };
 };
 
 /** 검사 결과 */
+
+/** 혈액검사 여러 건 저장(수동 추가 1건 또는 PDF 분석 결과). 서버가 한 번에 처리한다고 보고 전체 성공·실패로 다룬다 */
+export const createInspections = async ({ ckupRcdSn, items }) => {
+  const store = getStore(ckupRcdSn);
+  const created = items.map((item) => ({ inspSn: nextInspSn++, ...item }));
+  store.blood.push(...created);
+  return created.map((item) => ({ ...item }));
+};
+
+/** 저장된 행을 갱신: 검사 항목은 바꾸지 않고 결과값·단위·참고범위·메모만 */
+export const updateInspection = async ({ ckupRcdSn, inspSn, ...body }) => {
+  const target = getStore(ckupRcdSn).blood.find(
+    (item) => item.inspSn === inspSn,
+  );
+  Object.assign(target, body);
+  return { ...target };
+};
 
 export const deleteInspections = async ({ ckupRcdSn, inspSns }) => {
   const store = getStore(ckupRcdSn);
