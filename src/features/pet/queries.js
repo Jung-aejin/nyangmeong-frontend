@@ -4,6 +4,7 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
+import { pointKeys } from '@/features/point/queries';
 import {
   acceptInvitation,
   createCharacter,
@@ -16,9 +17,11 @@ import {
   getInvitation,
   getPet,
   getPets,
+  getShopItems,
   getSentInvitations,
   getVarieties,
   leavePet,
+  purchaseCharacterItems,
   rejectInvitation,
   setRepresentativePet,
   updateCharacterWear,
@@ -32,6 +35,7 @@ export const petKeys = {
   caregivers: (petSn) => ['pets', petSn, 'caregivers'],
   items: (petSn) => ['pets', petSn, 'items'],
   varieties: (petSeCd) => ['varieties', petSeCd],
+  shopItems: () => ['items', 'shop'],
 };
 
 export const invitationKeys = {
@@ -141,6 +145,20 @@ export const useUpdateCharacterWear = () => {
     mutationFn: updateCharacterWear,
     onSuccess: (_, { petSn }) =>
       qc.invalidateQueries({ queryKey: petKeys.items(petSn) }),
+  });
+};
+
+export const useShopItems = () =>
+  useQuery({ queryKey: petKeys.shopItems(), queryFn: getShopItems });
+
+export const usePurchaseCharacterItems = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: purchaseCharacterItems,
+    onSuccess: (_, { petSn }) => {
+      qc.invalidateQueries({ queryKey: petKeys.items(petSn) });
+      qc.invalidateQueries({ queryKey: pointKeys.balance() });
+    },
   });
 };
 

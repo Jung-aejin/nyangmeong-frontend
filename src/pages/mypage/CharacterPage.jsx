@@ -6,6 +6,7 @@ import CharacterEmpty from '@/features/pet/character/CharacterEmpty';
 import CharacterGrid from '@/features/pet/character/CharacterGrid';
 import CharacterTabs from '@/features/pet/character/CharacterTabs';
 import { usePets, useSetRepresentativePet } from '@/features/pet/queries';
+import { usePointBalance } from '@/features/point/queries';
 import { CHRC_STTS, PET_REL } from '@/features/pet/shared/petCodes';
 import SubPageLayout from '@/layouts/SubPageLayout';
 import { PATHS } from '@/routes/paths';
@@ -15,6 +16,7 @@ const DESCRIPTION = '우리 아이를 닮은 픽셀 캐릭터를 만들고 아�
 /** 탭은 ?tab=shared, 꾸미기는 ?petSn= (화면 안 단계는 URL을 늘리지 않음) */
 export default function CharacterPage() {
   const { data: pets = [], isPending } = usePets();
+  const { data: point } = usePointBalance();
   const { mutate: setRepresentative } = useSetRepresentativePet();
   const [searchParams, setSearchParams] = useSearchParams();
   const [creatingPet, setCreatingPet] = useState(null);
@@ -39,7 +41,7 @@ export default function CharacterPage() {
         title={`${decoratingPet.petNm} 꾸미기`}
         description={DESCRIPTION}
       >
-        <CharacterDecorate pet={decoratingPet} />
+        <CharacterDecorate pet={decoratingPet} pntBal={point?.pntBal ?? 0} />
       </SubPageLayout>
     );
   }
