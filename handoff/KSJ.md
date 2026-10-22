@@ -34,7 +34,7 @@ SCR-CMU-004 우리동네 펫돌봄 (시작 2026-10-22) — 상태: 진행 중 (�
 | 추가-3 | `features/community/care/CareForm.jsx` | 화면: 「체크하면 기간 · 시간을 비워 두고 등록할 수 있어요」가 「일정은 채팅으로 협의할게요」 체크박스 오른쪽에 같은 줄로 나온다. [등록] 버튼 왼쪽 아이콘 없음(그대로) | 요청 2026-10-22 "글쓰기: 안내 문구를 체크 문구 오른쪽으로" |
 | 추가-4 | `features/community/care/CareFilters.jsx` | 화면: 상세 필터가 디자인 `.cf`처럼 1280px 초과에서 2×2(지역 \| 돌봄 날짜 / 반려동물 \| 반려견 크기) 격자, 1280px 이하는 라벨+입력 한 줄씩, 760px 이하는 라벨 위·입력 아래 | 요청 2026-10-22 "목록 필터 영역을 디자인(SCR-CMU-004-01)과 같게" |
 | 추가-5 | `features/community/care/CareForm.jsx` | 화면: 글쓰기·수정 맨 위 「* 표시는 꼭 입력해야 해요」 삭제(칸 옆 빨간 * 표시는 그대로) | 요청 2026-10-22 "* 표시는 꼭 입력해야 해요 삭제" |
-| 추가-6 | `features/community/care/CareFormParts.jsx` | 화면: 글쓰기 입력 요소 사이 간격 `gap: calc(var(--spacing) * 8)`(32px), 예: 종류와 강아지 품종 사이 | 요청 2026-10-22 "입력 요소 사이 간격 8" |
+| 추가-6 | `features/community/care/CareFormParts.jsx` | 화면: 글쓰기 입력 요소 사이 간격 `gap: calc(var(--spacing) * 8)`(32px)로 요청했고 사람이 직접 `gap-9`(36px)로 바꿨다(`CareFormParts.jsx` `Section`), 예: 종류와 강아지 품종 사이 | 요청 2026-10-22 "입력 요소 사이 간격 8", 사람이 직접 수정 2026-10-22 |
 | 추가-7 | `features/community/care/CareForm.jsx` | 화면: 펫돌봄 글쓰기·수정의 체크박스·라디오 줄 최소 높이 32px(라벨과 간격 축소) | 요청 2026-10-22 "체크박스·라디오 min-height 32px" |
 | 추가-8 | `features/community/PostForm.jsx`, `features/community/missing/MissingForm.jsx` | 화면: 펫이야기·실종센터 글쓰기·수정 맨 위 「* 표시는 꼭 입력해야 해요」 삭제(펫돌봄은 추가-5) | 요청 2026-10-22 "CMU의 모든 글쓰기 페이지에서 해당 텍스트 삭제" |
 | 추가-9 | `features/community/missing/MissingFilters.jsx`, `MissingList.jsx`, `pages/community/MissingListPage.jsx` | 화면: 실종센터 목록의 상태 탭·검색·상세 필터·건수가 콘텐츠 전체 너비를 쓰고 그 아래에서 카드 목록(왼쪽)과 레일(오른쪽)이 나뉜다. 필터는 디자인 `SCR-CMU-002-01.html`의 `.cf`처럼 1280px 초과에서 첫 줄 실종 지역 \| 반려동물, 둘째 줄 실종 기간(전체 너비) | 요청 2026-10-22 "실종센터 목록도 필터 영역이 콘텐츠 전체 차지" |
