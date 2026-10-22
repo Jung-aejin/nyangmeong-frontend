@@ -11,6 +11,7 @@ import { formatDateTime, formatMonthDayDot } from '@/utils/formatDate';
 import CommentSection from './CommentSection';
 import PostBadges from './PostBadges';
 import {
+  postCommentHooks,
   useDeletePost,
   usePostList,
   useReportPost,
@@ -138,7 +139,7 @@ export default function PostDetail({ post }) {
           </div>
         </article>
 
-        <CommentSection pstSn={post.pstSn} />
+        <CommentSection targetSn={post.pstSn} hooks={postCommentHooks} />
       </div>
 
       <aside aria-label="펫이야기 최신글" className="min-w-0">
