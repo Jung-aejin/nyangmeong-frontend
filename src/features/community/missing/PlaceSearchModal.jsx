@@ -6,11 +6,17 @@ import { useSearchMissingPlaces } from '../missingQueries';
 import MissingMap from './MissingMap';
 
 /**
- * 목격 장소 찾기 모달(전북 한정)
- * - 장소·동 이름으로 검색 → 결과 라디오(단일 선택) → 지도 미리보기(반경) → [목격 장소로 설정]으로 부모에 넘긴다: onSelect(place)
+ * 장소 찾기 모달(전북 한정): 실종센터 목격 장소, 펫돌봄 돌봄 장소가 같이 쓴다
+ * - 장소·동 이름으로 검색 → 결과 라디오(단일 선택) → 지도 미리보기(반경) → [확인 버튼]으로 부모에 넘긴다: onSelect(place)
+ * - title·confirmLabel: 모달 제목과 확인 버튼 문구(기본은 실종센터 문구)
  * - 모달이라 글쓰기 폼의 다른 입력값은 그대로 유지된다. 취소하면 이전 선택을 바꾸지 않는다
  */
-export default function PlaceSearchModal({ onSelect, onClose }) {
+export default function PlaceSearchModal({
+  title = '목격 장소 찾기',
+  confirmLabel = '목격 장소로 설정',
+  onSelect,
+  onClose,
+}) {
   const search = useSearchMissingPlaces();
   const [keyword, setKeyword] = useState('');
   const [selected, setSelected] = useState(null);
@@ -24,7 +30,7 @@ export default function PlaceSearchModal({ onSelect, onClose }) {
 
   return (
     <Modal
-      title="목격 장소 찾기"
+      title={title}
       onClose={onClose}
       footer={
         <>
@@ -37,7 +43,7 @@ export default function PlaceSearchModal({ onSelect, onClose }) {
             onClick={() => onSelect(selected)}
             className={BTN_PRIMARY}
           >
-            목격 장소로 설정
+            {confirmLabel}
           </button>
         </>
       }
