@@ -11,7 +11,6 @@ import {
 } from '@/features/community/missingCodes';
 import { useMissingList } from '@/features/community/missingQueries';
 import MissingList from '@/features/community/missing/MissingList';
-import MissingRail from '@/features/community/missing/MissingRail';
 import SubPageLayout from '@/layouts/SubPageLayout';
 import { PATHS } from '@/routes/paths';
 
@@ -100,10 +99,7 @@ export default function MissingListPage() {
       description={DESCRIPTION}
       contentClassName="min-[1101px]:pt-[7px]"
     >
-      <div className="grid grid-cols-[minmax(0,1fr)_280px] items-start gap-8 max-[1100px]:grid-cols-1 max-[1100px]:gap-10">
-        <div className="min-w-0">{body}</div>
-        <MissingRail />
-      </div>
+      {body}
     </SubPageLayout>
   );
 }

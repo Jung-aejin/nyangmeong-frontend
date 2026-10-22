@@ -44,7 +44,9 @@ export const PATHS = {
   COMMUNITY_NEWS: '/community/news',
   COMMUNITY_NEWS_DETAIL: '/community/news/:newsSn',
   COMMUNITY_PETCARE: '/community/petcare',
+  COMMUNITY_PETCARE_NEW: '/community/petcare/new',
   COMMUNITY_PETCARE_DETAIL: '/community/petcare/:petPrtcRcrtSn',
+  COMMUNITY_PETCARE_EDIT: '/community/petcare/:petPrtcRcrtSn/edit',
 
   /** support */
   NOTICES: '/notices',

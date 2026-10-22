@@ -65,7 +65,7 @@ function Counter({ value, max }) {
 
 function Section({ number, title, children }) {
   return (
-    <div className="flex flex-col gap-6 border-t border-line py-7 first:border-t-0 first:pt-5">
+    <div className="flex flex-col gap-9 border-t border-line py-7 first:border-t-0 first:pt-5">
       <h3 className="flex items-center gap-2.5 text-lg font-bold text-ink">
         <span
           aria-hidden="true"
@@ -228,13 +228,7 @@ export default function MissingForm({
         <h2 id="missing-form-title" className="sr-only">
           {isEdit ? '실종 게시글 수정' : '실종 게시글 작성'}
         </h2>
-        <p className="text-sm text-muted">
-          <span aria-hidden="true" className="font-bold text-danger">
-            *
-          </span>{' '}
-          표시는 꼭 입력해야 해요
-        </p>
-        <p className="mt-4 mb-5 flex items-start gap-2 rounded-lg bg-brand-50 px-4 py-3 text-sm leading-[1.6] text-brand-600">
+        <p className="mb-5 flex items-start gap-2 rounded-lg bg-brand-50 px-4 py-3 text-sm leading-[1.6] text-brand-600">
           <Info size={18} aria-hidden="true" className="mt-0.5 shrink-0" />
           <span>
             {isEdit
@@ -259,7 +253,7 @@ export default function MissingForm({
                 {PET_SE_OPTIONS.map((option) => (
                   <label
                     key={option.code}
-                    className="flex min-h-11 cursor-pointer items-center gap-2 font-medium text-ink"
+                    className="flex min-h-8 cursor-pointer items-center gap-2 font-medium text-ink"
                   >
                     <input
                       type="radio"
@@ -275,7 +269,7 @@ export default function MissingForm({
               </div>
             </fieldset>
 
-            <div className="grid grid-cols-2 gap-6 max-[760px]:grid-cols-1">
+            <div className="grid grid-cols-2 gap-8 max-[760px]:grid-cols-1">
               <div className="flex flex-col gap-1.5">
                 <div className="flex items-center justify-between gap-2">
                   <label htmlFor="missing-name" className={LABEL_CLASS}>
@@ -357,7 +351,7 @@ export default function MissingForm({
                 마지막 목격 날짜 · 시간
                 <Required />
               </legend>
-              <div className="grid grid-cols-2 gap-6 max-[760px]:grid-cols-1">
+              <div className="grid grid-cols-2 gap-8 max-[760px]:grid-cols-1">
                 <input
                   type="date"
                   aria-label="목격 날짜"
@@ -479,7 +473,7 @@ export default function MissingForm({
               </div>
             </div>
 
-            <div className="flex max-w-[420px] flex-col gap-1.5">
+            <div className="flex flex-col gap-1.5">
               <label htmlFor="missing-tel" className={LABEL_CLASS}>
                 연락처
                 <Required />
@@ -496,7 +490,7 @@ export default function MissingForm({
                 onChange={(event) =>
                   set({ cnpl: formatTel(event.target.value) }, ['cnpl'])
                 }
-                className={`${INPUT_CLASS} ${borderOf(errors.cnpl)}`}
+                className={`max-w-[240px] ${INPUT_CLASS} ${borderOf(errors.cnpl)}`}
               />
               <p className="text-sm text-muted">
                 게시글에 공개돼요. &apos;찾았어요&apos;를 누르면 더 이상 보이지
@@ -513,7 +507,7 @@ export default function MissingForm({
             <div
               className={`flex flex-col gap-1.5 rounded-lg border px-4 py-3.5 ${errors.agree ? 'border-danger' : 'border-line'} bg-surface-2`}
             >
-              <label className="flex cursor-pointer items-start gap-2.5">
+              <label className="flex min-h-8 cursor-pointer items-start gap-2.5">
                 <input
                   type="checkbox"
                   checked={values.agree}
