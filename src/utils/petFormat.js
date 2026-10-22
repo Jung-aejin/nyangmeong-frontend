@@ -3,7 +3,7 @@ import {
   COLR_OPTIONS,
   PET_GNDR_OPTIONS,
   PET_SE_OPTIONS,
-} from '../shared/petCodes';
+} from './petCodes';
 
 const findName = (options, code) =>
   options?.find((option) => option.code === code)?.name ?? '';

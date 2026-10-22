@@ -14,10 +14,11 @@ export function CardTitle({ icon, children }) {
 }
 
 /** [전체 보기 ＞] 글자 링크 */
-export function MoreLink({ to, children = '전체 보기' }) {
+export function MoreLink({ to, state, children = '전체 보기' }) {
   return (
     <Link
       to={to}
+      state={state}
       className="inline-flex shrink-0 items-center gap-0.5 font-semibold whitespace-nowrap text-brand-600 hover:underline hover:underline-offset-3"
     >
       {children}
@@ -44,10 +45,10 @@ export function SummaryEmpty({ icon, description, action, to }) {
   );
 }
 
-/** 영역 묶음 제목(앵커 대상) */
-export function SectionHead({ id, title, description }) {
+/** 영역 묶음 제목 */
+export function SectionHead({ title, description }) {
   return (
-    <div id={id} className="scroll-mt-28">
+    <div>
       <h2 className="text-[22px] leading-[1.35] font-bold tracking-[-0.02em] text-ink">
         {title}
       </h2>

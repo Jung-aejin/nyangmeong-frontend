@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import AnchorBar from '@/features/health/diary/AnchorBar';
 import { useHealthSummary, usePets } from '@/features/health/queries';
 import AttachmentStrip from '@/features/health/summary/AttachmentStrip';
 import ConditionCard from '@/features/health/summary/ConditionCard';
@@ -9,6 +8,7 @@ import ObservationSummaryCard from '@/features/health/summary/ObservationSummary
 import PrescriptionHistoryCard from '@/features/health/summary/PrescriptionHistoryCard';
 import PreventionHistoryCard from '@/features/health/summary/PreventionHistoryCard';
 import SummaryHero from '@/features/health/summary/SummaryHero';
+import SummaryTabs from '@/features/health/summary/SummaryTabs';
 import { SectionHead } from '@/features/health/summary/SummaryParts';
 import TimelineCard from '@/features/health/summary/TimelineCard';
 import headHlt from '@/assets/head_hlt.svg';
@@ -30,6 +30,10 @@ const ANCHORS = [
 export default function HealthSummaryPage() {
   const [searchParams] = useSearchParams();
   const [tabPetSn, setTabPetSn] = useState(null);
+  /** 검진상세에서 ?inspection=으로 들어오면 검사 · 수치 묶음부터 */
+  const [sectionId, setSectionId] = useState(
+    searchParams.get('inspection') ? 'hlt011-lab' : ANCHORS[0].id,
+  );
   const {
     data: pets,
     isPending: isPetsPending,
@@ -88,51 +92,84 @@ export default function HealthSummaryPage() {
         summary={summary}
         onSelect={setTabPetSn}
       />
-      <AnchorBar items={ANCHORS} />
-
-      <SectionHead
-        id="hlt011-hist"
-        title="진료 · 예방 이력"
-        description="병원 방문과 접종·검진 기록을 시간순으로 모았어요"
-      />
-      <div className="grid items-stretch gap-5 min-[1101px]:grid-cols-2">
-        <TimelineCard timeline={summary.timeline} />
-        <div className="flex flex-col gap-5">
-          <PreventionHistoryCard prevention={summary.prevention} />
-          <ConditionCard profile={summary.profile} />
-        </div>
-      </div>
-
-      <SectionHead
-        id="hlt011-lab"
-        title="검사 · 수치"
-        description="최근 혈액검사 결과와 항목별 변화를 확인해요"
-      />
-      <LabSection
-        key={`lab-${selectedPet.petSn}`}
-        lab={summary.lab}
-        trends={summary.trends}
-        initialItemNm={searchParams.get('inspection')}
+      <SummaryTabs
+        items={ANCHORS}
+        activeId={sectionId}
+        onSelect={setSectionId}
       />
 
-      <SectionHead
-        id="hlt011-rx"
-        title="처방 · 투약"
-        description="검진상세에 등록한 처방약을 복용 중인 것부터 보여줘요"
-      />
-      <PrescriptionHistoryCard prescriptions={summary.prescriptions} />
+      {sectionId === 'hlt011-hist' && (
+        <Panel id="hlt011-hist">
+          <SectionHead
+            title="진료 · 예방 이력"
+            description="병원 방문과 접종·검진 기록을 시간순으로 모았어요"
+          />
+          <div className="grid items-stretch gap-5 min-[1101px]:grid-cols-2">
+            <TimelineCard timeline={summary.timeline} />
+            <div className="flex flex-col gap-5">
+              <PreventionHistoryCard prevention={summary.prevention} />
+              <ConditionCard
+                profile={summary.profile}
+                petSn={selectedPet.petSn}
+              />
+            </div>
+          </div>
+        </Panel>
+      )}
 
-      <SectionHead
-        id="hlt011-obs"
-        title="관찰 기록 · 첨부 자료"
-        description="계속 지켜보는 부위의 변화와 병원 서류를 함께 확인해요"
-      />
-      <ObservationSummaryCard
-        key={`obs-${selectedPet.petSn}`}
-        observations={summary.observations}
-      />
-      <AttachmentStrip attachments={summary.attachments} />
+      {sectionId === 'hlt011-lab' && (
+        <Panel id="hlt011-lab">
+          <SectionHead
+            title="검사 · 수치"
+            description="최근 혈액검사 결과와 항목별 변화를 확인해요"
+          />
+          <LabSection
+            key={`lab-${selectedPet.petSn}`}
+            lab={summary.lab}
+            trends={summary.trends}
+            initialItemNm={searchParams.get('inspection')}
+          />
+        </Panel>
+      )}
+
+      {sectionId === 'hlt011-rx' && (
+        <Panel id="hlt011-rx">
+          <SectionHead
+            title="처방 · 투약"
+            description="검진상세에 등록한 처방약을 복용 중인 것부터 보여줘요"
+          />
+          <PrescriptionHistoryCard prescriptions={summary.prescriptions} />
+        </Panel>
+      )}
+
+      {sectionId === 'hlt011-obs' && (
+        <Panel id="hlt011-obs">
+          <SectionHead
+            title="관찰 기록 · 첨부 자료"
+            description="계속 지켜보는 부위의 변화와 병원 서류를 함께 확인해요"
+          />
+          <ObservationSummaryCard
+            key={`obs-${selectedPet.petSn}`}
+            observations={summary.observations}
+          />
+          <AttachmentStrip attachments={summary.attachments} />
+        </Panel>
+      )}
     </PageFrame>
+  );
+}
+
+/** 선택된 묶음 하나. 안쪽 간격은 PageFrame 본문과 같음 */
+function Panel({ id, children }) {
+  return (
+    <div
+      role="tabpanel"
+      id={id}
+      aria-labelledby={`${id}-tab`}
+      className="flex flex-col gap-7"
+    >
+      {children}
+    </div>
   );
 }
 

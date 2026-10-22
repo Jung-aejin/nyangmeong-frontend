@@ -1,4 +1,4 @@
-import { CGVR_ROLE, PET_REL, PET_SE } from './shared/petCodes';
+import { CGVR_ROLE, PET_REL, PET_SE } from '@/utils/petCodes';
 
 /**
  * [반려동물 가짜 API]
