@@ -1,9 +1,10 @@
 import { ChevronLeft, ExternalLink, Megaphone, Newspaper } from 'lucide-react';
 import { generatePath, Link, useLocation } from 'react-router-dom';
+import PostBody from '@/components/PostBody';
+import SharePanel from '@/components/SharePanel';
 import { PATHS } from '@/routes/paths';
 import { formatDate, formatMonthDayDot } from '@/utils/formatDate';
 import NewsCategoryBadge from './NewsCategoryBadge';
-import NewsShare from './NewsShare';
 import NewsThumb from './NewsThumb';
 import { NEWS_SRC_ADMIN } from './newsCodes';
 import { useNewsList } from './queries';
@@ -37,15 +38,7 @@ export default function NewsDetail({ news }) {
         </p>
 
         {isAdmin ? (
-          <div className="mt-6 pb-20">
-            <div className="min-h-[200px] text-base leading-[1.6] text-[#1a3234]">
-              {news.newsCn.split('\n\n').map((paragraph) => (
-                <p key={paragraph} className="mb-5 whitespace-pre-line">
-                  {paragraph}
-                </p>
-              ))}
-            </div>
-          </div>
+          <PostBody content={news.newsCn} />
         ) : (
           <>
             <figure className="mt-6">
@@ -92,7 +85,7 @@ export default function NewsDetail({ news }) {
             <ChevronLeft size={14} />
             목록으로
           </Link>
-          <NewsShare title={news.newsTtl} />
+          <SharePanel title={news.newsTtl} />
         </div>
       </article>
 

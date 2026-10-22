@@ -6,7 +6,7 @@ const itemClass =
   'flex h-10 w-full cursor-pointer items-center gap-2 px-4 text-left text-sm font-medium text-[#3d4a4b] hover:bg-[#f4f6f6]';
 
 /** 공유하기: 누르면 패널에 [링크 복사], 브라우저가 지원하면 [다른 앱으로 공유] */
-export default function NewsShare({ title }) {
+export default function SharePanel({ title }) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef(null);
   const canShare = typeof navigator.share === 'function';
@@ -53,9 +53,9 @@ export default function NewsShare({ title }) {
         onClick={() => setOpen((prev) => !prev)}
         aria-label="공유하기"
         aria-expanded={open}
-        className="inline-flex cursor-pointer items-center gap-1.5 text-base leading-normal font-medium text-[#566465]"
+        className="inline-flex min-h-9 cursor-pointer items-center gap-1.5 px-1 text-sm leading-normal font-medium text-[#667374] hover:text-[#1a3234]"
       >
-        <Share2 size={18} />
+        <Share2 size={20} aria-hidden="true" />
         <span className="max-[760px]:hidden">공유하기</span>
       </button>
       {open && (
