@@ -1,5 +1,8 @@
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import PageSkeleton from '@/components/PageSkeleton';
+import Skeleton from '@/components/Skeleton';
+import SkeletonCard from '@/components/SkeletonCard';
 import AnchorBar from '@/features/health/diary/AnchorBar';
 import { useHealthSummary, usePets } from '@/features/health/queries';
 import AttachmentStrip from '@/features/health/summary/AttachmentStrip';
@@ -44,7 +47,7 @@ export default function HealthSummaryPage() {
   if (isPetsPending) {
     return (
       <PageFrame>
-        <p className="text-muted">불러오는 중이에요</p>
+        <SummarySkeleton />
       </PageFrame>
     );
   }
@@ -75,7 +78,7 @@ export default function HealthSummaryPage() {
   if (!summary) {
     return (
       <PageFrame>
-        <p className="text-muted">불러오는 중이에요</p>
+        <SummarySkeleton />
       </PageFrame>
     );
   }
@@ -133,6 +136,45 @@ export default function HealthSummaryPage() {
       />
       <AttachmentStrip attachments={summary.attachments} />
     </PageFrame>
+  );
+}
+
+/** 로딩 자리: 히어로 + 탭 + 구역별 카드 배치 */
+function SummarySkeleton() {
+  return (
+    <PageSkeleton
+      top={<SkeletonCard className="h-[290px]" />}
+      tabs={ANCHORS.length}
+    >
+      <SectionHeadSkeleton />
+      <div className="grid gap-5 min-[1101px]:grid-cols-2">
+        <SkeletonCard className="h-[650px]" />
+        <div className="flex flex-col gap-5">
+          <SkeletonCard className="h-[365px]" />
+          <SkeletonCard className="h-[265px]" />
+        </div>
+      </div>
+      <SectionHeadSkeleton />
+      <div className="grid gap-5 min-[1101px]:grid-cols-2">
+        <SkeletonCard className="h-[495px]" />
+        <SkeletonCard className="h-[495px]" />
+      </div>
+      <SectionHeadSkeleton />
+      <SkeletonCard className="h-[250px]" />
+      <SectionHeadSkeleton />
+      <SkeletonCard className="h-[485px]" />
+      <SkeletonCard className="h-[380px]" />
+    </PageSkeleton>
+  );
+}
+
+/** 구역 머리 자리: 제목 + 설명 */
+function SectionHeadSkeleton() {
+  return (
+    <div aria-hidden="true" className="mt-5 flex flex-col gap-2">
+      <Skeleton className="h-6 w-36" />
+      <Skeleton className="h-4 w-72 max-w-full" />
+    </div>
   );
 }
 

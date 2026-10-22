@@ -5,6 +5,8 @@ import {
   useNavigate,
   useParams,
 } from 'react-router-dom';
+import PageSkeleton from '@/components/PageSkeleton';
+import SkeletonCard from '@/components/SkeletonCard';
 import InquiryForm from '@/features/inquiry/InquiryForm';
 import { useInquiry, useUpdateInquiry } from '@/features/inquiry/queries';
 import { PATHS } from '@/routes/paths';
@@ -16,7 +18,13 @@ export default function InquiryEditPage() {
   const update = useUpdateInquiry();
   const detailPath = generatePath(PATHS.INQUIRY_DETAIL, { otoInqrySn });
 
-  if (isPending) return <p className="text-[#566465]">불러오는 중이에요</p>;
+  if (isPending) {
+    return (
+      <PageSkeleton>
+        <SkeletonCard className="h-[986px]" />
+      </PageSkeleton>
+    );
+  }
   if (isError) {
     return (
       <div role="alert" className="text-[#566465]">

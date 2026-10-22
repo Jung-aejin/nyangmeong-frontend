@@ -1,5 +1,17 @@
+import PageSkeleton from '@/components/PageSkeleton';
+import SkeletonCard from '@/components/SkeletonCard';
 import NotificationSettingsForm from '@/features/notification/settings/NotificationSettingsForm';
 import { useNotificationSettings } from '@/features/notification/queries';
+
+/** 로딩 자리: 설정 카드별 높이 */
+const SETTING_CARD_HEIGHTS = [
+  'h-[216px]',
+  'h-[298px]',
+  'h-[137px]',
+  'h-[216px]',
+  'h-[190px]',
+  'h-[286px]',
+];
 
 export default function NotificationSettingsPage() {
   const { data: settings, isPending, isError } = useNotificationSettings();
@@ -14,7 +26,13 @@ export default function NotificationSettingsPage() {
         </p>
       </section>
 
-      {isPending && <p className="text-[#566465]">불러오는 중이에요</p>}
+      {isPending && (
+        <PageSkeleton>
+          {SETTING_CARD_HEIGHTS.map((height, index) => (
+            <SkeletonCard key={index} className={height} />
+          ))}
+        </PageSkeleton>
+      )}
       {isError && (
         <p role="alert" className="text-[#566465]">
           설정을 불러오지 못했어요. 잠시 뒤 다시 시도해 주세요

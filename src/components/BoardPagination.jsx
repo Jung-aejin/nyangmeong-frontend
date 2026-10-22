@@ -9,6 +9,11 @@ export default function BoardPagination({ page, totalPages, onChange }) {
   const start = Math.floor((page - 1) / PAGE_GROUP_SIZE) * PAGE_GROUP_SIZE + 1;
   const end = Math.min(start + PAGE_GROUP_SIZE - 1, totalPages);
   const pages = Array.from({ length: end - start + 1 }, (_, i) => start + i);
+  /** 쪽 이동 + 목록 맨 위로 */
+  const selectPage = (number) => {
+    onChange(number);
+    window.scrollTo(0, 0);
+  };
   const buttonClass =
     'flex size-9 items-center justify-center rounded-full text-base font-medium text-[#3d4a4b] hover:bg-[#e9f2f2] max-[760px]:size-8';
 
@@ -21,7 +26,7 @@ export default function BoardPagination({ page, totalPages, onChange }) {
         <button
           type="button"
           aria-label="이전 페이지"
-          onClick={() => onChange(page - 1)}
+          onClick={() => selectPage(page - 1)}
           className={`${buttonClass} mr-2`}
         >
           <ChevronLeft size={18} />
@@ -32,7 +37,7 @@ export default function BoardPagination({ page, totalPages, onChange }) {
           key={number}
           type="button"
           aria-current={number === page ? 'page' : undefined}
-          onClick={() => onChange(number)}
+          onClick={() => selectPage(number)}
           className={`${buttonClass} ${number === page ? 'bg-[#285a5c] font-bold text-white hover:bg-[#285a5c]' : ''}`}
         >
           {number}
@@ -42,7 +47,7 @@ export default function BoardPagination({ page, totalPages, onChange }) {
         <button
           type="button"
           aria-label="다음 페이지"
-          onClick={() => onChange(page + 1)}
+          onClick={() => selectPage(page + 1)}
           className={`${buttonClass} ml-2`}
         >
           <ChevronRight size={18} />

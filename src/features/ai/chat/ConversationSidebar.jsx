@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { Menu, PawPrint, Plus, User, X } from 'lucide-react';
+import Skeleton from '@/components/Skeleton';
 import { groupConversations } from './groupConversations';
 import { useConversations } from '../queries';
 
@@ -174,7 +175,9 @@ function SidebarPanel({
         className="min-h-0 flex-1 overflow-y-auto p-2"
       >
         {isPending && (
-          <p className="p-2 text-sm text-[#667374]">불러오는 중이에요</p>
+          <div aria-busy="true" className="p-2">
+            <Skeleton lines={5} />
+          </div>
         )}
         {isError && (
           <p role="alert" className="p-2 text-sm text-[#667374]">

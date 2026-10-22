@@ -1,6 +1,7 @@
 import { Cat, Dog, Info } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import SkeletonCard from '@/components/SkeletonCard';
 import { BTN_PRIMARY, BTN_SECONDARY } from '@/components/buttonStyles';
 import { showToast } from '@/components/toastStore';
 import { PATHS } from '@/routes/paths';
@@ -67,7 +68,13 @@ export default function InvitationAccept({ invitationToken }) {
   const acceptInvitation = useAcceptInvitation();
   const [isRejecting, setIsRejecting] = useState(false);
 
-  if (isPending) return null;
+  if (isPending) {
+    return (
+      <div aria-busy="true">
+        <SkeletonCard className="mx-auto h-[477px] w-full max-w-[560px]" />
+      </div>
+    );
+  }
   if (isError) {
     return (
       <p className={`${CARD} px-[22px] py-10 text-center text-muted`}>

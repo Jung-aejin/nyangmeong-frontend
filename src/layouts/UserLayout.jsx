@@ -2,6 +2,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import BottomNav from './BottomNav';
 import { findBottomNavMenu } from './bottomNavMenus';
 import FloatingButtons from './FloatingButtons';
+import ScrollToTop from './ScrollToTop';
 import UserFooter from './UserFooter';
 import UserHeader from './UserHeader';
 
@@ -11,6 +12,7 @@ export default function UserLayout() {
 
   return (
     <div className="flex min-h-screen flex-col bg-[#faf8f5]">
+      <ScrollToTop />
       <UserHeader />
       {/** 바텀 네비 화면: 본문 끝이 네비·AI 버튼에 가리지 않게 여백 */}
       <main

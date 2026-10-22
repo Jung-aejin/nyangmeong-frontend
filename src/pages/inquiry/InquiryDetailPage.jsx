@@ -1,4 +1,6 @@
 import { Link, useParams } from 'react-router-dom';
+import PageSkeleton from '@/components/PageSkeleton';
+import SkeletonCard from '@/components/SkeletonCard';
 import InquiryDetail from '@/features/inquiry/InquiryDetail';
 import { useInquiry } from '@/features/inquiry/queries';
 import { PATHS } from '@/routes/paths';
@@ -7,7 +9,13 @@ export default function InquiryDetailPage() {
   const otoInqrySn = Number(useParams().otoInqrySn);
   const { data: inquiry, isPending, isError } = useInquiry(otoInqrySn);
 
-  if (isPending) return <p className="text-[#566465]">불러오는 중이에요</p>;
+  if (isPending) {
+    return (
+      <PageSkeleton>
+        <SkeletonCard className="h-[806px]" />
+      </PageSkeleton>
+    );
+  }
   if (isError) {
     return (
       <div role="alert" className="text-[#566465]">

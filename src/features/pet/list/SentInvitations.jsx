@@ -1,3 +1,5 @@
+import Skeleton from '@/components/Skeleton';
+import SkeletonCard from '@/components/SkeletonCard';
 import { INVT_STTS } from '../api';
 import { useSentInvitations } from '../queries';
 
@@ -44,7 +46,14 @@ const formatPetNames = (pets) => pets.map((pet) => pet.petNm).join(', ');
 export default function SentInvitations() {
   const { data: invitations = [], isPending } = useSentInvitations();
 
-  if (isPending) return null;
+  if (isPending) {
+    return (
+      <div aria-busy="true" className="mt-12 flex flex-col gap-5">
+        <Skeleton className="h-7 w-32" />
+        <SkeletonCard className="h-[395px] max-[760px]:h-[635px]" />
+      </div>
+    );
+  }
 
   return (
     <section aria-labelledby="sent-title" className="mt-12 flex flex-col gap-5">

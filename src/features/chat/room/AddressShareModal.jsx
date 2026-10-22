@@ -6,6 +6,7 @@
 import { useState } from 'react';
 import Icon from '@/components/Icon';
 import Modal from '@/components/Modal';
+import Skeleton from '@/components/Skeleton';
 import { BTN_PRIMARY, BTN_SECONDARY } from '@/components/buttonStyles';
 import { useChatPlaces } from '../queries';
 import PlaceMapPreview from './PlaceMapPreview';
@@ -82,7 +83,9 @@ export default function AddressShareModal({
           : `검색 결과 ${places?.length ?? 0}곳`}
       </p>
       {isSearching && (
-        <p className="py-3 text-sm text-subtle">불러오는 중이에요</p>
+        <div aria-busy="true" className="py-3">
+          <Skeleton lines={3} />
+        </div>
       )}
       {places?.length === 0 && (
         <p className="py-3 text-sm text-subtle">

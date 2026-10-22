@@ -2,17 +2,75 @@
 
 ## 지금 하는 것
 
-SCR-CMU-005 우리동네 펫돌봄 채팅 (2026-10-22) — 상태: 끝 (검증 `통과` 1회차, 사람 확인 2026-10-22)
+SCR-COM-002 이동 시 스크롤 맨 위로 · 공용 로딩 스켈레톤 (2026-10-22 시작) — 상태: 구현 중 (승인 2026-10-22 10:37)
 
-- 결정(사람): 창 760x780(시안의 한 칸 화면), 완료 요청은 입력 없이(명세·시안대로). 메시지 보낸 시각은 DDL 확인 뒤 정한다 — 지금은 시각 없이 만들고 `msgDt`가 있으면 그린다
-- 디자인: `html/SCR-CMU-005.html` + `html/SCR-CMU-005/`(사람이 준 `nmcare-design-v4-1`에서 복사). 주소 공유 모달만 시안에 없어 화면설계서 기준
-- 만든 것: `/chat` 한 칸 화면(목록 → 방, ‹ 복귀), 목록 탭·글별 보기·거래 상태 배지, 거래 카드(`room/CareDealCard.jsx`·`dealSteps.js`: 상태 9종 × 역할 2개), 사진 첨부·주소 공유 모달, 방 상단 바·나가기, 가짜 API 확장(`features/chat/api.js`), 코드값 한 곳(`shared/chatCodes.js`)
-- 열기: `open({ listPstSn })`가 그 글의 채팅만 보여 준다(`?pstSn=`은 방 만들기에 이미 써서 다른 이름). 확인은 `/dev/chat`의 거래 상태별 방 링크(상대 동작 버튼은 `&fakeChatTools=1`)
+배경(조사, dev 서버에서 재현): ① `BrowserRouter` + `useRoutes` 구조라 `<ScrollRestoration>`을 못 쓰고, 경로를 바꿔도 스크롤을 올리는 코드가 없다. `/main` 하단에서 푸터 공지사항·자주하는 질문·1:1 문의를 누르면 새 페이지 맨 아래에 그대로 있다(1280px: 1296 → 757·888·799). 모든 `Link`·`navigate` 이동이 같다. ② 첫 진입은 캐시가 없어 "불러오는 중이에요" 문구가 한 프레임 이상 그려졌다가 내용으로 바뀌고 페이지 높이도 출렁인다. 두 번째부터는 캐시라 안 깜빡인다. lazy·`Suspense`는 원인이 아니다(RR 7.18 `BrowserRouter`가 이동을 `startTransition`으로 처리)
 
-이전 작업: SCR-COM-009 채팅 셸 — 새 창 — 끝(검증 `통과` 3회차, 사람 확인 2026-10-21). 결정·추가 요청은 `milestones/LJS.md` 그 절
+- 결정(사람): 스크롤은 경로가 바뀌면 맨 위로, 뒤로·앞으로 가기는 제외. 깜빡임은 공용 스켈레톤 컴포넌트로
+- 디자인: 없음(Figma 토큰 없음, `html/`에 SCR-COM-002 없음). 스켈레톤은 시안이 없어 이미 쓰는 색(`#e2e7e7`·`#f4f6f6` 계열)과 둥글림만 쓰고, 기본 `animate-pulse` 외 효과를 넣지 않는다
+- S-01 스크롤 맨 위로: 새 `layouts/ScrollToTop.jsx`(`useLocation().pathname`이 바뀌고 `useNavigationType() !== 'POP'`이면 `window.scrollTo(0, 0)`, 렌더 없음)를 `UserLayout`·`AdminLayout`에 둔다. `AppRoutes.jsx`는 고정 파일이라 건드리지 않는다. bare 화면(채팅·AI 새 창, 인증)은 한 화면 창이거나 짧아 넣지 않는다. 쿼리스트링만 바뀌는 이동(목록 쪽 번호·검색)은 그대로 둔다
+  - 완료 조건 — 화면: 1280px `/main` 맨 아래에서 푸터 공지사항·자주하는 질문·1:1 문의를 누르면 각 페이지의 `scrollY`가 0이다 / 헤더 GNB로 이동해도 0이다 / 공지 목록을 내려 상세로 간 뒤 브라우저 뒤로가기를 하면 목록의 원래 위치 근처로 돌아간다(브라우저 복원, 0으로 강제하지 않음) / 공지 목록에서 쪽 번호를 눌러도 `ScrollToTop`은 스크롤을 건드리지 않는다(게시판 쪽 번호의 맨 위 이동은 추가-1이 `BoardPagination`에서 함)
+- S-02 공용 스켈레톤 두 개(원시값 props만, 도메인 모름). 화면을 가리는 장식이라 막대는 `aria-hidden`, 감싸는 쪽에 `aria-busy="true"`
+  - `components/Skeleton.jsx`: 막대 하나 또는 여러 줄. props `className`(크기·모양은 Tailwind, 예: `h-5 w-40`), `lines`(여러 줄, 마지막 줄은 짧게). 페이지 안 한 구역(목록·카드·모달·사이드바)에 쓴다
+  - `components/PageSkeleton.jsx`: 페이지 본문 기본형. 위에 짧은 막대 한 줄 + 목록 행 `rows`개(기본 5). 페이지 본문 전체를 대신하던 로딩 분기에 쓴다
+  - 완료 조건 — 명령: `yarn -s lint`, `yarn -s build`
+- S-03 전체 교체(남의 담당 파일 포함, 로딩 분기 한 줄만 바꾼다. 다른 줄은 건드리지 않는다): 본문 전체를 대신하던 곳은 `PageSkeleton`, 페이지 안 한 구역은 `Skeleton`
+  - "불러오는 중이에요" 문구: 고객센터 `NoticeListPage`·`NoticeDetailPage`·`FaqListPage`·`InquiryListPage`(`isPending`·`isFetching` 둘)·`InquiryDetailPage`·`InquiryEditPage`(KSJ) / 건강기록 `HealthSummaryPage`(2)·`HealthDiaryPage`(2)·`CheckupDetailPage`·`CareCalendarPage`·`LabInputPage`·`features/health/CareList`·`features/health/diary/ReceiptResultStep`(JAJ) / `NotificationSettingsPage`·`ChatRoomList`·`ChatConversation`·`AddressShareModal`·`ConversationSidebar`(LJS)
+  - 아무것도 안 그리다 튀어나오던 곳(`return null`·`isPending ? null`): `CheckupListCard`·`ObservationCard`(JAJ), `PetListPage`·`FamilySection`·`SentInvitations`·`InvitationAccept`(SJM) → `Skeleton`
+  - 완료 조건 — 화면: `grep -rn "불러오는 중이에요" src`가 `PlaceMap`의 "지도를 불러오는 중이에요"만 남긴다 / 가짜 API 지연을 잠시 늘려(되돌린다) Playwright로 공지 목록·FAQ·건강 일지·알림 설정·채팅 목록의 로딩 상태를 캡처하면 문구 대신 스켈레톤이 보이고, 내용이 뜰 때 위쪽 요소가 크게 밀리지 않는다 / 1440·390px에서 가로 스크롤이 없다 / 캐시가 있는 두 번째 진입은 스켈레톤 없이 바로 내용이 나온다
+- S-04 담당자 안내: "다음에 할 것"에 `Skeleton`·`PageSkeleton` props·예시, "기본형으로 바꿔 두었으니 높이가 어긋나면 `Skeleton`을 조합해 다듬는다"와 담당별 바뀐 파일 목록을 적는다. PR 전에 디스코드로 알릴 문구(한두 줄)도 같이 적는다
+  - 완료 조건 — 명령: `grep -n "PageSkeleton" handoff/LJS.md`에 안내가 나온다
+- 범위 밖: `ProtectedRoute`의 `return null`(로그인 구현 전이라 쓰이지 않음), 제출 중복 막기용 `if (isPending) return;`(로딩 표시가 아님), `PlaceMap` 지도 로딩 문구(지도 SDK)
+- 결정(사람): 스켈레톤은 기본형까지 만들어 LJS가 전체를 한 번에 교체한다(B안). 세밀한 높이 맞춤은 각 담당
+
+새 의존성: 없음
+
+### 추가 요청
+
+| 번호 | 바꿀 파일 | 완료 조건 | 요청 |
+| --- | --- | --- | --- |
+| 추가-1 | `components/BoardPagination.jsx`(쪽 번호·‹·› 누르면 `onChange` 뒤 `window.scrollTo(0, 0)`. 카드 안 `Pagination`은 그대로) | 명령: `yarn -s lint`, `yarn -s build` / 화면: 1280px `/notices`·`/faqs`·`/inquiries`를 내린 뒤 쪽 번호 [2]를 누르면 `?page=2`이고 `scrollY` 0 / ‹·›도 0 | 요청 2026-10-22 10:51 "페이지네이션 1 → 2쪽 넘어갈 때도 상단으로 올리기" |
+| 추가-2 | `components/Pagination.jsx`(쪽 번호·‹·› 누르면 `onChange` 뒤 `window.scrollTo(0, 0)`, 추가-1과 같은 방식) | 명령: `yarn -s lint`, `yarn -s build` / 화면: 1280px `/mypage/expenses/all`(가계부 전체 내역, SJM)을 내린 뒤 쪽 번호 [2]·‹·›를 누르면 `scrollY` 0 / `/health/diary` 검진 카드(JAJ)의 쪽 번호도 0 | 요청 2026-10-22 11:24 "전체 페이지 다 적용, 맨 위로 올리는 거" |
+| 추가-3 | `docs/convention/ui.md`("로딩 표시" 절: 첫 진입은 겉틀만 남기고 본문 전체 스켈레톤, 화면 안 탭·검색·쪽 이동은 `placeholderData: keepPreviousData`로 이전 내용 유지, 문구·`return null` 금지, 쪽 이동 시 맨 위로) | 명령: `grep -n "keepPreviousData" docs/convention/ui.md`에 나온다 / `grep -n "PageSkeleton" docs/convention/ui.md`에 나온다 | 요청 2026-10-22 11:58 "겉틀 빼고 내부 컨텐츠는 서버 데이터든 아니든 스켈레톤으로 통일, 컨벤션 수정" |
+| 추가-4 | 줄 단위 → 카드 단위 공용 스켈레톤: 새 `components/SkeletonCard.jsx`(흰 카드 + 제목 막대 + 본문 블록, `className`으로 높이·칸), `components/PageSkeleton.jsx`를 `chips`·`tabs`(개수) + 카드(`children`, 없으면 큰 카드 1장)로 바꿈. `pages/health/HealthDiaryPage.jsx`: 첫 진입(펫·일일 기록·지속 관찰 대기)은 칩·탭까지 본문 전체를 대시보드 틀(위 2칸 카드 + 카드 3장) 스켈레톤으로. `features/health/queries.js` `useDailyRecords`·`useObservations`·`useCheckups`에 `placeholderData: keepPreviousData`(펫을 바꿀 때 칩이 사라지지 않게). `docs/convention/ui.md` 로딩 표시 절에 `SkeletonCard` 반영 | 명령: `yarn -s lint`, `yarn -s build` / 화면: 1440px `/health/diary` 첫 진입 로딩 중 칩·탭 자리가 스켈레톤이고, 본문은 위 2칸(1.7:1) 카드 + 아래 카드 3장, 내용이 뜨면 같은 자리에 대시보드가 나온다 / 로딩 뒤 펫 칩을 바꾸면 칩·탭이 사라지지 않는다 / `/notices` 등 다른 화면 로딩은 큰 카드 1장 / 390px 가로 스크롤 없음 | 요청 2026-10-22 12:05 "칩·탭도 스켈레톤, 대시보드 틀처럼 줄 단위가 아니라 카드 단위 공용 스켈레톤" |
+| 추가-5 | `components/PageSkeleton.jsx`에 `top`(칩·탭 위에 놓을 카드, 예: 히어로) 추가. `pages/health/HealthSummaryPage.jsx`: 로딩 두 분기(펫·요약 대기)를 실제 배치 스켈레톤으로 — 히어로 카드, 탭 4개, 구역 머리(제목·설명 막대) 4개, 진료·예방(왼쪽 큰 카드 + 오른쪽 카드 2장), 검사·수치(2칸), 처방·투약(1장), 관찰·첨부(2장) | 명령: `yarn -s lint`, `yarn -s build` / 화면: 1440px `/health` 첫 진입 로딩 중 위 배치가 보이고, 내용이 뜨면 같은 자리에 같은 크기의 카드가 나온다 / 390px 가로 스크롤 없음 | 요청 2026-10-22 12:12 "종합 건강기록 페이지 기준으로 스켈레톤" |
+| 추가-6 | 큰 카드 1장(기본형)이던 페이지 로딩을 각 페이지의 실제 카드 배치로: `pages/health/CareCalendarPage`·`CheckupDetailPage`·`LabInputPage`(JAJ), `pages/notice/NoticeListPage`·`NoticeDetailPage`, `pages/faq/FaqListPage`, `pages/inquiry/InquiryListPage`·`InquiryDetailPage`·`InquiryEditPage`(KSJ), `pages/settings/NotificationSettingsPage`(LJS), `pages/mypage/PetListPage`, `features/pet/invite/InvitationAccept`(SJM). 케어 캘린더는 이번 달·다가오는 일정까지 첫 진입으로 보고(`features/health/queries.js` `useSchedules`에 `keepPreviousData`), 아래 `features/health/CareList`는 카드 자리 `SkeletonCard`로. 배치는 각 페이지 파일 안 작은 함수로, 공용 `PageSkeleton`·`SkeletonCard`·`Skeleton`만 조합. 같은 방법(재기·배치·모바일 높이·첫 진입 조건·빈 상태 금지·확인 기준)을 `docs/convention/ui.md` 로딩 표시 절에 적음 | 명령: `yarn -s lint`, `yarn -s build` / 화면: 1440px에서 위 페이지마다 로딩 중 카드 배치(칩·탭·검색줄·카드 수와 칸)가 다 불러온 화면과 같고, 로딩 중 본문 높이가 다 불러온 화면의 ±20% 안 / 390px 가로 스크롤 없음 | 요청 2026-10-22 12:16 "각각 페이지에 전체 적용, 종합 건강기록·건강 일지처럼" |
+| 추가-7 | `pages/health/CareCalendarPage.jsx`: 이번 달·다가오는 일정 조회가 실패하면 첫 진입 스켈레톤을 끝낸다(`isError`면 기다리지 않음, 실패 뒤 화면은 바꾸기 전과 같음). `docs/convention/ui.md` 로딩 표시 절의 같은 예시·규칙도 고침 | 명령: `yarn -s lint`, `yarn -s build` / 화면: 일정 조회를 실패시키면(Playwright로 `getSchedules` 모듈 응답을 throw로 바꿈) `/health/calendar`가 스켈레톤에 머물지 않고 달력이 나온다 / 정상일 때 로딩 중 높이 비율 ±20% 그대로 | 요청 2026-10-22 13:40 검증 비고 "일정 조회 실패 시 스켈레톤이 끝나지 않음" 고치기로 함(사람이 잠금 해제 후 진행) |
+| 추가-8 | `handoff/LJS.md` 다음에 할 것의 스켈레톤 안내를 지금 상태로: "기본형" → 각 페이지 실제 배치로 바꿔 둠, `PageSkeleton` props에 `top`, 규칙은 `ui.md` 로딩 표시 절 | 명령: `grep -n "top" handoff/LJS.md`에 `PageSkeleton` 안내가 나온다 / 안내에 "기본형으로 바꿔 두었다"가 없다 | 요청 2026-10-22 13:40 검증 비고 "S-04 안내가 추가-6 뒤 상태와 안 맞음" 고치기로 함 |
+
+이전 작업: SCR-CMU-005 우리동네 펫돌봄 채팅 — 끝(검증 `통과` 1회차, 사람 확인 2026-10-22). 결정·추가 요청은 `milestones/LJS.md` 그 절
 
 
 ## 다음에 할 것
+
+- 로딩 스켈레톤 확인(각 담당): "불러오는 중이에요" 문구와 `return null` 로딩 분기를 각 페이지의 실제 카드 배치 스켈레톤으로 바꿔 두었다(LJS, SCR-COM-002, 1440·390px에서 높이 ±20% 확인). 화면 배치를 바꾸면 그 페이지 파일 안 `XxxSkeleton`(또는 로딩 분기)도 같이 고친다. 새 화면·새 로딩 분기는 `docs/convention/ui.md` "로딩 표시" 절대로 만든다
+
+  | 컴포넌트 | props | 쓰는 곳 |
+  | --- | --- | --- |
+  | `@/components/PageSkeleton` | `top`(칩·탭 위 카드, 예: 히어로), `chips`·`tabs`(개수), `children`(카드 배치, 없으면 큰 카드 1장) | 페이지 본문 전체를 대신하는 로딩 |
+  | `@/components/SkeletonCard` | `className`(높이·칸, 기본 `h-64`) | 카드 한 장 자리. 대시보드는 실제 그리드에 놓는다(예: `HealthDiaryPage`) |
+  | `@/components/Skeleton` | `className`(크기·모양, 예: `h-5 w-40`), `lines`(여러 줄, 마지막 줄 짧게) | 카드가 아닌 작은 요소(검색창·버튼·탭 글자·쪽 번호·구역 제목)나 카드 안 한 구역 |
+
+  ```jsx
+  /** 첫 진입: 페이지 파일 안 XxxSkeleton으로 실제 배치 */
+  if (isPending) return <XxxListSkeleton />;
+  function XxxListSkeleton() {
+    return (
+      <PageSkeleton>
+        <Skeleton className="h-12 w-[300px]" /> {/** 검색 줄 */}
+        <SkeletonCard className="h-[754px]" /> {/** 목록 카드 */}
+      </PageSkeleton>
+    );
+  }
+  /** 페이지 안 컴포넌트가 따로 조회: 그 카드와 같은 크기 */
+  if (isPending) return <SkeletonCard className="h-64" />;
+  ```
+
+  - KSJ: `pages/notice/NoticeListPage`·`NoticeDetailPage`, `pages/faq/FaqListPage`, `pages/inquiry/InquiryListPage`(로딩 분기 2곳이 같은 `InquiryListSkeleton`)·`InquiryDetailPage`·`InquiryEditPage`
+  - JAJ: `pages/health/HealthSummaryPage`(`SummarySkeleton`)·`HealthDiaryPage`·`CheckupDetailPage`·`CareCalendarPage`(`CalendarSkeleton`, 일정 실패 시 대기 안 함)·`LabInputPage`, `features/health/CareList`·`diary/ReceiptResultStep`·`diary/CheckupListCard`·`diary/ObservationCard`, `features/health/queries.js`(`useDailyRecords`·`useObservations`·`useCheckups`·`useSchedules`에 `keepPreviousData`)
+  - SJM: `pages/mypage/PetListPage`, `features/pet/list/FamilySection`·`list/SentInvitations`·`invite/InvitationAccept`
+  - 공용(LJS): `components/Pagination`(카드 쪽 번호, 가계부 전체 내역·건강 일지 검진 카드)도 누르면 맨 위로 간다
+  - PR 전 디스코드 알림: "페이지를 이동하면 스크롤이 맨 위로 가도록 `UserLayout`·`AdminLayout`에 넣었어요(뒤로가기는 원래 위치로 돌아가요). 쪽 번호(`BoardPagination`·`Pagination`)를 눌러도 맨 위로 가요. 첫 진입에 깜빡이던 '불러오는 중이에요'와 로딩 중 `return null`은 각 페이지의 실제 카드 배치 스켈레톤(`PageSkeleton`·`SkeletonCard`·`Skeleton`)으로 바꿨어요. 위 파일들이 바뀌었으니 화면 배치를 바꾸면 그 페이지의 `XxxSkeleton`도 같이 고쳐 주세요. 규칙은 `docs/convention/ui.md` '로딩 표시' 절, 사용법은 `handoff/LJS.md`에 있어요"
 
 - SCR-CMU-005·COM-009 연결 남음: 채팅·매칭 API(KSJ, 백엔드 `docs/api/community.md`)로 `features/chat/api.js` 가짜를 바꾸고 가짜 읽음 위치 `localStorage['fake-chat-read-seq']` 코드를 지운다. 붙인 뒤 `room/FakePeerTools.jsx`·`fakePeerAct`·`/dev/chat`(`pages/dev/ChatDevPage.jsx`)·`fakeChat*` 쿼리 코드를 지운다. 009-18 알림 억제는 서버(YAY). 장소 검색은 YAY(`searchChatPlaces` → `GET /places`, 주소 검색 범위는 백엔드 issues 99번 13)
 - KSJ에 물을 것(CMU-005 가짜가 추정한 것): ① 목록 `ChatRoomSummary`에 내 역할(`myRole`)·거래 상태(`mtchDlngSttsCd`)가 없다(탭·배지에 필요) ② 방 응답에 모집글 일정·비용 요약이 없다(카드 펼침 `rcrtSummary`) ③ 메시지 보낸 시각 필드(사람이 DDL 확인 후 정함) ④ 시스템 안내 메시지 유형과 강조(`sysToneCd`), 요청 취소 사유 표시(`tagCn`) ⑤ 주소 공유 필드 배치(가짜는 `shrnAddr`=장소, `msgCn`=상세 주소) ⑥ 매칭 요청 `CareMatchCreateRequest`의 조건 필드를 화면이 어디서 받나(시안은 "현재 모집글 조건으로 요청") ⑦ 완료 요청이 입력 없이 가능한지(백엔드는 회차·종료 시각·내용·사진을 받는다) ⑧ 채팅방 나가기·다시 요청·무응답 종료 API 없음(백엔드 issues 17) ⑨ 사진 업로드 방식(issues 15)

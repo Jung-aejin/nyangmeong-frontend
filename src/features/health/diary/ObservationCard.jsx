@@ -3,6 +3,7 @@ import Badge from '@/components/Badge';
 import Card from '@/components/Card';
 import Icon from '@/components/Icon';
 import Modal from '@/components/Modal';
+import SkeletonCard from '@/components/SkeletonCard';
 import {
   BTN_DANGER,
   BTN_PRIMARY,
@@ -71,7 +72,13 @@ export default function ObservationCard({ petSn }) {
     </button>
   );
 
-  if (isPending) return null;
+  if (isPending) {
+    return (
+      <div aria-busy="true" className="min-w-0">
+        <SkeletonCard className="h-[943px] max-[760px]:h-[1423px]" />
+      </div>
+    );
+  }
 
   return (
     <Card

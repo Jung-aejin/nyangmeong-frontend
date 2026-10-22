@@ -1,4 +1,7 @@
 import { useState } from 'react';
+import PageSkeleton from '@/components/PageSkeleton';
+import Skeleton from '@/components/Skeleton';
+import SkeletonCard from '@/components/SkeletonCard';
 import CareList from '@/features/health/CareList';
 import MonthCalendar from '@/features/health/MonthCalendar';
 import PetFilterChips from '@/features/health/PetFilterChips';
@@ -40,19 +43,24 @@ export default function CareCalendarPage() {
   } = usePets();
   const year = getYear(viewMonthYmd);
   const month = getMonth(viewMonthYmd);
-  const { data: monthData } = useSchedules({
+  const { data: monthData, isError: isMonthError } = useSchedules({
     startYmd: viewMonthYmd,
     endYmd: makeYmd(year, month, getDaysInMonth(year, month)),
   });
-  const { data: upcomingData } = useSchedules({
+  const { data: upcomingData, isError: isUpcomingError } = useSchedules({
     startYmd: todayYmd,
     endYmd: addDays(todayYmd, UPCOMING_RANGE_DAYS),
   });
 
-  if (isPetsPending)
+  /** 첫 진입: 반려동물·이번 달·다가오는 일정이 모두 올 때까지 */
+  if (
+    isPetsPending ||
+    (!monthData && !isMonthError) ||
+    (!upcomingData && !isUpcomingError)
+  )
     return (
       <PageFrame>
-        <p className="text-[#566465]">불러오는 중이에요</p>
+        <CalendarSkeleton />
       </PageFrame>
     );
   if (isPetsError) {
@@ -155,6 +163,27 @@ export default function CareCalendarPage() {
         />
       )}
     </PageFrame>
+  );
+}
+
+/** 로딩 자리: 달력 + 오른쪽 카드 2장, 반려동물 칩, 케어 목록 */
+function CalendarSkeleton() {
+  return (
+    <PageSkeleton>
+      <div className="grid gap-5 min-[1101px]:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+        <SkeletonCard className="h-[624px]" />
+        <div className="flex flex-col gap-5">
+          <SkeletonCard className="h-[262px]" />
+          <SkeletonCard className="h-[342px]" />
+        </div>
+      </div>
+      <div aria-hidden="true" className="mt-2 flex gap-2">
+        {[0, 1, 2].map((index) => (
+          <Skeleton key={index} className="h-9 w-28 rounded-full" />
+        ))}
+      </div>
+      <SkeletonCard className="h-[1538px] max-[760px]:h-[2400px]" />
+    </PageSkeleton>
   );
 }
 
