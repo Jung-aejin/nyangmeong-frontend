@@ -74,10 +74,25 @@ export const useCreatePost = () => useInvalidatingMutation(createPost);
 export const useUpdatePost = () => useInvalidatingMutation(updatePost);
 export const useDeletePost = () => useInvalidatingMutation(deletePost);
 export const useTogglePostLike = () => useInvalidatingMutation(togglePostLike);
-export const useCreateComment = () => useInvalidatingMutation(createComment);
-export const useDeleteComment = () => useInvalidatingMutation(deleteComment);
+/** 댓글 영역(CommentSection)은 게시판 종류를 몰라 targetSn으로 받는다 */
+export const useCreateComment = () =>
+  useInvalidatingMutation(({ targetSn, ...rest }) =>
+    createComment({ pstSn: targetSn, ...rest }),
+  );
+export const useDeleteComment = () =>
+  useInvalidatingMutation(({ targetSn, cmntSn }) =>
+    deleteComment({ pstSn: targetSn, cmntSn }),
+  );
 
 /** 신고는 화면이 바뀌지 않아 다시 받지 않는다 */
 export const useReportPost = () => useMutation({ mutationFn: reportPost });
 export const useReportComment = () =>
   useMutation({ mutationFn: reportComment });
+
+/** CommentSection에 넘기는 펫이야기 댓글 훅 묶음 */
+export const postCommentHooks = {
+  useComments,
+  useCreateComment,
+  useDeleteComment,
+  useReportComment,
+};

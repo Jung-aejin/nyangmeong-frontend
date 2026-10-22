@@ -5,6 +5,14 @@ const PostListPage = lazy(() => import('@/pages/community/PostListPage'));
 const PostDetailPage = lazy(() => import('@/pages/community/PostDetailPage'));
 const PostWritePage = lazy(() => import('@/pages/community/PostWritePage'));
 const PostEditPage = lazy(() => import('@/pages/community/PostEditPage'));
+const MissingListPage = lazy(() => import('@/pages/community/MissingListPage'));
+const MissingDetailPage = lazy(
+  () => import('@/pages/community/MissingDetailPage'),
+);
+const MissingWritePage = lazy(
+  () => import('@/pages/community/MissingWritePage'),
+);
+const MissingEditPage = lazy(() => import('@/pages/community/MissingEditPage'));
 const NewsListPage = lazy(() => import('@/pages/news/NewsListPage'));
 const NewsDetailPage = lazy(() => import('@/pages/news/NewsDetailPage'));
 
@@ -18,6 +26,10 @@ export default [
       { path: PATHS.COMMUNITY_POST_NEW, Component: PostWritePage },
       { path: PATHS.COMMUNITY_POST_DETAIL, Component: PostDetailPage },
       { path: PATHS.COMMUNITY_POST_EDIT, Component: PostEditPage },
+      { path: PATHS.COMMUNITY_MISSING, Component: MissingListPage },
+      { path: PATHS.COMMUNITY_MISSING_NEW, Component: MissingWritePage },
+      { path: PATHS.COMMUNITY_MISSING_DETAIL, Component: MissingDetailPage },
+      { path: PATHS.COMMUNITY_MISSING_EDIT, Component: MissingEditPage },
       { path: PATHS.COMMUNITY_NEWS, Component: NewsListPage },
       { path: PATHS.COMMUNITY_NEWS_DETAIL, Component: NewsDetailPage },
     ],
