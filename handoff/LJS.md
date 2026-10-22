@@ -2,20 +2,23 @@
 
 ## 지금 하는 것
 
-SCR-COM-009 채팅 셸 — 새 창 (2026-10-21) — 상태: 끝 (검증 `통과` 3회차, 사람 확인 2026-10-21)
+SCR-CMU-005 우리동네 펫돌봄 채팅 (2026-10-22) — 상태: 끝 (검증 `통과` 1회차, 사람 확인 2026-10-22)
 
-- 결정(사람): 모달이 아니라 별도 브라우저 창 `/chat`(`docs/routes.md` 36행). 모달 파일 5개(`layouts/ChatModal*`·`context/ChatModal*`·`constants/chatModal.js`) 삭제
-- 만든 것: `hooks/useChatWindow.js`(창 이름 `nyangmeong-chat`, `open({ otoChatRoomSn?, pstSn? })`·`closeChatWindow()`), `pages/chat/ChatPage.jsx`, `features/chat/`(가짜 `api.js`·`queries.js`·`room/` 목록·대화·입력), 헤더 배지 연결, 알림·로그아웃·AI 창 연결, `/dev/chat`
-- 추가-1 탭이 아닌 팝업 창(1040x780, 본창 가운데). macOS 전체 화면이면 Chrome이 팝업을 탭으로 연다(코드로 못 바꿈)
-- 추가-2 주소창으로 직접 연 `/chat`은 `window.close()`가 막혀 [✕]가 `/main`으로 이동
+- 결정(사람): 창 760x780(시안의 한 칸 화면), 완료 요청은 입력 없이(명세·시안대로). 메시지 보낸 시각은 DDL 확인 뒤 정한다 — 지금은 시각 없이 만들고 `msgDt`가 있으면 그린다
+- 디자인: `html/SCR-CMU-005.html` + `html/SCR-CMU-005/`(사람이 준 `nmcare-design-v4-1`에서 복사). 주소 공유 모달만 시안에 없어 화면설계서 기준
+- 만든 것: `/chat` 한 칸 화면(목록 → 방, ‹ 복귀), 목록 탭·글별 보기·거래 상태 배지, 거래 카드(`room/CareDealCard.jsx`·`dealSteps.js`: 상태 9종 × 역할 2개), 사진 첨부·주소 공유 모달, 방 상단 바·나가기, 가짜 API 확장(`features/chat/api.js`), 코드값 한 곳(`shared/chatCodes.js`)
+- 열기: `open({ listPstSn })`가 그 글의 채팅만 보여 준다(`?pstSn=`은 방 만들기에 이미 써서 다른 이름). 확인은 `/dev/chat`의 거래 상태별 방 링크(상대 동작 버튼은 `&fakeChatTools=1`)
 
-이전 작업: 공용 페이지 머리(경로 › 제목)·사이드 메뉴 — 끝(검증 `통과` 1회차, 사람 확인 2026-10-21). 사용법은 아래 다음에 할 것
+이전 작업: SCR-COM-009 채팅 셸 — 새 창 — 끝(검증 `통과` 3회차, 사람 확인 2026-10-21). 결정·추가 요청은 `milestones/LJS.md` 그 절
+
 
 ## 다음에 할 것
 
-- SCR-COM-009 연결 남음: 채팅 API(KSJ, 백엔드 `docs/api/community.md`)로 `features/chat/api.js` 가짜를 바꾸고 가짜 읽음 위치 `localStorage['fake-chat-read-seq']` 코드를 지운다. KSJ에 물을 것: `ChatMessageSummary`에 보낸 시각 필드가 없다(말풍선 시간·날짜 구분 못 그림). 009-18 알림 억제는 서버(YAY). 게시글 [채팅하기](SCR-CMU-004, KSJ)는 `useChatWindow()`의 `open({ pstSn })`를 클릭 핸들러에서 바로 부른다(요청을 기다린 뒤 열면 팝업 차단). 붙인 뒤 `/dev/chat`(`pages/dev/ChatDevPage.jsx`)을 지운다
-- 사람이 고치는 문서(SCR-COM-009): 기능명세서 v0.4 FN-COM-009-03 "새 창이 아닌 모달" → 별도 창, 009-09·11·12와 화면설계서 v0.7 SCR-COM-009의 모달 문구도 같이. 백엔드 저장소 `docs/convention/milestone.md` 담당 표에 채팅 화면 LJS 이관 반영
-- SCR-COM-009 남은 화면 일: 390px에서 `/chat` 목록 `w-[380px]` 고정이라 가로로 넘친다(모바일 전체 화면은 명세 미결). 목록 시간이 날짜만 나온다(Figma는 오늘 `HH:mm`·어제 `어제`, `utils/formatDate.js`에 함수 추가 필요). 디자인의 [내 글]·[지원한 글] 탭과 역할·거래 상태 배지는 목록 API에 필드가 없어 CMU-005에서
+- SCR-CMU-005·COM-009 연결 남음: 채팅·매칭 API(KSJ, 백엔드 `docs/api/community.md`)로 `features/chat/api.js` 가짜를 바꾸고 가짜 읽음 위치 `localStorage['fake-chat-read-seq']` 코드를 지운다. 붙인 뒤 `room/FakePeerTools.jsx`·`fakePeerAct`·`/dev/chat`(`pages/dev/ChatDevPage.jsx`)·`fakeChat*` 쿼리 코드를 지운다. 009-18 알림 억제는 서버(YAY). 장소 검색은 YAY(`searchChatPlaces` → `GET /places`, 주소 검색 범위는 백엔드 issues 99번 13)
+- KSJ에 물을 것(CMU-005 가짜가 추정한 것): ① 목록 `ChatRoomSummary`에 내 역할(`myRole`)·거래 상태(`mtchDlngSttsCd`)가 없다(탭·배지에 필요) ② 방 응답에 모집글 일정·비용 요약이 없다(카드 펼침 `rcrtSummary`) ③ 메시지 보낸 시각 필드(사람이 DDL 확인 후 정함) ④ 시스템 안내 메시지 유형과 강조(`sysToneCd`), 요청 취소 사유 표시(`tagCn`) ⑤ 주소 공유 필드 배치(가짜는 `shrnAddr`=장소, `msgCn`=상세 주소) ⑥ 매칭 요청 `CareMatchCreateRequest`의 조건 필드를 화면이 어디서 받나(시안은 "현재 모집글 조건으로 요청") ⑦ 완료 요청이 입력 없이 가능한지(백엔드는 회차·종료 시각·내용·사진을 받는다) ⑧ 채팅방 나가기·다시 요청·무응답 종료 API 없음(백엔드 issues 17) ⑨ 사진 업로드 방식(issues 15)
+- 게시글 상세(SCR-CMU-004, KSJ): [채팅하기]는 `useChatWindow()`의 `open({ pstSn })`, 보호자 [채팅 목록 보기]는 `open({ listPstSn })`를 클릭 핸들러에서 바로 부른다(요청을 기다린 뒤 열면 팝업 차단)
+- 사람이 고치는 문서: 기능명세서 v0.4 FN-COM-009-03 "새 창이 아닌 모달" → 별도 창, 009-09·11·12와 화면설계서 v0.7 SCR-COM-009의 모달 문구. 커뮤니티 기능명세서 v0.7 FN-CMU-005-01 "채팅 모달"·화면설계서 v0.7 SCR-CMU-005 모달 문구(시안은 한 칸 새 창). 백엔드 저장소 `docs/convention/milestone.md` 담당 표에 채팅 화면 LJS 이관 반영
+- SCR-CMU-005 남은 화면 일(선택): 거래 버튼을 아주 빠르게 두 번 누르면 두 번째 요청이 서버에 가 거절 토스트가 뜬다(`useDealAction`의 `onSettled`가 `invalidateQueries`를 반환하지 않음). 메시지 시각·날짜 구분선은 `msgDt`가 정해지면 `ChatConversation.jsx`에 날짜 구분선 추가
 - 공용 페이지 머리·사이드 메뉴 적용(각 담당): 화면을 `@/layouts/SubPageLayout`으로 감싸고, 파일 안의 `PageFrame`·`Chevron`·픽셀 그림·`SideMenu` 호출을 지운다. 메뉴 이름·순서·그림은 `layouts/subMenus.js`(`SUB_MENUS`)만 고친다. 옮길 화면: 건강기록 4개(`HealthSummaryPage`·`HealthDiaryPage`·`CareCalendarPage`·`CheckupDetailPage`, JAJ), 마이페이지(SJM), 고객센터 `CustomerCenterLayout`(KSJ), 커뮤니티(KSJ, 화면 만들 때). 모두 옮기면 `SideMenu`의 `menuLabel` 호환과 `/dev/sub-page`(`pages/dev/SubPageDevPage.jsx`)를 지운다
 
   | prop | 기본값 | 하는 일 |

@@ -209,7 +209,7 @@ export default function PlaceMap({
           onClick={onResearch}
           className={`absolute left-1/2 top-[72px] z-[2] inline-flex h-11 -translate-x-1/2 items-center gap-1.5 rounded-md px-5 font-semibold text-brand-600 max-md:top-[164px] ${floatCard}`}
         >
-          <RefreshCw className="size-5" />이 지역에서 다시 검색
+          <RefreshCw className="size-5" />이 지도 영역에서 다시 검색
         </button>
       )}
 

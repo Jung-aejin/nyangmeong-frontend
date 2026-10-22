@@ -91,7 +91,7 @@ export default function AttachmentTab({
               pathname: generatePath(PATHS.HEALTH_CHECKUP_INSPECTIONS, {
                 ckupRcdSn,
               }),
-              search: '?mode=pdf',
+              search: `?mode=pdf&atch=${attachment.atchSn}`,
             },
             { state: { analyzedItems: result.items } },
           ),
