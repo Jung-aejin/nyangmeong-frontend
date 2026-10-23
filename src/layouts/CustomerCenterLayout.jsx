@@ -1,95 +1,41 @@
-import { ChevronRight } from 'lucide-react';
-import { Link, NavLink, Outlet, useLocation, useMatch } from 'react-router-dom';
-import pixelHead from '@/assets/csc_header_pixel.svg';
+import { Outlet, useLocation, useMatch } from 'react-router-dom';
 import { PATHS } from '@/routes/paths';
+import SubPageLayout from './SubPageLayout';
 
-/** 고객센터 메뉴: description은 화면별 Figma 부제가 있을 때만 */
-const MENUS = [
-  {
-    label: '공지사항',
-    to: PATHS.NOTICES,
-    description: '냥멍케어의 새로운 소식과 서비스 안내를 알려 드려요',
-  },
-  {
-    label: '자주 묻는 질문',
-    to: PATHS.FAQS,
-    description: '궁금한 점을 빠르게 찾아보세요',
-  },
-  {
-    label: '1:1 문의',
-    to: PATHS.INQUIRIES,
-    description: '궁금한 점을 남겨 주시면 확인 후 답변을 알림으로 보내 드려요',
-  },
-];
+/** 메뉴별 부제(Figma에 있는 것만). 메뉴 이름·순서는 subMenus.js(support) */
+const DESCRIPTIONS = {
+  [PATHS.NOTICES]: '냥멍케어의 새로운 소식과 서비스 안내를 알려 드려요',
+  [PATHS.FAQS]: '궁금한 점을 빠르게 찾아보세요',
+  [PATHS.INQUIRIES]:
+    '궁금한 점을 남겨 주시면 확인 후 답변을 알림으로 보내 드려요',
+};
 
+/**
+ * [고객센터 틀]
+ * - 공지사항·FAQ·1:1 문의가 한 틀을 공유한다(라우트의 부모 틀, 화면은 Outlet)
+ * - 경로·사이드 메뉴·페이지 머리는 공용 SubPageLayout. 여기서는 선택 메뉴·제목·부제만 정한다
+ */
 export default function CustomerCenterLayout() {
   const { pathname } = useLocation();
-  const current = MENUS.find((menu) => pathname.startsWith(menu.to));
-  /** 1:1 문의 작성·수정은 제목 뒤에 한 단계 더 붙는다 */
+  /** 상세·작성·수정도 소속 메뉴를 선택 상태로 */
+  const menu = Object.keys(DESCRIPTIONS).find((to) => pathname.startsWith(to));
+  /** 1:1 문의 작성·수정은 경로에 한 단계 더 붙는다 */
   const isInquiryNew = useMatch(PATHS.INQUIRY_NEW);
   const isInquiryEdit = useMatch(PATHS.INQUIRY_EDIT);
-  let subTitle = null;
-  if (isInquiryNew) subTitle = '문의 작성';
-  if (isInquiryEdit) subTitle = '문의 수정';
+  let title;
+  if (isInquiryNew) title = '문의 작성';
+  if (isInquiryEdit) title = '문의 수정';
 
   return (
-    <div className="pt-6">
-      <header className="relative mb-10 max-[760px]:mb-6">
-        <h1 className="flex items-center text-[28px] leading-[1.2] max-[760px]:text-2xl">
-          <span className="font-normal text-[#566465]">고객센터</span>
-          <ChevronRight size={20} className="mx-1 text-[#b9c4c4]" />
-          {subTitle ? (
-            <>
-              <Link to={current.to} className="font-normal text-[#566465]">
-                {current.label}
-              </Link>
-              <ChevronRight size={20} className="mx-1 text-[#b9c4c4]" />
-              <span className="font-bold text-[#1a3234]">{subTitle}</span>
-            </>
-          ) : (
-            <span className="font-bold text-[#1a3234]">{current?.label}</span>
-          )}
-        </h1>
-        {current?.description && (
-          <p className="mt-2 text-base leading-[1.6] text-[#566465]">
-            {current.description}
-          </p>
-        )}
-        <img
-          src={pixelHead}
-          alt=""
-          className="absolute -top-2.5 right-0 w-40 max-[760px]:hidden"
-        />
-      </header>
-
-      <div className="grid grid-cols-[226px_1fr] gap-8 max-[1100px]:grid-cols-[160px_1fr] max-[1100px]:gap-6 max-[760px]:grid-cols-1 max-[760px]:gap-4">
-        <aside className="-mt-[7px] max-[760px]:mt-0">
-          <nav
-            aria-label="고객센터 메뉴"
-            className="max-[760px]:flex max-[760px]:gap-5 max-[760px]:overflow-x-auto"
-          >
-            {MENUS.map((menu) => (
-              <NavLink
-                key={menu.to}
-                to={menu.to}
-                className={({ isActive }) =>
-                  `flex items-center gap-1 py-2.5 text-base leading-normal max-[760px]:shrink-0 max-[760px]:whitespace-nowrap ${isActive ? 'font-bold text-[#2f6f57]' : 'font-medium text-[#3d4a4b]'}`
-                }
-              >
-                {({ isActive }) => (
-                  <>
-                    {menu.label}
-                    {isActive && <ChevronRight size={18} />}
-                  </>
-                )}
-              </NavLink>
-            ))}
-          </nav>
-        </aside>
-        <section className="min-w-0">
-          <Outlet />
-        </section>
-      </div>
-    </div>
+    <SubPageLayout
+      section="support"
+      menu={menu}
+      title={title}
+      back={false}
+      description={DESCRIPTIONS[menu]}
+      contentClassName="min-[1101px]:pt-4"
+    >
+      <Outlet />
+    </SubPageLayout>
   );
 }
