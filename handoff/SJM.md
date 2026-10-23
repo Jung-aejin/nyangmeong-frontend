@@ -2,8 +2,24 @@
 
 ## 지금 하는 것
 
-SCR-MYP-001 마이페이지 홈 — 끝 (승인 2026-10-22 13:30, 검증 통과, 추가 요청 1건, 사람 확인 완료)
-`/mypage`에 요약 3칸(포인트·이번달 지출액·오늘의 케어미션)과 내 반려동물 카드(대표·공동양육·오류 확인 중 배지, 6마리 + 더보기, 0마리 안내)를 가짜 API로 만들었다. 코드는 `pages/mypage/MyPageHomePage.jsx`, `features/{point,expense,pet}/home/`, 공용 `components/StatLink.jsx`다. 추가-1: 포인트 칸 아이콘을 돼지 저금통에서 P 글자로 바꿨다(요청 2026-10-22)
+SCR-MYP-001 연결: 캐릭터 얼굴 이미지 API 연결과 `PetFace` 묶음 — 기획 (시작 2026-10-23 13:59, 승인 전)
+고른 이유: "다음에 할 것" 맨 위. 백엔드 develop에 `GET /pets/{petSn}/character-image?part=face`(LJS, 이미지 파일, 미생성·오류 확인 중이면 종별 기본 캐릭터)가 생겼다.
+기준: 마이페이지_기능명세서_v0.4_20261021 FN-MYP-001-01·FN-MYP-002-02(원형에 착용 아이템 없는 얼굴, 미생성·오류=종별 기본 얼굴), 백엔드 `docs/api/pet.md`
+디자인: 없음(새 화면이 아니라 기존 얼굴 자리에 이미지만 넣는다. 모양·크기는 지금 화면 그대로)
+
+- FN-MYP-001-01·FN-MYP-002-02 캐릭터 얼굴
+  - 바꿀 파일: `features/pet/api.js`(`getCharacterImage(petSn, part)` 실제 요청: `responseType: 'blob'`, `skipAuthRedirect: true`. 가짜 데이터의 `chrcFaceUrl`과 미정 키 주석 삭제), `features/pet/queries.js`(`petKeys.characterImage`, `useCharacterImage(petSn, part)`: Blob을 받아 object URL로 돌려주고 바뀌거나 사라질 때 revoke, `retry: false`), 새 `features/pet/shared/PetFace.jsx`(종별 기본 얼굴 아이콘을 먼저 그리고 이미지가 오면 덮는다. props `pet`, `className`(크기·모양), `iconClassName`, `alt`), `features/pet/home/PetMiniCard.jsx`·`features/pet/list/PetSlide.jsx`(안쪽 `PetFace` 함수 삭제)·`features/pet/PetProfileCard.jsx`가 `PetFace`를 쓰게 바꾼다. 홈 카드의 톤 바탕·오류 흑백은 `PetMiniCard`가 `className`으로 넘긴다
+  - 부를 API: `GET /pets/{petSn}/character-image?part=face` (LJS, 백엔드에 있음). 보호 파일 규칙대로 `api.get` Blob으로 받고 `<img src>`에 API 경로를 넣지 않는다
+  - 로그인(AIC) 전이라 실제 요청은 401로 실패한다. `skipAuthRedirect`로 랜딩 이동을 막고 실패하면 기본 얼굴을 그대로 둔다. 다른 pet API는 가짜 그대로라 가짜 `petSn`으로 요청이 간다
+  - 완료 조건
+    - 명령: `yarn -s lint`, `yarn -s build`
+    - 화면: `/mypage`·`/mypage/pets`·메인(`PetProfileCard`)에서 얼굴 요청이 실패해도 랜딩으로 튕기지 않고 지금과 같은 종별 기본 얼굴(홈은 톤 바탕·오류 흑백 유지)이 보인다. 네트워크에 `/api/pets/{petSn}/character-image?part=face` 요청이 동물마다 1번 간다
+    - 화면: Playwright에서 그 경로를 이미지로 가로채면(route) 원형(홈 64px·슬라이드 112px)·둥근 사각형(프로필 카드 80px) 안에 이미지가 채워진다
+- 범위 밖: 전신(`part=full`) 이미지로 캐릭터 카드·꾸미기 미리보기(`chrcImgUrl`) 바꾸기는 SCR-MYP-010 연결(캐릭터 목록 `GET /pixel-characters` 등)과 같이 한다
+
+질문: 반려동물 관리 카드를 전신 캐릭터로 바꿀지(핸드오프 결정 남음). 명세(FN-MYP-002-02)는 원형에 얼굴이라 이번엔 얼굴(`part=face`)·지금 모양 그대로 간다. (추천: 명세대로 얼굴 유지, 전신 여부는 팀 결정 뒤 `PetFace` 모양만 바꾼다)
+
+새 의존성: 없음
 
 ## 다음에 할 것
 - SCR-MYP-001 연결 남음: 캐릭터 이미지 API(LJS)가 나오면 홈 카드 얼굴(`chrcFaceUrl`)을 실제 이미지로 바꾼다. 그때 기본 얼굴(종별 아이콘·톤 바탕·오류 흑백)을 `features/pet/shared/PetFace.jsx`로 묶어 `PetMiniCard`·`PetProfileCard`·`PetSlide`가 같이 쓰게 한다. 지금은 `PetMiniCard`가 따로 그린다(기획은 재사용이었으나 `PetProfileCard`의 얼굴이 80px 둥근 사각형 JSX라 그대로 쓸 수 없었다)
