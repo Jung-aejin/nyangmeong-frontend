@@ -121,7 +121,8 @@ export const getHealthSummary = async (petSn) => {
     })),
   );
 
-  const profile = fakeProfiles[petSn];
+  // ?fakePets=8로 늘어난 반려동물은 앞 세 마리 프로필을 돌려 쓴다
+  const profile = fakeProfiles[petSn] ?? fakeProfiles[((petSn - 1) % 3) + 1];
   const [{ content: dailyRecords }, { content: observationItems }] =
     await Promise.all([
       getDailyRecords({ petSn }),
