@@ -2,12 +2,11 @@
 
 ## 지금 하는 것
 
-SCR-COM-009 채팅 모달 복귀 · 새 창으로 띄우기 — 끝 (검증 `통과`, 사람 확인 2026-10-22). 기획·결정·추가 요청 1~2는 `milestones/LJS.md` 그 절
+SCR-COM-009 채팅 모달 남은 것 + 서브 화면 경로 시안 반영 — 끝 (검증 `통과` 2회차, 사람 확인 2026-10-23). 기획·결정·추가 요청은 `milestones/LJS.md` 그 절
 
 ## 다음에 할 것
 
-- SCR-COM-009 채팅 모달 남은 것(검증 비고, 선택): ① 모달 위에 알림 드롭다운을 연 채 Esc를 누르면 모달도 닫힌다 ② AI 플로팅·TOP 버튼(`FloatingButtons` z-30)이 딤 위에 보인다(시안은 딤 아래) ③ 1440x900에서 모달 위 4px가 헤더(64px)에 가린다 ④ 시안의 목록 선택 방 강조(`ChatRoomList.jsx`)는 안 했다
-
+- 서브 화면 경로(SCR-COM-002 B-01) 확인 남음(각 담당 화면, 선택): 761~1100px 폭과 건강기록(JAJ)·마이페이지(SJM)·고객센터(KSJ) 실제 화면에서 경로 줄·섹션 제목 위치를 한 번 본다. 공용 틀(`SubPageHead`·`SubPageLayout`·`SideMenu`)을 고쳤다. 사이드 메뉴 이탈 확인(`onLeave`)이 develop 병합 뒤에도 되는지 글쓰기 화면에서 본다
 - SCR-COM-002 PR 전: 아래 디스코드 알림을 보내고, `docs/convention/ui.md` "로딩 표시" 절 변경을 팀과 합의한다. KSJ에 알릴 것: `useNotices`·`useFaqs`·`useInquiries`에 `placeholderData: keepPreviousData`(탭·검색·쪽 이동 때 이전 내용 유지), 390px `/faqs` 카테고리 탭 줄 때문에 가로 스크롤(범위 밖, 다 불러온 뒤)
 
 - 로딩 스켈레톤 확인(각 담당): "불러오는 중이에요" 문구와 `return null` 로딩 분기를 각 페이지의 실제 카드 배치 스켈레톤으로 바꿔 두었다(LJS, SCR-COM-002, 1440·390px에서 높이 ±20% 확인). 화면 배치를 바꾸면 그 페이지 파일 안 `XxxSkeleton`(또는 로딩 분기)도 같이 고친다. 새 화면·새 로딩 분기는 `docs/convention/ui.md` "로딩 표시" 절대로 만든다

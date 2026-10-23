@@ -43,6 +43,7 @@ export default function ChatPanes({
         <ChatRoomList
           isHidden={isNarrow && isRoomPane}
           listPstSn={listPstSn}
+          selectedRoomSn={otoChatRoomSn}
           onClearPost={onClearPost}
           onSelect={onSelect}
         />
