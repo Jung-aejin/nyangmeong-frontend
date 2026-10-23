@@ -2,12 +2,11 @@
 
 ## 지금 하는 것
 
-SCR-COM-009 채팅 모달 복귀 · 새 창으로 띄우기 — 끝 (검증 `통과`, 사람 확인 2026-10-22). 기획·결정·추가 요청 1~2는 `milestones/LJS.md` 그 절
+SCR-COM-002 건강기록 4개 화면 + 고객센터 공용 페이지 머리 적용 — 끝 (검증 `통과`, 사람 확인 2026-10-23). 기획·결정·추가 요청은 `milestones/LJS.md` 그 절
 
 ## 다음에 할 것
 
-- SCR-COM-009 채팅 모달 남은 것(검증 비고, 선택): ① 모달 위에 알림 드롭다운을 연 채 Esc를 누르면 모달도 닫힌다 ② AI 플로팅·TOP 버튼(`FloatingButtons` z-30)이 딤 위에 보인다(시안은 딤 아래) ③ 1440x900에서 모달 위 4px가 헤더(64px)에 가린다 ④ 시안의 목록 선택 방 강조(`ChatRoomList.jsx`)는 안 했다
-
+- 서브 화면 경로(SCR-COM-002 B-01) 확인 남음(각 담당 화면, 선택): 761~1100px 폭과 건강기록(JAJ)·마이페이지(SJM)·고객센터(KSJ) 실제 화면에서 경로 줄·섹션 제목 위치를 한 번 본다. 공용 틀(`SubPageHead`·`SubPageLayout`·`SideMenu`)을 고쳤다. 사이드 메뉴 이탈 확인(`onLeave`)이 develop 병합 뒤에도 되는지 글쓰기 화면에서 본다
 - SCR-COM-002 PR 전: 아래 디스코드 알림을 보내고, `docs/convention/ui.md` "로딩 표시" 절 변경을 팀과 합의한다. KSJ에 알릴 것: `useNotices`·`useFaqs`·`useInquiries`에 `placeholderData: keepPreviousData`(탭·검색·쪽 이동 때 이전 내용 유지), 390px `/faqs` 카테고리 탭 줄 때문에 가로 스크롤(범위 밖, 다 불러온 뒤)
 
 - 로딩 스켈레톤 확인(각 담당): "불러오는 중이에요" 문구와 `return null` 로딩 분기를 각 페이지의 실제 카드 배치 스켈레톤으로 바꿔 두었다(LJS, SCR-COM-002, 1440·390px에서 높이 ±20% 확인). 화면 배치를 바꾸면 그 페이지 파일 안 `XxxSkeleton`(또는 로딩 분기)도 같이 고친다. 새 화면·새 로딩 분기는 `docs/convention/ui.md` "로딩 표시" 절대로 만든다
@@ -44,7 +43,7 @@ SCR-COM-009 채팅 모달 복귀 · 새 창으로 띄우기 — 끝 (검증 `통
 - 게시글 상세(SCR-CMU-004, KSJ): [채팅하기]는 `@/context/chatModal`의 `useChatModal().open({ pstSn })`, 보호자 [채팅 목록 보기]는 `open({ listPstSn })`로 채팅 모달을 연다(SCR-COM-009 채팅 모달 복귀, 2026-10-22). 모달의 [새 창으로 띄우기]가 새 창을 연다
 - 사람이 고치는 문서: 백엔드 저장소 `docs/convention/milestone.md` 담당 표에 채팅 화면 LJS 이관 반영(채팅은 다시 모달, 2026-10-22. 명세 FN-COM-009-03 "모달"과 맞다)
 - SCR-CMU-005 남은 화면 일(선택): 거래 버튼을 아주 빠르게 두 번 누르면 두 번째 요청이 서버에 가 거절 토스트가 뜬다(`useDealAction`의 `onSettled`가 `invalidateQueries`를 반환하지 않음). 메시지 시각·날짜 구분선은 `msgDt`가 정해지면 `ChatConversation.jsx`에 날짜 구분선 추가
-- 공용 페이지 머리·사이드 메뉴 적용(각 담당): 화면을 `@/layouts/SubPageLayout`으로 감싸고, 파일 안의 `PageFrame`·`Chevron`·픽셀 그림·`SideMenu` 호출을 지운다. 메뉴 이름·순서·그림은 `layouts/subMenus.js`(`SUB_MENUS`)만 고친다. 옮길 화면: 건강기록 4개(`HealthSummaryPage`·`HealthDiaryPage`·`CareCalendarPage`·`CheckupDetailPage`, JAJ), 마이페이지(SJM), 고객센터 `CustomerCenterLayout`(KSJ), 커뮤니티(KSJ, 화면 만들 때). 모두 옮기면 `SideMenu`의 `menuLabel` 호환과 `/dev/sub-page`(`pages/dev/SubPageDevPage.jsx`)를 지운다
+- 공용 페이지 머리·사이드 메뉴 적용: 건강기록·마이페이지·커뮤니티·고객센터가 모두 `@/layouts/SubPageLayout`을 쓴다(건강기록 4개와 고객센터는 2026-10-23에 옮김). 새 화면은 `SubPageLayout`으로 감싼다. 메뉴 이름·순서·그림은 `layouts/subMenus.js`(`SUB_MENUS`)만 고친다. 다 옮겼으니 `/dev/sub-page`(`pages/dev/SubPageDevPage.jsx`)와 `routes/domains/dev/`의 해당 라우트는 지워도 된다(사람이 정함). 사용법:
 
   | prop | 기본값 | 하는 일 |
   | --- | --- | --- |

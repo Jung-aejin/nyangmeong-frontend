@@ -1,9 +1,14 @@
-import { CircleAlert, Info } from 'lucide-react';
+import { CircleAlert, CircleCheck, Info } from 'lucide-react';
 import AiErrorGuide from '@/components/AiErrorGuide';
 
 const STYLES = {
   error: { box: 'bg-danger-soft', icon: 'text-danger', Icon: CircleAlert },
   warn: { box: 'bg-warn-soft', icon: 'text-warn', Icon: CircleAlert },
+  ok: {
+    box: 'bg-tone-green-bg',
+    icon: 'text-tone-green-fg',
+    Icon: CircleCheck,
+  },
   info: { box: 'bg-brand-50', icon: 'text-brand-500', Icon: Info },
 };
 

@@ -3,7 +3,8 @@
  * - 본문은 새 창과 같은 ChatPanes. 760px 이하는 헤더 아래 전체 화면
  * - [─] 최소화(보던 방 기억), [새 창으로 띄우기] 새 창(/chat)으로 옮김, [✕]·Esc 닫기
  * - 페이지를 이동하면 펼친 모달만 닫는다. 최소화 중이면 보던 방을 기억한다
- * - 딤은 헤더(z-40) 아래: 모달이 떠 있어도 헤더 조작 가능 (FN-COM-009-12)
+ * - 딤은 헤더(z-40) 아래, AI·TOP 버튼(z-30) 위(z-35): 모달이 떠 있어도 헤더 조작 가능 (FN-COM-009-12)
+ * - 모달은 헤더 아래 영역의 가운데에 둔다(위쪽이 헤더에 가리지 않게)
  */
 import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
@@ -91,7 +92,7 @@ function ChatModalPanel() {
       role="dialog"
       aria-labelledby="chat-modal-title"
       tabIndex={-1}
-      className="fixed top-1/2 left-1/2 z-30 flex h-[780px] max-h-[calc(100dvh-32px)] w-[1040px] max-w-[calc(100vw-32px)] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-[20px] bg-white shadow-depth-lg outline-none max-[760px]:inset-x-0 max-[760px]:top-16 max-[760px]:bottom-0 max-[760px]:h-auto max-[760px]:max-h-none max-[760px]:w-auto max-[760px]:max-w-none max-[760px]:translate-x-0 max-[760px]:translate-y-0 max-[760px]:rounded-none max-[760px]:pb-[env(safe-area-inset-bottom)]"
+      className="fixed top-[calc(50%+32px)] left-1/2 z-35 flex h-[780px] max-h-[calc(100dvh-96px)] w-[1040px] max-w-[calc(100vw-32px)] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-[20px] bg-white shadow-depth-lg outline-none max-[760px]:inset-x-0 max-[760px]:top-16 max-[760px]:bottom-0 max-[760px]:h-auto max-[760px]:max-h-none max-[760px]:w-auto max-[760px]:max-w-none max-[760px]:translate-x-0 max-[760px]:translate-y-0 max-[760px]:rounded-none max-[760px]:pb-[env(safe-area-inset-bottom)]"
     >
       <header className="flex h-16 shrink-0 items-center gap-1 border-b border-line pr-4 pl-6 max-[760px]:pl-5">
         <h2 id="chat-modal-title" className="flex-1 text-xl font-bold text-ink">
@@ -155,7 +156,7 @@ export default function ChatModal() {
 
   return (
     <>
-      <div className="fixed inset-0 z-30 bg-[#0f1723]/45" aria-hidden="true" />
+      <div className="fixed inset-0 z-35 bg-[#0f1723]/45" aria-hidden="true" />
       <ChatModalPanel />
     </>
   );

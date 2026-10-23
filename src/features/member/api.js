@@ -1,19 +1,9 @@
 import { api } from '@/api/axios';
 
 /** 비로그인 401 랜딩 이동 반복 방지용 이동 끄기 */
-export const getMe = () => api.get('/members/me', { skipAuthRedirect: true });
+export const getMe = () => api.get('/auth/me', { skipAuthRedirect: true });
 
-/**
- * [회원 API 가짜 응답]
- * - 회원 요약(LJS)·로그아웃(YAY) API 전까지 사용, api.get()·api.post()로 교체
- * - 필드는 MemberSummaryResponse 기준(docs/api/member.md), 연결 때 Swagger 재확인
- */
-export const getMemberSummary = () =>
-  Promise.resolve({
-    mbrNcnm: '초코보호자',
-    maskedAcntEml: 'jin****@gmail.com',
-  });
-
+/** [로그아웃 가짜 응답] 로그아웃(YAY) API 전까지 사용, api.post()로 교체 */
 export const logout = () => Promise.resolve();
 
 /**
@@ -196,4 +186,50 @@ export const resetPassword = ({ pswd }) => {
   if (pswd.includes('fail')) return wait({ ok: false, reason: 'FAILED' });
   recovery = { acntEml: '', expiresAt: 0, verified: false };
   return wait({ ok: true });
+};
+
+/**
+ * [회원가입 가짜 API]
+ * - 가입·인증·중복확인 API(YAY 백엔드) 전까지 사용 -> 나오면 본문만 api 요청으로 교체
+ * - 미확정 키: acntEml·authCd·expiresAt·mbrTelno·pswd·termsAgreeList·mbrNcnm, 중복·복구 대상 결과를 응답 본문으로 줄지 오류 응답으로 줄지
+ * - 이메일 duplicate@example.com은 가입된 이메일, restore@example.com은 탈퇴 후 30일 이내 계정, fail@example.com은 발송 실패
+ * - 인증번호 123456은 성공, 그 외는 불일치. 번호 01012345678은 중복, 01000000000은 조회 실패
+ * - 비밀번호에 fail이 들어가면 가입 실패. 기본 닉네임은 가짜에서 고정값을 준다
+ * - 유효시간 3분은 가짜에서만 쓴다(운영값 미확정)
+ */
+const SIGNUP_CODE = '123456';
+const SIGNUP_TTL_MS = 3 * 60 * 1000;
+const SIGNUP_DUP_EMAIL = 'duplicate@example.com';
+const SIGNUP_RESTORE_EMAIL = 'restore@example.com';
+const SIGNUP_DUP_PHONE = '01012345678';
+
+let signup = { acntEml: '', expiresAt: 0 };
+
+/** 결과는 OK·DUPLICATE·RESTORE 중 하나. OK이면 expiresAt을 함께 준다 */
+export const sendSignupCode = ({ acntEml }) => {
+  if (acntEml === 'fail@example.com') return fail('SEND_FAILED');
+  if (acntEml === SIGNUP_DUP_EMAIL) return wait({ result: 'DUPLICATE' });
+  if (acntEml === SIGNUP_RESTORE_EMAIL) return wait({ result: 'RESTORE' });
+  signup = { acntEml, expiresAt: Date.now() + SIGNUP_TTL_MS };
+  return wait({ result: 'OK', expiresAt: signup.expiresAt });
+};
+
+/** 결과는 OK·MISMATCH·EXPIRED 중 하나 */
+export const verifySignupCode = ({ acntEml, authCd }) => {
+  if (acntEml !== signup.acntEml || Date.now() > signup.expiresAt) {
+    return wait({ result: 'EXPIRED' });
+  }
+  return wait({ result: authCd === SIGNUP_CODE ? 'OK' : 'MISMATCH' });
+};
+
+export const checkSignupPhone = ({ mbrTelno }) =>
+  mbrTelno === FAIL_PHONE
+    ? fail('FAILED')
+    : wait({ dplctYn: mbrTelno === SIGNUP_DUP_PHONE });
+
+/** 성공이면 { ok: true, mbrNcnm }, 실패면 { ok: false, reason: 'FAILED' } */
+export const joinMember = ({ pswd }) => {
+  if (pswd.includes('fail')) return wait({ ok: false, reason: 'FAILED' });
+  signup = { acntEml: '', expiresAt: 0 };
+  return wait({ ok: true, mbrNcnm: '행복한집사4821' });
 };

@@ -33,14 +33,17 @@ const sortByLastMessage = (rooms) =>
     (b.lastMsgDt ?? '').localeCompare(a.lastMsgDt ?? ''),
   );
 
-function ChatRoomRow({ room, onSelect }) {
+function ChatRoomRow({ room, isSelected, onSelect }) {
   const hasUnread = room.unreadCnt > 0;
 
   return (
     <li className="[&+li>button]:border-t [&+li>button]:border-line">
       <button
         type="button"
-        className="grid w-full grid-cols-[44px_minmax(0,1fr)] gap-3 px-5 py-4 text-left transition-colors hover:bg-surface-2"
+        aria-current={isSelected ? 'true' : undefined}
+        className={`grid w-full grid-cols-[44px_minmax(0,1fr)] gap-3 px-5 py-4 text-left transition-colors ${
+          isSelected ? 'bg-brand-50' : 'hover:bg-surface-2'
+        }`}
         onClick={() => onSelect(room.otoChatRoomSn)}
       >
         <ChatAvatar name={room.ctptMbrNcnm} size="lg" />
@@ -81,6 +84,7 @@ function ChatRoomRow({ room, onSelect }) {
 export default function ChatRoomList({
   isHidden,
   listPstSn,
+  selectedRoomSn,
   onClearPost,
   onSelect,
 }) {
@@ -202,6 +206,7 @@ export default function ChatRoomList({
               <ChatRoomRow
                 key={room.otoChatRoomSn}
                 room={room}
+                isSelected={room.otoChatRoomSn === selectedRoomSn}
                 onSelect={handleSelect}
               />
             ))}
