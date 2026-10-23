@@ -5,7 +5,7 @@ import { findActiveItem, SUB_MENUS } from './subMenus';
 
 /**
  * [사이드 메뉴가 있는 서브 화면 틀]
- * - 페이지 머리(전체 폭) + 사이드 메뉴 210px + 본문(디자인 COM-5)
+ * - 경로(전체 폭) + 사이드 메뉴 210px(섹션 제목 포함) + 페이지 머리·본문(디자인 COM-5)
  * - 사용법·prop 표: handoff/LJS.md
  */
 export default function SubPageLayout({
@@ -25,7 +25,7 @@ export default function SubPageLayout({
   const hasBack = (back ?? Boolean(title)) && Boolean(activeItem);
 
   return (
-    <div className="grid grid-cols-1 pt-6 pb-[126px] text-ink leading-[1.6] break-keep min-[1101px]:grid-cols-[210px_minmax(0,1fr)] min-[1101px]:gap-x-12">
+    <div className="grid grid-cols-1 pt-2 pb-[126px] text-ink leading-[1.6] break-keep min-[1101px]:grid-cols-[210px_minmax(0,1fr)] min-[1101px]:gap-x-12">
       <SubPageHead
         section={sectionMenu}
         activeItem={activeItem}
@@ -35,8 +35,12 @@ export default function SubPageLayout({
         hasSwitch={!title && !hasBack}
         onLeave={onLeave}
       />
-      <SideMenu section={section} active={activeItem?.to} />
-      <div className={`flex min-w-0 flex-col ${contentClassName}`}>
+      <div className="min-[1101px]:col-start-1 min-[1101px]:row-span-2 min-[1101px]:row-start-2">
+        <SideMenu section={section} active={activeItem?.to} showTitle />
+      </div>
+      <div
+        className={`flex min-w-0 flex-col min-[1101px]:col-start-2 min-[1101px]:row-start-3 ${contentClassName}`}
+      >
         {hasBack && <BackLink to={activeItem.to} onLeave={onLeave} />}
         {children}
       </div>

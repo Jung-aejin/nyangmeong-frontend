@@ -166,7 +166,7 @@ export default function UserHeader() {
                       } ${
                         isActive
                           ? 'font-bold text-[#1a3234]'
-                          : 'font-semibold text-[#3d4a4b]'
+                          : 'font-normal text-[#3d4a4b]'
                       }`
                     }
                   >
