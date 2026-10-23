@@ -10,8 +10,7 @@ import PetTabs from '@/features/health/PetTabs';
 import ScheduleDayDetail from '@/features/health/ScheduleDayDetail';
 import ScheduleModal from '@/features/health/ScheduleModal';
 import UpcomingSchedules from '@/features/health/UpcomingSchedules';
-import headHlt from '@/assets/head_hlt.svg';
-import SideMenu from '@/layouts/SideMenu';
+import SubPageLayout from '@/layouts/SubPageLayout';
 import { usePets, useSchedules } from '@/features/health/queries';
 import {
   addDays,
@@ -22,6 +21,13 @@ import {
   getYear,
   makeYmd,
 } from '@/utils/formatDate';
+
+/** 공용 페이지 머리·사이드 메뉴 설정 */
+const LAYOUT_PROPS = {
+  section: 'health',
+  description: '모든 반려동물의 일정을 한눈에 확인하는 통합 캘린더',
+  contentClassName: 'gap-7 min-[1101px]:pt-6',
+};
 
 // 다가오는 일정을 찾을 범위. 최대 3건만 보여 주므로 1년이면 충분하다
 const UPCOMING_RANGE_DAYS = 365;
@@ -66,17 +72,17 @@ export default function CareCalendarPage() {
     (!upcomingData && !isUpcomingError)
   )
     return (
-      <PageFrame>
+      <SubPageLayout {...LAYOUT_PROPS}>
         <CalendarSkeleton />
-      </PageFrame>
+      </SubPageLayout>
     );
   if (isPetsError) {
     return (
-      <PageFrame>
+      <SubPageLayout {...LAYOUT_PROPS}>
         <p role="alert" className="text-[#566465]">
           반려동물 정보를 불러오지 못했어요. 잠시 뒤 다시 시도해 주세요
         </p>
-      </PageFrame>
+      </SubPageLayout>
     );
   }
 
@@ -115,7 +121,7 @@ export default function CareCalendarPage() {
     setModal({ key: Date.now(), schedule, defaultYmd: schedule.schdlYmd });
 
   return (
-    <PageFrame>
+    <SubPageLayout {...LAYOUT_PROPS}>
       <DiaryTabs
         items={SECTION_TABS}
         activeId={sectionId}
@@ -188,7 +194,7 @@ export default function CareCalendarPage() {
           onCreateNew={() => openCreate(modal.defaultYmd)}
         />
       )}
-    </PageFrame>
+    </SubPageLayout>
   );
 }
 
@@ -210,39 +216,5 @@ function CalendarSkeleton() {
       </div>
       <SkeletonCard className="h-[1538px] max-[760px]:h-[2400px]" />
     </PageSkeleton>
-  );
-}
-
-function PageFrame({ children }) {
-  return (
-    <div className="grid grid-cols-1 pt-6 pb-[126px] min-[1101px]:grid-cols-[210px_minmax(0,1fr)] min-[1101px]:gap-x-12">
-      <header className="relative mb-6 min-[1101px]:col-span-full">
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[28px] leading-[1.3] tracking-[-0.02em]">
-          <span className="flex items-center gap-x-3 text-[#566465]">
-            건강기록
-            <span
-              aria-hidden="true"
-              className="-ml-[3px] size-[9px] rotate-45 border-t-2 border-r-2 border-[#b9c4c4] max-sm:size-2"
-            />
-          </span>
-          <h1 className="font-bold text-[#1a3234]">케어 캘린더</h1>
-        </div>
-        <p className="mt-2 text-[#566465]">
-          모든 반려동물의 일정을 한눈에 확인하는 통합 캘린더
-        </p>
-        <img
-          src={headHlt}
-          alt=""
-          width="160"
-          height="100"
-          aria-hidden="true"
-          className="pointer-events-none absolute -bottom-1 right-0 origin-bottom-right [image-rendering:pixelated] select-none max-[1100px]:scale-80 max-[760px]:hidden"
-        />
-      </header>
-      <SideMenu menuLabel="건강기록" />
-      <div className="flex min-w-0 flex-col gap-7 min-[1101px]:pt-6">
-        {children}
-      </div>
-    </div>
   );
 }
