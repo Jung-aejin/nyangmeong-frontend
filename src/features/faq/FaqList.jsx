@@ -98,7 +98,7 @@ export default function FaqList({
 
   return (
     <div>
-      <div className="mb-7 flex flex-wrap items-end justify-between gap-3 border-b border-[#b9c4c4] max-[760px]:mb-5 max-[760px]:flex-col-reverse max-[760px]:items-stretch max-[760px]:gap-4 max-[760px]:border-b-0">
+      <div className="mb-7 flex flex-wrap items-end justify-between gap-3 border-b border-[#b9c4c4] max-[760px]:mb-5 max-[760px]:flex-col-reverse max-[760px]:flex-nowrap max-[760px]:items-stretch max-[760px]:gap-4 max-[760px]:border-b-0">
         <div
           role="tablist"
           aria-label="질문 카테고리"
