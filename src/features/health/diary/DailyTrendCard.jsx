@@ -34,7 +34,7 @@ export default function DailyTrendCard({ pet, records, onAddRecord }) {
   return (
     <Card
       title="건강기록 변화"
-      sub={`최근 ${RECENT_RECORD_COUNT}개 기록`}
+      sub={<span className="text-sm">최근 {RECENT_RECORD_COUNT}개 기록</span>}
       className="min-w-0"
     >
       <div

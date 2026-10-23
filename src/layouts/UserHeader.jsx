@@ -4,7 +4,7 @@ import logo from '@/assets/nm_logo.svg';
 import CountBadge from '@/components/CountBadge';
 import Icon from '@/components/Icon';
 import { useChatUnreadCount } from '@/features/chat/queries';
-import useChatWindow from '@/hooks/useChatWindow';
+import { useChatModal } from '@/context/chatModal';
 import { PATHS } from '@/routes/paths';
 import GnbDropdown from './GnbDropdown';
 import { GNB_MENUS } from './gnbMenus';
@@ -31,7 +31,7 @@ export default function UserHeader() {
   const hamburgerRef = useRef(null);
   /** GNB 카드를 보여 줄 1차 메뉴 순번 */
   const [gnbIndex, setGnbIndex] = useState(0);
-  const openChatWindow = useChatWindow();
+  const { open: openChatModal } = useChatModal();
   const { data: chatUnread } = useChatUnreadCount();
 
   const gnbRef = useRef(null);
@@ -127,7 +127,7 @@ export default function UserHeader() {
 
   const openChat = () => {
     setOpenMenu(null);
-    openChatWindow();
+    openChatModal();
   };
 
   return (
