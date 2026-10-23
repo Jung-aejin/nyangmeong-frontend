@@ -7,8 +7,15 @@ import { findActiveItem, SUB_MENUS } from './subMenus';
  * - 1101px 이상에서만 보이는 왼쪽 2차 메뉴(디자인 COM-5)
  * - section: SUB_MENUS 키, active: 선택 메뉴의 to. menuLabel(섹션 이름)은 기존 화면 호환용
  * - showTitle: 메뉴 위에 섹션 제목을 크게 보임(SubPageLayout이 켬)
+ * - onLeave: 있으면 메뉴를 눌러도 이동 대신 onLeave(to)를 호출한다(글쓰기 중 이탈 확인)
  */
-export default function SideMenu({ section, active, menuLabel, showTitle }) {
+export default function SideMenu({
+  section,
+  active,
+  menuLabel,
+  showTitle,
+  onLeave,
+}) {
   const { pathname } = useLocation();
   const menu =
     SUB_MENUS[section] ??
@@ -34,6 +41,11 @@ export default function SideMenu({ section, active, menuLabel, showTitle }) {
                 <Link
                   to={item.to}
                   aria-current={isActive ? 'page' : undefined}
+                  onClick={(event) => {
+                    if (!onLeave) return;
+                    event.preventDefault();
+                    onLeave(item.to);
+                  }}
                   className={`-mx-3 flex min-h-10 items-center gap-3 rounded-lg px-3 text-base/[1.6] transition-colors ${
                     isActive
                       ? 'font-bold text-[#2f6f57]'

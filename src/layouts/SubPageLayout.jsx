@@ -36,7 +36,12 @@ export default function SubPageLayout({
         onLeave={onLeave}
       />
       <div className="min-[1101px]:col-start-1 min-[1101px]:row-span-2 min-[1101px]:row-start-2">
-        <SideMenu section={section} active={activeItem?.to} showTitle />
+        <SideMenu
+          section={section}
+          active={activeItem?.to}
+          showTitle
+          onLeave={onLeave}
+        />
       </div>
       <div
         className={`flex min-w-0 flex-col min-[1101px]:col-start-2 min-[1101px]:row-start-3 ${contentClassName}`}

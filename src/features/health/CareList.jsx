@@ -51,7 +51,7 @@ export default function CareList({ petSn }) {
 
   const renderZone = (label, items, note, className = '') => (
     <div className={className}>
-      <p className="border-b border-[#e2e7e7] pb-2 text-base text-[#3d4a4b]">
+      <p className="border-b-2 border-[#b9c4c4] pb-2 text-base font-bold text-[#1a3234]">
         {label}
       </p>
       <div className="sm:columns-2 sm:gap-x-8">
@@ -83,7 +83,7 @@ export default function CareList({ petSn }) {
         action={
           <button
             type="button"
-            className="inline-flex h-8 shrink-0 items-center rounded-[6px] bg-[#e9f2f2] px-3 text-base font-semibold text-[#1e4a4c] hover:bg-[#cde0e0]"
+            className="inline-flex h-8 shrink-0 items-center rounded-[6px] bg-brand-500 px-3 text-base font-semibold text-white hover:bg-brand-600"
             onClick={() => setIsAdding(true)}
           >
             관리 항목 추가

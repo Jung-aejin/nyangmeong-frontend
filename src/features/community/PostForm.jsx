@@ -101,17 +101,11 @@ export default function PostForm({
         <h2 id="post-form-title" className="sr-only">
           {isEdit ? '게시글 수정' : '게시글 작성'}
         </h2>
-        <p className="mb-6 text-sm text-[#667374]">
-          <span aria-hidden="true" className="font-bold text-[#b4473a]">
-            *
-          </span>{' '}
-          표시는 꼭 입력해야 해요
-        </p>
         <form
           id="post-form"
           onSubmit={handleSubmit}
           noValidate
-          className="flex flex-col gap-7 max-[760px]:gap-6"
+          className="flex flex-col gap-9"
         >
           <fieldset className="flex flex-col gap-1.5">
             <legend className={`${LABEL_CLASS} mb-1.5`}>
@@ -122,7 +116,7 @@ export default function PostForm({
               {POST_BOARDS.map((board) => (
                 <label
                   key={board.code}
-                  className="flex cursor-pointer items-center gap-2 text-base text-[#3d4a4b]"
+                  className="flex min-h-8 cursor-pointer items-center gap-2 text-base text-[#3d4a4b]"
                 >
                   <input
                     type="radio"

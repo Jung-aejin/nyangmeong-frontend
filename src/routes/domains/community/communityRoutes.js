@@ -13,6 +13,10 @@ const MissingWritePage = lazy(
   () => import('@/pages/community/MissingWritePage'),
 );
 const MissingEditPage = lazy(() => import('@/pages/community/MissingEditPage'));
+const CareListPage = lazy(() => import('@/pages/community/CareListPage'));
+const CareDetailPage = lazy(() => import('@/pages/community/CareDetailPage'));
+const CareWritePage = lazy(() => import('@/pages/community/CareWritePage'));
+const CareEditPage = lazy(() => import('@/pages/community/CareEditPage'));
 const NewsListPage = lazy(() => import('@/pages/news/NewsListPage'));
 const NewsDetailPage = lazy(() => import('@/pages/news/NewsDetailPage'));
 
@@ -30,6 +34,10 @@ export default [
       { path: PATHS.COMMUNITY_MISSING_NEW, Component: MissingWritePage },
       { path: PATHS.COMMUNITY_MISSING_DETAIL, Component: MissingDetailPage },
       { path: PATHS.COMMUNITY_MISSING_EDIT, Component: MissingEditPage },
+      { path: PATHS.COMMUNITY_PETCARE, Component: CareListPage },
+      { path: PATHS.COMMUNITY_PETCARE_NEW, Component: CareWritePage },
+      { path: PATHS.COMMUNITY_PETCARE_DETAIL, Component: CareDetailPage },
+      { path: PATHS.COMMUNITY_PETCARE_EDIT, Component: CareEditPage },
       { path: PATHS.COMMUNITY_NEWS, Component: NewsListPage },
       { path: PATHS.COMMUNITY_NEWS_DETAIL, Component: NewsDetailPage },
     ],
