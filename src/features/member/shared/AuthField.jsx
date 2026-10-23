@@ -7,7 +7,7 @@ const WRAP =
   'flex h-[46px] items-center gap-2 rounded-md border bg-white px-3 focus-within:ring-focus';
 
 // 인증 화면의 입력칸. 오류는 칸 아래 문구로, hasGuide면 AI 안내로도 알린다. 오류가 없으면 help·success를 보인다.
-// 비밀번호는 보기 전환과 Caps Lock 안내가 붙고, endAdornment는 입력칸 오른쪽 안에 놓인다
+// 비밀번호는 보기 전환과 Caps Lock 안내가 붙고, endAdornment는 입력칸 오른쪽 안에, action(버튼)은 입력칸 오른쪽 밖에 놓인다
 export default function AuthField({
   id,
   label,
@@ -23,7 +23,10 @@ export default function AuthField({
   help,
   success,
   endAdornment,
+  action,
+  readOnly,
   hasGuide,
+  isGuideInline,
 }) {
   const [isVisible, setIsVisible] = useState(false);
   const { isCapsOn, capsProps } = useCapsLock();
@@ -40,44 +43,48 @@ export default function AuthField({
           *
         </span>
       </label>
-      <div
-        className={`${WRAP} ${
-          error
-            ? 'border-danger focus-within:ring-error'
-            : 'border-input-line focus-within:border-brand-500'
-        }`}
-      >
-        <input
-          id={id}
-          type={isPassword && isVisible ? 'text' : type}
-          value={value}
-          onChange={(event) => onChange(event.target.value)}
-          onBlur={onBlur}
-          placeholder={placeholder}
-          autoComplete={autoComplete}
-          inputMode={inputMode}
-          maxLength={maxLength}
-          aria-required="true"
-          aria-invalid={Boolean(error)}
-          aria-describedby={error ? `${id}-error` : undefined}
-          className="h-full min-w-0 flex-1 bg-transparent placeholder:text-placeholder focus:outline-none"
-          {...(isPassword ? capsProps : {})}
-        />
-        {endAdornment}
-        {isPassword && (
-          <button
-            type="button"
-            onClick={() => setIsVisible((prev) => !prev)}
-            aria-label={isVisible ? '비밀번호 숨기기' : '비밀번호 표시'}
-            className="grid place-items-center text-subtle hover:text-ink"
-          >
-            {isVisible ? (
-              <EyeOff className="size-5" />
-            ) : (
-              <Eye className="size-5" />
-            )}
-          </button>
-        )}
+      <div className="flex gap-2">
+        <div
+          className={`${WRAP} min-w-0 flex-1 ${
+            error
+              ? 'border-danger focus-within:ring-error'
+              : 'border-input-line focus-within:border-brand-500'
+          } ${readOnly ? 'bg-surface-2' : ''}`}
+        >
+          <input
+            id={id}
+            type={isPassword && isVisible ? 'text' : type}
+            value={value}
+            onChange={(event) => onChange(event.target.value)}
+            onBlur={onBlur}
+            placeholder={placeholder}
+            autoComplete={autoComplete}
+            inputMode={inputMode}
+            maxLength={maxLength}
+            readOnly={readOnly}
+            aria-required="true"
+            aria-invalid={Boolean(error)}
+            aria-describedby={error ? `${id}-error` : undefined}
+            className="h-full min-w-0 flex-1 bg-transparent placeholder:text-placeholder focus:outline-none"
+            {...(isPassword ? capsProps : {})}
+          />
+          {endAdornment}
+          {isPassword && (
+            <button
+              type="button"
+              onClick={() => setIsVisible((prev) => !prev)}
+              aria-label={isVisible ? '비밀번호 숨기기' : '비밀번호 표시'}
+              className="grid place-items-center text-subtle hover:text-ink"
+            >
+              {isVisible ? (
+                <EyeOff className="size-5" />
+              ) : (
+                <Eye className="size-5" />
+              )}
+            </button>
+          )}
+        </div>
+        {action}
       </div>
       {isPassword && isCapsOn && (
         <p className="mt-2 flex items-center gap-1 text-sm text-warn">
@@ -100,7 +107,9 @@ export default function AuthField({
       {!error && !success && help && (
         <p className="mt-2 text-sm leading-5 text-muted">{help}</p>
       )}
-      {error && hasGuide && <AiErrorGuide message={error} />}
+      {error && hasGuide && (
+        <AiErrorGuide message={error} isInline={isGuideInline} />
+      )}
     </div>
   );
 }

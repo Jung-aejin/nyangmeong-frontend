@@ -2,21 +2,25 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   checkNickname,
   checkPhone,
+  checkSignupPhone,
   getCaptcha,
   getLoginStatus,
   getMe,
   getMyProfile,
   getRecoveryStatus,
+  joinMember,
   login,
   logout,
   resetPassword,
   sendRecoveryCode,
+  sendSignupCode,
   updateNickname,
   updatePassword,
   updatePhone,
   updateProfileImage,
   verifyPassword,
   verifyRecoveryCode,
+  verifySignupCode,
 } from './api';
 
 export const memberKeys = {
@@ -95,3 +99,14 @@ export const useRecoveryStatus = () =>
 
 export const useResetPassword = () =>
   useMutation({ mutationFn: resetPassword });
+
+export const useSendSignupCode = () =>
+  useMutation({ mutationFn: sendSignupCode });
+
+export const useVerifySignupCode = () =>
+  useMutation({ mutationFn: verifySignupCode });
+
+export const useCheckSignupPhone = () =>
+  useMutation({ mutationFn: checkSignupPhone });
+
+export const useJoinMember = () => useMutation({ mutationFn: joinMember });

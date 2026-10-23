@@ -42,6 +42,8 @@ export default function LoginPage() {
     <LoginMethodChoice
       onBack={() => navigate(PATHS.HOME)}
       onSelectEmail={selectEmail}
+      onSignup={() => navigate(PATHS.SIGNUP)}
+      isJoined={searchParams.get('joined') === '1'}
     />
   );
 }
