@@ -7,7 +7,7 @@ export default function SignupStepper({ current }) {
   return (
     <ol
       aria-label={`전체 4단계 중 ${current}단계`}
-      className="mb-8 flex items-center max-md:mb-6"
+      className="mb-5 flex items-center"
     >
       {STEPS.map((label, index) => {
         const number = index + 1;

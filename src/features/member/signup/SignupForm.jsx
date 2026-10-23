@@ -37,6 +37,22 @@ const STEPS = {
   },
 };
 
+// 단계가 바뀌면 key가 바뀌어 새로 그려지고, 방향에 따라 옆에서 들어오며 나타난다(크기는 변하지 않는다)
+function StepMotion({ stepKey, direction, children }) {
+  return (
+    <div
+      key={stepKey}
+      className={`transition duration-300 ease-out starting:opacity-0 ${
+        direction === 'back'
+          ? 'starting:-translate-x-5'
+          : 'starting:translate-x-5'
+      }`}
+    >
+      {children}
+    </div>
+  );
+}
+
 // 이메일 가입(약관 → 이메일 인증 → 휴대전화번호 → 비밀번호). 가입은 마지막 단계에서만 일어나고,
 // 성공하면 닉네임 설정 모달이 열린 가입 완료 화면으로 간다. 가입만으로 로그인하지 않는다
 export default function SignupForm({ onBackToLogin, onGoLogin }) {
@@ -45,30 +61,32 @@ export default function SignupForm({ onBackToLogin, onGoLogin }) {
   if (form.step === 'complete') {
     return (
       <AuthCard>
-        <AuthHeading
-          title="회원가입이 완료되었습니다"
-          subtitle="가입한 계정으로 다시 로그인해 주세요."
-        />
-        <div className="rounded-box bg-surface-2 px-5 py-6 text-center">
-          <small className="block text-muted">현재 저장된 닉네임</small>
-          <strong className="mt-1 block text-2xl font-bold">
-            {form.nickname}
-          </strong>
+        <StepMotion stepKey="complete" direction={form.direction}>
+          <AuthHeading
+            title="회원가입이 완료되었습니다"
+            subtitle="가입한 계정으로 다시 로그인해 주세요."
+          />
+          <div className="rounded-box bg-surface-2 px-5 py-6 text-center">
+            <small className="block text-muted">현재 저장된 닉네임</small>
+            <strong className="mt-1 block text-2xl font-bold">
+              {form.nickname}
+            </strong>
+            <button
+              type="button"
+              onClick={form.openNickname}
+              className="mt-2 font-semibold text-brand-600 hover:underline hover:underline-offset-[3px]"
+            >
+              닉네임 설정
+            </button>
+          </div>
           <button
             type="button"
-            onClick={form.openNickname}
-            className="mt-2 font-semibold text-brand-600 hover:underline hover:underline-offset-[3px]"
+            onClick={onGoLogin}
+            className={`${PRIMARY_BTN} mt-8`}
           >
-            닉네임 설정
+            로그인 화면으로
           </button>
-        </div>
-        <button
-          type="button"
-          onClick={onGoLogin}
-          className={`${PRIMARY_BTN} mt-8`}
-        >
-          로그인 화면으로
-        </button>
+        </StepMotion>
         {form.isNicknameOpen && (
           <NicknameModal
             savedNickname={form.nickname}
@@ -83,22 +101,21 @@ export default function SignupForm({ onBackToLogin, onGoLogin }) {
   const { no, title, subtitle, Body } = STEPS[form.step];
   return (
     <AuthCard onBack={form.goBack}>
-      <AuthHeading
-        title={title}
-        subtitle={subtitle}
-        isMascotHidden={form.guideTarget !== null}
-        isCompact
-      />
+      <StepMotion stepKey={`${form.step}-head`} direction={form.direction}>
+        <AuthHeading title={title} subtitle={subtitle} />
+      </StepMotion>
       <SignupStepper current={no} />
-      {form.notice && (
-        <AuthNotice
-          type={form.notice.type}
-          message={form.notice.message}
-          hasGuide={form.guideTarget === 'notice'}
-        />
-      )}
-      <Body form={form} />
-      <div className="mt-6 flex justify-center gap-2 text-muted">
+      <StepMotion stepKey={form.step} direction={form.direction}>
+        {form.notice && (
+          <AuthNotice
+            type={form.notice.type}
+            message={form.notice.message}
+            hasGuide={form.guideTarget === 'notice'}
+          />
+        )}
+        <Body form={form} />
+      </StepMotion>
+      <div className="mt-4 flex justify-center gap-2 text-muted">
         이미 회원이신가요?
         <button
           type="button"

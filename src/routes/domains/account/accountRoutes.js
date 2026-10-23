@@ -2,8 +2,7 @@ import { lazy } from 'react';
 import AuthLayout from '@/layouts/AuthLayout';
 import { PATHS } from '@/routes/paths';
 
-const LoginPage = lazy(() => import('@/pages/auth/LoginPage'));
-const SignupPage = lazy(() => import('@/pages/auth/SignupPage'));
+const AuthPage = lazy(() => import('@/pages/auth/AuthPage'));
 const PasswordFindPage = lazy(() => import('@/pages/auth/PasswordFindPage'));
 const PasswordResetPage = lazy(() => import('@/pages/auth/PasswordResetPage'));
 
@@ -15,8 +14,8 @@ export default [
       {
         Component: AuthLayout,
         children: [
-          { path: PATHS.LOGIN, Component: LoginPage },
-          { path: PATHS.SIGNUP, Component: SignupPage },
+          { path: PATHS.LOGIN, Component: AuthPage },
+          { path: PATHS.SIGNUP, Component: AuthPage },
           { path: PATHS.PASSWORD_FIND, Component: PasswordFindPage },
           { path: PATHS.PASSWORD_RESET, Component: PasswordResetPage },
         ],

@@ -1,15 +1,16 @@
-import { OUTLINE_BTN, PRIMARY_BTN } from '../shared/authStyles';
+import { Phone } from 'lucide-react';
+import { PRIMARY_BTN, SIDE_BTN } from '../shared/authStyles';
 import AuthField from '../shared/AuthField';
 import SignupSummary from './SignupSummary';
 import { SIGNUP_MESSAGES as MSG } from './signupMessages';
 
-// 3단계. 문자 인증 없이 번호 중복만 확인한다. 번호를 바꾸면 확인을 다시 해야 한다
 export default function PhoneStep({ form }) {
   return (
     <>
-      <div className="flex flex-col gap-5">
+      <div className="flex flex-col gap-4">
         <AuthField
           id="signup-phone"
+          icon={Phone}
           label="휴대전화번호"
           value={form.phone}
           onChange={form.changePhone}
@@ -25,7 +26,7 @@ export default function PhoneStep({ form }) {
               type="button"
               onClick={form.submitPhoneCheck}
               disabled={form.isPhoneChecking}
-              className={`${OUTLINE_BTN} !w-auto min-w-[88px] shrink-0 px-4 whitespace-nowrap`}
+              className={SIDE_BTN}
             >
               중복확인
             </button>
@@ -37,7 +38,7 @@ export default function PhoneStep({ form }) {
         type="button"
         disabled={!form.isPhoneChecked}
         onClick={() => form.goStep('password')}
-        className={`${PRIMARY_BTN} mt-8`}
+        className={`${PRIMARY_BTN} mt-5`}
       >
         다음
       </button>
