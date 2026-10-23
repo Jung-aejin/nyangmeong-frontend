@@ -1,9 +1,12 @@
 import { useState } from 'react';
 import { Bot } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 import useAiWindow from '@/hooks/useAiWindow';
+import { PATHS } from '@/routes/paths';
 
 export default function FloatingButtons({ hasBottomNav = false }) {
   const openAiWindow = useAiWindow();
+  const isMain = useLocation().pathname === PATHS.MAIN;
   const [blocked, setBlocked] = useState(false);
 
   const handleAiClick = () => {
@@ -11,7 +14,6 @@ export default function FloatingButtons({ hasBottomNav = false }) {
   };
 
   return (
-    /** 바텀 네비(60px)가 있으면 그 위로 올림 */
     <div
       className={`fixed bottom-6 right-6 z-30 flex flex-col items-center gap-3 ${
         hasBottomNav
@@ -19,7 +21,7 @@ export default function FloatingButtons({ hasBottomNav = false }) {
           : ''
       }`}
     >
-      <div className="relative">
+      <div className={isMain ? 'hidden' : 'relative'}>
         {blocked && (
           <div
             role="alert"

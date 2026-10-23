@@ -9,7 +9,6 @@ const SUGGESTIONS = [
   '미용실 추천해줘',
 ];
 
-// AI 대화는 새 창에서 열린다. 팝업이 막히면 안내를 보인다
 export default function HeroAsk({ petNm }) {
   const openAiWindow = useAiWindow();
   const [text, setText] = useState('');
@@ -27,11 +26,11 @@ export default function HeroAsk({ petNm }) {
   };
 
   return (
-    <div className="flex flex-col items-center gap-4">
+    <div className="flex w-full min-w-0 flex-col items-center gap-4">
       <form
         role="search"
         onSubmit={handleSubmit}
-        className="mt-10 flex h-[52px] w-full max-w-[600px] items-center gap-2 rounded-full border border-brand-500 bg-white py-0 pr-1.5 pl-5 shadow-depth-sm focus-within:ring-focus"
+        className="mt-10 flex h-[52px] w-full max-w-[600px] items-center gap-2 rounded-md border border-brand-500 bg-white py-0 pr-1.5 pl-5 shadow-depth-sm focus-within:ring-focus max-[700px]:pl-4"
       >
         <label htmlFor="main-ask" className="sr-only">
           AI 매니저에게 질문
@@ -48,21 +47,21 @@ export default function HeroAsk({ petNm }) {
         <button
           type="submit"
           aria-label="AI 매니저에게 보내기"
-          className="grid size-10 shrink-0 place-items-center rounded-full bg-brand-500 text-white hover:bg-brand-600"
+          className="grid size-10 shrink-0 place-items-center rounded-md bg-brand-500 text-white hover:bg-brand-600"
         >
           <ArrowUp className="size-5" />
         </button>
       </form>
       <div
         aria-label="추천 질문"
-        className="flex max-w-full gap-2 overflow-x-auto"
+        className="flex max-w-full gap-2 overflow-x-auto max-[700px]:self-stretch max-[700px]:[scrollbar-width:none] max-[700px]:[&::-webkit-scrollbar]:hidden"
       >
         {SUGGESTIONS.map((question) => (
           <button
             key={question}
             type="button"
             onClick={() => ask(question)}
-            className="h-9 shrink-0 rounded-full border border-line bg-white px-3 text-sm whitespace-nowrap text-ink-2 hover:border-brand-500 hover:text-brand-600"
+            className="h-9 shrink-0 rounded-full border border-line bg-white/85 px-3.5 text-sm max-[700px]:h-8 max-[700px]:px-3 whitespace-nowrap text-ink-2 hover:border-brand-500 hover:text-brand-600"
           >
             {question}
           </button>
