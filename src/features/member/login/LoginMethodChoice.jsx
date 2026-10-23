@@ -4,7 +4,6 @@ import AuthHeading from '../shared/AuthHeading';
 import AuthNotice from '../shared/AuthNotice';
 import SnsLoginButtons from './SnsLoginButtons';
 
-// isJoined: 회원가입을 마치고 돌아온 경우 안내를 보인다
 export default function LoginMethodChoice({
   onBack,
   onSelectEmail,
@@ -27,7 +26,7 @@ export default function LoginMethodChoice({
       <button
         type="button"
         onClick={onSelectEmail}
-        className="inline-flex h-[46px] w-full items-center justify-center gap-1.5 rounded-md bg-brand-500 font-semibold text-white hover:bg-brand-600"
+        className="inline-flex h-[50px] w-full items-center justify-center gap-1.5 rounded-xl bg-brand-500 text-[15px] font-bold text-white transition hover:-translate-y-px hover:bg-brand-600"
       >
         <Mail className="size-5" />
         이메일로 로그인하기

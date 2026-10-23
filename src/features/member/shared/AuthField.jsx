@@ -4,10 +4,10 @@ import AiErrorGuide from '@/components/AiErrorGuide';
 import useCapsLock from '@/hooks/useCapsLock';
 
 const WRAP =
-  'flex h-[46px] items-center gap-2 rounded-md border bg-white px-3 focus-within:ring-focus';
+  'flex h-12 items-center gap-2.5 rounded-xl border bg-white px-3.5 text-sm focus-within:ring-focus';
 
 // 인증 화면의 입력칸. 오류는 칸 아래 문구로, hasGuide면 AI 안내로도 알린다. 오류가 없으면 help·success를 보인다.
-// 비밀번호는 보기 전환과 Caps Lock 안내가 붙고, endAdornment는 입력칸 오른쪽 안에, action(버튼)은 입력칸 오른쪽 밖에 놓인다
+// icon(lucide 아이콘)은 입력칸 왼쪽 안에 놓인다. 비밀번호는 보기 전환과 Caps Lock 안내가 붙고, endAdornment는 입력칸 오른쪽 안에, action(버튼)은 입력칸 오른쪽 밖에 놓인다
 export default function AuthField({
   id,
   label,
@@ -26,17 +26,18 @@ export default function AuthField({
   action,
   readOnly,
   hasGuide,
-  isGuideInline,
+  icon,
 }) {
   const [isVisible, setIsVisible] = useState(false);
   const { isCapsOn, capsProps } = useCapsLock();
   const isPassword = type === 'password';
+  const Icon = icon;
 
   return (
     <div className="relative">
       <label
         htmlFor={id}
-        className="mb-2 block leading-6 font-semibold text-ink"
+        className="mb-1.5 block text-[13px] leading-6 font-semibold text-ink"
       >
         {label}
         <span aria-hidden="true" className="ml-0.5 text-danger">
@@ -51,6 +52,7 @@ export default function AuthField({
               : 'border-input-line focus-within:border-brand-500'
           } ${readOnly ? 'bg-surface-2' : ''}`}
         >
+          {Icon && <Icon className="size-5 shrink-0 text-subtle" />}
           <input
             id={id}
             type={isPassword && isVisible ? 'text' : type}
@@ -107,9 +109,7 @@ export default function AuthField({
       {!error && !success && help && (
         <p className="mt-2 text-sm leading-5 text-muted">{help}</p>
       )}
-      {error && hasGuide && (
-        <AiErrorGuide message={error} isInline={isGuideInline} />
-      )}
+      {error && hasGuide && <AiErrorGuide message={error} />}
     </div>
   );
 }

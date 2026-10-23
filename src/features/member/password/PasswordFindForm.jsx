@@ -1,3 +1,4 @@
+import { Mail, ShieldCheck } from 'lucide-react';
 import { showToast } from '@/components/toastStore';
 import AuthCard from '../shared/AuthCard';
 import AuthField from '../shared/AuthField';
@@ -10,7 +11,6 @@ import usePasswordFind from './usePasswordFind';
 
 const SUMMARY = 'rounded-box bg-surface-2 p-4 leading-6 text-ink-2';
 
-// 이메일 입력 → 인증번호 입력 → (SNS 전용 계정이면) 안내. 일반 계정이 인증되면 재설정 화면으로 보낸다
 export default function PasswordFindForm({
   onVerified,
   onBackToLogin,
@@ -62,8 +62,6 @@ export default function PasswordFindForm({
         <AuthHeading
           title="비밀번호 찾기"
           subtitle="본인확인 후 사용 가능한 로그인 방법을 확인해요."
-          isMascotHidden={target !== null}
-          isCompact
         />
         {notice}
         <div className={`${SUMMARY} flex justify-between gap-3`}>
@@ -84,6 +82,7 @@ export default function PasswordFindForm({
         >
           <AuthField
             id="find-code"
+            icon={ShieldCheck}
             label="인증번호"
             value={form.code}
             onChange={form.changeCode}
@@ -141,7 +140,6 @@ export default function PasswordFindForm({
       <AuthHeading
         title="비밀번호 찾기"
         subtitle="이메일로 본인확인 후 새 비밀번호를 설정해요."
-        isMascotHidden={target !== null}
       />
       {notice}
       <form
@@ -151,6 +149,7 @@ export default function PasswordFindForm({
       >
         <AuthField
           id="find-email"
+          icon={Mail}
           label="이메일 아이디"
           value={form.email}
           onChange={form.changeEmail}

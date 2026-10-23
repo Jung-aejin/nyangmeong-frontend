@@ -29,7 +29,7 @@ export default function TermsStep({ form }) {
         </CheckBox>
       </div>
       {SIGNUP_TERMS.map(({ key, label, required, hasView }) => (
-        <div key={key} className="flex min-h-11 items-center px-4 text-ink-2">
+        <div key={key} className="flex min-h-10 items-center px-4 text-ink-2">
           <CheckBox
             checked={Boolean(form.terms[key])}
             onChange={() => form.toggleTerm(key)}
@@ -57,14 +57,14 @@ export default function TermsStep({ form }) {
           )}
         </div>
       ))}
-      <p className="mt-3 text-sm leading-5 text-muted">
+      <p className="mt-2 text-sm leading-5 text-muted">
         필수 약관에 모두 동의하면 다음으로 넘어갈 수 있어요.
       </p>
       <button
         type="button"
         disabled={!form.isTermsOk}
         onClick={() => form.goStep('email')}
-        className={`${PRIMARY_BTN} mt-8`}
+        className={`${PRIMARY_BTN} mt-5`}
       >
         다음
       </button>

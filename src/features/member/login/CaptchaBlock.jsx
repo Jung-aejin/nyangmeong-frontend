@@ -2,9 +2,8 @@ import { RefreshCw } from 'lucide-react';
 import AiErrorGuide from '@/components/AiErrorGuide';
 
 const ART =
-  'flex h-[46px] flex-1 items-center justify-center gap-2.5 rounded-md border border-line bg-[repeating-linear-gradient(13deg,var(--color-surface-3)_0_2px,var(--color-surface-2)_3px_7px)] text-[22px] font-bold text-ink-2 select-none';
+  'flex h-12 flex-1 items-center justify-center gap-2.5 rounded-xl border border-line bg-[repeating-linear-gradient(13deg,var(--color-surface-3)_0_2px,var(--color-surface-2)_3px_7px)] text-[22px] font-bold text-ink-2 select-none';
 
-// 보안코드 그림과 입력칸. 글자는 번갈아 기울여 그린다
 export default function CaptchaBlock({
   code,
   value,
@@ -43,13 +42,13 @@ export default function CaptchaBlock({
           type="button"
           onClick={onRefresh}
           aria-label="보안코드 새로고침"
-          className="grid size-[46px] place-items-center rounded-md border border-input-line text-ink-2 hover:bg-surface-2"
+          className="grid size-12 place-items-center rounded-xl border border-input-line text-ink-2 hover:bg-surface-2"
         >
           <RefreshCw className="size-6" />
         </button>
       </div>
       <div
-        className={`flex h-[46px] items-center rounded-md border bg-white px-3 focus-within:ring-focus ${
+        className={`flex h-12 items-center rounded-xl border bg-white px-3 focus-within:ring-focus ${
           error
             ? 'border-danger focus-within:ring-error'
             : 'border-input-line focus-within:border-brand-500'

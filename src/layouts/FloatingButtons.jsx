@@ -1,10 +1,13 @@
 import { useState } from 'react';
 import { Bot, ChevronLeft } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 import useAiDock from '@/hooks/useAiDock';
 import useAiWindow from '@/hooks/useAiWindow';
+import { PATHS } from '@/routes/paths';
 
 export default function FloatingButtons({ hasBottomNav = false }) {
   const openAiWindow = useAiWindow();
+  const isMain = useLocation().pathname === PATHS.MAIN;
   const [blocked, setBlocked] = useState(false);
   const dock = useAiDock();
 
@@ -25,7 +28,7 @@ export default function FloatingButtons({ hasBottomNav = false }) {
           : ''
       }`}
     >
-      <div className="relative">
+      <div className={isMain ? 'hidden' : 'relative'}>
         {dock.bubbleVisible && (
           <div
             role="status"
