@@ -1,16 +1,17 @@
+import { Lock } from 'lucide-react';
 import { formatPhone, normalizePhone } from '../shared/validate';
 import { PRIMARY_BTN } from '../shared/authStyles';
 import AuthField from '../shared/AuthField';
 import SignupSummary from './SignupSummary';
 import { SIGNUP_MESSAGES as MSG } from './signupMessages';
 
-// 4단계. 비밀번호와 확인값이 맞을 때만 가입한다. 가입은 여기서 처음 일어난다
 export default function PasswordStep({ form }) {
   const target = form.guideTarget;
   return (
-    <form noValidate onSubmit={form.submitJoin} className="flex flex-col gap-5">
+    <form noValidate onSubmit={form.submitJoin} className="flex flex-col gap-4">
       <AuthField
         id="signup-password"
+        icon={Lock}
         label="비밀번호"
         type="password"
         value={form.password}
@@ -23,6 +24,7 @@ export default function PasswordStep({ form }) {
       />
       <AuthField
         id="signup-confirm"
+        icon={Lock}
         label="비밀번호 확인"
         type="password"
         value={form.confirm}
@@ -49,7 +51,7 @@ export default function PasswordStep({ form }) {
       <button
         type="submit"
         disabled={!form.canJoin || form.isJoining}
-        className={`${PRIMARY_BTN} mt-3`}
+        className={`${PRIMARY_BTN} mt-1`}
       >
         회원가입
       </button>

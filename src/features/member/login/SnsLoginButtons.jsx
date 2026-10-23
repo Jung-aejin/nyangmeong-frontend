@@ -3,7 +3,7 @@ import { LOGIN_MESSAGES as MSG } from './loginMessages';
 import { GoogleLogo, KakaoLogo, NaverLogo } from './SnsLogos';
 
 const BASE =
-  'relative flex h-[46px] w-full items-center justify-center rounded-md px-12 font-semibold hover:brightness-[.97]';
+  'relative flex h-12 w-full items-center justify-center rounded-xl px-12 font-semibold hover:brightness-[.97]';
 
 const PROVIDERS = [
   { name: '네이버', Logo: NaverLogo, style: 'bg-[#03A94D] text-white' },

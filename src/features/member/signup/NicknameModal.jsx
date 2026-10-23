@@ -1,7 +1,8 @@
+import { User } from 'lucide-react';
 import { useState } from 'react';
 import Modal from '@/components/Modal';
 import { useCheckNickname, useUpdateNickname } from '../queries';
-import { PRIMARY_BTN } from '../shared/authStyles';
+import { PRIMARY_BTN, SIDE_BTN } from '../shared/authStyles';
 import AuthField from '../shared/AuthField';
 import {
   NICKNAME_MAX,
@@ -10,8 +11,6 @@ import {
 } from '../shared/validate';
 import { SIGNUP_MESSAGES as MSG } from './signupMessages';
 
-// 가입 직후 닉네임 설정 모달. 입력값은 임시값이고, 저장에 성공해야 닉네임이 바뀐다.
-// 닫아도 가입 때 저장된 닉네임(savedNickname)은 그대로다
 export default function NicknameModal({ savedNickname, onSaved, onClose }) {
   const [value, setValue] = useState(savedNickname);
   const [isEdited, setIsEdited] = useState(false);
@@ -96,6 +95,7 @@ export default function NicknameModal({ savedNickname, onSaved, onClose }) {
       <div className="mt-5">
         <AuthField
           id="signup-nickname"
+          icon={User}
           label="닉네임"
           value={value}
           onChange={change}
@@ -105,7 +105,6 @@ export default function NicknameModal({ savedNickname, onSaved, onClose }) {
           success={status === 'available' ? MSG.nickAvailable : ''}
           help={help}
           hasGuide
-          isGuideInline
           endAdornment={
             <span className="text-sm text-subtle tabular-nums">
               {value.length} / {NICKNAME_MAX}
@@ -116,7 +115,7 @@ export default function NicknameModal({ savedNickname, onSaved, onClose }) {
               type="button"
               onClick={handleCheck}
               disabled={!isValid || isSame || isBusy}
-              className="inline-flex h-[46px] min-w-[88px] shrink-0 items-center justify-center rounded-md border border-input-line bg-white px-4 font-semibold whitespace-nowrap hover:enabled:bg-surface-2 disabled:cursor-not-allowed disabled:border-transparent disabled:bg-surface-3 disabled:text-line-strong"
+              className={SIDE_BTN}
             >
               중복 확인
             </button>

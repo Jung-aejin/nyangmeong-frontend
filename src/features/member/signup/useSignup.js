@@ -17,11 +17,14 @@ import {
 import { SIGNUP_MESSAGES as MSG, SIGNUP_TERMS } from './signupMessages';
 
 const PREV_STEP = { email: 'terms', phone: 'email', password: 'phone' };
+const ORDER = ['terms', 'email', 'phone', 'password', 'complete'];
 
 // 이메일 가입 4단계(terms, email, phone, password)와 가입 뒤 완료 화면(complete)의 입력·확인 결과를 한곳에서 다룬다.
 // 단계를 오가도 약관·이메일·번호와 확인 결과는 남기고, 비밀번호는 단계를 벗어나면 비운다
 export default function useSignup({ onBackToLogin }) {
   const [step, setStep] = useState('terms');
+  // 단계 전환 모션의 방향(앞으로 가면 forward, 되돌아가면 back)
+  const [direction, setDirection] = useState('forward');
   const [terms, setTerms] = useState({});
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
@@ -50,6 +53,9 @@ export default function useSignup({ onBackToLogin }) {
   const normalizedPhone = normalizePhone(phone);
 
   const goStep = (next) => {
+    setDirection(
+      ORDER.indexOf(next) < ORDER.indexOf(step) ? 'back' : 'forward',
+    );
     setStep(next);
     setErrors({});
     setNotice(null);
@@ -265,6 +271,7 @@ export default function useSignup({ onBackToLogin }) {
 
   return {
     step,
+    direction,
     terms,
     isTermsOk,
     isAllChecked,
