@@ -1,6 +1,9 @@
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import PageSkeleton from '@/components/PageSkeleton';
+import Skeleton from '@/components/Skeleton';
+import SkeletonCard from '@/components/SkeletonCard';
 import InviteModal from '@/features/pet/list/InviteModal';
 import PetDeleteDialog from '@/features/pet/list/PetDeleteDialog';
 import PetEmpty from '@/features/pet/list/PetEmpty';
@@ -8,7 +11,7 @@ import PetFormModal from '@/features/pet/list/PetFormModal';
 import PetSlide from '@/features/pet/list/PetSlide';
 import PetUnlinkDialog from '@/features/pet/list/PetUnlinkDialog';
 import SentInvitations from '@/features/pet/list/SentInvitations';
-import { MAX_OWN_PETS, PET_REL } from '@/features/pet/shared/petCodes';
+import { MAX_OWN_PETS, PET_REL } from '@/utils/petCodes';
 import { usePets } from '@/features/pet/queries';
 import SubPageLayout from '@/layouts/SubPageLayout';
 
@@ -36,7 +39,22 @@ export default function PetListPage() {
 
   return (
     <SubPageLayout section="mypage">
-      {isPending ? null : pets.length === 0 ? (
+      {isPending ? (
+        <PageSkeleton>
+          <div
+            aria-hidden="true"
+            className="flex items-center justify-between gap-3"
+          >
+            <Skeleton className="h-7 w-40" />
+            <Skeleton className="h-10 w-32" />
+          </div>
+          <SkeletonCard className="h-[583px] max-[760px]:h-[987px]" />
+          <div aria-hidden="true" className="mt-7 flex flex-col gap-5">
+            <Skeleton className="h-7 w-32" />
+            <SkeletonCard className="h-[395px] max-[760px]:h-[635px]" />
+          </div>
+        </PageSkeleton>
+      ) : pets.length === 0 ? (
         <PetEmpty onRegister={() => setModalPetSn(null)} />
       ) : (
         <PetSlide

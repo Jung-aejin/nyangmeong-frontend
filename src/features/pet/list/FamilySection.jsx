@@ -1,9 +1,10 @@
 import { Plus, User, X } from 'lucide-react';
 import { useState } from 'react';
 import Badge from '@/components/Badge';
+import Skeleton from '@/components/Skeleton';
 import { showToast } from '@/components/toastStore';
 import { useCaregivers, useDeleteCaregiver } from '../queries';
-import { CGVR_ROLE, MAX_CAREGIVERS } from '../shared/petCodes';
+import { CGVR_ROLE, MAX_CAREGIVERS } from '@/utils/petCodes';
 
 /** 'YYYY-MM-DD' → 'MM-DD' */
 const formatLinkDate = (lnkDt) => lnkDt.slice(5);
@@ -119,7 +120,13 @@ export default function FamilySection({ pet, onInvite }) {
   const { data: caregivers = [], isPending } = useCaregivers(pet.petSn);
   const [deletingCaregiver, setDeletingCaregiver] = useState(null);
 
-  if (isPending) return null;
+  if (isPending) {
+    return (
+      <div aria-busy="true">
+        <Skeleton lines={3} />
+      </div>
+    );
+  }
 
   const owner = caregivers.find(
     (caregiver) => caregiver.cgvrRoleCd === CGVR_ROLE.PCG,

@@ -20,6 +20,8 @@ export default function ScheduleDayDetail({
   petLabel,
   onSelectSchedule,
   onCreate,
+  className = '',
+  bodyClassName = '',
 }) {
   const todayYmd = getTodayYmd();
   const isPast = ymd < todayYmd;
@@ -32,6 +34,17 @@ export default function ScheduleDayDetail({
       as="h3"
       title={formatMonthDayWeekday(ymd)}
       sub={`${sorted.length}건 · ${petLabel}`}
+      className={className}
+      bodyClassName={bodyClassName}
+      action={
+        <button
+          type="button"
+          className="inline-flex h-8 shrink-0 items-center rounded-[6px] bg-brand-500 px-3 text-base font-semibold text-white hover:bg-brand-600"
+          onClick={onCreate}
+        >
+          새 일정 등록
+        </button>
+      }
     >
       {sorted.length === 0 ? (
         <div className="rounded-[10px] border border-dashed border-[#b9c4c4]">
@@ -39,10 +52,10 @@ export default function ScheduleDayDetail({
             <span className="grid size-10 place-items-center rounded-full bg-[#f4f6f6] text-[#667374]">
               <Icon name="calendar_month" />
             </span>
-            <p className="text-sm text-[#566465]">등록된 기록이 없습니다</p>
+            <p className="text-sm text-[#566465]">등록된 일정이 없습니다</p>
             <button
               type="button"
-              className="h-8 rounded-[6px] border border-[#e2e7e7] bg-white px-3 text-sm font-semibold text-[#1a3234] hover:bg-[#f4f6f6]"
+              className="inline-flex h-8 items-center rounded-[6px] bg-brand-500 px-3 text-sm font-semibold text-white hover:bg-brand-600"
               onClick={onCreate}
             >
               새 일정 등록
@@ -104,13 +117,6 @@ export default function ScheduleDayDetail({
               </li>
             ))}
           </ul>
-          <button
-            type="button"
-            className="mt-3 text-sm font-semibold text-[#1e4a4c] hover:underline hover:underline-offset-[3px]"
-            onClick={onCreate}
-          >
-            새 일정 등록
-          </button>
         </>
       )}
     </Card>

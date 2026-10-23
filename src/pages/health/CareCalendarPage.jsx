@@ -1,5 +1,9 @@
 import { useState } from 'react';
+import PageSkeleton from '@/components/PageSkeleton';
+import Skeleton from '@/components/Skeleton';
+import SkeletonCard from '@/components/SkeletonCard';
 import CareList from '@/features/health/CareList';
+import DiaryTabs from '@/features/health/diary/DiaryTabs';
 import MonthCalendar from '@/features/health/MonthCalendar';
 import PetFilterChips from '@/features/health/PetFilterChips';
 import PetTabs from '@/features/health/PetTabs';
@@ -22,7 +26,13 @@ import {
 // 다가오는 일정을 찾을 범위. 최대 3건만 보여 주므로 1년이면 충분하다
 const UPCOMING_RANGE_DAYS = 365;
 
+const SECTION_TABS = [
+  { id: 'hlt003-calendar', label: '캘린더' },
+  { id: 'hlt003-care', label: '케어리스트' },
+];
+
 export default function CareCalendarPage() {
+  const [sectionId, setSectionId] = useState(SECTION_TABS[0].id);
   const todayYmd = getTodayYmd();
   const [viewMonthYmd, setViewMonthYmd] = useState(() =>
     makeYmd(getYear(todayYmd), getMonth(todayYmd), 1),
@@ -40,19 +50,24 @@ export default function CareCalendarPage() {
   } = usePets();
   const year = getYear(viewMonthYmd);
   const month = getMonth(viewMonthYmd);
-  const { data: monthData } = useSchedules({
+  const { data: monthData, isError: isMonthError } = useSchedules({
     startYmd: viewMonthYmd,
     endYmd: makeYmd(year, month, getDaysInMonth(year, month)),
   });
-  const { data: upcomingData } = useSchedules({
+  const { data: upcomingData, isError: isUpcomingError } = useSchedules({
     startYmd: todayYmd,
     endYmd: addDays(todayYmd, UPCOMING_RANGE_DAYS),
   });
 
-  if (isPetsPending)
+  /** 첫 진입: 반려동물·이번 달·다가오는 일정이 모두 올 때까지 */
+  if (
+    isPetsPending ||
+    (!monthData && !isMonthError) ||
+    (!upcomingData && !isUpcomingError)
+  )
     return (
       <PageFrame>
-        <p className="text-[#566465]">불러오는 중이에요</p>
+        <CalendarSkeleton />
       </PageFrame>
     );
   if (isPetsError) {
@@ -101,47 +116,66 @@ export default function CareCalendarPage() {
 
   return (
     <PageFrame>
-      <div className="grid items-start gap-5 min-[1101px]:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
-        <MonthCalendar
-          year={year}
-          month={month}
-          schedules={monthSchedules}
-          selectedYmd={selectedYmd}
-          canMoveMonth={(monthData?.totalSchdlCnt ?? 0) > 0}
-          onMoveMonth={handleMoveMonth}
-          onSelectDate={setSelectedYmd}
-        >
-          <PetFilterChips
-            pets={pets}
-            selectedPetSns={visiblePetSns}
-            onChange={handleFilterChange}
-          />
-        </MonthCalendar>
-
-        {/* 넓은 화면에서는 이 열의 높이를 캘린더 카드에 맞추고, 남는 높이는 다가오는 일정 카드가 채운다 */}
-        <div className="flex min-w-0 flex-col gap-5 min-[1101px]:h-0 min-[1101px]:min-h-full min-[1101px]:self-stretch">
-          <ScheduleDayDetail
-            ymd={selectedYmd}
-            schedules={monthSchedules}
-            petLabel={petLabel}
-            onSelectSchedule={openEdit}
-            onCreate={() => openCreate(selectedYmd)}
-          />
-          <UpcomingSchedules
-            schedules={upcomingSchedules}
-            onSelectSchedule={openEdit}
-            className="min-[1101px]:min-h-0 min-[1101px]:flex-1"
-            bodyClassName="min-[1101px]:min-h-0 min-[1101px]:overflow-y-auto"
-          />
-        </div>
-      </div>
-
-      <PetTabs
-        pets={pets}
-        selectedPetSn={selectedTabPetSn}
-        onSelect={setTabPetSn}
+      <DiaryTabs
+        items={SECTION_TABS}
+        activeId={sectionId}
+        onSelect={setSectionId}
+        label="케어 캘린더 묶음"
       />
-      {selectedTabPetSn != null && <CareList petSn={selectedTabPetSn} />}
+
+      {sectionId === 'hlt003-calendar' && (
+        <div
+          id="hlt003-calendar"
+          role="tabpanel"
+          aria-labelledby="hlt003-calendar-tab"
+          className="mt-5 grid items-start gap-5 min-[1101px]:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]"
+        >
+          <MonthCalendar
+            year={year}
+            month={month}
+            schedules={monthSchedules}
+            selectedYmd={selectedYmd}
+            canMoveMonth={(monthData?.totalSchdlCnt ?? 0) > 0}
+            onMoveMonth={handleMoveMonth}
+            onSelectDate={setSelectedYmd}
+          >
+            <PetFilterChips
+              pets={pets}
+              selectedPetSns={visiblePetSns}
+              onChange={handleFilterChange}
+            />
+          </MonthCalendar>
+
+          {/* 넓은 화면에서는 이 열의 높이를 캘린더 카드에 맞추고, 다가오는 일정 카드는 내용 높이로 맨 아래에 붙고 남는 높이는 날짜 상세 카드가 채운다 */}
+          <div className="flex min-w-0 flex-col gap-5 min-[1101px]:h-0 min-[1101px]:min-h-full min-[1101px]:self-stretch">
+            <ScheduleDayDetail
+              className="min-[1101px]:min-h-0 min-[1101px]:flex-1"
+              bodyClassName="min-[1101px]:min-h-0 min-[1101px]:overflow-y-auto"
+              ymd={selectedYmd}
+              schedules={monthSchedules}
+              petLabel={petLabel}
+              onSelectSchedule={openEdit}
+              onCreate={() => openCreate(selectedYmd)}
+            />
+            <UpcomingSchedules
+              schedules={upcomingSchedules}
+              onSelectSchedule={openEdit}
+              className="min-[1101px]:shrink-0"
+            />
+          </div>
+        </div>
+      )}
+
+      {sectionId === 'hlt003-care' && (
+        <div id="hlt003-care" role="tabpanel" aria-labelledby="hlt003-care-tab">
+          <PetTabs
+            pets={pets}
+            selectedPetSn={selectedTabPetSn}
+            onSelect={setTabPetSn}
+          />
+          {selectedTabPetSn != null && <CareList petSn={selectedTabPetSn} />}
+        </div>
+      )}
 
       {modal && (
         <ScheduleModal
@@ -155,6 +189,27 @@ export default function CareCalendarPage() {
         />
       )}
     </PageFrame>
+  );
+}
+
+/** 로딩 자리: 달력 + 오른쪽 카드 2장, 반려동물 칩, 케어 목록 */
+function CalendarSkeleton() {
+  return (
+    <PageSkeleton>
+      <div className="grid gap-5 min-[1101px]:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+        <SkeletonCard className="h-[624px]" />
+        <div className="flex flex-col gap-5">
+          <SkeletonCard className="h-[262px]" />
+          <SkeletonCard className="h-[342px]" />
+        </div>
+      </div>
+      <div aria-hidden="true" className="mt-2 flex gap-2">
+        {[0, 1, 2].map((index) => (
+          <Skeleton key={index} className="h-9 w-28 rounded-full" />
+        ))}
+      </div>
+      <SkeletonCard className="h-[1538px] max-[760px]:h-[2400px]" />
+    </PageSkeleton>
   );
 }
 

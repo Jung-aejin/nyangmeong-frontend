@@ -38,10 +38,15 @@ export const PATHS = {
   COMMUNITY_POST_DETAIL: '/community/posts/:pstSn',
   COMMUNITY_POST_EDIT: '/community/posts/:pstSn/edit',
   COMMUNITY_MISSING: '/community/missing',
+  COMMUNITY_MISSING_NEW: '/community/missing/new',
   COMMUNITY_MISSING_DETAIL: '/community/missing/:lostTpofSn',
+  COMMUNITY_MISSING_EDIT: '/community/missing/:lostTpofSn/edit',
   COMMUNITY_NEWS: '/community/news',
+  COMMUNITY_NEWS_DETAIL: '/community/news/:newsSn',
   COMMUNITY_PETCARE: '/community/petcare',
+  COMMUNITY_PETCARE_NEW: '/community/petcare/new',
   COMMUNITY_PETCARE_DETAIL: '/community/petcare/:petPrtcRcrtSn',
+  COMMUNITY_PETCARE_EDIT: '/community/petcare/:petPrtcRcrtSn/edit',
 
   /** support */
   NOTICES: '/notices',

@@ -6,6 +6,7 @@ import { BTN_DANGER, BTN_SECONDARY } from '@/components/buttonStyles';
 import { PATHS } from '@/routes/paths';
 import { formatDate } from '@/utils/formatDate';
 import { useDeleteInspections } from '../queries';
+import BloodResultForm from './BloodResultForm';
 import { ADD_ROW, BTN_SM, ROW_LINE, TAG, TAG_STRONG } from './checkupStyles';
 import { FUNCTION_TAGS, findName } from './checkupTypes';
 
@@ -19,7 +20,7 @@ const getOutDirection = ({ rsltVal, refMinVal, refMaxVal }) => {
 /**
  * [혈액검사 결과 목록]
  * - 기능 태그·태그별 건수, 항목·측정값·참고범위 한 줄, 참고범위 밖은 색 + ▲▼ (FN-HLT-005-02)
- * - 행의 어디를 눌러도(체크박스 제외) 검사 수치 입력(수정), [＋ 검사 수치 추가] → 검사 수치 입력
+ * - 행의 어디를 눌러도(체크박스 제외) 검사 수치 입력(수정), [＋ 검사 수치 추가] → 목록 아래에 입력 영역이 열림
  * - 체크박스로 고른 항목을 확인 뒤 삭제
  */
 export default function BloodResultList({ checkup, items }) {
@@ -27,6 +28,7 @@ export default function BloodResultList({ checkup, items }) {
   const { ckupRcdSn } = checkup;
   const [selectedSns, setSelectedSns] = useState([]);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [isFormOpen, setIsFormOpen] = useState(false);
   const deleteInspections = useDeleteInspections();
 
   const inputPath = generatePath(PATHS.HEALTH_CHECKUP_INSPECTIONS, {
@@ -186,13 +188,23 @@ export default function BloodResultList({ checkup, items }) {
         </>
       )}
 
-      <Link
-        to={{ pathname: inputPath, search: '?mode=manual' }}
-        className={`${BTN_SECONDARY} ${ADD_ROW} w-full`}
-      >
-        <Icon name="add" className="text-lg" />
-        검사 수치 추가
-      </Link>
+      {!isFormOpen && (
+        <button
+          type="button"
+          className={`${BTN_SECONDARY} ${ADD_ROW} w-full`}
+          onClick={() => setIsFormOpen(true)}
+        >
+          <Icon name="add" className="text-lg" />
+          검사 수치 추가
+        </button>
+      )}
+      {isFormOpen && (
+        <BloodResultForm
+          ckupRcdSn={ckupRcdSn}
+          registeredNames={new Set(items.map((item) => item.inspItmNm))}
+          onClose={() => setIsFormOpen(false)}
+        />
+      )}
       <p className="mt-3 flex gap-2.5 rounded-[10px] bg-surface-2 px-3.5 py-3 text-muted">
         <Icon name="info" className="mt-0.5 text-lg text-subtle" />
         <span>PDF로 받은 결과지는 첨부 자료 탭에서 [PDF 분석]</span>

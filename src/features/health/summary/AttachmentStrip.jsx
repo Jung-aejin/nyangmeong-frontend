@@ -4,16 +4,18 @@ import Icon from '@/components/Icon';
 import { showToast } from '@/components/toastStore';
 import { formatDate } from '@/utils/formatDate';
 import PhotoModal from './PhotoModal';
-import { CardTitle, MoreLink, SummaryEmpty } from './SummaryParts';
-import { DIARY_EXAM_PATH, getCheckupDetailPath } from './summaryUtils';
+import { CardTitle, SummaryEmpty } from './SummaryParts';
+import { DIARY_EXAM_PATH } from './summaryUtils';
 
 /**
  * [첨부 자료] (FN-HLT-011-09)
  * - 검진기록 첨부파일 최신 4건을 가로로 나열(미리보기 → 파일명 → 날짜), 업로드·삭제 없음
- * - 이미지는 누르면 미리보기, PDF 등은 내려받기. [전체 보기]는 첫 칸 파일의 검진상세 첨부 자료 탭
+ * - 이미지는 누르면 미리보기, PDF 등은 내려받기. [전체 보기]는 없음(명세 FN-HLT-011-09에는 있음, 추가 요청)
+ * - 제목 줄 어디를 눌러도(버튼 포함) 목록을 접고 펼침(처음은 접힘, 명세 FN-HLT-011-09에는 없음, 추가 요청)
  */
 export default function AttachmentStrip({ attachments }) {
   const [photoUrl, setPhotoUrl] = useState(null);
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleOpen = (attachment) => {
     if (!attachment.fileUrl) {
@@ -38,12 +40,20 @@ export default function AttachmentStrip({ attachments }) {
     <Card
       title={<CardTitle icon="description">첨부 자료</CardTitle>}
       action={
-        attachments.length > 0 && (
-          <MoreLink
-            to={getCheckupDetailPath(attachments[0].ckupRcdSn, 'attachments')}
+        <button
+          type="button"
+          aria-expanded={isOpen}
+          className="inline-flex shrink-0 items-center gap-0.5 font-semibold whitespace-nowrap text-muted hover:text-ink"
+        >
+          {isOpen ? '접기' : '펼치기'}
+          <Icon
+            name={isOpen ? 'expand_less' : 'expand_more'}
+            className="text-xl"
           />
-        )
+        </button>
       }
+      onHeaderClick={() => setIsOpen((open) => !open)}
+      bodyClassName={isOpen ? '' : 'hidden'}
     >
       {attachments.length === 0 ? (
         <SummaryEmpty
@@ -53,7 +63,7 @@ export default function AttachmentStrip({ attachments }) {
           to={DIARY_EXAM_PATH}
         />
       ) : (
-        <ul className="grid grid-cols-2 gap-4 min-[761px]:grid-cols-4">
+        <ul className="grid grid-cols-2 gap-4 min-[761px]:grid-cols-4 min-[1101px]:grid-cols-[repeat(4,160px)]">
           {attachments.map((attachment) => {
             const image = isImage(attachment);
             const actionLabel = `${attachment.fileNm} ${image ? '미리보기' : '다운로드'}`;
@@ -79,7 +89,7 @@ export default function AttachmentStrip({ attachments }) {
                     ) : (
                       <Icon
                         name={image ? 'image' : 'description'}
-                        className="text-[40px]"
+                        className="text-[52px]"
                       />
                     )}
                     <em className="absolute top-2 left-2 rounded-[4px] bg-ink px-2 text-[13px] font-semibold text-white not-italic">
@@ -98,7 +108,7 @@ export default function AttachmentStrip({ attachments }) {
                   >
                     <Icon
                       name={image ? 'zoom_in' : 'download'}
-                      className="text-xl"
+                      className="text-[18px]"
                     />
                   </span>
                 </button>

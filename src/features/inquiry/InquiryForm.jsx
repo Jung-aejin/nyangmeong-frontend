@@ -1,12 +1,13 @@
 import { ChevronLeft, CircleAlert, Info } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import AutoTextarea from '@/components/AutoTextarea';
 import { BTN_PRIMARY, BTN_SECONDARY } from '@/components/buttonStyles';
 import ConfirmModal from '@/components/ConfirmModal';
 import DropdownSelect from '@/components/DropdownSelect';
+import ImageAttach from '@/components/ImageAttach';
 import { PATHS } from '@/routes/paths';
 import { INQUIRY_TYPES } from './api';
-import InquiryImages from './InquiryImages';
 
 const TITLE_MAX = 50;
 const BODY_MAX = 2000;
@@ -17,15 +18,6 @@ const TYPE_OPTIONS = INQUIRY_TYPES.map((name) => ({
 
 const INPUT_CLASS =
   'block w-full rounded-md border bg-white px-3 text-base placeholder:text-[#8c9899] hover:border-[#b9c4c4] focus:border-[#285a5c] focus:outline-none focus:ring-2 focus:ring-[#285a5c]/20';
-
-/** 글 길이에 맞춰 높이를 맞춘다. 높이를 비우는 동안 문서가 짧아져 스크롤이 튀는 것을 되돌린다 */
-const fitHeight = (textarea) => {
-  const scrollY = window.scrollY;
-  textarea.style.height = 'auto';
-  const border = textarea.offsetHeight - textarea.clientHeight;
-  textarea.style.height = `${textarea.scrollHeight + border}px`;
-  window.scrollTo(0, scrollY);
-};
 
 function FieldError({ message }) {
   if (!message) return null;
@@ -57,8 +49,6 @@ export default function InquiryForm({
   const [images, setImages] = useState(initial.atchFiles);
   const [errors, setErrors] = useState({});
   const [leaveTo, setLeaveTo] = useState(null);
-  const bodyRef = useRef(null);
-  const titleRef = useRef(null);
 
   const isEdit = mode === 'edit';
   const isDirty =
@@ -74,26 +64,6 @@ export default function InquiryForm({
     window.addEventListener('beforeunload', warn);
     return () => window.removeEventListener('beforeunload', warn);
   }, [isDirty]);
-
-  /** 내용 칸: 글 길이에 높이를 맞춘다(늘고 줄어든다, 최소 300px·상한 600px는 min-h·max-h). 드래그로 키운 높이는 다음 입력 때 글 길이에 맞게 돌아온다 */
-  useEffect(() => {
-    fitHeight(bodyRef.current);
-  }, [body]);
-
-  /** 제목 칸: 한 줄을 넘으면 줄바꿈되어 높이가 늘어난다 */
-  useEffect(() => {
-    fitHeight(titleRef.current);
-  }, [title]);
-
-  /** 창 너비가 바뀌면 줄바꿈 위치가 달라지므로 제목·내용 칸 높이를 다시 맞춘다 */
-  useEffect(() => {
-    const refit = () => {
-      fitHeight(titleRef.current);
-      fitHeight(bodyRef.current);
-    };
-    window.addEventListener('resize', refit);
-    return () => window.removeEventListener('resize', refit);
-  }, []);
 
   /** 목록으로·취소: 고친 것이 있으면 먼저 묻는다 */
   const handleLeave = (target) => {
@@ -190,9 +160,8 @@ export default function InquiryForm({
               {title.length} / {TITLE_MAX}
             </span>
           </div>
-          <textarea
+          <AutoTextarea
             id="inquiry-title"
-            ref={titleRef}
             rows={1}
             value={title}
             maxLength={TITLE_MAX}
@@ -225,9 +194,8 @@ export default function InquiryForm({
               *
             </span>
           </label>
-          <textarea
+          <AutoTextarea
             id="inquiry-body"
-            ref={bodyRef}
             value={body}
             maxLength={BODY_MAX}
             placeholder="언제, 어떤 화면에서, 어떤 일이 있었는지 자세히 적어 주시면 더 빠르게 답변드릴 수 있어요"
@@ -247,7 +215,11 @@ export default function InquiryForm({
           </div>
         </div>
 
-        <InquiryImages images={images} onChange={setImages} />
+        <ImageAttach
+          images={images}
+          onChange={setImages}
+          hint="화면 캡처를 함께 올려 주시면 확인이 빨라요."
+        />
       </form>
 
       {errorMessage && (

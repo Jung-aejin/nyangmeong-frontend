@@ -41,9 +41,9 @@
 | HLT-007 | 검사 수치 입력 | `/health/checkups/:ckupRcdSn/inspections`. 검진상세 경유 (매핑표 42행) | JAJ | |
 | HOS-001 | 플레이스 | `/places` (`?category=hospital·beauty·goods·pet-friendly·hotel`) (매핑표 2·17~20행) | YAY | ✓ |
 | CMU-001 | 펫이야기 | `/community` · `/community/posts/:pstSn` · `/new` · `/:pstSn/edit`. 남이 수정 URL로 오면 상세로 (CMU-001-15) | KSJ | ✓ 목록 |
-| CMU-002 | 실종센터 | `/community/missing` · `/:lostTpofSn` | KSJ | ✓ 목록 |
-| CMU-003 | 펫뉴스 | `/community/news` | KSJ | ✓ |
-| CMU-004 | 펫돌봄 | `/community/petcare` · `/:petPrtcRcrtSn` | KSJ | ✓ 목록 |
+| CMU-002 | 실종센터 | `/community/missing` · `/:lostTpofSn` · `/new` · `/:lostTpofSn/edit`. 남이 수정 URL로 오면 상세로 (CMU-002-06) | KSJ | ✓ 목록 |
+| CMU-003 | 펫뉴스 | `/community/news` · `/:newsSn` | KSJ | ✓ 목록 |
+| CMU-004 | 펫돌봄 | `/community/petcare` · `/new` · `/:petPrtcRcrtSn` · `/:petPrtcRcrtSn/edit` | KSJ | ✓ 목록 |
 | CSC-001 | 공지사항 | `/notices` · `/:ntcMttrSn` | KSJ | ✓ 목록 |
 | CSC-002 | FAQ | `/faqs`. AI 폴백 2회 실패 시 이동 (AIM-005-05) | KSJ | ✓ |
 | CSC-003 | 1:1 문의 | `/inquiries` · `/new` · `/:otoInqrySn` | KSJ | |

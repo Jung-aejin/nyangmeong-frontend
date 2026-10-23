@@ -2,22 +2,47 @@
 
 ## 지금 하는 것
 
-SCR-CMU-005 우리동네 펫돌봄 채팅 (2026-10-22) — 상태: 끝 (검증 `통과` 1회차, 사람 확인 2026-10-22)
-
-- 결정(사람): 창 760x780(시안의 한 칸 화면), 완료 요청은 입력 없이(명세·시안대로). 메시지 보낸 시각은 DDL 확인 뒤 정한다 — 지금은 시각 없이 만들고 `msgDt`가 있으면 그린다
-- 디자인: `html/SCR-CMU-005.html` + `html/SCR-CMU-005/`(사람이 준 `nmcare-design-v4-1`에서 복사). 주소 공유 모달만 시안에 없어 화면설계서 기준
-- 만든 것: `/chat` 한 칸 화면(목록 → 방, ‹ 복귀), 목록 탭·글별 보기·거래 상태 배지, 거래 카드(`room/CareDealCard.jsx`·`dealSteps.js`: 상태 9종 × 역할 2개), 사진 첨부·주소 공유 모달, 방 상단 바·나가기, 가짜 API 확장(`features/chat/api.js`), 코드값 한 곳(`shared/chatCodes.js`)
-- 열기: `open({ listPstSn })`가 그 글의 채팅만 보여 준다(`?pstSn=`은 방 만들기에 이미 써서 다른 이름). 확인은 `/dev/chat`의 거래 상태별 방 링크(상대 동작 버튼은 `&fakeChatTools=1`)
-
-이전 작업: SCR-COM-009 채팅 셸 — 새 창 — 끝(검증 `통과` 3회차, 사람 확인 2026-10-21). 결정·추가 요청은 `milestones/LJS.md` 그 절
-
+SCR-COM-009 채팅 모달 복귀 · 새 창으로 띄우기 — 끝 (검증 `통과`, 사람 확인 2026-10-22). 기획·결정·추가 요청 1~2는 `milestones/LJS.md` 그 절
 
 ## 다음에 할 것
 
+- SCR-COM-009 채팅 모달 남은 것(검증 비고, 선택): ① 모달 위에 알림 드롭다운을 연 채 Esc를 누르면 모달도 닫힌다 ② AI 플로팅·TOP 버튼(`FloatingButtons` z-30)이 딤 위에 보인다(시안은 딤 아래) ③ 1440x900에서 모달 위 4px가 헤더(64px)에 가린다 ④ 시안의 목록 선택 방 강조(`ChatRoomList.jsx`)는 안 했다
+
+- SCR-COM-002 PR 전: 아래 디스코드 알림을 보내고, `docs/convention/ui.md` "로딩 표시" 절 변경을 팀과 합의한다. KSJ에 알릴 것: `useNotices`·`useFaqs`·`useInquiries`에 `placeholderData: keepPreviousData`(탭·검색·쪽 이동 때 이전 내용 유지), 390px `/faqs` 카테고리 탭 줄 때문에 가로 스크롤(범위 밖, 다 불러온 뒤)
+
+- 로딩 스켈레톤 확인(각 담당): "불러오는 중이에요" 문구와 `return null` 로딩 분기를 각 페이지의 실제 카드 배치 스켈레톤으로 바꿔 두었다(LJS, SCR-COM-002, 1440·390px에서 높이 ±20% 확인). 화면 배치를 바꾸면 그 페이지 파일 안 `XxxSkeleton`(또는 로딩 분기)도 같이 고친다. 새 화면·새 로딩 분기는 `docs/convention/ui.md` "로딩 표시" 절대로 만든다
+
+  | 컴포넌트 | props | 쓰는 곳 |
+  | --- | --- | --- |
+  | `@/components/PageSkeleton` | `top`(칩·탭 위 카드, 예: 히어로), `chips`·`tabs`(개수), `children`(카드 배치, 없으면 큰 카드 1장) | 페이지 본문 전체를 대신하는 로딩 |
+  | `@/components/SkeletonCard` | `className`(높이·칸, 기본 `h-64`) | 카드 한 장 자리. 대시보드는 실제 그리드에 놓는다(예: `HealthDiaryPage`) |
+  | `@/components/Skeleton` | `className`(크기·모양, 예: `h-5 w-40`), `lines`(여러 줄, 마지막 줄 짧게) | 카드가 아닌 작은 요소(검색창·버튼·탭 글자·쪽 번호·구역 제목)나 카드 안 한 구역 |
+
+  ```jsx
+  /** 첫 진입: 페이지 파일 안 XxxSkeleton으로 실제 배치 */
+  if (isPending) return <XxxListSkeleton />;
+  function XxxListSkeleton() {
+    return (
+      <PageSkeleton>
+        <Skeleton className="h-12 w-[300px]" /> {/** 검색 줄 */}
+        <SkeletonCard className="h-[754px]" /> {/** 목록 카드 */}
+      </PageSkeleton>
+    );
+  }
+  /** 페이지 안 컴포넌트가 따로 조회: 그 카드와 같은 크기 */
+  if (isPending) return <SkeletonCard className="h-64" />;
+  ```
+
+  - KSJ: `pages/notice/NoticeListPage`·`NoticeDetailPage`, `pages/faq/FaqListPage`, `pages/inquiry/InquiryListPage`(로딩 분기 2곳이 같은 `InquiryListSkeleton`)·`InquiryDetailPage`·`InquiryEditPage`
+  - JAJ: `pages/health/HealthSummaryPage`(`SummarySkeleton`)·`HealthDiaryPage`·`CheckupDetailPage`·`CareCalendarPage`(`CalendarSkeleton`, 일정 실패 시 대기 안 함)·`LabInputPage`, `features/health/CareList`·`diary/ReceiptResultStep`·`diary/CheckupListCard`·`diary/ObservationCard`, `features/health/queries.js`(`useDailyRecords`·`useObservations`·`useCheckups`·`useSchedules`에 `keepPreviousData`)
+  - SJM: `pages/mypage/PetListPage`, `features/pet/list/FamilySection`·`list/SentInvitations`·`invite/InvitationAccept`
+  - 공용(LJS): `components/Pagination`(카드 쪽 번호, 가계부 전체 내역·건강 일지 검진 카드)도 누르면 맨 위로 간다
+  - PR 전 디스코드 알림: "페이지를 이동하면 스크롤이 맨 위로 가도록 `UserLayout`·`AdminLayout`에 넣었어요(뒤로가기는 원래 위치로 돌아가요). 쪽 번호(`BoardPagination`·`Pagination`)를 눌러도 맨 위로 가요. 첫 진입에 깜빡이던 '불러오는 중이에요'와 로딩 중 `return null`은 각 페이지의 실제 카드 배치 스켈레톤(`PageSkeleton`·`SkeletonCard`·`Skeleton`)으로 바꿨어요. 위 파일들이 바뀌었으니 화면 배치를 바꾸면 그 페이지의 `XxxSkeleton`도 같이 고쳐 주세요. 규칙은 `docs/convention/ui.md` '로딩 표시' 절, 사용법은 `handoff/LJS.md`에 있어요"
+
 - SCR-CMU-005·COM-009 연결 남음: 채팅·매칭 API(KSJ, 백엔드 `docs/api/community.md`)로 `features/chat/api.js` 가짜를 바꾸고 가짜 읽음 위치 `localStorage['fake-chat-read-seq']` 코드를 지운다. 붙인 뒤 `room/FakePeerTools.jsx`·`fakePeerAct`·`/dev/chat`(`pages/dev/ChatDevPage.jsx`)·`fakeChat*` 쿼리 코드를 지운다. 009-18 알림 억제는 서버(YAY). 장소 검색은 YAY(`searchChatPlaces` → `GET /places`, 주소 검색 범위는 백엔드 issues 99번 13)
 - KSJ에 물을 것(CMU-005 가짜가 추정한 것): ① 목록 `ChatRoomSummary`에 내 역할(`myRole`)·거래 상태(`mtchDlngSttsCd`)가 없다(탭·배지에 필요) ② 방 응답에 모집글 일정·비용 요약이 없다(카드 펼침 `rcrtSummary`) ③ 메시지 보낸 시각 필드(사람이 DDL 확인 후 정함) ④ 시스템 안내 메시지 유형과 강조(`sysToneCd`), 요청 취소 사유 표시(`tagCn`) ⑤ 주소 공유 필드 배치(가짜는 `shrnAddr`=장소, `msgCn`=상세 주소) ⑥ 매칭 요청 `CareMatchCreateRequest`의 조건 필드를 화면이 어디서 받나(시안은 "현재 모집글 조건으로 요청") ⑦ 완료 요청이 입력 없이 가능한지(백엔드는 회차·종료 시각·내용·사진을 받는다) ⑧ 채팅방 나가기·다시 요청·무응답 종료 API 없음(백엔드 issues 17) ⑨ 사진 업로드 방식(issues 15)
-- 게시글 상세(SCR-CMU-004, KSJ): [채팅하기]는 `useChatWindow()`의 `open({ pstSn })`, 보호자 [채팅 목록 보기]는 `open({ listPstSn })`를 클릭 핸들러에서 바로 부른다(요청을 기다린 뒤 열면 팝업 차단)
-- 사람이 고치는 문서: 기능명세서 v0.4 FN-COM-009-03 "새 창이 아닌 모달" → 별도 창, 009-09·11·12와 화면설계서 v0.7 SCR-COM-009의 모달 문구. 커뮤니티 기능명세서 v0.7 FN-CMU-005-01 "채팅 모달"·화면설계서 v0.7 SCR-CMU-005 모달 문구(시안은 한 칸 새 창). 백엔드 저장소 `docs/convention/milestone.md` 담당 표에 채팅 화면 LJS 이관 반영
+- 게시글 상세(SCR-CMU-004, KSJ): [채팅하기]는 `@/context/chatModal`의 `useChatModal().open({ pstSn })`, 보호자 [채팅 목록 보기]는 `open({ listPstSn })`로 채팅 모달을 연다(SCR-COM-009 채팅 모달 복귀, 2026-10-22). 모달의 [새 창으로 띄우기]가 새 창을 연다
+- 사람이 고치는 문서: 백엔드 저장소 `docs/convention/milestone.md` 담당 표에 채팅 화면 LJS 이관 반영(채팅은 다시 모달, 2026-10-22. 명세 FN-COM-009-03 "모달"과 맞다)
 - SCR-CMU-005 남은 화면 일(선택): 거래 버튼을 아주 빠르게 두 번 누르면 두 번째 요청이 서버에 가 거절 토스트가 뜬다(`useDealAction`의 `onSettled`가 `invalidateQueries`를 반환하지 않음). 메시지 시각·날짜 구분선은 `msgDt`가 정해지면 `ChatConversation.jsx`에 날짜 구분선 추가
 - 공용 페이지 머리·사이드 메뉴 적용(각 담당): 화면을 `@/layouts/SubPageLayout`으로 감싸고, 파일 안의 `PageFrame`·`Chevron`·픽셀 그림·`SideMenu` 호출을 지운다. 메뉴 이름·순서·그림은 `layouts/subMenus.js`(`SUB_MENUS`)만 고친다. 옮길 화면: 건강기록 4개(`HealthSummaryPage`·`HealthDiaryPage`·`CareCalendarPage`·`CheckupDetailPage`, JAJ), 마이페이지(SJM), 고객센터 `CustomerCenterLayout`(KSJ), 커뮤니티(KSJ, 화면 만들 때). 모두 옮기면 `SideMenu`의 `menuLabel` 호환과 `/dev/sub-page`(`pages/dev/SubPageDevPage.jsx`)를 지운다
 

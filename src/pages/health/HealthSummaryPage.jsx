@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import AnchorBar from '@/features/health/diary/AnchorBar';
+import PageSkeleton from '@/components/PageSkeleton';
+import Skeleton from '@/components/Skeleton';
+import SkeletonCard from '@/components/SkeletonCard';
 import { useHealthSummary, usePets } from '@/features/health/queries';
 import AttachmentStrip from '@/features/health/summary/AttachmentStrip';
 import ConditionCard from '@/features/health/summary/ConditionCard';
@@ -9,6 +11,7 @@ import ObservationSummaryCard from '@/features/health/summary/ObservationSummary
 import PrescriptionHistoryCard from '@/features/health/summary/PrescriptionHistoryCard';
 import PreventionHistoryCard from '@/features/health/summary/PreventionHistoryCard';
 import SummaryHero from '@/features/health/summary/SummaryHero';
+import SummaryTabs from '@/features/health/summary/SummaryTabs';
 import { SectionHead } from '@/features/health/summary/SummaryParts';
 import TimelineCard from '@/features/health/summary/TimelineCard';
 import headHlt from '@/assets/head_hlt.svg';
@@ -30,6 +33,10 @@ const ANCHORS = [
 export default function HealthSummaryPage() {
   const [searchParams] = useSearchParams();
   const [tabPetSn, setTabPetSn] = useState(null);
+  /** 검진상세에서 ?inspection=으로 들어오면 검사 · 수치 묶음부터 */
+  const [sectionId, setSectionId] = useState(
+    searchParams.get('inspection') ? 'hlt011-lab' : ANCHORS[0].id,
+  );
   const {
     data: pets,
     isPending: isPetsPending,
@@ -44,7 +51,7 @@ export default function HealthSummaryPage() {
   if (isPetsPending) {
     return (
       <PageFrame>
-        <p className="text-muted">불러오는 중이에요</p>
+        <SummarySkeleton />
       </PageFrame>
     );
   }
@@ -75,7 +82,7 @@ export default function HealthSummaryPage() {
   if (!summary) {
     return (
       <PageFrame>
-        <p className="text-muted">불러오는 중이에요</p>
+        <SummarySkeleton />
       </PageFrame>
     );
   }
@@ -88,51 +95,106 @@ export default function HealthSummaryPage() {
         summary={summary}
         onSelect={setTabPetSn}
       />
-      <AnchorBar items={ANCHORS} />
-
-      <SectionHead
-        id="hlt011-hist"
-        title="진료 · 예방 이력"
-        description="병원 방문과 접종·검진 기록을 시간순으로 모았어요"
+      <SummaryTabs
+        items={ANCHORS}
+        activeId={sectionId}
+        onSelect={setSectionId}
       />
-      <div className="grid items-stretch gap-5 min-[1101px]:grid-cols-2">
-        <TimelineCard timeline={summary.timeline} />
+
+      {sectionId === 'hlt011-hist' && (
+        <Panel id="hlt011-hist">
+          <SectionHead
+            title="진료 · 예방 이력"
+            description="병원 방문과 접종·검진 기록을 시간순으로 모았어요"
+          />
+          <div className="grid items-stretch gap-5 min-[1101px]:grid-cols-2">
+            <TimelineCard timeline={summary.timeline} />
+            <div className="flex flex-col gap-5">
+              <PreventionHistoryCard prevention={summary.prevention} />
+              <ConditionCard
+                profile={summary.profile}
+                petSn={selectedPet.petSn}
+              />
+            </div>
+          </div>
+        </Panel>
+      )}
+
+      {sectionId === 'hlt011-lab' && (
+        <Panel id="hlt011-lab">
+          <SectionHead
+            title="검사 · 수치"
+            description="최근 혈액검사 결과와 항목별 변화를 확인해요"
+          />
+          <LabSection
+            key={`lab-${selectedPet.petSn}`}
+            lab={summary.lab}
+            trends={summary.trends}
+            initialItemNm={searchParams.get('inspection')}
+          />
+        </Panel>
+      )}
+
+      {sectionId === 'hlt011-rx' && (
+        <Panel id="hlt011-rx">
+          <SectionHead
+            title="처방 · 투약"
+            description="검진상세에 등록한 처방약을 복용 중인 것부터 보여줘요"
+          />
+          <PrescriptionHistoryCard prescriptions={summary.prescriptions} />
+        </Panel>
+      )}
+
+      {sectionId === 'hlt011-obs' && (
+        <Panel id="hlt011-obs">
+          <SectionHead
+            title="관찰 기록 · 첨부 자료"
+            description="계속 지켜보는 부위의 변화와 병원 서류를 함께 확인해요"
+          />
+          <ObservationSummaryCard
+            key={`obs-${selectedPet.petSn}`}
+            observations={summary.observations}
+          />
+          <AttachmentStrip attachments={summary.attachments} />
+        </Panel>
+      )}
+    </PageFrame>
+  );
+}
+
+/** 로딩 자리: 히어로 + 탭 + 첫 묶음(진료 · 예방 이력) 카드 배치 */
+function SummarySkeleton() {
+  return (
+    <PageSkeleton
+      top={<SkeletonCard className="h-[290px] max-[760px]:h-[848px]" />}
+      tabs={ANCHORS.length}
+    >
+      <div aria-hidden="true" className="flex flex-col gap-2">
+        <Skeleton className="h-6 w-36" />
+        <Skeleton className="h-4 w-72 max-w-full" />
+      </div>
+      <div className="grid gap-5 min-[1101px]:grid-cols-2">
+        <SkeletonCard className="h-[650px] max-[760px]:h-[666px]" />
         <div className="flex flex-col gap-5">
-          <PreventionHistoryCard prevention={summary.prevention} />
-          <ConditionCard profile={summary.profile} />
+          <SkeletonCard className="h-[365px] max-[760px]:h-[587px]" />
+          <SkeletonCard className="h-[265px]" />
         </div>
       </div>
+    </PageSkeleton>
+  );
+}
 
-      <SectionHead
-        id="hlt011-lab"
-        title="검사 · 수치"
-        description="최근 혈액검사 결과와 항목별 변화를 확인해요"
-      />
-      <LabSection
-        key={`lab-${selectedPet.petSn}`}
-        lab={summary.lab}
-        trends={summary.trends}
-        initialItemNm={searchParams.get('inspection')}
-      />
-
-      <SectionHead
-        id="hlt011-rx"
-        title="처방 · 투약"
-        description="검진상세에 등록한 처방약을 복용 중인 것부터 보여줘요"
-      />
-      <PrescriptionHistoryCard prescriptions={summary.prescriptions} />
-
-      <SectionHead
-        id="hlt011-obs"
-        title="관찰 기록 · 첨부 자료"
-        description="계속 지켜보는 부위의 변화와 병원 서류를 함께 확인해요"
-      />
-      <ObservationSummaryCard
-        key={`obs-${selectedPet.petSn}`}
-        observations={summary.observations}
-      />
-      <AttachmentStrip attachments={summary.attachments} />
-    </PageFrame>
+/** 선택된 묶음 하나. 안쪽 간격은 PageFrame 본문과 같음 */
+function Panel({ id, children }) {
+  return (
+    <div
+      role="tabpanel"
+      id={id}
+      aria-labelledby={`${id}-tab`}
+      className="flex flex-col gap-7"
+    >
+      {children}
+    </div>
   );
 }
 
