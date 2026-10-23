@@ -11,15 +11,15 @@
 @theme {
   --font-sans: 'Pretendard Variable', Pretendard, system-ui, sans-serif;
 
-  /** 플로팅 AI 말풍선이 위아래로 오르내림 */
-  --animate-bob: bob 1.6s ease-in-out infinite;
-  @keyframes bob {
+  /** 플로팅 AI 말풍선이 좌우로 흔들림 */
+  --animate-sway: sway 2s ease-in-out infinite;
+  @keyframes sway {
     0%,
     100% {
-      transform: translateY(0);
+      transform: translateX(0);
     }
     50% {
-      transform: translateY(-4px);
+      transform: translateX(-4px);
     }
   }
 
@@ -29,6 +29,11 @@
   --color-brand-500: #285a5c;
   --color-brand-600: #1e4a4c;
   --color-brand-900: #1a3234;
+
+  /** 플로팅 AI 버튼 */
+  --color-fab: #f9eaa6;
+  --color-fab-line: #e8d27e;
+  --color-fab-soft: #fffae2;
 
   /** 글자 */
   --color-ink: #1a3234;
