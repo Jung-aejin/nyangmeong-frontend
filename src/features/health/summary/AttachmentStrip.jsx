@@ -10,8 +10,8 @@ import { DIARY_EXAM_PATH } from './summaryUtils';
 /**
  * [첨부 자료] (FN-HLT-011-09)
  * - 검진기록 첨부파일 최신 4건을 가로로 나열(미리보기 → 파일명 → 날짜), 업로드·삭제 없음
- * - 이미지는 누르면 미리보기, PDF 등은 내려받기. [전체 보기]는 없음(명세 FN-HLT-011-09에는 있음, 추가 요청)
- * - 제목 줄 어디를 눌러도(버튼 포함) 목록을 접고 펼침(처음은 접힘, 명세 FN-HLT-011-09에는 없음, 추가 요청)
+ * - 이미지는 누르면 미리보기, PDF 등은 내려받기. [전체 보기]는 없음(명세 v1.1)
+ * - 제목 줄 어디를 눌러도(버튼 포함) 목록을 접고 펼침(처음은 접힘, 명세 v1.1)
  */
 export default function AttachmentStrip({ attachments }) {
   const [photoUrl, setPhotoUrl] = useState(null);

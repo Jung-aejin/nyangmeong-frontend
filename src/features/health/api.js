@@ -3,12 +3,13 @@ import profile1 from '@/assets/pets/profile1.png';
 import profile2 from '@/assets/pets/profile2.png';
 import profile3 from '@/assets/pets/profile3.png';
 import { addDays, diffDays, getTodayYmd } from '@/utils/formatDate';
+import { CHRC_STTS, PET_REL, PET_SE } from '@/utils/petCodes';
 import { MAX_MAIN_CARE, getNextDueYmd } from './careDue';
 import { HOSPITAL } from './scheduleTypes';
 
 // 케어 캘린더 API(JAJ 백엔드)와 반려동물 목록(SJM)이 생기기 전까지 쓰는 가짜 응답이다. api.get() 등으로 바꾸고 실제 필드 이름에 맞춘다
 // 필드 이름은 ERD 약어 기준 가안이다. 메모리 배열이라 새로고침하면 처음 상태로 돌아간다
-// 개발 환경에서만 ?fakePets=1로 반려동물 1마리를, ?fakeSchedules=0으로 일정 0건을, ?fakeRecords=0으로 완료 기록 0건을 확인할 수 있다
+// 개발 환경에서만 ?fakePets=1로 반려동물 1마리를, ?fakePets=8로 8마리(캐릭터 미생성·공동양육 포함)를, ?fakeSchedules=0으로 일정 0건을, ?fakeRecords=0으로 완료 기록 0건을 확인할 수 있다
 
 export const getQueryParam = (name) =>
   IS_DEV ? new URLSearchParams(window.location.search).get(name) : null;
@@ -19,6 +20,9 @@ const fakePets = [
   {
     petSn: 1,
     petNm: '나비',
+    petSeCd: PET_SE.CAT,
+    chrcSttsCd: CHRC_STTS.DONE,
+    petRelCd: PET_REL.OWNER,
     petSpcsCdNm: '고양이',
     chrctrImgPath: profile1,
     nrmlWghtMinVal: 3.6,
@@ -28,6 +32,10 @@ const fakePets = [
   {
     petSn: 2,
     petNm: '초코',
+    petSeCd: PET_SE.CAT,
+    // 캐릭터 미생성 예시. 종합 건강기록 히어로만 상태를 보고, 다른 화면 칩은 이미지를 그대로 쓴다
+    chrcSttsCd: CHRC_STTS.NONE,
+    petRelCd: PET_REL.OWNER,
     petSpcsCdNm: '고양이',
     chrctrImgPath: profile2,
     nrmlWghtMinVal: 4.0,
@@ -37,6 +45,9 @@ const fakePets = [
   {
     petSn: 3,
     petNm: '두리',
+    petSeCd: PET_SE.DOG,
+    chrcSttsCd: CHRC_STTS.DONE,
+    petRelCd: PET_REL.OWNER,
     petSpcsCdNm: '강아지',
     chrctrImgPath: profile3,
     nrmlWghtMinVal: 8.0,
@@ -45,8 +56,32 @@ const fakePets = [
   },
 ];
 
-const getFakePets = () =>
-  getQueryParam('fakePets') === '1' ? fakePets.slice(0, 1) : fakePets;
+/** ?fakePets=8에서만 더하는 반려동물. 일정·케어 가짜 데이터는 만들지 않는다 */
+const extraPets = [
+  ['보리', PET_SE.DOG, '강아지', CHRC_STTS.DONE, PET_REL.OWNER, profile3],
+  ['모모', PET_SE.CAT, '고양이', CHRC_STTS.NONE, PET_REL.OWNER, null],
+  ['콩이', PET_SE.DOG, '강아지', CHRC_STTS.DONE, PET_REL.CO_PARENT, profile3],
+  ['율무', PET_SE.CAT, '고양이', CHRC_STTS.NONE, PET_REL.CO_PARENT, null],
+  ['까미', PET_SE.CAT, '고양이', CHRC_STTS.DONE, PET_REL.OWNER, profile2],
+].map(([petNm, petSeCd, petSpcsCdNm, chrcSttsCd, petRelCd, chrctrImgPath], index) => ({
+  petSn: 4 + index,
+  petNm,
+  petSeCd,
+  chrcSttsCd,
+  petRelCd,
+  petSpcsCdNm,
+  chrctrImgPath,
+  nrmlWghtMinVal: null,
+  nrmlWghtMaxVal: null,
+  goalWghtVal: null,
+}));
+
+const getFakePets = () => {
+  const mode = getQueryParam('fakePets');
+  if (mode === '1') return fakePets.slice(0, 1);
+  if (mode === '8') return [...fakePets, ...extraPets];
+  return fakePets;
+};
 
 const findPetNm = (petSn) => fakePets.find((pet) => pet.petSn === petSn)?.petNm;
 

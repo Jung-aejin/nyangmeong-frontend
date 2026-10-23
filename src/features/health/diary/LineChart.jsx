@@ -60,6 +60,7 @@ const getCurvePath = (points, slopes) => {
  * [곡선 선그래프]
  * - 시안 nyangmung-chart.js의 nmCurveChart와 같은 모양: 곡선 + 연한 그라데이션, 범위는 점선 + 오른쪽 라벨, 최근 값은 말풍선
  * - points: [{ label, value }] 2개 이상, band: [최소, 최대], goal: 목표, formatValue: 말풍선 값, formatTag: 범위 라벨 값
+ * - bandLabelSide: 'right'(기본, 오른쪽 최대·최소 라벨) / 'left'(오른쪽 라벨 없이 왼쪽 눈금을 상한·하한으로, 좁은 화면용)
  */
 export default function LineChart({
   points,
@@ -67,6 +68,7 @@ export default function LineChart({
   goal,
   formatValue,
   formatTag = String,
+  bandLabelSide = 'right',
   height,
   ariaLabel,
 }) {
@@ -83,6 +85,7 @@ export default function LineChart({
           goal={goal}
           formatValue={formatValue}
           formatTag={formatTag}
+          bandLabelSide={bandLabelSide}
           ariaLabel={ariaLabel}
         />
       )}
@@ -98,15 +101,28 @@ function Chart({
   goal,
   formatValue,
   formatTag,
+  bandLabelSide,
   ariaLabel,
 }) {
   const gradientId = useId();
+  const isBandLeft = bandLabelSide === 'left';
   const values = points.map((point) => point.value);
   const count = values.length;
   const isSmall = width < 600;
-  const hasTag = band != null || goal != null;
-  const left = isSmall ? 40 : 56;
-  const right = hasTag ? (isSmall ? 76 : 92) : isSmall ? 12 : 24;
+  const hasTag = (band != null && !isBandLeft) || goal != null;
+  const left = isBandLeft ? (isSmall ? 64 : 80) : isSmall ? 40 : 56;
+  // 왼쪽 라벨일 때는 마지막 날짜 글자가 잘리지 않게 오른쪽을 조금 남김
+  const right = hasTag
+    ? isSmall
+      ? 76
+      : 92
+    : isBandLeft
+      ? isSmall
+        ? 28
+        : 32
+      : isSmall
+        ? 12
+        : 24;
   const top = 52;
   const bottom = 34;
   const pad = isSmall ? 16 : 28;
@@ -135,7 +151,7 @@ function Chart({
   const tipY = lastY - 48;
   const tagWidth = right - 12;
 
-  const rangeLine = (value, text, isGoal) => (
+  const rangeLine = (value, text, isGoal, hasLabel = true) => (
     <g key={text}>
       <path
         d={`M${left} ${getY(value)}H${width - right}`}
@@ -144,7 +160,9 @@ function Chart({
         strokeWidth="1.5"
         strokeDasharray={isGoal ? '2 4' : '6 5'}
       />
-      <rect
+      {hasLabel && (
+        <>
+          <rect
         x={width - right + 8}
         y={getY(value) - 11}
         width={tagWidth}
@@ -163,6 +181,8 @@ function Chart({
       >
         {text}
       </text>
+        </>
+      )}
     </g>
   );
 
@@ -196,7 +216,9 @@ function Chart({
               fontSize="14"
               fill={COLORS.subtle}
             >
-              {formatTag(value)}
+              {isBandLeft
+                ? `${value === band[1] ? '상한' : '하한'} ${formatTag(value)}`
+                : formatTag(value)}
             </text>
           </g>
         ))}
@@ -206,8 +228,8 @@ function Chart({
         strokeWidth="1"
       />
 
-      {band && rangeLine(band[1], `최대 ${formatTag(band[1])}`)}
-      {band && rangeLine(band[0], `최소 ${formatTag(band[0])}`)}
+      {band && rangeLine(band[1], `최대 ${formatTag(band[1])}`, false, !isBandLeft)}
+      {band && rangeLine(band[0], `최소 ${formatTag(band[0])}`, false, !isBandLeft)}
       {goal != null && rangeLine(goal, `목표 ${formatTag(goal)}`, true)}
 
       <path
