@@ -200,7 +200,7 @@ function Panel({ id, children }) {
 
 function PageFrame({ children }) {
   return (
-    <div className="grid grid-cols-1 pt-6 pb-[126px] text-ink leading-[1.6] break-keep tabular-nums antialiased min-[1101px]:grid-cols-[210px_minmax(0,1fr)] min-[1101px]:gap-x-12">
+    <div className="grid grid-cols-1 pt-6 pb-[126px] text-ink max-[760px]:pb-44.5 leading-[1.6] break-keep tabular-nums antialiased min-[1101px]:grid-cols-[210px_minmax(0,1fr)] min-[1101px]:gap-x-12">
       <header className="relative mb-6 min-[1101px]:col-span-full">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[28px] leading-[1.3] tracking-[-0.02em]">
           <span className="flex items-center gap-x-3 text-[#566465]">
