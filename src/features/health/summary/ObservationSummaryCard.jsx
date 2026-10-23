@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Card from '@/components/Card';
 import Icon from '@/components/Icon';
 import { diffDays, formatDate } from '@/utils/formatDate';
@@ -17,6 +17,7 @@ import { DIARY_OBS_PATH } from './summaryUtils';
  * - 관찰중 항목을 탭으로(1개면 탭 없음), 선택 항목의 첫 기록 사진과 최근 사진을 나란히 비교
  * - 사진 아래는 관찰일·회차 1줄, 크기(증감) 1줄. 요약 줄은 크기 변화량 → 변화 단계 → 없음 순
  * - 조회 전용: 등록·사진 추가·종료는 건강 일지에서만
+ * - 모바일(640px 미만): 칩은 한 줄 가로 스크롤, 사진은 정사각형 2장 좌우, 요약 링크는 "회차별" (추가 요청)
  */
 export default function ObservationSummaryCard({ observations }) {
   const [selectedSn, setSelectedSn] = useState(null);
@@ -24,6 +25,24 @@ export default function ObservationSummaryCard({ observations }) {
   const item =
     observations.find((candidate) => candidate.obsvItmSn === selectedSn) ??
     observations[0];
+  const chipsRef = useRef(null);
+
+  // 선택한 칩이 가로로 가려져 있으면 칩 줄만 스크롤해 보이게 함 (모바일 추가 요청)
+  useEffect(() => {
+    const list = chipsRef.current;
+    const chip = list?.querySelector('[aria-checked="true"]');
+    if (!chip) return;
+    const left =
+      chip.getBoundingClientRect().left -
+      list.getBoundingClientRect().left +
+      list.scrollLeft;
+    const right = left + chip.offsetWidth;
+    if (left < list.scrollLeft) {
+      list.scrollTo({ left, behavior: 'smooth' });
+    } else if (right > list.scrollLeft + list.clientWidth) {
+      list.scrollTo({ left: right - list.clientWidth, behavior: 'smooth' });
+    }
+  }, [item?.obsvItmSn]);
 
   return (
     <Card
@@ -42,9 +61,10 @@ export default function ObservationSummaryCard({ observations }) {
         <>
           {observations.length > 1 && (
             <div
+              ref={chipsRef}
               role="radiogroup"
               aria-label="관찰 항목 선택"
-              className="mb-4 flex flex-wrap gap-2"
+              className="mb-4 flex flex-wrap gap-2 [scrollbar-width:none] max-sm:flex-nowrap max-sm:overflow-x-auto"
             >
               {observations.map((candidate) => {
                 const isSelected = candidate.obsvItmSn === item.obsvItmSn;
@@ -54,7 +74,7 @@ export default function ObservationSummaryCard({ observations }) {
                     type="button"
                     role="radio"
                     aria-checked={isSelected}
-                    className={`inline-flex h-9 items-center gap-1.5 rounded-full border px-3.5 ${
+                    className={`inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border px-3.5 whitespace-nowrap ${
                       isSelected
                         ? 'border-brand-500 bg-brand-500 text-white'
                         : 'border-line bg-white text-ink hover:bg-surface-2'
@@ -89,7 +109,7 @@ function Compare({ item, onView }) {
   return (
     <>
       <div
-        className={`grid gap-4 ${hasCompare ? 'sm:grid-cols-2' : 'sm:grid-cols-[minmax(0,1fr)]'}`}
+        className={`grid gap-4 max-sm:grid-cols-2 max-sm:gap-5 ${hasCompare ? 'sm:grid-cols-2' : 'sm:grid-cols-[minmax(0,1fr)]'}`}
       >
         <Photo
           label="첫 기록 사진"
@@ -109,9 +129,12 @@ function Compare({ item, onView }) {
         )}
       </div>
       {summaryText && (
-        <div className="mt-4 flex items-center justify-between gap-3 rounded-[10px] bg-surface-2 px-4 py-3">
-          <p>{summaryText}</p>
-          <MoreLink to={DIARY_OBS_PATH}>회차별 기록 보기</MoreLink>
+        <div className="mt-4 flex items-center justify-between gap-3 rounded-[10px] bg-surface-2 px-4 py-3 max-sm:px-3">
+          <p className="min-w-0 truncate">{summaryText}</p>
+          <MoreLink to={DIARY_OBS_PATH}>
+            <span className="max-sm:hidden">회차별 기록 보기</span>
+            <span className="sm:hidden">회차별</span>
+          </MoreLink>
         </div>
       )}
     </>
@@ -126,34 +149,48 @@ function Photo({ label, round, roundNo, diffFrom, isRecent = false, onView }) {
 
   return (
     <div>
-      <button
-        type="button"
-        disabled={!round.photoPath}
-        aria-label={`${label} 원본 보기`}
-        className={`grid h-48 w-full cursor-zoom-in place-items-center overflow-hidden rounded-[10px] border border-dashed bg-surface-2 text-subtle disabled:cursor-default ${
-          isRecent ? 'border-solid border-brand-500' : 'border-line-strong'
-        }`}
-        onClick={() => onView(round.photoPath)}
-      >
-        {round.photoPath ? (
-          <img
-            src={round.photoPath}
-            alt=""
-            className="size-full object-cover"
-          />
-        ) : (
-          <span className="flex flex-col items-center gap-1.5">
-            <Icon name="image" className="text-[52px] text-line-strong" />
-            {label}
+      <div className="relative">
+        {isRecent && (
+          <span
+            aria-hidden="true"
+            className="absolute top-1/2 right-full grid w-5 -translate-y-1/2 place-items-center text-subtle sm:hidden"
+          >
+            <Icon name="chevron_right" className="text-lg" />
           </span>
         )}
-      </button>
+        <button
+          type="button"
+          disabled={!round.photoPath}
+          aria-label={`${label} 원본 보기`}
+          className={`grid h-48 w-full cursor-zoom-in max-sm:aspect-square max-sm:h-auto place-items-center overflow-hidden rounded-[10px] border border-dashed bg-surface-2 text-subtle disabled:cursor-default ${
+            isRecent ? 'border-solid border-brand-500' : 'border-line-strong'
+          }`}
+          onClick={() => onView(round.photoPath)}
+        >
+          {round.photoPath ? (
+            <img
+              src={round.photoPath}
+              alt=""
+              className="size-full object-cover"
+            />
+          ) : (
+            <span className="flex flex-col items-center gap-1.5">
+              <Icon name="image" className="text-[52px] text-line-strong" />
+              {label}
+            </span>
+          )}
+        </button>
+      </div>
       <div className="mt-2 text-center">
-        <p className="text-sm/[1.6] text-subtle">
-          {formatDate(round.obsvYmd)} · {roundNo}회차
+        <p className="text-sm/[1.6] whitespace-nowrap text-subtle">
+          <span className="max-sm:hidden">{formatDate(round.obsvYmd)}</span>
+          <span className="sm:hidden">
+            {formatDate(round.obsvYmd, { hasYear: false })}
+          </span>{' '}
+          · {roundNo}회차
         </p>
         {round.obsvSizeMm !== null && (
-          <p className="text-lg/[1.6] font-semibold">
+          <p className="text-lg/[1.6] font-semibold whitespace-nowrap max-sm:text-base/[1.6]">
             {formatSize(round.obsvSizeMm)}
             {diff && (
               <span className="ml-1 text-sm/[1.6] font-normal text-muted">

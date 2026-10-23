@@ -14,8 +14,7 @@ import SummaryHero from '@/features/health/summary/SummaryHero';
 import SummaryTabs from '@/features/health/summary/SummaryTabs';
 import { SectionHead } from '@/features/health/summary/SummaryParts';
 import TimelineCard from '@/features/health/summary/TimelineCard';
-import headHlt from '@/assets/head_hlt.svg';
-import SideMenu from '@/layouts/SideMenu';
+import SubPageLayout from '@/layouts/SubPageLayout';
 import { PATHS } from '@/routes/paths';
 
 const ANCHORS = [
@@ -24,6 +23,13 @@ const ANCHORS = [
   { id: 'hlt011-rx', label: '처방 · 투약' },
   { id: 'hlt011-obs', label: '관찰 기록 · 첨부 자료' },
 ];
+
+/** 공용 페이지 머리·사이드 메뉴 설정 */
+const LAYOUT_PROPS = {
+  section: 'health',
+  description: '우리 아이의 지금까지의 건강 이력을 한눈에 확인할 수 있어요',
+  contentClassName: 'gap-7 tabular-nums antialiased min-[1101px]:pt-6',
+};
 
 /**
  * [종합 건강기록 SCR-HLT-011]
@@ -50,23 +56,23 @@ export default function HealthSummaryPage() {
 
   if (isPetsPending) {
     return (
-      <PageFrame>
+      <SubPageLayout {...LAYOUT_PROPS}>
         <SummarySkeleton />
-      </PageFrame>
+      </SubPageLayout>
     );
   }
   if (isPetsError || isSummaryError) {
     return (
-      <PageFrame>
+      <SubPageLayout {...LAYOUT_PROPS}>
         <p role="alert" className="text-muted">
           건강기록을 불러오지 못했어요. 잠시 뒤 다시 시도해 주세요
         </p>
-      </PageFrame>
+      </SubPageLayout>
     );
   }
   if (!selectedPet) {
     return (
-      <PageFrame>
+      <SubPageLayout {...LAYOUT_PROPS}>
         <p className="text-muted">
           등록된 반려동물이 없어요.{' '}
           <Link
@@ -76,19 +82,19 @@ export default function HealthSummaryPage() {
             반려동물 등록
           </Link>
         </p>
-      </PageFrame>
+      </SubPageLayout>
     );
   }
   if (!summary) {
     return (
-      <PageFrame>
+      <SubPageLayout {...LAYOUT_PROPS}>
         <SummarySkeleton />
-      </PageFrame>
+      </SubPageLayout>
     );
   }
 
   return (
-    <PageFrame>
+    <SubPageLayout {...LAYOUT_PROPS}>
       <SummaryHero
         pets={pets}
         pet={selectedPet}
@@ -158,7 +164,7 @@ export default function HealthSummaryPage() {
           <AttachmentStrip attachments={summary.attachments} />
         </Panel>
       )}
-    </PageFrame>
+    </SubPageLayout>
   );
 }
 
@@ -184,7 +190,7 @@ function SummarySkeleton() {
   );
 }
 
-/** 선택된 묶음 하나. 안쪽 간격은 PageFrame 본문과 같음 */
+/** 선택된 묶음 하나. 안쪽 간격은 페이지 본문(`LAYOUT_PROPS`의 `gap-7`)과 같음 */
 function Panel({ id, children }) {
   return (
     <div
@@ -194,40 +200,6 @@ function Panel({ id, children }) {
       className="flex flex-col gap-7"
     >
       {children}
-    </div>
-  );
-}
-
-function PageFrame({ children }) {
-  return (
-    <div className="grid grid-cols-1 pt-6 pb-[126px] text-ink leading-[1.6] break-keep tabular-nums antialiased min-[1101px]:grid-cols-[210px_minmax(0,1fr)] min-[1101px]:gap-x-12">
-      <header className="relative mb-6 min-[1101px]:col-span-full">
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[28px] leading-[1.3] tracking-[-0.02em]">
-          <span className="flex items-center gap-x-3 text-[#566465]">
-            건강기록
-            <span
-              aria-hidden="true"
-              className="-ml-[3px] size-[9px] rotate-45 border-t-2 border-r-2 border-[#b9c4c4] max-sm:size-2"
-            />
-          </span>
-          <h1 className="font-bold text-[#1a3234]">종합 건강기록</h1>
-        </div>
-        <p className="mt-2 text-[#566465]">
-          우리 아이의 지금까지의 건강 이력을 한눈에 확인할 수 있어요
-        </p>
-        <img
-          src={headHlt}
-          alt=""
-          width="160"
-          height="100"
-          aria-hidden="true"
-          className="pointer-events-none absolute -bottom-1 right-0 origin-bottom-right [image-rendering:pixelated] select-none max-[1100px]:scale-80 max-[760px]:hidden"
-        />
-      </header>
-      <SideMenu menuLabel="건강기록" />
-      <div className="flex min-w-0 flex-col gap-7 min-[1101px]:pt-6">
-        {children}
-      </div>
     </div>
   );
 }

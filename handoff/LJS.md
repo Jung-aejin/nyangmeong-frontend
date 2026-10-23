@@ -2,12 +2,36 @@
 
 ## 지금 하는 것
 
-SCR-COM-009 채팅 모달 복귀 · 새 창으로 띄우기 — 끝 (검증 `통과`, 사람 확인 2026-10-22). 기획·결정·추가 요청 1~2는 `milestones/LJS.md` 그 절
+SCR-COM-002 플로팅 AI 버튼 모바일 접힘 탭 · 첫 방문 말풍선 — 끝 (검증 `통과`, 사람 확인 2026-10-23). 기획·결정·추가 요청은 `milestones/LJS.md` 그 절과 아래 표
+
+- 근거: 공통레이아웃_기능명세서_v0.4 FN-COM-002-19(플로팅 AI 버튼, 클릭 → AI 대화창 새 창), 002-21(우측 하단 고정). 접힘·말풍선은 명세에 없는 사람 요청(2026-10-23, 참고: iOS PiP를 옆으로 밀어 숨긴 탭)
+- 디자인: 없음, 사람이 대화에서 정한 동작 기준. 아이콘은 지금의 `Bot` 그대로
+- 채팅창 여는 동작(`useAiWindow`, 팝업 차단 안내)은 그대로 두고 아이콘 동작만 바꾼다
+
+| 기능 | 바꿀 파일 | API | 완료 조건 |
+| --- | --- | --- | --- |
+| D-01 모바일 접힘 탭 | `layouts/FloatingButtons.jsx`, `hooks/useAiDock.js`(신규) | 없음 | `화면:` 390px 첫 접속 시 AI 버튼이 우측 가장자리에 붙은 세로 탭(`‹`, 왼쪽 모서리만 둥금)으로 접혀 있다. 탭을 누르면 `Bot` 아이콘으로 펼쳐지기만 하고 AI 창은 열리지 않는다 |
+| D-02 펼친 아이콘 → AI 창 | `layouts/FloatingButtons.jsx` | 없음 | `화면:` 390px 펼친 상태에서 아이콘을 누르면 지금처럼 AI 창이 열린다(팝업 차단 안내도 그대로). 1440px은 지금과 같다(접힘 없음) |
+| D-03 드래그로 접기 | `hooks/useAiDock.js`, `layouts/FloatingButtons.jsx` | 없음 | `화면:` 390px 펼친 아이콘을 우측으로 끌어 놓으면 접힌다. 덜 끌면 제자리로 돌아온다. 끈 직후에는 AI 창이 열리지 않는다. 우측에만 붙고 세로 위치는 바뀌지 않는다(바텀 네비 위 규칙 유지) |
+| D-04 접힘 상태 기억 | `hooks/useAiDock.js` | 없음 | `화면:` 390px 펼친 뒤 새로고침하면 펼친 채, 접은 뒤 새로고침하면 접힌 채다. 저장값이 없으면 접힘. `localStorage`는 try/catch로 감싸 막혀도 화면이 깨지지 않는다 |
+| D-05 첫 방문 말풍선 | `layouts/FloatingButtons.jsx`(커지면 `layouts/AiBubble.jsx`로 뺀다) | 없음 | `화면:` 첫 방문에만 "AI 매니저예요" 말풍선이 뜬다. 모바일은 접힌 탭 위, PC는 아이콘 위. 몇 초 뒤 사라지고 X로도 닫힌다. 한 번 뜬 뒤 새로고침하면 다시 뜨지 않는다. 드래그 중에는 숨는다 |
+| 공통 | — | — | `명령:` `yarn -s lint`, `yarn -s build` |
+
+### 추가 요청
+
+| 추가 | 바꿀 파일 | 완료 조건 | 근거 |
+| --- | --- | --- | --- |
+| 추가-1 | `hooks/useAiDock.js`, `layouts/FloatingButtons.jsx` | `화면:` 첫 방문 말풍선이 6초 뒤 사라지지 않고 계속 떠 있다. 접힌 탭을 눌러 펼치면 사라진다(PC는 X 또는 아이콘을 누르면 사라진다). 한 번 뜬 뒤 새로고침하면 다시 뜨지 않는다 | 요청 2026-10-23 "말풍선 6초 뒤 사라지게 하지 말고 계속 유지, 한 번 펼쳐졌을 때 사라지는 걸로" |
+| 추가-2 | `layouts/FloatingButtons.jsx` | `화면:` 390px 접힌 탭 폭이 28px보다 좁고(22px), 탭과 펼친 `Bot` 아이콘이 프라이머리색(`brand-500`) 채움에 흰 아이콘이다 | 요청 2026-10-23 "너비를 좀 줄이고 스타일을 프라이머리 컬러에 맞게 변경" |
+| 추가-3 | `layouts/FloatingButtons.jsx` | `화면:` 말풍선에 X 버튼이 없다. `brand-500` 채움에 흰 글자(굵기 600), 꼬리도 `brand-500`, `rounded-lg`, 테두리·그림자 없음. 모바일은 접힌 탭을 펼칠 때, PC는 아이콘을 누를 때 사라진다 | 요청 2026-10-23 "말풍선 X 버튼 삭제하고 프라이머리 채움(A안)" |
+| 추가-4 | `layouts/FloatingButtons.jsx`, `assets/index.css`(키프레임) | `화면:` 말풍선이 위아래로 천천히 오르내린다(약 4px). 모션 줄이기 설정에서는 멈춘다. 말풍선 위치·사라지는 조건은 그대로 | 요청 2026-10-23 "약간 위아래로 움직이는 애니메이션까지만 추가하고 마무리" |
+
+- 이번엔 안 함: 캐릭터 이미지 아이콘(이미지가 나오면 교체), 지도 페이지 위치 조정(002-21, PLC 설계서), 좌측 스냅·세로 드래그
+- 새 의존성: 없음
 
 ## 다음에 할 것
 
-- SCR-COM-009 채팅 모달 남은 것(검증 비고, 선택): ① 모달 위에 알림 드롭다운을 연 채 Esc를 누르면 모달도 닫힌다 ② AI 플로팅·TOP 버튼(`FloatingButtons` z-30)이 딤 위에 보인다(시안은 딤 아래) ③ 1440x900에서 모달 위 4px가 헤더(64px)에 가린다 ④ 시안의 목록 선택 방 강조(`ChatRoomList.jsx`)는 안 했다
-
+- 서브 화면 경로(SCR-COM-002 B-01) 확인 남음(각 담당 화면, 선택): 761~1100px 폭과 건강기록(JAJ)·마이페이지(SJM)·고객센터(KSJ) 실제 화면에서 경로 줄·섹션 제목 위치를 한 번 본다. 공용 틀(`SubPageHead`·`SubPageLayout`·`SideMenu`)을 고쳤다. 사이드 메뉴 이탈 확인(`onLeave`)이 develop 병합 뒤에도 되는지 글쓰기 화면에서 본다
 - SCR-COM-002 PR 전: 아래 디스코드 알림을 보내고, `docs/convention/ui.md` "로딩 표시" 절 변경을 팀과 합의한다. KSJ에 알릴 것: `useNotices`·`useFaqs`·`useInquiries`에 `placeholderData: keepPreviousData`(탭·검색·쪽 이동 때 이전 내용 유지), 390px `/faqs` 카테고리 탭 줄 때문에 가로 스크롤(범위 밖, 다 불러온 뒤)
 
 - 로딩 스켈레톤 확인(각 담당): "불러오는 중이에요" 문구와 `return null` 로딩 분기를 각 페이지의 실제 카드 배치 스켈레톤으로 바꿔 두었다(LJS, SCR-COM-002, 1440·390px에서 높이 ±20% 확인). 화면 배치를 바꾸면 그 페이지 파일 안 `XxxSkeleton`(또는 로딩 분기)도 같이 고친다. 새 화면·새 로딩 분기는 `docs/convention/ui.md` "로딩 표시" 절대로 만든다
@@ -44,7 +68,7 @@ SCR-COM-009 채팅 모달 복귀 · 새 창으로 띄우기 — 끝 (검증 `통
 - 게시글 상세(SCR-CMU-004, KSJ): [채팅하기]는 `@/context/chatModal`의 `useChatModal().open({ pstSn })`, 보호자 [채팅 목록 보기]는 `open({ listPstSn })`로 채팅 모달을 연다(SCR-COM-009 채팅 모달 복귀, 2026-10-22). 모달의 [새 창으로 띄우기]가 새 창을 연다
 - 사람이 고치는 문서: 백엔드 저장소 `docs/convention/milestone.md` 담당 표에 채팅 화면 LJS 이관 반영(채팅은 다시 모달, 2026-10-22. 명세 FN-COM-009-03 "모달"과 맞다)
 - SCR-CMU-005 남은 화면 일(선택): 거래 버튼을 아주 빠르게 두 번 누르면 두 번째 요청이 서버에 가 거절 토스트가 뜬다(`useDealAction`의 `onSettled`가 `invalidateQueries`를 반환하지 않음). 메시지 시각·날짜 구분선은 `msgDt`가 정해지면 `ChatConversation.jsx`에 날짜 구분선 추가
-- 공용 페이지 머리·사이드 메뉴 적용(각 담당): 화면을 `@/layouts/SubPageLayout`으로 감싸고, 파일 안의 `PageFrame`·`Chevron`·픽셀 그림·`SideMenu` 호출을 지운다. 메뉴 이름·순서·그림은 `layouts/subMenus.js`(`SUB_MENUS`)만 고친다. 옮길 화면: 건강기록 4개(`HealthSummaryPage`·`HealthDiaryPage`·`CareCalendarPage`·`CheckupDetailPage`, JAJ), 마이페이지(SJM), 고객센터 `CustomerCenterLayout`(KSJ), 커뮤니티(KSJ, 화면 만들 때). 모두 옮기면 `SideMenu`의 `menuLabel` 호환과 `/dev/sub-page`(`pages/dev/SubPageDevPage.jsx`)를 지운다
+- 공용 페이지 머리·사이드 메뉴 적용: 건강기록·마이페이지·커뮤니티·고객센터가 모두 `@/layouts/SubPageLayout`을 쓴다(건강기록 4개와 고객센터는 2026-10-23에 옮김). 새 화면은 `SubPageLayout`으로 감싼다. 메뉴 이름·순서·그림은 `layouts/subMenus.js`(`SUB_MENUS`)만 고친다. 다 옮겼으니 `/dev/sub-page`(`pages/dev/SubPageDevPage.jsx`)와 `routes/domains/dev/`의 해당 라우트는 지워도 된다(사람이 정함). 사용법:
 
   | prop | 기본값 | 하는 일 |
   | --- | --- | --- |
