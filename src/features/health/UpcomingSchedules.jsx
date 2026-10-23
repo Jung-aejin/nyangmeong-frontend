@@ -19,7 +19,7 @@ import {
 const MAX_UPCOMING = 3;
 
 // 다가오는 케어 일정 카드(FN-HLT-003-40). 캘린더에 등록한 일정만 쓰고 케어리스트 정기관리 예정일은 넣지 않는다
-// className은 오른쪽 열에서 이 카드가 남는 높이를 채우게 하는 데 쓴다
+// className은 오른쪽 열에서 이 카드를 내용 높이로 두는 데 쓴다
 export default function UpcomingSchedules({
   schedules,
   onSelectSchedule,

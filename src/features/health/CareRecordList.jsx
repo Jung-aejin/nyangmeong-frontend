@@ -23,7 +23,7 @@ export default function CareRecordList({ records, onCancel }) {
 
   return (
     <div className="mt-8">
-      <div className="mb-2 flex items-baseline gap-3">
+      <div className="mb-2 flex items-baseline gap-3 border-b-2 border-[#b9c4c4] pb-2">
         <h3 className="text-lg font-semibold text-[#1a3234]">기록 내용</h3>
         <span className="text-[#667374]">
           일상관리·정기관리 완료 기록 통합

@@ -1,12 +1,18 @@
 /**
  * [건강 일지 묶음 탭]
  * - items: [{ id, label }], 선택한 묶음만 화면에 보임. 탭 본문은 id가 같은 tabpanel 영역
+ * - label: 탭 목록의 접근성 이름. 다른 화면(케어 캘린더)도 쓴다
  */
-export default function DiaryTabs({ items, activeId, onSelect }) {
+export default function DiaryTabs({
+  items,
+  activeId,
+  onSelect,
+  label = '건강 일지 묶음',
+}) {
   return (
     <div
       role="tablist"
-      aria-label="건강 일지 묶음"
+      aria-label={label}
       className="mt-2 flex flex-wrap gap-1 shadow-[inset_0_-1px_0_var(--color-line)]"
     >
       {items.map((item) => {
