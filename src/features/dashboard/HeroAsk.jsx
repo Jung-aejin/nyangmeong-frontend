@@ -27,7 +27,7 @@ export default function HeroAsk({ petNm }) {
   };
 
   return (
-    <div className="flex flex-col items-center gap-4">
+    <div className="flex w-full flex-col items-center gap-4">
       <form
         role="search"
         onSubmit={handleSubmit}
