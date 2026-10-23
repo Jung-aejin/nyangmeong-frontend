@@ -12,6 +12,18 @@
 @theme {
   --font-sans: 'Pretendard Variable', Pretendard, system-ui, sans-serif;
 
+  /** 플로팅 AI 말풍선이 위아래로 오르내림 */
+  --animate-bob: bob 1.6s ease-in-out infinite;
+  @keyframes bob {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-4px);
+    }
+  }
+
   /** 브랜드 */
   --color-brand-50: #e9f2f2;
   --color-brand-100: #cde0e0;
