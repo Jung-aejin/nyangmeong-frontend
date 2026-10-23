@@ -82,6 +82,8 @@ export default function UserHeader() {
 
   const handleGnbKeyDown = (event) => {
     if (event.key === 'Escape') {
+      /** 카드가 열려 있을 때만 Esc를 가로챈다(채팅 모달의 Esc 닫기와 겹치지 않게) */
+      if (openMenu === 'gnb') event.preventDefault();
       /** 카드가 열린 1차 메뉴로 포커스 복귀 */
       const menuLink = gnbRef.current.querySelector(
         `[data-gnb-menu="${gnbIndex}"] > a`,
@@ -166,7 +168,7 @@ export default function UserHeader() {
                       } ${
                         isActive
                           ? 'font-bold text-[#1a3234]'
-                          : 'font-normal text-[#3d4a4b]'
+                          : 'font-semibold text-[#3d4a4b]'
                       }`
                     }
                   >
