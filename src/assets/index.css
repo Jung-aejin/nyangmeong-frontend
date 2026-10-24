@@ -1,6 +1,5 @@
 @import 'tailwindcss';
 
-/* Pretendard Variable 로컬 글꼴. 퍼블리싱 html/fonts/pretendard.css와 같고 CDN을 쓸 수 없는 환경에서도 시안과 같은 글꼴이 나오게 한다(OFL 1.1) */
 @font-face {
   font-family: 'Pretendard Variable';
   font-weight: 45 920;
@@ -12,12 +11,29 @@
 @theme {
   --font-sans: 'Pretendard Variable', Pretendard, system-ui, sans-serif;
 
+  /** 플로팅 AI 말풍선이 좌우로 흔들림 */
+  --animate-sway: sway 2s ease-in-out infinite;
+  @keyframes sway {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    50% {
+      transform: translateX(-4px);
+    }
+  }
+
   /** 브랜드 */
   --color-brand-50: #e9f2f2;
   --color-brand-100: #cde0e0;
   --color-brand-500: #285a5c;
   --color-brand-600: #1e4a4c;
   --color-brand-900: #1a3234;
+
+  /** 플로팅 AI 버튼 */
+  --color-fab: #f9eaa6;
+  --color-fab-line: #e8d27e;
+  --color-fab-soft: #fffae2;
 
   /** 글자 */
   --color-ink: #1a3234;
@@ -34,7 +50,10 @@
   --color-line-strong: #b9c4c4;
   --color-input-line: #d3dae2;
 
-  /** 상태·뱃지 */
+  /** 포인트(노랑)·상태·뱃지 */
+  --color-accent-300: #f9eaa6;
+  --color-accent-ink: #1a3234;
+  --color-ok: #2f6f57;
   --color-danger: #b4473a;
   --color-danger-soft: #fbeeec;
   --color-tone-green-bg: #e6f4ec;
@@ -63,7 +82,7 @@
   --radius-card: 14px;
   --radius-modal: 20px;
 
-  /** 깊이 그림자(Tailwind 기본 이름과 겹침 방지용 depth 접미사) */
+  /** 깊이 그림자 */
   --shadow-depth-sm: 0 8px 24px rgba(26, 50, 52, 0.08);
   --shadow-depth-md:
     0 12px 32px -8px rgba(15, 23, 35, 0.18), 0 2px 6px rgba(15, 23, 35, 0.06);
@@ -79,8 +98,6 @@
   box-shadow: 0 0 0 3px rgba(180, 71, 58, 0.14);
 }
 
-/* 아이콘은 Material Symbols Rounded 글자(리거처)로 그린다. 값은 퍼블리싱 html/nyangmung.css의 .icon과 같다 */
-/* @layer 안에 둬야 hidden·text-2xl 같은 Tailwind 유틸리티가 이긴다 */
 @layer components {
   .icon {
     font-family: 'Material Symbols Rounded';
@@ -114,5 +131,26 @@
       'wght' 500,
       'GRAD' 0,
       'opsz' 20;
+  }
+}
+
+@keyframes man-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes man-pop {
+  from {
+    opacity: 0.25;
+    transform: translateY(8px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
   }
 }

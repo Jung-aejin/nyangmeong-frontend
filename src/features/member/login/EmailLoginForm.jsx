@@ -1,3 +1,4 @@
+import { Lock, Mail } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { showToast } from '@/components/toastStore';
 import { PATHS } from '@/routes/paths';
@@ -19,8 +20,6 @@ export default function EmailLoginForm({ onBack, onSuccess }) {
       <AuthHeading
         title="이메일로 로그인하기"
         subtitle="이메일 아이디와 비밀번호를 입력하세요."
-        isMascotHidden={target !== null}
-        isCompact={form.isCaptchaOn}
       />
       {form.notice && (
         <AuthNotice
@@ -32,6 +31,7 @@ export default function EmailLoginForm({ onBack, onSuccess }) {
       <form noValidate onSubmit={form.submit} className="flex flex-col gap-5">
         <AuthField
           id="login-email"
+          icon={Mail}
           label="아이디(이메일)"
           value={form.email}
           onChange={form.changeEmail}
@@ -44,6 +44,7 @@ export default function EmailLoginForm({ onBack, onSuccess }) {
         />
         <AuthField
           id="login-password"
+          icon={Lock}
           label="비밀번호"
           type="password"
           value={form.password}
@@ -75,7 +76,7 @@ export default function EmailLoginForm({ onBack, onSuccess }) {
         <button
           type="submit"
           disabled={form.isPending}
-          className="mt-3 inline-flex h-[46px] w-full items-center justify-center rounded-md bg-brand-500 font-semibold text-white hover:enabled:bg-brand-600 disabled:cursor-not-allowed disabled:bg-surface-3 disabled:text-line-strong"
+          className="mt-3 inline-flex h-[50px] w-full items-center justify-center rounded-xl bg-brand-500 text-[15px] font-bold text-white transition hover:enabled:-translate-y-px hover:enabled:bg-brand-600 disabled:cursor-not-allowed disabled:bg-surface-3 disabled:text-line-strong"
         >
           로그인
         </button>

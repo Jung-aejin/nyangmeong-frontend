@@ -109,6 +109,8 @@ export default function NotificationDropdown({
     };
     const handleKeyDown = (event) => {
       if (event.key === 'Escape') {
+        /** 채팅 모달의 Esc 닫기가 같이 일어나지 않게 */
+        event.preventDefault();
         onClose();
         buttonRef.current.focus();
       }

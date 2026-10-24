@@ -1,0 +1,52 @@
+export const SIGNUP_MESSAGES = {
+  emailEmpty: '이메일을 입력해 주세요.',
+  emailFormat: '이메일 주소 형식을 확인해주세요.',
+  emailDuplicate:
+    '이미 가입된 이메일입니다. 기존에 가입한 방법으로 로그인해 주세요.',
+  sendFailed: '인증번호를 보내지 못했습니다. 다시 시도해 주세요.',
+  sent: '인증번호를 보냈습니다. 제한시간 안에 입력해 주세요.',
+  verified: '이메일 인증이 완료되었습니다.',
+  codeEmpty: '인증번호를 입력해 주세요.',
+  codeFormat: '인증번호는 숫자 6자리로 입력해 주세요.',
+  codeMismatch: '인증번호가 일치하지 않습니다.',
+  codeExpired: '인증시간이 만료되었습니다. 다시 보내기를 눌러 주세요.',
+  phoneEmpty: '휴대전화번호를 입력해 주세요.',
+  phoneFormat: '휴대전화번호 형식을 확인해 주세요.',
+  phoneDuplicate: '이미 사용 중인 휴대전화번호입니다.',
+  phoneFailed: '중복확인을 완료하지 못했습니다. 다시 시도해 주세요.',
+  phoneAvailable: '사용 가능한 휴대전화번호입니다.',
+  phoneNeedCheck: '휴대전화번호 중복확인을 해 주세요.',
+  phoneHelp: '문자 인증 없이 중복 여부만 확인합니다.',
+  pwEmpty: '비밀번호를 입력해 주세요.',
+  pwRule: '비밀번호는 8자 이상, 문자와 숫자를 함께 입력해 주세요.',
+  pwHelp: '8자 이상 · 문자와 숫자 조합',
+  confirmEmpty: '비밀번호를 다시 입력해 주세요.',
+  confirmMismatch: '비밀번호가 일치하지 않습니다.',
+  confirmMatch: '비밀번호가 일치합니다.',
+  joinFailed: '회원가입을 완료하지 못했습니다. 다시 시도해 주세요.',
+  nickEmpty: '닉네임을 입력해 주세요.',
+  nickRule: '닉네임은 한글, 영문, 숫자만 사용할 수 있습니다.',
+  nickDuplicate: '이미 사용 중인 닉네임입니다. 다른 닉네임을 입력해 주세요.',
+  nickNeedCheck: '닉네임 중복 확인을 해 주세요.',
+  nickFailed: '닉네임을 저장하지 못했어요. 다시 시도해 주세요.',
+  nickAvailable: '사용 가능한 닉네임입니다.',
+  notReady: '준비 중이에요',
+};
+
+/** 약관 동의 항목. 만 14세 확인은 별도 전문이 없어 내용보기가 없다. 약관 전문은 연결 전이라 내용보기는 준비 중 안내만 한다 */
+export const SIGNUP_TERMS = [
+  { key: 'service', label: '서비스 이용약관', required: true, hasView: true },
+  {
+    key: 'privacy',
+    label: '개인정보 수집 및 이용',
+    required: true,
+    hasView: true,
+  },
+  { key: 'age', label: '만 14세 이상입니다', required: true, hasView: false },
+  {
+    key: 'marketing',
+    label: '마케팅 정보 수신 동의',
+    required: false,
+    hasView: true,
+  },
+];

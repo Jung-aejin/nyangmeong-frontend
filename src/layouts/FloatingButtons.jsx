@@ -1,25 +1,53 @@
 import { useState } from 'react';
-import { Bot } from 'lucide-react';
+import { Bot, ChevronLeft } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
+import useAiDock from '@/hooks/useAiDock';
 import useAiWindow from '@/hooks/useAiWindow';
+import { PATHS } from '@/routes/paths';
 
 export default function FloatingButtons({ hasBottomNav = false }) {
   const openAiWindow = useAiWindow();
+  const isMain = useLocation().pathname === PATHS.MAIN;
   const [blocked, setBlocked] = useState(false);
+  const dock = useAiDock();
 
   const handleAiClick = () => {
+    if (!dock.consumeClick()) return;
+    dock.closeBubble();
     setBlocked(!openAiWindow());
   };
 
   return (
-    /** 바텀 네비(60px)가 있으면 그 위로 올림 */
+    /** 바텀 네비(60px)가 있으면 그 위로 올림. 모바일에서 접히면 우측 가장자리에 붙임 */
     <div
-      className={`fixed bottom-6 right-6 z-30 flex flex-col items-center gap-3 ${
+      className={`fixed bottom-6 z-30 flex flex-col items-center gap-3 ${
+        dock.folded ? '-right-1' : 'right-6'
+      } ${
         hasBottomNav
           ? 'max-[760px]:bottom-[calc(76px+env(safe-area-inset-bottom))]'
           : ''
       }`}
     >
-      <div className="relative">
+      <div className={isMain ? 'hidden' : 'relative'}>
+        {dock.bubbleVisible && (
+          <div
+            role="status"
+            className="absolute right-full top-1/2 mr-[17px] -translate-y-1/2 animate-sway whitespace-nowrap motion-reduce:animate-none h-[31px] rounded-full border border-fab-line bg-linear-to-r from-fab-soft to-white px-4 text-sm font-normal leading-[29px] text-brand-500 drop-shadow-[0_4px_4px_rgba(0,0,0,0.05)]"
+          >
+            AI 매니저
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 12 14"
+              className="absolute -right-[10px] top-1/2 h-[14px] w-[12px] -translate-y-1/2"
+            >
+              <path d="M1.3 1 L11 7 L1.3 13 Z" className="fill-white" />
+              <path
+                d="M1.3 1 L11 7 L1.3 13"
+                className="fill-none stroke-fab-line"
+              />
+            </svg>
+          </div>
+        )}
         {blocked && (
           <div
             role="alert"
@@ -35,14 +63,30 @@ export default function FloatingButtons({ hasBottomNav = false }) {
             </button>
           </div>
         )}
-        <button
-          type="button"
-          className="flex h-[68px] w-[68px] items-center justify-center rounded-2xl border border-dashed border-[#285a5c] bg-white text-[#285a5c] max-[760px]:h-[52px] max-[760px]:w-[52px]"
-          aria-label="AI"
-          onClick={handleAiClick}
-        >
-          <Bot size={32} className="max-[760px]:size-6" />
-        </button>
+        {dock.folded ? (
+          <button
+            type="button"
+            className="flex h-16 w-8 items-center justify-center rounded-l-[32px] border border-r-0 border-fab-line bg-fab text-brand-500 drop-shadow-[0_4px_4px_rgba(0,0,0,0.05)]"
+            aria-label="AI 매니저 펼치기"
+            onClick={dock.expand}
+          >
+            <ChevronLeft size={26} strokeWidth={1.5} />
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="flex h-[68px] w-[68px] touch-none items-center justify-center rounded-2xl border border-fab-line bg-fab text-brand-500 drop-shadow-[0_4px_4px_rgba(0,0,0,0.05)] max-[760px]:h-[52px] max-[760px]:w-[52px]"
+            style={{
+              transform: `translateX(${dock.offset}px)`,
+              transition: dock.dragging ? 'none' : 'transform 0.2s',
+            }}
+            aria-label="AI"
+            onClick={handleAiClick}
+            {...dock.dragHandlers}
+          >
+            <Bot size={32} className="max-[760px]:size-6" />
+          </button>
+        )}
       </div>
       <button
         type="button"

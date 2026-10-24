@@ -1,10 +1,14 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import homeIcon from '@/assets/home.svg';
+import { PATHS } from '@/routes/paths';
 
 /**
- * [페이지 머리]
- * - 경로(얇게·링크) › 현재 페이지(굵게) · 설명 · 픽셀 그림(디자인 COM-5)
+ * [경로 + 페이지 머리]
+ * - 경로: 홈 아이콘 / 섹션 / 메뉴 / (상세면 제목). 위에 작게, 앞 단계는 보통·현재 위치는 굵게(디자인 COM-5)
+ * - 머리: 제목(h1) · 설명 · 픽셀 그림
  * - 761~1100px 목록 화면은 제목 옆 ▾로 같은 섹션 메뉴 전환(COM-6), 760px 이하는 바텀 네비가 맡음
+ * - 레이아웃 칸 배치는 SubPageLayout이 맡는다. 경로는 전체 폭, 머리는 본문 칸
  */
 export default function SubPageHead({
   section,
@@ -19,55 +23,62 @@ export default function SubPageHead({
   const heading = title ?? activeItem?.label;
 
   return (
-    <header className="relative mb-6 max-[1101px]:mb-5 min-[1101px]:col-span-full">
-      <div className="relative flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[28px] leading-[1.3] tracking-[-0.02em] max-[761px]:gap-x-2.5 max-[761px]:gap-y-1 max-[761px]:text-2xl">
-        <nav
-          aria-label="현재 위치"
-          className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-muted max-[761px]:contents"
-        >
-          <CrumbLink
-            to={section.to}
-            onLeave={onLeave}
-            className="max-[761px]:basis-full max-[761px]:text-base max-[761px]:tracking-normal"
-          >
-            {section.label}
-          </CrumbLink>
-          <Chevron className="max-[761px]:hidden" />
-          {isDeep && (
-            <>
-              <CrumbLink to={activeItem.to} onLeave={onLeave}>
-                {activeItem.label}
-              </CrumbLink>
-              <Chevron />
-            </>
-          )}
-        </nav>
-        <h1 className="font-bold text-ink">{heading}</h1>
-        {hasSwitch && <MenuSwitch section={section} activeItem={activeItem} />}
-      </div>
-      {/** 설명이 없어도 한 줄 높이를 비워 콘텐츠 시작 위치를 맞춤 */}
-      <p
-        aria-hidden={description ? undefined : 'true'}
-        className={`mt-2 text-muted max-[761px]:mt-1.5 max-[761px]:text-sm ${description ? '' : 'invisible'}`}
+    <>
+      <nav
+        aria-label="현재 위치"
+        className="mb-[51px] flex flex-wrap items-center gap-x-3 gap-y-1 text-sm leading-5 text-muted max-[1101px]:mb-5 min-[1101px]:col-span-full"
       >
-        {description || ' '}
-      </p>
-      {pixel && (
-        <img
-          src={pixel}
-          alt=""
-          width="160"
-          height="100"
-          aria-hidden="true"
-          className="pointer-events-none absolute -bottom-1 right-0 origin-bottom-right [image-rendering:pixelated] select-none max-[1101px]:scale-80 max-[761px]:hidden"
-        />
-      )}
-    </header>
+        <CrumbLink to={PATHS.MAIN} onLeave={onLeave} label="홈">
+          <img src={homeIcon} alt="" width="16" height="16" />
+        </CrumbLink>
+        <Slash />
+        <CrumbLink to={section.to} onLeave={onLeave}>
+          {section.label}
+        </CrumbLink>
+        <Slash />
+        {isDeep && (
+          <>
+            <CrumbLink to={activeItem.to} onLeave={onLeave}>
+              {activeItem.label}
+            </CrumbLink>
+            <Slash />
+          </>
+        )}
+        <span aria-current="page" className="font-semibold text-ink-2">
+          {heading}
+        </span>
+      </nav>
+      <header className="relative mb-6 max-[1101px]:mb-5 min-[1101px]:col-start-2 min-[1101px]:row-start-2">
+        <div className="relative flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[28px] leading-[1.3] tracking-[-0.02em] max-[761px]:text-2xl">
+          <h1 className="font-bold text-ink">{heading}</h1>
+          {hasSwitch && (
+            <MenuSwitch section={section} activeItem={activeItem} />
+          )}
+        </div>
+        {/** 설명이 없어도 한 줄 높이를 비워 콘텐츠 시작 위치를 맞춤 */}
+        <p
+          aria-hidden={description ? undefined : 'true'}
+          className={`mt-2 text-muted max-[761px]:mt-1.5 max-[761px]:text-sm ${description ? '' : 'invisible'}`}
+        >
+          {description || ' '}
+        </p>
+        {pixel && (
+          <img
+            src={pixel}
+            alt=""
+            width="160"
+            height="100"
+            aria-hidden="true"
+            className="pointer-events-none absolute -bottom-1 right-0 origin-bottom-right [image-rendering:pixelated] select-none max-[1101px]:scale-80 max-[761px]:hidden"
+          />
+        )}
+      </header>
+    </>
   );
 }
 
-/** 경로 링크: onLeave가 있으면 이동 대신 호출 */
-function CrumbLink({ to, onLeave, className = '', children }) {
+/** 경로 링크: onLeave가 있으면 이동 대신 호출. label은 아이콘만 있을 때 읽을 이름 */
+function CrumbLink({ to, onLeave, label, children }) {
   const handleClick = (event) => {
     if (!onLeave) return;
     event.preventDefault();
@@ -77,21 +88,21 @@ function CrumbLink({ to, onLeave, className = '', children }) {
   return (
     <Link
       to={to}
+      aria-label={label}
       onClick={handleClick}
-      className={`transition-colors hover:text-ink hover:underline hover:decoration-2 hover:underline-offset-[6px] max-[761px]:hover:decoration-1 max-[761px]:hover:underline-offset-4 ${className}`}
+      className="inline-flex items-center font-normal transition-colors hover:text-ink hover:underline hover:underline-offset-4"
     >
       {children}
     </Link>
   );
 }
 
-/** 경로 구분자 › */
-function Chevron({ className = '' }) {
+/** 경로 구분자 / */
+function Slash() {
   return (
-    <span
-      aria-hidden="true"
-      className={`-ml-[3px] size-[9px] rotate-45 border-t-2 border-r-2 border-line-strong max-[761px]:size-2 ${className}`}
-    />
+    <span aria-hidden="true" className="text-line-strong">
+      /
+    </span>
   );
 }
 
