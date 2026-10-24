@@ -2,7 +2,8 @@ import { Plus } from 'lucide-react';
 import { BTN_SECONDARY } from '@/components/buttonStyles';
 import ExpenseInfo from '../shared/ExpenseInfo';
 import { formatDayHeader, formatWon } from '../shared/expenseFormat';
-import { DAY_HEAD, EXPENSE_ROW } from '../shared/expenseStyles';
+import { EXPND_CLSF } from '../shared/expenseCodes';
+import { DAY_HEAD, DAY_ROW_APP, EXPENSE_ROW } from '../shared/expenseStyles';
 
 const ROW_BUTTON = `${BTN_SECONDARY} h-8 px-3 text-sm`;
 
@@ -23,9 +24,13 @@ export default function ExpenseDayDetail({
         </span>
       </div>
       {items.map((expense) => (
-        <div key={expense.expndSn} className={EXPENSE_ROW}>
-          <ExpenseInfo expense={expense} />
-          <div className="flex gap-1">
+        <div
+          key={expense.expndSn}
+          className={`${EXPENSE_ROW} ${DAY_ROW_APP}`}
+          style={{ '--cat': EXPND_CLSF[expense.expndClsfCd].color }}
+        >
+          <ExpenseInfo expense={expense} isDay />
+          <div className="flex gap-1 max-[760px]:col-span-2 max-[760px]:row-start-3 max-[760px]:mt-2">
             <button
               type="button"
               onClick={() => onEdit(expense)}

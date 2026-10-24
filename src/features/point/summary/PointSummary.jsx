@@ -6,22 +6,22 @@ import { useCareMissions, usePointBalance, usePointHistory } from '../queries';
 import { formatSignedPoint, getPercent } from '../shared/pointFormat';
 
 const STAT =
-  'flex min-w-0 flex-col gap-1.5 border-t border-line-soft px-5 py-[18px] text-left first:border-t-0 hover:bg-surface-2 md:border-t-0 md:border-l md:first:border-l-0';
+  'flex min-w-0 flex-col gap-1.5 border-t border-line-soft px-5 py-[18px] text-left first:border-t-0 hover:bg-surface-2 md:border-t-0 md:border-l md:first:border-l-0 max-[760px]:gap-0.5 max-[760px]:border-t-0 max-[760px]:border-l max-[760px]:px-2.5 max-[760px]:py-3 max-[760px]:first:border-l-0';
 
 function Stat({ icon, label, value, unit, sub, onClick }) {
   return (
     <button type="button" onClick={onClick} className={STAT}>
-      <span className="flex items-center gap-1.5 text-muted">
+      <span className="flex items-center gap-1.5 text-muted max-[760px]:text-xs max-[760px]:whitespace-nowrap [&>svg]:max-[760px]:hidden">
         {icon}
         {label}
       </span>
-      <span className="text-[30px] leading-[1.1] font-bold tracking-[-0.02em] text-brand-600">
+      <span className="text-[30px] leading-[1.1] font-bold tracking-[-0.02em] text-brand-600 max-[760px]:text-lg">
         {value}
         <small className="ml-0.5 text-base font-semibold text-muted">
           {unit}
         </small>
       </span>
-      <span className="text-muted">{sub}</span>
+      <span className="text-muted max-[760px]:text-xs">{sub}</span>
     </button>
   );
 }
@@ -68,7 +68,7 @@ export default function PointSummary({
             </p>
           </div>
         </div>
-        <div className="grid overflow-hidden rounded-modal border border-brand-100 bg-white md:grid-cols-3">
+        <div className="grid overflow-hidden rounded-modal border border-brand-100 bg-white max-[760px]:grid-cols-3 md:grid-cols-3">
           <Stat
             icon={<TrendingUp className="size-4" aria-hidden="true" />}
             label="이번 달 적립"

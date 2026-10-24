@@ -1,7 +1,15 @@
-import { CARD, CARD_BODY, CARD_HEAD, CARD_TITLE } from '../shared/expenseStyles';
+import {
+  CARD,
+  CARD_BODY,
+  CARD_HEAD,
+  CARD_TITLE,
+} from '../shared/expenseStyles';
 import { formatWon } from '../shared/expenseFormat';
 
-/** 누적 비율 conic-gradient */
+/** 조각 사이 흰 간격(%) */
+const GAP = 0.6;
+
+/** 누적 비율 conic-gradient. 조각마다 앞에 흰 간격을 둔다 */
 const buildGradient = (stats) => {
   let acc = 0;
   const total = stats.reduce((sum, stat) => sum + stat.totalAmt, 0);
@@ -9,7 +17,7 @@ const buildGradient = (stats) => {
     const from = (acc / total) * 100;
     acc += stat.totalAmt;
     const to = (acc / total) * 100;
-    return `${stat.color} ${from}% ${to}%`;
+    return `#fff ${from}% ${from + GAP}%, ${stat.color} ${from + GAP}% ${to}%`;
   });
   return `conic-gradient(${stops.join(', ')})`;
 };

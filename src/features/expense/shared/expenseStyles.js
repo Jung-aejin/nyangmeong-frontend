@@ -10,3 +10,10 @@ export const DAY_HEAD =
   'flex items-center justify-between gap-2 bg-surface-2 px-4 py-2 text-sm font-semibold text-ink-2';
 export const EXPENSE_ROW =
   'flex w-full items-center gap-3 border-t border-line-soft px-4 py-3 text-left first:border-t-0';
+
+/**
+ * 앱 날짜 상세 줄(isDay): 뱃지 대신 왼쪽 색 막대 + 카테고리 / 반려동물 + 금액
+ * 색 막대는 줄에 넘긴 --cat 값(카테고리 색)으로 칠한다
+ */
+export const DAY_ROW_APP =
+  'relative max-[760px]:grid max-[760px]:grid-cols-[minmax(0,1fr)_auto] max-[760px]:gap-x-3 max-[760px]:gap-y-0.5 max-[760px]:py-3 max-[760px]:pr-4 max-[760px]:pl-[14px] max-[760px]:before:absolute max-[760px]:before:top-3 max-[760px]:before:bottom-3 max-[760px]:before:left-0 max-[760px]:before:w-1 max-[760px]:before:rounded-xs max-[760px]:before:bg-[var(--cat)] max-[760px]:before:content-[""]';

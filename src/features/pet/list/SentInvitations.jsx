@@ -31,7 +31,7 @@ const STATUS_BADGES = {
 function Badge({ tone, children }) {
   return (
     <span
-      className={`inline-flex h-6 items-center rounded-full px-2.5 pt-[1.5px] text-badge leading-none font-semibold whitespace-nowrap ${tone}`}
+      className={`inline-flex h-6 shrink-0 items-center rounded-full px-2.5 pt-[1.5px] text-badge leading-none font-semibold whitespace-nowrap ${tone}`}
     >
       {children}
     </span>
@@ -50,7 +50,7 @@ export default function SentInvitations() {
     return (
       <div aria-busy="true" className="mt-12 flex flex-col gap-5">
         <Skeleton className="h-7 w-32" />
-        <SkeletonCard className="h-[395px] max-[760px]:h-[635px]" />
+        <SkeletonCard className="h-[427px]" />
       </div>
     );
   }
@@ -75,34 +75,34 @@ export default function SentInvitations() {
           {invitations.map((invitation) => {
             const status = STATUS_BADGES[invitation.invtSttsCd];
             const meta = [
-              `${invitation.invtDt} 발송`,
+              `${formatMonthDay(invitation.invtDt)} 발송`,
               invitation.mbrYn === 'Y'
                 ? '가입 회원(인앱 알림)'
                 : '미가입 이메일',
             ];
-            if (invitation.invtSttsCd === INVT_STTS.WAIT) {
-              meta.push(`${formatMonthDay(invitation.expryDt)} 만료`);
-            }
             return (
               <li
                 key={invitation.invtSn}
-                className="flex flex-wrap items-center gap-4 border-b border-line-soft px-[22px] py-6 last:border-b-0"
+                className="border-b border-line-soft px-[22px] py-6 last:border-b-0"
               >
-                <div className="min-w-0 flex-1">
-                  <p className="flex flex-wrap items-center gap-2 font-semibold break-all">
+                <p className="flex items-start gap-4 font-semibold">
+                  <span className="min-w-0 flex-1 [overflow-wrap:anywhere]">
                     {invitation.invtEml}
-                    <span className="font-normal text-subtle">
-                      — {formatPetNames(invitation.pets)}
-                    </span>
-                  </p>
-                  <p className="mt-1 text-sm text-subtle">{meta.join(' · ')}</p>
-                </div>
-                <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
-                  <Badge tone="bg-tone-blue-bg text-tone-blue-fg">
-                    초대 발송
-                  </Badge>
+                  </span>
                   <Badge tone={status.tone}>{status.label}</Badge>
-                </div>
+                </p>
+                <p className="mt-1 text-sm leading-[1.6] text-subtle">
+                  <b className="font-semibold text-ink">
+                    {formatPetNames(invitation.pets)}
+                  </b>{' '}
+                  · {meta.join(' · ')}
+                  {invitation.invtSttsCd === INVT_STTS.WAIT && (
+                    <>
+                      <br />
+                      {formatMonthDay(invitation.expryDt)}에 만료돼요
+                    </>
+                  )}
+                </p>
               </li>
             );
           })}
