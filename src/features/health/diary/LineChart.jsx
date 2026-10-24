@@ -58,9 +58,9 @@ const getCurvePath = (points, slopes) => {
 
 /**
  * [곡선 선그래프]
- * - 시안 nyangmung-chart.js의 nmCurveChart와 같은 모양: 곡선 + 연한 그라데이션, 범위는 점선 + 오른쪽 라벨, 최근 값은 말풍선
+ * - 시안 nyangmung-chart.js의 nmCurveChart와 같은 모양: 곡선 + 연한 그라데이션, 범위는 점선 + 왼쪽 눈금(상한·하한), 최근 값은 말풍선
  * - points: [{ label, value }] 2개 이상, band: [최소, 최대], goal: 목표, formatValue: 말풍선 값, formatTag: 범위 라벨 값
- * - bandLabelSide: 'right'(기본, 오른쪽 최대·최소 라벨) / 'left'(오른쪽 라벨 없이 왼쪽 눈금을 상한·하한으로, 좁은 화면용)
+ * - bandLabelSide: 'left'(기본, 오른쪽 라벨 없이 왼쪽 눈금을 상한·하한으로) / 'right'(오른쪽 최대·최소 라벨)
  */
 export default function LineChart({
   points,
@@ -68,7 +68,7 @@ export default function LineChart({
   goal,
   formatValue,
   formatTag = String,
-  bandLabelSide = 'right',
+  bandLabelSide = 'left',
   height,
   ariaLabel,
 }) {
