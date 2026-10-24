@@ -4,7 +4,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Dog,
-  MoreHorizontal,
+  MoreVertical,
   Plus,
   X,
 } from 'lucide-react';
@@ -283,7 +283,7 @@ function PetMenu({ isCoParent, onEdit, onRemove }) {
         aria-expanded={isOpen}
         className={`grid size-10 place-items-center rounded-full border bg-white hover:border-line-strong hover:text-ink ${isOpen ? 'border-line-strong text-ink' : 'border-line text-ink-2'}`}
       >
-        <MoreHorizontal className="size-5" />
+        <MoreVertical className="size-5" />
       </button>
       {isOpen && (
         <>
