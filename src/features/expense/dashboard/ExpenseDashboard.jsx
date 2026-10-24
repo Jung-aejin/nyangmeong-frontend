@@ -6,6 +6,7 @@ import ExpenseCalendar from './ExpenseCalendar';
 import ExpenseCategoryChart from './ExpenseCategoryChart';
 import ExpenseDayDetail from './ExpenseDayDetail';
 import ExpenseDeleteDialog from './ExpenseDeleteDialog';
+import ExpenseDetailSheet from '../shared/ExpenseDetailSheet';
 import ExpenseEditModal from '../shared/ExpenseEditModal';
 import ExpenseLimitModal from './ExpenseLimitModal';
 import ExpensePetChart from './ExpensePetChart';
@@ -34,6 +35,8 @@ export default function ExpenseDashboard({ onViewAll }) {
   /** 등록 모달 날짜·수정 중인 지출 */
   const [addingYmd, setAddingYmd] = useState(null);
   const [editingExpense, setEditingExpense] = useState(null);
+  /** 앱 지출 상세 시트: 보고 있는 지출 번호(편집 중에는 시트를 잠시 숨기고 저장하면 다시 보인다) */
+  const [detailSn, setDetailSn] = useState(null);
 
   /** 지난달 대비용 조회 범위 */
   const { data: expenses = [], isPlaceholderData } = useExpenses({
@@ -46,6 +49,9 @@ export default function ExpenseDashboard({ onViewAll }) {
 
   const monthExpenses = getMonthExpenses(expenses, ym);
   const prevExpenses = getMonthExpenses(expenses, shiftYm(ym, -1));
+  const detailExpense = monthExpenses.find(
+    (expense) => expense.expndSn === detailSn,
+  );
   const selectedItems = selectedYmd
     ? monthExpenses.filter((expense) => expense.expndYmd === selectedYmd)
     : [];
@@ -62,6 +68,11 @@ export default function ExpenseDashboard({ onViewAll }) {
     setEditingExpense(null);
     setYm(expndYmd.slice(0, 7));
     setSelectedYmd(expndYmd);
+  };
+  /** 시트에서 연 수정을 취소하면 시트도 닫는다 */
+  const handleCloseEdit = () => {
+    setEditingExpense(null);
+    setDetailSn(null);
   };
 
   return (
@@ -95,6 +106,7 @@ export default function ExpenseDashboard({ onViewAll }) {
               onAdd={() => setAddingYmd(selectedYmd)}
               onEdit={setEditingExpense}
               onDelete={setDeletingExpense}
+              onOpenDetail={(expense) => setDetailSn(expense.expndSn)}
             />
           )}
         </section>
@@ -133,12 +145,21 @@ export default function ExpenseDashboard({ onViewAll }) {
           expense={editingExpense}
           pets={overview.pets}
           onSaved={handleSaved}
-          onClose={() => setEditingExpense(null)}
+          onClose={handleCloseEdit}
+        />
+      )}
+      {detailExpense && !editingExpense && (
+        <ExpenseDetailSheet
+          expense={detailExpense}
+          onEdit={() => setEditingExpense(detailExpense)}
+          onDelete={() => setDeletingExpense(detailExpense)}
+          onClose={() => setDetailSn(null)}
         />
       )}
       {deletingExpense && (
         <ExpenseDeleteDialog
           expense={deletingExpense}
+          onDeleted={() => setDetailSn(null)}
           onClose={() => setDeletingExpense(null)}
         />
       )}

@@ -7,12 +7,16 @@ import { EXPND_CLSF } from '../shared/expenseCodes';
 import { DAY_HEAD, DAY_ROW_APP, EXPENSE_ROW } from '../shared/expenseStyles';
 import { useDeleteExpense } from '../queries';
 
-export default function ExpenseDeleteDialog({ expense, onClose }) {
+/** onDeleted: 삭제 성공 시 부르는 선택 콜백(앱 상세 시트 닫기) */
+export default function ExpenseDeleteDialog({ expense, onDeleted, onClose }) {
   const deleteExpense = useDeleteExpense();
 
   const handleDelete = () =>
     deleteExpense.mutate(expense.expndSn, {
-      onSuccess: onClose,
+      onSuccess: () => {
+        onDeleted?.();
+        onClose();
+      },
       onError: () => showToast('삭제하지 못했어요. 잠시 후 다시 시도해 주세요'),
     });
 

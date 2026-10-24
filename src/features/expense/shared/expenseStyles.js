@@ -17,3 +17,9 @@ export const EXPENSE_ROW =
  */
 export const DAY_ROW_APP =
   'relative max-[760px]:grid max-[760px]:grid-cols-[minmax(0,1fr)_auto] max-[760px]:gap-x-3 max-[760px]:gap-y-0.5 max-[760px]:py-3 max-[760px]:pr-4 max-[760px]:pl-[14px] max-[760px]:before:absolute max-[760px]:before:top-3 max-[760px]:before:bottom-3 max-[760px]:before:left-0 max-[760px]:before:w-1 max-[760px]:before:rounded-xs max-[760px]:before:bg-[var(--cat)] max-[760px]:before:content-[""]';
+
+/** 앱에서 누르면 상세 시트가 열리는 날짜 상세 줄: 위 줄에 오른쪽 ›를 더한 3열 */
+export const DAY_ROW_APP_TAP = DAY_ROW_APP.replace(
+  'max-[760px]:grid-cols-[minmax(0,1fr)_auto]',
+  'max-[760px]:grid-cols-[minmax(0,1fr)_auto_16px]',
+);

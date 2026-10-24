@@ -12,6 +12,13 @@ export const formatDayHeader = (expndYmd) => {
   return `${month}월 ${day}일 (${dayName})`;
 };
 
+/** 지출 상세 날짜 (2026.09.15 (화)) */
+export const formatFullDate = (expndYmd) => {
+  const [year, month, day] = expndYmd.split('-').map(Number);
+  const dayName = DAY_NAMES[new Date(year, month - 1, day).getDay()];
+  return `${expndYmd.replaceAll('-', '.')} (${dayName})`;
+};
+
 export const formatFullDayHeader = (expndYmd) =>
   `${expndYmd.slice(0, 4)}년 ${formatDayHeader(expndYmd)}`;
 
