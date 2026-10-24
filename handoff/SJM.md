@@ -34,6 +34,7 @@ SCR-MYP-001 연결: 캐릭터 얼굴 이미지 API 연결과 `PetFace` 묶음 �
 | 추가-5 | `features/pet/invite/InvitationClosed.jsx`(새), `pages/mypage/InvitationPage.jsx`, `InvitationAccept.jsx`(닫힌 초대 분기 삭제), `api.js` | 명령: lint·build. 화면: `/mypage/invitations/demo-expired`·`demo-done`에서 시계 아이콘·제목·[마이페이지 홈으로] 하나만(카드·초대한 사람·목록으로 없음), 판단 순서 만료·처리 → 불일치 → 수락 | 요청 2026-10-25 "기능명세서 v0.4_20261025 FN-MYP-005-10 기준 5-6 구현" |
 | 추가-6 | `features/pet/list/FamilySection.jsx` | 화면: 가족 카드 이름 → 뱃지 → 권한·연동일 세로 배치, 1180·1440·390에서 뱃지가 카드 밖으로 안 나감 | 요청 2026-10-25 "좁은 폭에서 뱃지가 카드 밖으로 나가 이름 아래로" |
 | 추가-7 | `features/expense/**`, `components/Select.jsx`(공용, 선택 전 표시 문구 옵션만 추가) | 가계부 v0.3 시안·명세 v0.4_20261025: ①사용처 ②지출 상세 시트·날짜별 상세 ⋮ 메뉴 ③전체 내역(필터 문구·앱 정렬 줄·색 막대·무한 스크롤) ④대시보드 앱 정리·중복·삭제 모달. 명령: lint·build. 화면: PC 1440·앱 390 | 요청 2026-10-25 "가계부(SCR-MYP-030·031) v0.3 구현, 단계별 커밋, 푸시 안 함" |
+공용 파일 변경(LJS에 알림): `components/Select.jsx`에 `placeholder` prop 추가(안 넘기면 기존과 동일), `hooks/useMediaQuery.js` 새로 추가. 개발 전용 `?fake=more-fail`(전체 내역 앱에서 첫 이어 불러오기 실패, ↻ 확인)
 사람 확인: 추가-1~6 모두 사람이 화면을 확인했다고 답했다(2026-10-25)
 
 ## 다음에 할 것
