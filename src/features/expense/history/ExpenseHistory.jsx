@@ -158,11 +158,6 @@ export default function ExpenseHistory({ initialYm }) {
   };
   const handleOpenItem = (expense) =>
     isMobile ? setDetailSn(expense.expndSn) : setEditingExpense(expense);
-  /** 시트에서 연 수정을 취소하면 시트도 닫는다 */
-  const handleCloseEdit = () => {
-    setEditingExpense(null);
-    setDetailSn(null);
-  };
 
   /** 조회 조건 변경 시 1페이지·편집 종료 */
   const resetView = () => {
@@ -389,7 +384,7 @@ export default function ExpenseHistory({ initialYm }) {
           expense={editingExpense}
           pets={overview.pets}
           onSaved={() => setEditingExpense(null)}
-          onClose={handleCloseEdit}
+          onClose={() => setEditingExpense(null)}
         />
       )}
       {detailExpense && !editingExpense && (

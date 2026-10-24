@@ -69,11 +69,6 @@ export default function ExpenseDashboard({ onViewAll }) {
     setYm(expndYmd.slice(0, 7));
     setSelectedYmd(expndYmd);
   };
-  /** 시트에서 연 수정을 취소하면 시트도 닫는다 */
-  const handleCloseEdit = () => {
-    setEditingExpense(null);
-    setDetailSn(null);
-  };
 
   return (
     <div
@@ -145,7 +140,7 @@ export default function ExpenseDashboard({ onViewAll }) {
           expense={editingExpense}
           pets={overview.pets}
           onSaved={handleSaved}
-          onClose={handleCloseEdit}
+          onClose={() => setEditingExpense(null)}
         />
       )}
       {detailExpense && !editingExpense && (
