@@ -535,7 +535,7 @@ export const createCharacter = ({ petSn, photo, colrCd, colrDrctInptNm }) => {
 /**
  * [공동양육 초대 가짜 데이터]
  * - 초대 API(SJM 백엔드) 전까지 쓰는 가짜 응답
- * - 미정 키: invtSn, invitationToken(수락 URL 경로 변수, 확정 필요), invtEml, invtSttsCd, invtDt, expryDt, mbrYn, invtrNcnm, pets
+ * - 미정 키: invtSn, invitationToken(수락 URL 경로 변수, 확정 필요), invtEml, invtEmlMskd, emlMtchYn, invtSttsCd(동물별), invtDt, expryDt, mbrYn, invtrNcnm, pets
  */
 export const INVT_STTS = {
   WAIT: 'WAIT',
@@ -561,51 +561,63 @@ const todayYmd = () => {
 };
 
 /** 기한이 지난 대기 건은 만료로 표시 (실제는 서버 상태) */
-const withExpiry = (invitation) =>
-  invitation.invtSttsCd === INVT_STTS.WAIT && invitation.expryDt < todayYmd()
-    ? { ...invitation, invtSttsCd: INVT_STTS.EXPR }
-    : invitation;
+const isExpired = (invitation, invtSttsCd) =>
+  invtSttsCd === INVT_STTS.WAIT && invitation.expryDt < todayYmd();
+
+/** 초대 상태는 동물별(sent: pets[].invtSttsCd), 받은 초대는 초대 전체 상태도 함께 둔다 */
+const withExpiry = (invitation) => ({
+  ...invitation,
+  ...(invitation.invtSttsCd && {
+    invtSttsCd: isExpired(invitation, invitation.invtSttsCd)
+      ? INVT_STTS.EXPR
+      : invitation.invtSttsCd,
+  }),
+  pets: invitation.pets.map((pet) =>
+    pet.invtSttsCd && isExpired(invitation, pet.invtSttsCd)
+      ? { ...pet, invtSttsCd: INVT_STTS.EXPR }
+      : pet,
+  ),
+});
 
 /** 내가 보낸 초대 (계정 전체, 최신 발송 순) */
 let fakeSentInvitations = [
   {
     invtSn: 4,
     invtEml: 'sooyoung@example.com',
-    pets: [{ petSn: 1, petNm: '초코' }],
+    pets: [{ petSn: 1, petNm: '초코', invtSttsCd: INVT_STTS.WAIT }],
     invtDt: '2026-10-18',
     expryDt: '2026-10-25',
     mbrYn: 'N',
-    invtSttsCd: INVT_STTS.WAIT,
   },
   {
     invtSn: 3,
     invtEml: 'jiho@example.com',
     pets: [
-      { petSn: 2, petNm: '나비' },
-      { petSn: 4, petNm: '두부' },
+      { petSn: 2, petNm: '나비', invtSttsCd: INVT_STTS.WAIT },
+      { petSn: 4, petNm: '두부', invtSttsCd: INVT_STTS.WAIT },
     ],
     invtDt: '2026-10-01',
     expryDt: '2026-10-08',
     mbrYn: 'Y',
-    invtSttsCd: INVT_STTS.WAIT,
   },
   {
     invtSn: 2,
     invtEml: 'minji@example.com',
-    pets: [{ petSn: 1, petNm: '초코' }],
+    pets: [
+      { petSn: 1, petNm: '초코', invtSttsCd: INVT_STTS.ACPT },
+      { petSn: 3, petNm: '보리', invtSttsCd: INVT_STTS.RJCT },
+    ],
     invtDt: '2026-07-28',
     expryDt: '2026-08-04',
     mbrYn: 'Y',
-    invtSttsCd: INVT_STTS.ACPT,
   },
   {
     invtSn: 1,
     invtEml: 'haneul@example.com',
-    pets: [{ petSn: 3, petNm: '보리' }],
+    pets: [{ petSn: 3, petNm: '보리', invtSttsCd: INVT_STTS.RJCT }],
     invtDt: '2026-06-15',
     expryDt: '2026-06-22',
     mbrYn: 'N',
-    invtSttsCd: INVT_STTS.RJCT,
   },
 ];
 
@@ -649,6 +661,17 @@ let fakeReceivedInvitations = {
       },
     ],
   },
+  /** 초대받은 이메일과 로그인 계정이 다른 경우 (서버가 판정, 마스킹한 이메일을 내려 줌) */
+  'demo-mismatch': {
+    invtSn: 903,
+    invtrNcnm: '김주인',
+    invtEmlMskd: 's***@example.com',
+    emlMtchYn: 'N',
+    invtDt: '2026-10-20',
+    expryDt: '2026-10-27',
+    invtSttsCd: INVT_STTS.WAIT,
+    pets: [],
+  },
   'demo-expired': {
     invtSn: 902,
     invtrNcnm: '박보호',
@@ -681,11 +704,14 @@ export const createInvitation = ({ invtEml, petSns }) => {
     invtEml,
     pets: fakePets
       .filter((pet) => petSns.includes(pet.petSn))
-      .map(({ petSn, petNm }) => ({ petSn, petNm })),
+      .map(({ petSn, petNm }) => ({
+        petSn,
+        petNm,
+        invtSttsCd: INVT_STTS.WAIT,
+      })),
     invtDt,
     expryDt: addDays(invtDt, INVT_VALID_DAYS),
     mbrYn: 'N',
-    invtSttsCd: INVT_STTS.WAIT,
   };
   fakeSentInvitations = [invitation, ...fakeSentInvitations];
   return fakeDelay(invitation);
@@ -702,11 +728,19 @@ export const getInvitation = (invitationToken) => {
   return fakeDelay(withExpiry({ ...invitation, invitationToken }));
 };
 
-/** 받은 쪽 처리 결과를 보낸 쪽 목록에도 반영 (같은 invtSn) */
-const setReceivedStatus = (invitationToken, invtSttsCd) => {
+/** 받은 쪽 처리 결과를 보낸 쪽 목록에도 동물별로 반영 (같은 invtSn) */
+const setReceivedStatus = (invitationToken, statusOf, invtSttsCd) => {
   const { invtSn } = fakeReceivedInvitations[invitationToken];
   fakeSentInvitations = fakeSentInvitations.map((invitation) =>
-    invitation.invtSn === invtSn ? { ...invitation, invtSttsCd } : invitation,
+    invitation.invtSn === invtSn
+      ? {
+          ...invitation,
+          pets: invitation.pets.map((pet) => ({
+            ...pet,
+            invtSttsCd: statusOf(pet.petSn),
+          })),
+        }
+      : invitation,
   );
   fakeReceivedInvitations = {
     ...fakeReceivedInvitations,
@@ -717,12 +751,17 @@ const setReceivedStatus = (invitationToken, invtSttsCd) => {
   };
 };
 
-/** 초대 수락 POST /invitations/{invitationToken}/accept (SJM 백엔드, 초대에 담긴 동물 일괄 연동) */
-export const acceptInvitation = (invitationToken) => {
+/** 초대 수락 POST /invitations/{invitationToken}/accept (SJM 백엔드, 고른 동물만 연동하고 나머지는 거절 처리) */
+export const acceptInvitation = ({ invitationToken, petSns }) => {
   const invitation = fakeReceivedInvitations[invitationToken];
-  setReceivedStatus(invitationToken, INVT_STTS.ACPT);
-  fakePets = [...fakePets, ...invitation.pets];
-  invitation.pets.forEach((pet) => {
+  const accepted = invitation.pets.filter((pet) => petSns.includes(pet.petSn));
+  setReceivedStatus(
+    invitationToken,
+    (petSn) => (petSns.includes(petSn) ? INVT_STTS.ACPT : INVT_STTS.RJCT),
+    INVT_STTS.ACPT,
+  );
+  fakePets = [...fakePets, ...accepted];
+  accepted.forEach((pet) => {
     fakeCaregivers = {
       ...fakeCaregivers,
       [pet.petSn]: [
@@ -750,6 +789,6 @@ export const acceptInvitation = (invitationToken) => {
 
 /** 초대 거절 POST /invitations/{invitationToken}/reject (SJM 백엔드) */
 export const rejectInvitation = (invitationToken) => {
-  setReceivedStatus(invitationToken, INVT_STTS.RJCT);
+  setReceivedStatus(invitationToken, () => INVT_STTS.RJCT, INVT_STTS.RJCT);
   return fakeDelay(null);
 };

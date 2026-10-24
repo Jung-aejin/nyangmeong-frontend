@@ -2,9 +2,9 @@
 
 ## 지금 하는 것
 
-끝남: 마이페이지 10-24 시안 v0.1 반영(2026-10-24, 커밋 86dd406, 푸시됨). 반려동물 관리·가계부·포인트·꾸미기·홈·회원정보 수정. `yarn -s lint`·`yarn -s build` 종료 코드 0(2026-10-25 확인). 사람 확인: PR용 캡처(앱 390)로 화면을 확인했다고 사람이 알려 줬다(2026-10-25). 아래 기획은 이 변경 뒤로 보류 중
+끝남: 마이페이지 10-24 시안 v0.1 반영(2026-10-24, 커밋 86dd406, 푸시됨). 반려동물 관리·가계부·포인트·꾸미기·홈·회원정보 수정. `yarn -s lint`·`yarn -s build` 종료 코드 0(2026-10-25 확인). 사람 확인: PR용 캡처(앱 390)로 화면을 확인했다고 사람이 알려 줬다(2026-10-25). 아래 기획은 이 변경 기준으로 다시 맞췄다
 
-SCR-MYP-001 연결: 캐릭터 얼굴 이미지 API 연결과 `PetFace` 묶음 — 기획 (보류: 전신 캐릭터 여부 팀 결정 후. 승인 전. `PetSlide.jsx`가 바뀌어 지금 기획은 그 기준으로 고치지 않았다. 시작 2026-10-24 15:46)
+SCR-MYP-001 연결: 캐릭터 얼굴 이미지 API 연결과 `PetFace` 묶음 — 기획 (승인 전. 10-24 시안 반영으로 바뀐 `PetSlide.jsx` 기준으로 다시 맞췄다. 전신 여부는 팀 결정 전이라 얼굴로 간다. 시작 2026-10-25)
 고른 이유: "다음에 할 것" 맨 위. 백엔드 develop에 `GET /pets/{petSn}/character-image?part=face`(LJS, 이미지 파일, 미생성·오류 확인 중이면 종별 기본 캐릭터)가 생겼다.
 병합으로 바뀐 것: `PetProfileCard`(메인 화면에서만 씀)가 76px 둥근 사각형, 얼굴이 없으면 점선 "캐릭터 이미지" 자리표시로 바뀌었다(YAY 커밋 0dee690). 메인 반려동물 칩(`pages/main/MainPage.jsx`, YAY)도 `chrcFaceUrl`을 따로 그린다.
 기준: 마이페이지_기능명세서_v0.4_20261021 FN-MYP-001-01·FN-MYP-002-02(원형에 착용 아이템 없는 얼굴, 미생성·오류=종별 기본 얼굴), 백엔드 `docs/api/pet.md`
@@ -17,13 +17,20 @@ SCR-MYP-001 연결: 캐릭터 얼굴 이미지 API 연결과 `PetFace` 묶음 �
   - 완료 조건
     - 명령: `yarn -s lint`, `yarn -s build`
     - 화면: `/mypage`·`/mypage/pets`·메인(`PetProfileCard`)에서 얼굴 요청이 실패해도 랜딩으로 튕기지 않고 지금과 같은 기본 얼굴(홈은 톤 바탕·오류 흑백, 프로필 카드는 점선 자리표시)이 보인다. 네트워크에 `/api/pets/{petSn}/character-image?part=face` 요청이 동물마다 1번 간다
-    - 화면: Playwright에서 그 경로를 이미지로 가로채면(route) 원형(홈 64px·슬라이드 112px)·둥근 사각형(프로필 카드 76px) 안에 이미지가 채워진다
+    - 화면: Playwright에서 그 경로를 이미지로 가로채면(route) 원형(홈 64px·슬라이드 112px, 앱 84px)·둥근 사각형(프로필 카드 76px) 안에 이미지가 채워진다
 - 범위 밖: 전신(`part=full`) 이미지로 캐릭터 카드·꾸미기 미리보기(`chrcImgUrl`) 바꾸기는 SCR-MYP-010 연결(캐릭터 목록 `GET /pixel-characters` 등)과 같이 한다
 
 질문: 반려동물 관리 카드를 전신 캐릭터로 바꿀지(핸드오프 결정 남음). 명세(FN-MYP-002-02)는 원형에 얼굴이라 이번엔 얼굴(`part=face`)·지금 모양 그대로 간다. (추천: 명세대로 얼굴 유지, 전신 여부는 팀 결정 뒤 `PetFace` 모양만 바꾼다)
 질문: 메인 반려동물 칩(`pages/main/MainPage.jsx`, YAY 담당)도 `PetFace`로 바꿀까요? 한 줄 교체라 쉽고 캐시를 같이 쓰지만 남의 파일입니다. (추천: 이번엔 고치지 않고 `PetFace`가 생겼다고 YAY에게 알린다. "다음에 할 것"에 남긴다)
 
 새 의존성: 없음
+
+### 추가 요청
+(SCR-MYP-005 초대 v0.2·v0.3 시안 반영. 위 PetFace 기획과 별개이고 PetFace는 보류)
+| 추가-1 | `features/pet/list/InviteModal.jsx` | 명령: lint·build. 화면: [확인] 버튼 없이 안내 문구, 형식 오류는 입력란을 벗어날 때·보낼 때 안내 | 요청 2026-10-25 "v0.2 초대 모달 반영, 검증은 추천안대로" |
+| 추가-2 | `features/pet/invite/InvitationAccept.jsx`, `api.js`, `queries.js` | 화면: 카드별 체크 선택 수락, 0개면 [수락] 비활성, 거절은 전체 | 요청 2026-10-25 "반려동물별 선택 수락" |
+| 추가-3 | `features/pet/invite/InvitationMismatch.jsx`(새), `pages/mypage/InvitationPage.jsx`, `api.js` | 화면: 이메일 불일치 안내, [초대받은 계정으로 로그인]은 로그아웃 뒤 `/login?redirect=`, 앱은 세로·로그인 버튼이 위 | 요청 2026-10-25 "FN-MYP-005-09대로" |
+| 추가-4 | `features/pet/list/SentInvitations.jsx`, `api.js` | 화면: 반려동물마다 한 줄·상태도 반려동물별(일부 수락이면 수락/거절) | 요청 2026-10-25 "패치에 없지만 FN-MYP-005-03 예외로 반영" |
 
 ## 다음에 할 것
 - 마이페이지 10-24 시안 반영 중 공통 모바일 여백 2건은 공용 레이아웃(LJS)이라 손대지 않았다. COM에 요청한다: (1) 하단 여백: 앱에서 `SubPageLayout`의 `pb-[126px]`이 `UserLayout` main의 앱 여백(`144px+safe-area`)과 겹친다. 시안은 마이페이지 앱에서 콘텐츠 끝과 하단 여백을 줄이고 푸터 위 여백을 56px로 둔다. (2) 상단 여백: 앱에서 헤더와 제목 사이를 약 40→20으로 줄인다. `contentClassName`은 본문 래퍼에만 걸려 제목 위 여백에는 쓸 수 없다 연결 남음: 포인트 내역 날짜 키 `pntHstYmd`는 가짜 API의 추정 키다. 백엔드 키가 정해지면 `features/point/api.js`와 `PointHistory.jsx`를 맞춘다. `index.css`에 `--color-cat-*` 토큰을 더했으니 공용 파일 변경으로 LJS에 알린다
@@ -35,7 +42,7 @@ SCR-MYP-001 연결: 캐릭터 얼굴 이미지 API 연결과 `PetFace` 묶음 �
 - SCR-MYP-010 연결 남음: 캐릭터 API(LJS)가 나오면 `features/pet/api.js`의 가짜(`createCharacter`·`getCharacterItems`·`updateCharacterWear`, 추정 키 `chrcSttsCd`·`chrcImgUrl`·`inqryRcptYn`·`itemSn`·`itemNm`·`itemPartCd`·`itemImgUrl`·`wearYn`, 부위·상태 코드 `ITEM_PART`·`CHRC_STTS`는 `petCodes.js`)를 실제 요청으로 바꾼다. 대표 지정 API(SJM 백엔드)가 나오면 `setRepresentativePet`도 바꾼다. 개발 전용 `?fake=empty|owner|fail`은 그때 지운다
 - SCR-MYP-010 연결 남음: 오류 문의(KSJ, SCR-CSC-003)는 `/inquiries/new`로 router state `{ inquiryType: 'PIXEL_CHARACTER', petSn, imageUrl }`를 넘긴다. 문의 작성 화면이 이 state를 받아 유형·이미지를 미리 채우는지, 유형 값을 무엇으로 할지 KSJ와 맞춘다. 생성 완료·오류 처리 인앱 알림(알림 저장 LJS)과 아이템 상점 모달(SCR-MYP-011)도 남았다
 - SCR-MYP-010 팀에 확인: 시안에 캐릭터·아이템 이미지가 없어 lucide 아이콘 자리표시자다(이미지가 나오면 `chrcImgUrl`·`itemImgUrl`로 겹침이 그려진다). 가짜 데이터에서 까미·모모를 공동양육으로 바꿨다(`/mypage/pets`에도 반영). 오류 확인 중 카드에 [대표 지정]이 보이는데 시안엔 없다. 꾸미기의 뒤로 가기 링크는 공용 "목록으로"다
-- SCR-MYP-005 연결 남음: 초대 API(SJM 백엔드)가 나오면 `features/pet/api.js`의 가짜(`createInvitation`·`getSentInvitations`·`getInvitation`·`acceptInvitation`·`rejectInvitation`, 추정 키 `invtSn`·`invitationToken`·`invtEml`·`invtSttsCd`·`invtDt`·`expryDt`·`mbrYn`·`invtrNcnm`·`pets`, 상태 `INVT_STTS`)를 실제 요청으로 바꾸고 만료 판정(`withExpiry`)을 서버 상태로 바꾼다. 인앱 알림·메일 발송(알림 저장 YAY), 알림 드롭다운 진입(SCR-COM-004), 가입 직후 자동 노출(SCR-ACC-001, YAY·AIC)과 맞춘다
+- SCR-MYP-005 연결 남음: 초대 API(SJM 백엔드)가 나오면 `features/pet/api.js`의 가짜(`createInvitation`·`getSentInvitations`·`getInvitation`·`acceptInvitation`·`rejectInvitation`, 추정 키 `invtSn`·`invitationToken`·`invtEml`·`invtSttsCd`·`invtDt`·`expryDt`·`mbrYn`·`invtrNcnm`·`pets`, 상태 `INVT_STTS`)를 실제 요청으로 바꾸고 만료 판정(`withExpiry`)을 서버 상태로 바꾼다. 인앱 알림·메일 발송(알림 저장 YAY), 알림 드롭다운 진입(SCR-COM-004), 가입 직후 자동 노출(SCR-ACC-001, YAY·AIC)과 맞춘다 10-24 시안 v0.2·v0.3 반영으로 가짜가 바뀌었다: 보낸 초대의 상태는 동물별(`pets[].invtSttsCd`), 수락은 `{ invitationToken, petSns }`로 고른 동물만 연동하고 나머지는 거절, 이메일 불일치는 받은 초대의 추정 키 `emlMtchYn: 'N'`·`invtEmlMskd`(마스킹은 서버가 하는지 맞춘다). 불일치 안내의 [초대받은 계정으로 로그인]은 로그아웃(`useLogout`, 가짜) 뒤 `/login?redirect=<초대 주소>`로 보내므로 로그인(AIC)이 `redirect`를 받는지 맞춘다. 가짜 토큰 `demo-mismatch`는 서버 연결 때 지운다
 - SCR-MYP-005 팀에 확인: 수락·거절·만료 초대 안내 문구와 "초대를 찾을 수 없어요"는 화면설계서에 없어 새로 썼다. [나중에 하기]는 마이페이지 홈(SCR-MYP-001)이 없어 지금은 빈 화면으로 간다. 거절 팝업은 공용 `components/Modal`(isConfirm)을 썼다
 - SCR-MYP-006 연결 남음: 자진 해제 API(SJM 백엔드)가 나오면 `features/pet/api.js`의 가짜 `leavePet`(추정 `DELETE /pets/{petSn}/caregivers/me`)를 실제 요청으로 바꾼다. 로그인(AIC)이 나오면 내 연동을 서버가 회원으로 가리는지 맞춘다. 화면으로 못 본 것: 해제 실패 토스트, 공동양육 동물만 있다가 해제해 빈 화면이 되는 경우(가짜 데이터에 없음) 팀에 확인: 해제 팝업은 기획의 `components/ConfirmModal` 대신 `PetDeleteDialog`처럼 직접 만들었다(ConfirmModal에 설명 문단 자리가 없음)
 - SCR-MYP-004 연결 남음: 양육관계 조회·강제 해제 API(SJM 백엔드)가 나오면 `features/pet/api.js`의 가짜(`getCaregivers`·`deleteCaregiver`, 추정 키 `rltnSn`·`mbrNcnm`·`cgvrRoleCd`·`authrtNm`·`lnkDt`·`myYn`)를 실제 요청으로 바꾸고 응답에 맞춘다. 공동양육자 시점에서 서버가 주양육자 + 본인 1건만 주는지, 강제 해제를 주양육자만 가능하게 서버가 막는지 맞춘다
