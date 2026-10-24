@@ -1,6 +1,7 @@
 import {
   EXPND_CLSF,
   EXPND_CLSF_LIST,
+  ETC_CLSF_CD,
   FILTER_ALL,
   FILTER_SHARED,
   PET_STTS,
@@ -45,6 +46,9 @@ export const getCategoryStats = (expenses) => {
   }))
     .filter((stat) => stat.totalAmt > 0)
     .sort((a, b) => b.totalAmt - a.totalAmt);
+  /** 금액 큰 순, 기타는 마지막 */
+  const etcIndex = stats.findIndex((stat) => stat.code === ETC_CLSF_CD);
+  if (etcIndex >= 0) stats.push(...stats.splice(etcIndex, 1));
   const ratios = getRatiosSummingTo100(stats.map((stat) => stat.totalAmt));
   return stats.map((stat, index) => ({ ...stat, ratio: ratios[index] }));
 };

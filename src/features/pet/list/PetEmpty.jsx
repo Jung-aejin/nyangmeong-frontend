@@ -1,4 +1,5 @@
 import { PawPrint } from 'lucide-react';
+import { MAX_OWN_PETS } from '@/utils/petCodes';
 
 export default function PetEmpty({ onRegister }) {
   return (
@@ -20,6 +21,9 @@ export default function PetEmpty({ onRegister }) {
         >
           반려동물 등록하기
         </button>
+        <p className="-mt-1 text-sm text-subtle">
+          반려동물은 최대 {MAX_OWN_PETS}마리까지 등록할 수 있어요
+        </p>
       </div>
     </section>
   );

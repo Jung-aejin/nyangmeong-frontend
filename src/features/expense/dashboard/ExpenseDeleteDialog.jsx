@@ -3,7 +3,8 @@ import Modal from '@/components/Modal';
 import { showToast } from '@/components/toastStore';
 import ExpenseInfo from '../shared/ExpenseInfo';
 import { formatFullDayHeader } from '../shared/expenseFormat';
-import { DAY_HEAD, EXPENSE_ROW } from '../shared/expenseStyles';
+import { EXPND_CLSF } from '../shared/expenseCodes';
+import { DAY_HEAD, DAY_ROW_APP, EXPENSE_ROW } from '../shared/expenseStyles';
 import { useDeleteExpense } from '../queries';
 
 export default function ExpenseDeleteDialog({ expense, onClose }) {
@@ -45,8 +46,11 @@ export default function ExpenseDeleteDialog({ expense, onClose }) {
     >
       <div className="mt-4 overflow-hidden rounded-box border border-line text-left">
         <div className={DAY_HEAD}>{formatFullDayHeader(expense.expndYmd)}</div>
-        <div className={EXPENSE_ROW}>
-          <ExpenseInfo expense={expense} />
+        <div
+          className={`${EXPENSE_ROW} ${DAY_ROW_APP}`}
+          style={{ '--cat': EXPND_CLSF[expense.expndClsfCd].color }}
+        >
+          <ExpenseInfo expense={expense} isDay />
         </div>
       </div>
     </Modal>

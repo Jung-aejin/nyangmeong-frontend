@@ -18,6 +18,15 @@ const SLOT_NAMES = {
   [ITEM_PART.BAG]: '가방',
 };
 
+/** 앱: 슬롯 5개를 캐릭터 아래 한 줄로 (머리·얼굴·목·의상·가방) */
+const SLOT_ORDER = {
+  [ITEM_PART.HEAD]: 'max-[760px]:order-1',
+  [ITEM_PART.FACE]: 'max-[760px]:order-2',
+  [ITEM_PART.NECK]: 'max-[760px]:order-3',
+  [ITEM_PART.CLOTHES]: 'max-[760px]:order-4',
+  [ITEM_PART.BAG]: 'max-[760px]:order-5',
+};
+
 /** 서버 아이템 목록 → { 부위: 착용 중인 아이템 } */
 const toWorn = (items) =>
   Object.fromEntries(
@@ -78,6 +87,7 @@ export default function CharacterDecorate({ pet, pntBal }) {
       name={SLOT_NAMES[part]}
       item={worn[part]}
       onRelease={() => release(part)}
+      className={SLOT_ORDER[part]}
     />
   );
 
@@ -85,7 +95,7 @@ export default function CharacterDecorate({ pet, pntBal }) {
 
   return (
     <>
-      <div className="flex justify-end">
+      <div className="flex justify-end max-[760px]:mb-4 max-[760px]:-translate-y-3">
         {pet.inqryRcptYn === 'Y' ? (
           <button type="button" disabled className={BTN_SECONDARY}>
             문의 접수됨
@@ -104,24 +114,26 @@ export default function CharacterDecorate({ pet, pntBal }) {
           </Link>
         )}
       </div>
-      <div className="mt-4 grid items-start gap-4 min-[1101px]:grid-cols-[minmax(0,1fr)_minmax(360px,420px)]">
+      <div className="mt-4 grid items-start gap-4 max-[760px]:col-span-full min-[1101px]:grid-cols-[minmax(0,1fr)_minmax(360px,420px)]">
         <section
           aria-label="착용 미리보기"
-          className="rounded-card border border-line bg-white shadow-sm"
+          className="rounded-card border border-line bg-white shadow-sm max-[760px]:col-span-full max-[760px]:grid max-[760px]:grid-cols-5 max-[760px]:gap-x-2 max-[760px]:gap-y-3 max-[760px]:p-4"
         >
-          <div className="grid grid-cols-[72px_minmax(0,300px)_72px] items-center justify-center gap-3 px-4 pt-8 pb-4 min-[600px]:grid-cols-[96px_minmax(0,300px)_96px] min-[600px]:gap-5 min-[600px]:px-6">
-            <div className="flex flex-col gap-5">
+          <div className="max-[760px]:contents grid grid-cols-[72px_minmax(0,300px)_72px] items-center justify-center gap-3 px-4 pt-8 pb-4 min-[600px]:grid-cols-[96px_minmax(0,300px)_96px] min-[600px]:gap-5 min-[600px]:px-6">
+            <div className="flex flex-col gap-5 max-[760px]:contents">
               {slot(ITEM_PART.HEAD)}
               {slot(ITEM_PART.FACE)}
             </div>
-            <WearPreview pet={pet} worn={worn} />
-            <div className="flex flex-col gap-5">
+            <div className="max-[760px]:col-span-full max-[760px]:mx-auto max-[760px]:w-[min(220px,100%)]">
+              <WearPreview pet={pet} worn={worn} />
+            </div>
+            <div className="flex flex-col gap-5 max-[760px]:contents">
               {slot(ITEM_PART.CLOTHES)}
               {slot(ITEM_PART.BAG)}
             </div>
           </div>
-          <div className="flex justify-center px-6 pb-6">
-            <div className="w-[72px] min-[600px]:w-24">
+          <div className="flex justify-center px-6 pb-6 max-[760px]:contents">
+            <div className="w-[72px] min-[600px]:w-24 max-[760px]:contents">
               {slot(ITEM_PART.NECK)}
             </div>
           </div>
@@ -147,12 +159,12 @@ export default function CharacterDecorate({ pet, pntBal }) {
           </div>
         </section>
       </div>
-      <div className="mt-5 flex justify-end gap-2 border-t border-line pt-5">
+      <div className="mt-5 flex justify-end gap-2 border-t border-line pt-5 max-[760px]:sticky max-[760px]:bottom-[calc(60px+env(safe-area-inset-bottom))] max-[760px]:z-5 max-[760px]:col-span-full max-[760px]:-mx-4 max-[760px]:bg-white max-[760px]:px-4 max-[760px]:py-2.5">
         <button
           type="button"
           onClick={() => setDraft(null)}
           disabled={draft === null || isSaving}
-          className={BTN_SECONDARY}
+          className={`${BTN_SECONDARY} max-[760px]:flex-1`}
         >
           되돌리기
         </button>
@@ -160,7 +172,7 @@ export default function CharacterDecorate({ pet, pntBal }) {
           type="button"
           onClick={handleSave}
           disabled={draft === null || isSaving}
-          className={BTN_PRIMARY}
+          className={`${BTN_PRIMARY} max-[760px]:flex-1`}
         >
           장착
         </button>
@@ -178,11 +190,11 @@ export default function CharacterDecorate({ pet, pntBal }) {
   );
 }
 
-function Slot({ name, item, onRelease }) {
+function Slot({ name, item, onRelease, className = '' }) {
   return (
-    <div className="flex flex-col items-center gap-1">
+    <div className={`flex min-w-0 flex-col items-center gap-1 ${className}`}>
       <div
-        className={`relative grid h-20 w-full place-items-center rounded-lg px-1 text-center text-sm ${
+        className={`relative grid h-20 w-full place-items-center rounded-lg px-1 text-center text-sm max-[760px]:h-14 max-[760px]:text-xs ${
           item
             ? 'bg-surface-2 font-semibold text-ink-2'
             : 'border border-dashed border-line-strong bg-white font-normal text-placeholder'
