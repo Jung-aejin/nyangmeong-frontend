@@ -33,7 +33,7 @@ SCR-MYP-001 연결: 캐릭터 얼굴 이미지 API 연결과 `PetFace` 묶음 �
 | 추가-4 | `features/pet/list/SentInvitations.jsx`, `api.js` | 화면: 반려동물마다 한 줄·상태도 반려동물별(일부 수락이면 수락/거절) | 요청 2026-10-25 "패치에 없지만 FN-MYP-005-03 예외로 반영" |
 | 추가-5 | `features/pet/invite/InvitationClosed.jsx`(새), `pages/mypage/InvitationPage.jsx`, `InvitationAccept.jsx`(닫힌 초대 분기 삭제), `api.js` | 명령: lint·build. 화면: `/mypage/invitations/demo-expired`·`demo-done`에서 시계 아이콘·제목·[마이페이지 홈으로] 하나만(카드·초대한 사람·목록으로 없음), 판단 순서 만료·처리 → 불일치 → 수락 | 요청 2026-10-25 "기능명세서 v0.4_20261025 FN-MYP-005-10 기준 5-6 구현" |
 | 추가-6 | `features/pet/list/FamilySection.jsx` | 화면: 가족 카드 이름 → 뱃지 → 권한·연동일 세로 배치, 1180·1440·390에서 뱃지가 카드 밖으로 안 나감 | 요청 2026-10-25 "좁은 폭에서 뱃지가 카드 밖으로 나가 이름 아래로" |
-사람 확인: 추가-5·6은 사람이 화면을 확인했다고 답했다(2026-10-25). 추가-1~4는 확인 기록 없음
+사람 확인: 추가-1~6 모두 사람이 화면을 확인했다고 답했다(2026-10-25)
 
 ## 다음에 할 것
 - 마이페이지 10-24 시안 반영 중 공통 모바일 여백 2건은 공용 레이아웃(LJS)이라 손대지 않았다. COM에 요청한다: (1) 하단 여백: 앱에서 `SubPageLayout`의 `pb-[126px]`이 `UserLayout` main의 앱 여백(`144px+safe-area`)과 겹친다. 시안은 마이페이지 앱에서 콘텐츠 끝과 하단 여백을 줄이고 푸터 위 여백을 56px로 둔다. (2) 상단 여백: 앱에서 헤더와 제목 사이를 약 40→20으로 줄인다. `contentClassName`은 본문 래퍼에만 걸려 제목 위 여백에는 쓸 수 없다 연결 남음: 포인트 내역 날짜 키 `pntHstYmd`는 가짜 API의 추정 키다. 백엔드 키가 정해지면 `features/point/api.js`와 `PointHistory.jsx`를 맞춘다. `index.css`에 `--color-cat-*` 토큰을 더했으니 공용 파일 변경으로 LJS에 알린다
