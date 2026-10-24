@@ -89,7 +89,7 @@ export default function ExpenseSummary({
             <button
               type="button"
               onClick={onOpenLimit}
-              className={BTN_SECONDARY}
+              className={`${BTN_SECONDARY} max-[760px]:basis-full`}
             >
               한도 설정하기
             </button>
