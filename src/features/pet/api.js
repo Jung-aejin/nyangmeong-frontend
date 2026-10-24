@@ -535,7 +535,7 @@ export const createCharacter = ({ petSn, photo, colrCd, colrDrctInptNm }) => {
 /**
  * [공동양육 초대 가짜 데이터]
  * - 초대 API(SJM 백엔드) 전까지 쓰는 가짜 응답
- * - 미정 키: invtSn, invitationToken(수락 URL 경로 변수, 확정 필요), invtEml, invtEmlMskd, emlMtchYn, invtSttsCd(동물별), invtDt, expryDt, mbrYn, invtrNcnm, pets
+ * - 미정 키: invtSn, invitationToken(수락 URL 경로 변수, 확정 필요), invtEml, invtEmlMskd, emlMtchYn, invtSttsCd(보낸 초대는 동물별, 받은 초대는 초대 전체 WAIT·ACPT·RJCT·EXPR. 5-6 안내 판단), invtDt, expryDt, mbrYn, invtrNcnm, pets
  */
 export const INVT_STTS = {
   WAIT: 'WAIT',
@@ -671,6 +671,25 @@ let fakeReceivedInvitations = {
     expryDt: '2026-10-27',
     invtSttsCd: INVT_STTS.WAIT,
     pets: [],
+  },
+  /** 이미 수락·거절돼 종료된 초대 */
+  'demo-done': {
+    invtSn: 904,
+    invtrNcnm: '최가족',
+    invtDt: '2026-10-20',
+    expryDt: '2026-10-27',
+    invtSttsCd: INVT_STTS.ACPT,
+    pets: [
+      {
+        ...basePet,
+        petSn: 904,
+        petNm: '구름',
+        petSeCd: PET_SE.CAT,
+        vrtyNm: '러시안블루',
+        petBrdt: '2023-01-15',
+        petRelCd: PET_REL.CO_PARENT,
+      },
+    ],
   },
   'demo-expired': {
     invtSn: 902,
