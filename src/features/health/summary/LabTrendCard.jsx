@@ -1,4 +1,3 @@
-import { useSyncExternalStore } from 'react';
 import Card from '@/components/Card';
 import Icon from '@/components/Icon';
 import { formatDate } from '@/utils/formatDate';
@@ -12,7 +11,7 @@ import { formatRange, getFunctionTagName } from './summaryUtils';
  * - 선택 항목의 시계열 선그래프, 참고범위는 배경 영역으로만 표기하고 이탈 판정 없음
  * - 기록이 1건이면 그래프 대신 값·참고범위만, 안내 문구는 항상 표시
  * - 모바일(640px 미만)은 머리 오른쪽에 "최근 n회", 항목 선택창은 본문 맨 위 전체 폭 (추가 요청)
- * - 모바일 그래프는 오른쪽 최대·최소 라벨 없이 왼쪽 눈금을 상한·하한으로 (추가 요청)
+ * - 그래프는 오른쪽 최대·최소 라벨 없이 왼쪽 눈금을 상한·하한으로 (PC·모바일 같음, 추가 요청)
  */
 export default function LabTrendCard({
   trends,
@@ -68,18 +67,8 @@ export default function LabTrendCard({
   );
 }
 
-/** Tailwind sm 미만(640px)인지. 그래프는 SVG라 클래스로 나눌 수 없어 화면 폭을 직접 본다 */
-const MOBILE_QUERY = '(max-width: 639.98px)';
-const subscribeMobile = (onChange) => {
-  const media = window.matchMedia(MOBILE_QUERY);
-  media.addEventListener('change', onChange);
-  return () => media.removeEventListener('change', onChange);
-};
-const getIsMobile = () => window.matchMedia(MOBILE_QUERY).matches;
-
 function TrendBody({ trend }) {
   const { points, unitNm, refMinVal, refMaxVal } = trend;
-  const isMobile = useSyncExternalStore(subscribeMobile, getIsMobile);
   const hasBand = refMinVal != null && refMaxVal != null;
   const range = formatRange(refMinVal, refMaxVal, '~');
 
@@ -92,7 +81,6 @@ function TrendBody({ trend }) {
             value: point.rsltVal,
           }))}
           band={hasBand ? [refMinVal, refMaxVal] : undefined}
-          bandLabelSide={isMobile ? 'left' : 'right'}
           formatValue={(value) => `${value} ${unitNm}`}
           ariaLabel={`${trend.inspItmNm} 수치 변화 선그래프 · 참고범위 ${range} · ${points
             .map((point) => `${formatDate(point.ckupYmd)} ${point.rsltVal}`)

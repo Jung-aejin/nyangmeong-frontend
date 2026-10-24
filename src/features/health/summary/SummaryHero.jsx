@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Cat, Dog, Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Icon from '@/components/Icon';
@@ -14,8 +14,8 @@ const REGISTER_PATH = `${PATHS.MYPAGE_PETS}?register=1`;
 /**
  * [종합 건강기록 히어로]
  * - 반려동물 선택 탭 + 조회 기준일 + 요약 바 (FN-HLT-011-01·02)
- * - 탭은 반려동물이 2마리 이상일 때만. 선택한 1마리만 이름 칩, 나머지는 사진 원(등록 순서 그대로)
- * - 줄 끝 점선 [+ 반려동물 등록] 버튼, 항상 보임 (명세 FN-HLT-011-01은 글자 링크, 추가 요청)
+ * - 탭은 반려동물이 2마리 이상일 때만. 칩마다 캐릭터 그림(없으면 종별 기본 이미지) 원 + 이름(등록 순서 그대로), 선택한 칩만 노란색
+ * - 탭 뒤 세로 구분선과 점선 [+ 반려동물 등록] 버튼, 항상 보임
  * - 캐릭터 미생성이면 큰 이미지 자리가 빈 자리 카드(마이페이지 캐릭터 목록 이동), 공동양육은 기본 캐릭터만 (추가 요청)
  */
 export default function SummaryHero({
@@ -61,46 +61,38 @@ export default function SummaryHero({
           }`}
         >
           {pets.length > 1 && (
-            <div
-              role="tablist"
-              aria-label="반려동물 선택"
-              className="flex flex-wrap items-center gap-2 max-sm:flex-nowrap"
-            >
-              {pets.map((item, index) => {
-                if (item.petSn !== pet.petSn) {
+            <>
+              <div
+                role="tablist"
+                aria-label="반려동물 선택"
+                className="flex flex-wrap items-center gap-2 max-sm:flex-nowrap"
+              >
+                {pets.map((item) => {
+                  const isSelected = item.petSn === pet.petSn;
                   return (
                     <button
                       key={item.petSn}
                       type="button"
                       role="tab"
-                      aria-selected={false}
-                      aria-label={item.petNm}
-                      className="group relative grid size-10 shrink-0 place-items-center rounded-full border border-white/26 bg-white/12 hover:border-white focus-visible:border-white"
+                      aria-selected={isSelected}
+                      className={`inline-flex h-10 shrink-0 items-center gap-2 rounded-full border pr-3.5 pl-1.25 font-semibold whitespace-nowrap ${
+                        isSelected
+                          ? 'border-[#f9eaa6] bg-[#f9eaa6] text-ink'
+                          : 'border-white/26 hover:border-white/50 focus-visible:border-white'
+                      }`}
                       onClick={() => onSelect(item.petSn)}
                     >
-                      <PetImage pet={item} className="size-7.5 bg-white/18" />
-                      <NameTag>{item.petNm}</NameTag>
-                    </button>
-                  );
-                }
-                return (
-                  <Fragment key={item.petSn}>
-                    {index > 0 && <Divider />}
-                    <button
-                      type="button"
-                      role="tab"
-                      aria-selected
-                      className="inline-flex h-10 shrink-0 items-center gap-2 rounded-full border border-[#f9eaa6] bg-[#f9eaa6] pr-3.5 pl-1.25 font-semibold whitespace-nowrap text-ink"
-                      onClick={() => onSelect(item.petSn)}
-                    >
-                      <PetImage pet={item} className="size-7.5 bg-ink/10" />
+                      <PetImage
+                        pet={item}
+                        className={`size-7.5 ${isSelected ? 'bg-ink/10' : 'bg-white/18'}`}
+                      />
                       {item.petNm}
                     </button>
-                    {index < pets.length - 1 && <Divider />}
-                  </Fragment>
-                );
-              })}
-            </div>
+                  );
+                })}
+              </div>
+              <Divider />
+            </>
           )}
           <Link
             to={REGISTER_PATH}
@@ -115,10 +107,8 @@ export default function SummaryHero({
             반려동물 등록
           </Link>
         </div>
-        <span className="inline-flex items-center gap-2 before:size-2 before:rounded-full before:bg-[#f9eaa6] before:shadow-[0_0_0_4px_rgba(249,234,166,0.25)] before:content-['']">
+        <span className="inline-flex items-center gap-2 max-sm:order-first max-sm:self-end max-sm:text-sm before:size-2 before:rounded-full before:bg-[#f9eaa6] before:shadow-[0_0_0_4px_rgba(249,234,166,0.25)] before:content-['']">
           {formatDate(summary.baseYmd)} 기준
-          {summary.lastRecordYmd &&
-            ` · 마지막 기록 ${formatDate(summary.lastRecordYmd)}`}
         </span>
       </div>
 
@@ -250,25 +240,13 @@ function CharacterSlot() {
   );
 }
 
-/** 선택한 이름 칩 양옆의 세로 구분선 */
+/** 반려동물 칩 묶음과 등록 버튼 사이의 세로 구분선 */
 function Divider() {
   return (
     <span
       aria-hidden="true"
       className="mx-1 h-6 shrink-0 border-l border-white/26"
     />
-  );
-}
-
-/** 마우스를 올리거나 키보드로 고르면 아래에 뜨는 이름표 */
-function NameTag({ children }) {
-  return (
-    <span
-      aria-hidden="true"
-      className="pointer-events-none absolute top-full left-1/2 z-20 mt-2 -translate-x-1/2 rounded-box bg-ink px-2 py-1 text-sm font-medium whitespace-nowrap text-white opacity-0 shadow-depth-sm group-hover:opacity-100 group-focus-visible:opacity-100"
-    >
-      {children}
-    </span>
   );
 }
 

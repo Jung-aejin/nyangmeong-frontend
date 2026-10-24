@@ -1,5 +1,6 @@
 import Card from '@/components/Card';
 import { PATHS } from '@/routes/paths';
+import { splitList } from '@/utils/petFormat';
 import { CardTitle, MoreLink } from './SummaryParts';
 
 /**
@@ -27,10 +28,6 @@ export default function ConditionCard({ profile, petSn }) {
       }
       className="flex-1"
     >
-      {/* 모바일은 머리에 자리가 없어 제목이 잘리므로 본문 첫 줄로 옮김 (추가 요청) */}
-      <p className="mb-3 text-sm/[1.6] font-medium text-subtle sm:hidden">
-        진료 시 반드시 확인
-      </p>
       <Line label="알레르기" value={profile.allrgCn} />
       <div className="mt-4 border-t border-line-soft pt-4">
         <Line label="기저질환" value={profile.undrlDiseCn} />
@@ -39,13 +36,24 @@ export default function ConditionCard({ profile, petSn }) {
   );
 }
 
+/** 제목은 왼쪽에 고정 폭으로 두고, 세로 구분선 너머 오른쪽에 내용을 나열 */
 function Line({ label, value }) {
+  const items = splitList(value);
+
   return (
-    <div>
-      <p className="text-sm/[1.6] text-subtle">{label}</p>
-      <p className={`mt-1 ${value ? '' : 'text-placeholder'}`}>
-        {value || '등록된 내용 없음'}
+    <div className="flex items-stretch gap-4">
+      <p className="w-20 shrink-0 border-r border-line-soft text-sm/[1.6] text-subtle">
+        {label}
       </p>
+      {items.length > 0 ? (
+        <ul className="flex min-w-0 flex-wrap gap-x-3 gap-y-1">
+          {items.map((item) => (
+            <li key={item}>{item.trim()}</li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-placeholder">등록된 내용 없음</p>
+      )}
     </div>
   );
 }
