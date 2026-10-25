@@ -34,6 +34,7 @@ SCR-MYP-001 연결: 캐릭터 얼굴 이미지 API 연결과 `PetFace` 묶음 �
 | 추가-7 | `features/expense/**`, `components/Select.jsx`(공용, 선택 전 표시 문구 옵션만 추가) | 가계부 v0.3 시안·명세 v0.4_20261025: ①사용처 ②지출 상세 시트·날짜별 상세 ⋮ 메뉴 ③전체 내역(필터 문구·앱 정렬 줄·색 막대·무한 스크롤) ④대시보드 앱 정리·중복·삭제 모달. 명령: lint·build. 화면: PC 1440·앱 390 | 요청 2026-10-25 "가계부(SCR-MYP-030·031) v0.3 구현, 단계별 커밋, 푸시 안 함" |
 추가-7에 이어서 같은 날 요청: 지출 상세 시트에서 편집을 취소해도 시트로 복귀, 반려동물 카드 메뉴 ⋮(세로)(`PetSlide.jsx`), 포인트 앱 상단 [캐릭터 꾸미기] 숨김(`PointSummary.jsx`). 영수증 확인 폼(사용처=상호, 내용 빈칸)은 가짜 OCR로 PC·앱 확인 공용 파일 변경(LJS에 알림): `components/Select.jsx`에 `placeholder` prop 추가(안 넘기면 기존과 동일), `hooks/useMediaQuery.js` 새로 추가. 개발 전용 `?fake=more-fail`(전체 내역 앱에서 첫 이어 불러오기 실패, ↻ 확인)
 | 추가-8 | `features/pet/shared/PetFace.jsx`, `home/PetMiniCard.jsx`, `invite/InvitationAccept.jsx` | 명령: lint·build. 화면: 오류 상태 동물은 서버 이미지여도 흑백(반려동물 상태 기준), 이미지에 pixelated, 초대 수락 카드 얼굴도 PetFace, 파일 맨 위에 사용법 주석(건강기록·건강일지·메인에서도 공용). 캡처로 확인하고 커밋, 푸시 안 함 | 요청 2026-10-25 "오류 흑백을 상태 기준으로, PetFace 공용 props·주석·pixelated, 빠진 얼굴 교체, 캡처 확인 후 커밋" |
+| 추가-9 | `features/expense/shared/ExpenseForm.jsx`(수정일 때만), `components/Modal.jsx`(공용, 앱에서 아래 시트로 뜨는 옵션 `isSheet` 추가) | 명령: lint·build. 화면: 앱(≤760px) 지출 수정 폼이 지출 상세 시트처럼 아래에서 올라온다. PC·직접 입력(등록) 모달은 그대로. 캡처로 확인하고 커밋, 푸시 안 함 | 요청 2026-10-25 "앱에서 지출 수정 폼을 상세 시트처럼 아래에서 올라오는 시트로" |
 사람 확인: 추가-1~6은 사람이 화면을 확인했다고 답했다(2026-10-25). 추가-7과 이어서 요청한 것도 사람이 확인했다고 답했다(2026-10-25). PetFace 묶음(SCR-MYP-001)의 화면도 사람이 확인했다고 답했다. 회원정보 수정 간격은 사람이 그대로 두기로 했다
 
 ## 다음에 할 것
