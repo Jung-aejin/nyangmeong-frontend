@@ -1,4 +1,4 @@
-import { Cat, Dog, Info } from 'lucide-react';
+import { Info } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import SkeletonCard from '@/components/SkeletonCard';
@@ -7,7 +7,7 @@ import { showToast } from '@/components/toastStore';
 import { PATHS } from '@/routes/paths';
 import { formatAge, getVrtyName } from '@/utils/petFormat';
 import { useAcceptInvitation, useInvitation } from '../queries';
-import { PET_SE } from '@/utils/petCodes';
+import PetFace from '../shared/PetFace';
 import InvitationMismatch from './InvitationMismatch';
 import InvitationRejectDialog from './InvitationRejectDialog';
 
@@ -24,7 +24,6 @@ const CARD =
   'mx-auto w-full max-w-[560px] overflow-hidden rounded-card border border-line bg-white shadow-depth-sm';
 
 function InvitePetCard({ pet, checked, onToggle }) {
-  const Icon = pet.petSeCd === PET_SE.CAT ? Cat : Dog;
   const desc = [getVrtyName(pet), formatAge(pet.petBrdt)]
     .filter(Boolean)
     .join(' · ');
@@ -38,9 +37,11 @@ function InvitePetCard({ pet, checked, onToggle }) {
           aria-label={`${pet.petNm} 수락`}
           className="absolute top-3 left-3 size-5 cursor-pointer accent-brand-500"
         />
-        <span className="mb-2 grid size-28 place-items-center rounded-full bg-white text-brand-500">
-          <Icon className="size-12" aria-hidden="true" />
-        </span>
+        <PetFace
+          pet={pet}
+          className="mb-2 size-28 rounded-full bg-white text-brand-500"
+          iconClassName="size-12"
+        />
         <b>{pet.petNm}</b>
         <span className="text-sm text-subtle">{desc}</span>
       </label>
