@@ -1,8 +1,9 @@
-import { Cat, ChevronRight, Dog } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Badge from '@/components/Badge';
 import { PATHS } from '@/routes/paths';
-import { CHRC_STTS, PET_REL, PET_SE } from '@/utils/petCodes';
+import PetFace from '../shared/PetFace';
+import { CHRC_STTS, PET_REL } from '@/utils/petCodes';
 import { formatAge, getVrtyName } from '@/utils/petFormat';
 
 /** 캐릭터를 만든 동물의 얼굴 바탕색 (순서대로 돌려 쓴다) */
@@ -15,7 +16,6 @@ const TONES = [
 ];
 
 export default function PetMiniCard({ pet, index }) {
-  const Icon = pet.petSeCd === PET_SE.CAT ? Cat : Dog;
   const isDone = pet.chrcSttsCd === CHRC_STTS.DONE;
   const isError = pet.chrcSttsCd === CHRC_STTS.ERROR;
 
@@ -32,17 +32,11 @@ export default function PetMiniCard({ pet, index }) {
             : 'bg-surface-2 text-line-strong shadow-[inset_0_0_0_1px_var(--color-line-strong)]'
         }`}
       >
-        {isDone && pet.chrcFaceUrl ? (
-          <img
-            src={pet.chrcFaceUrl}
-            alt=""
-            className="size-full rounded-full object-cover"
-          />
-        ) : (
-          <Icon
-            className={`size-7 max-[760px]:size-5 ${isError ? 'opacity-55 grayscale' : ''}`}
-          />
-        )}
+        <PetFace
+          pet={pet}
+          className="size-full rounded-full"
+          iconClassName="size-7 max-[760px]:size-5"
+        />
         {pet.rprsYn === 'Y' && (
           <span className="absolute -right-1.5 -bottom-1 max-[760px]:-right-2.5 max-[760px]:-bottom-1.5 max-[760px]:scale-[.85] inline-flex h-6 items-center rounded-full bg-brand-500 px-2.5 pt-[1.5px] text-[13px] leading-none font-semibold whitespace-nowrap text-white ring-2 ring-white">
             대표

@@ -9,6 +9,7 @@ import {
   X,
 } from 'lucide-react';
 import { useLayoutEffect, useRef, useState } from 'react';
+import PetFace from '../shared/PetFace';
 import { MAX_OWN_PETS, PET_REL, PET_SE } from '@/utils/petCodes';
 import FamilySection from './FamilySection';
 import {
@@ -205,7 +206,12 @@ function PetCard({ pet, onEdit, onDelete, onUnlink, onInvite, children }) {
       className="relative grid gap-5 rounded-modal border border-line bg-white p-5 pt-10 pb-16 shadow-depth-sm max-[760px]:grid-cols-[84px_minmax(0,1fr)] max-[760px]:gap-x-4 max-[760px]:gap-y-0 min-[761px]:grid-cols-[180px_minmax(0,1fr)] min-[761px]:gap-x-8 min-[761px]:gap-y-6 min-[761px]:px-8 min-[1101px]:grid-cols-[220px_minmax(0,1fr)] min-[1101px]:gap-x-14 min-[1101px]:px-12"
     >
       <div className="flex items-center justify-center max-[760px]:self-center">
-        <PetFace pet={pet} />
+        <PetFace
+          pet={pet}
+          alt={`${pet.petNm} 캐릭터`}
+          className="size-28 shrink-0 rounded-full bg-surface-2 text-line-strong shadow-[inset_0_0_0_1px_var(--color-line-strong)] max-[760px]:size-[84px]"
+          iconClassName="size-14 max-[760px]:size-9"
+        />
       </div>
       <div className="flex min-w-0 flex-col max-[760px]:contents">
         <div className="flex items-start gap-3 pb-4 max-[760px]:items-center max-[760px]:pb-0">
@@ -392,25 +398,6 @@ function MobileList({ label, value, isOpen }) {
         </>
       )}
     </MobileRow>
-  );
-}
-
-function PetFace({ pet }) {
-  if (pet.chrcFaceUrl) {
-    return (
-      <img
-        src={pet.chrcFaceUrl}
-        alt={`${pet.petNm} 캐릭터`}
-        className="size-28 rounded-full object-cover max-[760px]:size-[84px]"
-      />
-    );
-  }
-  /** 캐릭터 없을 때 종별 기본 얼굴 */
-  const Icon = pet.petSeCd === PET_SE.CAT ? Cat : Dog;
-  return (
-    <div className="grid size-28 shrink-0 place-items-center rounded-full bg-surface-2 text-line-strong shadow-[inset_0_0_0_1px_var(--color-line-strong)] max-[760px]:size-[84px]">
-      <Icon className="size-14 max-[760px]:size-9" />
-    </div>
   );
 }
 

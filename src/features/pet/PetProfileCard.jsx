@@ -1,3 +1,4 @@
+import PetFace from './shared/PetFace';
 import {
   formatAge,
   formatWeight,
@@ -18,19 +19,18 @@ export default function PetProfileCard({ pet }) {
 
   return (
     <div className="flex items-start gap-4 p-5">
-      {pet.chrcFaceUrl ? (
-        <img
-          src={pet.chrcFaceUrl}
-          alt={`${pet.petNm} 캐릭터`}
-          className="size-[76px] shrink-0 rounded-modal bg-white object-cover"
-        />
-      ) : (
-        <div className="grid size-[76px] shrink-0 place-items-center rounded-modal border border-dashed border-white/26 text-center text-sm leading-tight text-[#dbe8e8]">
-          캐릭터
-          <br />
-          이미지
-        </div>
-      )}
+      <PetFace
+        pet={pet}
+        alt={`${pet.petNm} 캐릭터`}
+        className="size-[76px] shrink-0 rounded-modal bg-white"
+        fallback={
+          <div className="grid size-[76px] shrink-0 place-items-center rounded-modal border border-dashed border-white/26 text-center text-sm leading-tight text-[#dbe8e8]">
+            캐릭터
+            <br />
+            이미지
+          </div>
+        }
+      />
       <div className="min-w-0">
         <p className="text-lg leading-none font-bold">{pet.petNm}</p>
         <p className="mt-1 text-[#dbe8e8]">{meta}</p>

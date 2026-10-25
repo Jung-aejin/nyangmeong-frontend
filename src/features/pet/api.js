@@ -1,3 +1,4 @@
+import { api } from '@/api/axios';
 import {
   CGVR_ROLE,
   CHRC_STTS,
@@ -9,7 +10,7 @@ import {
 /**
  * [반려동물 가짜 API]
  * - 반려동물 API(SJM)·품종 마스터(KSJ) 전까지 쓰는 가짜 응답, 나오면 본문만 api 요청으로 교체
- * - 미정 키: lastBdwgRcd, vrtyNm, rprsYn, petRelCd, chrcFaceUrl
+ * - 미정 키: lastBdwgRcd, vrtyNm, rprsYn, petRelCd
  * - 캐릭터 미정 키: chrcSttsCd, chrcImgUrl, inqryRcptYn
  * - 양육관계 미정 키: rltnSn, mbrNcnm, cgvrRoleCd, authrtNm, lnkDt, myYn
  */
@@ -27,7 +28,6 @@ const basePet = {
   lastBdwgRcd: null,
   rprsYn: 'N',
   petRelCd: PET_REL.OWNER,
-  chrcFaceUrl: null,
   chrcSttsCd: CHRC_STTS.NONE,
   chrcImgUrl: null,
   inqryRcptYn: 'N',
@@ -239,6 +239,14 @@ export const getPets = () => {
 /** 상세 조회 GET /pets/{petSn} */
 export const getPet = (petSn) =>
   fakeDelay(fakePets.find((pet) => pet.petSn === petSn));
+
+/** 캐릭터 이미지 조회 GET /pets/{petSn}/character-image (로그인 전 401 랜딩 이동 끄기) */
+export const getCharacterImage = (petSn, part) =>
+  api.get(`/pets/${petSn}/character-image`, {
+    params: { part },
+    responseType: 'blob',
+    skipAuthRedirect: true,
+  });
 
 /** 등록 POST /pets */
 export const createPet = (body) => {
