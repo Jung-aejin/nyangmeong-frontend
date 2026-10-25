@@ -1,6 +1,6 @@
 import { ChevronLeft, CircleAlert, Info } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useOutletContext } from 'react-router-dom';
 import AutoTextarea from '@/components/AutoTextarea';
 import { BTN_PRIMARY, BTN_SECONDARY } from '@/components/buttonStyles';
 import ConfirmModal from '@/components/ConfirmModal';
@@ -32,7 +32,7 @@ function FieldError({ message }) {
 /**
  * 문의 작성·수정 공용 폼
  * - 입력한 것이 있으면(처음 값과 다르면) 목록·취소로 나갈 때 확인 모달, 새로고침·닫기는 브라우저 확인창
- * - 앱이 BrowserRouter라 메뉴·헤더 링크 이동은 막지 못한다
+ * - 고객센터 사이드 메뉴 이동은 틀의 onLeave가 이 확인으로 넘긴다. 앱이 BrowserRouter라 헤더(GNB) 링크 이동은 막지 못한다
  */
 export default function InquiryForm({
   initial,
@@ -43,6 +43,7 @@ export default function InquiryForm({
   onSubmit,
 }) {
   const navigate = useNavigate();
+  const { leaveRef } = useOutletContext() ?? {};
   const [type, setType] = useState(initial.inqryTyNm);
   const [title, setTitle] = useState(initial.inqryTtl);
   const [body, setBody] = useState(initial.inqryCn);
@@ -70,6 +71,15 @@ export default function InquiryForm({
     if (isDirty) setLeaveTo(target);
     else navigate(target);
   };
+
+  /** 고객센터 틀의 사이드 메뉴·머리 이동도 같은 확인을 거치게 건다 */
+  useEffect(() => {
+    if (!leaveRef) return undefined;
+    leaveRef.current = handleLeave;
+    return () => {
+      leaveRef.current = null;
+    };
+  });
 
   const handleSubmit = (event) => {
     event.preventDefault();
