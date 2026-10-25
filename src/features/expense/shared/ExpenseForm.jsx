@@ -90,7 +90,7 @@ export default function ExpenseForm({
   return (
     <Modal
       title={isEdit ? '지출 수정' : '직접 입력'}
-      isSheet={isEdit}
+      isSheet
       isPending={isPending}
       onClose={onClose}
       footer={
