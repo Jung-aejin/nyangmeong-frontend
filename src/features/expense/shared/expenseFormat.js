@@ -1,3 +1,4 @@
+import { EXPND_PLACE_KEY } from '../api';
 import { PET_STTS } from './expenseCodes';
 
 const DAY_NAMES = ['일', '월', '화', '수', '목', '금', '토'];
@@ -9,6 +10,13 @@ export const formatDayHeader = (expndYmd) => {
   const [year, month, day] = expndYmd.split('-').map(Number);
   const dayName = DAY_NAMES[new Date(year, month - 1, day).getDay()];
   return `${month}월 ${day}일 (${dayName})`;
+};
+
+/** 지출 상세 날짜 (2026.09.15 (화)) */
+export const formatFullDate = (expndYmd) => {
+  const [year, month, day] = expndYmd.split('-').map(Number);
+  const dayName = DAY_NAMES[new Date(year, month - 1, day).getDay()];
+  return `${expndYmd.replaceAll('-', '.')} (${dayName})`;
 };
 
 export const formatFullDayHeader = (expndYmd) =>
@@ -30,3 +38,12 @@ export const getPetFilterLabel = (pet) => {
   if (pet.petStts === PET_STTS.UNLINKED) return `${pet.petNm} (연동 해제)`;
   return pet.petNm;
 };
+
+/** 사용처 최대 글자 수 */
+export const PLACE_MAX_LENGTH = 80;
+
+export const getPlace = (expense) => expense[EXPND_PLACE_KEY] ?? '';
+
+/** 설명 줄의 "내용 · 사용처" (빈 값은 생략) */
+export const getExpenseDesc = (expense) =>
+  [expense.dtlMttr, getPlace(expense)].filter(Boolean).join(' · ');

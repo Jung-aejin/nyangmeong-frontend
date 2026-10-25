@@ -88,10 +88,8 @@ function MemberCard({ name, badge, lines, onRemove, removeLabel }) {
     <li className={MEMBER_CARD}>
       <Avatar />
       <div className={`flex min-w-0 flex-col ${onRemove ? 'pr-5' : ''}`}>
-        <p className="flex items-center gap-1.5 font-semibold whitespace-nowrap">
-          {name}
-          {badge}
-        </p>
+        <p className="font-semibold break-keep">{name}</p>
+        {badge && <div className="mt-1 mb-0.5 flex">{badge}</div>}
         {lines.map((line) => (
           <p key={line} className="truncate text-xs text-subtle">
             {line}

@@ -99,7 +99,11 @@ export default function PointSummary({
         <button type="button" onClick={onGoHealth} className={BTN_SECONDARY}>
           건강 일지
         </button>
-        <button type="button" onClick={onGoCharacter} className={BTN_PRIMARY}>
+        <button
+          type="button"
+          onClick={onGoCharacter}
+          className={`${BTN_PRIMARY} max-[760px]:hidden`}
+        >
           캐릭터 꾸미기
         </button>
       </div>

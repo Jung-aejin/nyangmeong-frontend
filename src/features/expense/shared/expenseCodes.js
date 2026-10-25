@@ -77,3 +77,6 @@ export const RANGE_MODE = {
 };
 
 export const PAGE_SIZE = 20;
+
+/** 앱 무한 스크롤 불러오기 상태 */
+export const LOAD = { IDLE: 'idle', LOADING: 'loading', ERROR: 'error' };
