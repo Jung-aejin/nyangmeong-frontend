@@ -156,14 +156,18 @@ export default function ItemShopModal({
           )}
         </div>
         <div className="flex min-w-0 flex-col gap-4 min-[761px]:min-h-0 min-[761px]:gap-2 min-[761px]:px-5 min-[761px]:pt-2 min-[761px]:pb-0">
-          <div role="group" aria-label="부위" className="flex flex-wrap gap-2">
+          <div
+            role="group"
+            aria-label="부위"
+            className="flex flex-wrap gap-2 max-[760px]:flex-nowrap max-[760px]:overflow-x-auto max-[760px]:[scrollbar-width:none] max-[760px]:[&::-webkit-scrollbar]:hidden"
+          >
             {TABS.map((tab) => (
               <button
                 key={tab.code}
                 type="button"
                 aria-pressed={tab.code === part}
                 onClick={() => setPart(tab.code)}
-                className={`inline-flex h-9 items-center rounded-full border px-3.5 font-semibold min-[761px]:h-8 ${
+                className={`inline-flex h-9 shrink-0 items-center rounded-full border px-3.5 font-semibold min-[761px]:h-8 ${
                   tab.code === part
                     ? 'border-brand-500 bg-brand-500 text-white'
                     : 'border-line bg-white text-ink-2 hover:border-line-strong'

@@ -1,4 +1,3 @@
-import { Plus } from 'lucide-react';
 import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import PageSkeleton from '@/components/PageSkeleton';
@@ -27,10 +26,10 @@ export default function PetListPage() {
   const [invitingPet, setInvitingPet] = useState(null);
 
   const focusIndex = pets.findIndex((pet) => pet.petSn === focusPetSn);
-  /** 삭제로 위치가 끝을 넘으면 마지막 동물 표시 */
+  /** 마지막 자리(pets.length)는 등록 슬라이드. 삭제로 위치가 끝을 넘으면 그 자리로 */
   const currentIndex = Math.min(
     slideIndex ?? Math.max(focusIndex, 0),
-    Math.max(pets.length - 1, 0),
+    pets.length,
   );
   const ownPetCount = pets.filter(
     (pet) => pet.petRelCd === PET_REL.OWNER,
@@ -41,17 +40,10 @@ export default function PetListPage() {
     <SubPageLayout section="mypage">
       {isPending ? (
         <PageSkeleton>
-          <div
-            aria-hidden="true"
-            className="flex items-center justify-between gap-3"
-          >
-            <Skeleton className="h-7 w-40" />
-            <Skeleton className="h-10 w-32" />
-          </div>
-          <SkeletonCard className="h-[583px] max-[760px]:h-[987px]" />
+          <SkeletonCard className="h-[577px] max-[760px]:h-[683px]" />
           <div aria-hidden="true" className="mt-7 flex flex-col gap-5">
             <Skeleton className="h-7 w-32" />
-            <SkeletonCard className="h-[395px] max-[760px]:h-[635px]" />
+            <SkeletonCard className="h-[427px]" />
           </div>
         </PageSkeleton>
       ) : pets.length === 0 ? (
@@ -65,23 +57,9 @@ export default function PetListPage() {
           onDelete={setDeletingPet}
           onUnlink={setUnlinkingPet}
           onInvite={setInvitingPet}
-          action={
-            <button
-              type="button"
-              onClick={() => setModalPetSn(null)}
-              disabled={isFull}
-              className="inline-flex h-10 items-center justify-center gap-1.5 rounded-md bg-brand-500 px-4 font-semibold text-white hover:bg-brand-600 disabled:cursor-not-allowed disabled:bg-surface-3 disabled:text-line-strong"
-            >
-              <Plus className="size-[18px]" />
-              반려동물 등록
-            </button>
-          }
+          onAdd={() => setModalPetSn(null)}
+          isFull={isFull}
         />
-      )}
-      {isFull && (
-        <p className="mt-3 text-right text-sm text-subtle">
-          반려동물은 최대 {MAX_OWN_PETS}마리까지 등록할 수 있어요
-        </p>
       )}
       {!isPending && <SentInvitations />}
       {modalPetSn !== undefined && (
