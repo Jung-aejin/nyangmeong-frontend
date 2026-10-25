@@ -36,7 +36,8 @@ const findCheckupTypeNm = (cd) =>
 export default function CheckupListCard({ pet, pets, onReceipt }) {
   const currentYear = getYear(getTodayYmd());
   const [year, setYear] = useState(currentYear);
-  const [isVaccinationOnly, setIsVaccinationOnly] = useState(false);
+  // 켜진 필터 칩: 'ALL'(그해 전체)·'VACC'(예방접종)·null(둘 다 꺼짐, 그해 전체)
+  const [chipFilter, setChipFilter] = useState('ALL');
   const [page, setPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [deleteSn, setDeleteSn] = useState(null);
@@ -55,9 +56,10 @@ export default function CheckupListCard({ pet, pets, onReceipt }) {
   const vaccinationCount = checkups.filter(
     (checkup) => checkup.ckupTypeCd === VACCINATION,
   ).length;
-  const visibleCheckups = isVaccinationOnly
-    ? checkups.filter((checkup) => checkup.ckupTypeCd === VACCINATION)
-    : checkups;
+  const visibleCheckups =
+    chipFilter === VACCINATION
+      ? checkups.filter((checkup) => checkup.ckupTypeCd === VACCINATION)
+      : checkups;
   const pageCount = Math.max(1, Math.ceil(visibleCheckups.length / PAGE_SIZE));
   const currentPage = Math.min(page, pageCount);
   const pageCheckups = visibleCheckups.slice(
@@ -68,6 +70,12 @@ export default function CheckupListCard({ pet, pets, onReceipt }) {
     (a, b) => b - a,
   );
   const yearLabel = year === currentYear ? '올해' : `${year}년`;
+
+  // 켜진 칩을 다시 누르면 꺼진다 (FN-HLT-002-06 재클릭 해제)
+  const toggleChip = (filter) => {
+    setChipFilter((prev) => (prev === filter ? null : filter));
+    setPage(1);
+  };
 
   const handleDelete = () =>
     deleteCheckup.mutate(deleteSn, { onSuccess: () => setDeleteSn(null) });
@@ -105,23 +113,17 @@ export default function CheckupListCard({ pet, pets, onReceipt }) {
         <div role="group" aria-label="검진 건수 필터" className="flex gap-2">
           <button
             type="button"
-            aria-pressed={!isVaccinationOnly}
-            className={chipClass(!isVaccinationOnly)}
-            onClick={() => {
-              setIsVaccinationOnly(false);
-              setPage(1);
-            }}
+            aria-pressed={chipFilter === 'ALL'}
+            className={chipClass(chipFilter === 'ALL')}
+            onClick={() => toggleChip('ALL')}
           >
             {yearLabel} 검진 {checkups.length}
           </button>
           <button
             type="button"
-            aria-pressed={isVaccinationOnly}
-            className={chipClass(isVaccinationOnly)}
-            onClick={() => {
-              setIsVaccinationOnly((prev) => !prev);
-              setPage(1);
-            }}
+            aria-pressed={chipFilter === VACCINATION}
+            className={chipClass(chipFilter === VACCINATION)}
+            onClick={() => toggleChip(VACCINATION)}
           >
             예방접종 {vaccinationCount}
           </button>

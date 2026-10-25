@@ -175,7 +175,10 @@ export default function HealthDiaryPage() {
 
       {selectedPet && sectionId === 'hlt002-obs' && (
         <div id="hlt002-obs" role="tabpanel" aria-labelledby="hlt002-obs-tab">
-          <ObservationCard petSn={selectedPet.petSn} />
+          <ObservationCard
+            key={selectedPet.petSn}
+            petSn={selectedPet.petSn}
+          />
         </div>
       )}
       {selectedPet && sectionId === 'hlt002-exam' && (
