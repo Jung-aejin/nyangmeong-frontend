@@ -2,14 +2,25 @@
 
 ## 지금 하는 것
 
-SCR-COM-002 앱(≤760) 페이지 틀 여백 · AI 매니저 말풍선·접힌 탭 화살표 — 끝 (PR #87 develop 병합, 2026-10-25). `/start` 없이 대화로 진행해 마일스톤 절은 없다
+SCR-AIM-013 대화창 · 영수증 분석 (+ 디자인 v5 문구 맞춤) — 끝 (2026-10-26, 검증 통과·사람 확인). 기획·완료 조건은 `milestones/LJS.md`와 이 커밋 이력에 있다
 
-- 바꾼 것: `layouts/SubPageLayout.jsx` 760px 이하 `pt-0`·`pb-0`(헤더~경로 32 → 24px, 콘텐츠 끝~탭바 겹친 여백 126px 제거, PC 그대로), `layouts/FloatingButtons.jsx` 말풍선 16px·600·높이 40px(`leading-[38px]`), 접힌 탭 아이콘 `ChevronLeft` → `assets/arrow.svg`(7×13, brand-500)
-- 검증: `yarn -s lint`·`yarn -s build` 0. 390px 섹션 화면 27개 헤더~경로 24px, 1440px 32px. 말풍선·탭은 첫 방문 상태에서 확인
-- AI 플로팅 버튼 현재 모양(2026-10-23 마일스톤 추가-2·3 기록은 그 뒤 `e1f2376`로 바뀌어 맞지 않는다): 접힌 탭 `h-16 w-8` 노란 반원(`bg-fab`·`border-fab-line`), 펼친 버튼 `bg-fab` + `Bot`(brand-500), 말풍선 `from-fab-soft to-white` 그라디언트·`border-fab-line`·brand-500 글자, 좌우 4px `animate-sway`. 지난 마일스톤(D-01~05·추가-1~4)의 기획·완료 조건은 `milestones/LJS.md`와 git 이력에 있다
+- 바꾼 것: `features/ai/chat/ChatInput.jsx`([＋] 이미지 1장 첨부·썸네일, 첨부 중에도 글 입력), 새 `chat/useChatReceipt.js`(되묻기→분석→결과·실패·취소, 15초 제한), 새 `chat/ReceiptAnalysisBubble.jsx`(보낸 이미지·글, 결과 카드·실패·취소 말풍선), 새 `receipt/receiptFailure.js`(실패 문구·제한 시간, 업로드 모달과 공용), `features/ai/api.js`·`queries.js`(가짜 `analyzeChatReceipt`·`cancelChatReceipt`·`getChatReceiptResult`, 012 취소 문구), `pages/ai/AiChatPage.jsx`, v5 문구 4곳(`ConversationSidebar`·`ConversationHeader`·`FallbackBubble`·공용 `components/ConfirmModal.jsx`에 선택 prop `description`)
+- JAJ 파일 `pages/health/HealthDiaryPage.jsx`에 입구 2개: `?checkup=manual&recptSn=` → 검진기록 등록 빈 폼, `?recptSn=` → 인식 결과 확인. 연 뒤 쿼리 제거(해시도 같이 지워짐, 탭은 이미 선택돼 영향 없음). `react-hooks` 예외 주석 2줄
+- 디자인: `html/SCR-AIM-013.html`(v5 `aim-chat.html` 복사, 참고 시안 `aim-chat-schedule`·`aim-chat-new`·`aim-receipt-upload`는 `html/SCR-AIM-013/`). 모양은 시안 부품 조합, 문구는 화면설계서 v0.11(분석 중 "<이름>의 영수증을 분석하고 있어요…", 카드 [취소] 뒤 "취소됨")
+- 검증: `yarn -s lint`·`yarn -s build` 0, 검증 판정 통과(추가-1~4 포함). 추가-1 `vite.config.js`는 커밋 `5c35ea3`
 
 ## 다음에 할 것
 
+- SCR-AIM-013 연결 남음: 013-04·08·09 채팅 영수증 분석·취소·이력 API(10-26 결정으로 Spring `/api/receipts` 경유 예정, 백엔드 확인 중 — LJS 백엔드 / Python 인식), 013-05 카드 필드 이름(Swagger 확인), 013-06·추가-4 영수증 번호로 인식 결과 조회 API(Spring, LJS 백엔드. 지금은 `localStorage` 가짜 `getChatReceiptResult` — 연결 때 지운다), 013-06·07 건강 일지 입구 쿼리 이름(`checkup=manual`·`recptSn`, JAJ 확인). 미결(AI 세션): ① 이미지와 함께 보낸 글의 분석 반영(지금은 말풍선 표시만) ② AIMG07 'AI 대화창' 값 ③ [확인 후 저장] 뒤 대화창 닫힘(지금 닫음) ④ 결과 카드 다시 불러오기
+- JAJ에 알릴 것(SCR-AIM-013): `HealthDiaryPage.jsx`에 넣은 입구 2개(`?checkup=manual&recptSn=` 빈 폼, `?recptSn=` 결과 확인)와 쿼리 이름 확인 요청. 메시지 초안은 2026-10-26 세션에서 사용자에게 전달함
+- AI 서버 연결 기반(2026-10-25 결정, 사용자 확정): AI 기능(채팅·영수증 OCR·캐릭터 생성·검사결과지 PDF 분석)은 프론트가 Python을 직접 부르고, 나머지와 영수증 save-check·save는 Spring. 주소는 같은 오리진 경로 접두사로 나눈다 — 배포 nginx `/api/` → Spring(:8080), `/ai/` → Python(:8000), 둘 다 접두사를 자르지 않는다(`proxy_pass` 끝 슬래시 없음). 개발은 `vite.config.js` 프록시 `'^/ai/'`(커밋 `5c35ea3`. `/ai` 단독은 화면 URL `PATHS.AI`라 제외). 백엔드·AI 세션에 `/ai` 접두사 요구 전달함
+  - 남은 것: `api/axios.js`에 `aiApi`(`baseURL: '/ai'`, 같은 `X-Requested-With`) 생성, 응답 인터셉터를 `api`와 같이 쓰기(재발급은 항상 `api.post('/auth/refresh')` — `refresh_token`이 `Path=/api/auth`라 Python에 안 감, `refreshing` 공유, 재시도는 요청을 보낸 인스턴스로). 채팅 스트리밍은 SSE를 POST라 `fetch`로 읽으므로 인터셉터를 안 탄다 — 401 → 재발급 → 1회 재시도를 따로 둔다. 생성 도중 오류는 스트림 이벤트로 온다(형식은 AI 세션과 맞춘다)
+  - `docs/convention/api.md` 7·9·148줄(`VITE_AI_API_URL` + `withCredentials`)을 `/ai` 상대 경로로 고친다(공용 규칙, 팀 합의). `docs/OPEN_ISSUES.md` 27행의 CORS 허용 오리진은 같은 오리진이라 필요 없어진다
+  - nginx에서 Python `/internal/v1/...`·`/health`는 내보내지 않는다(`location /ai/`만)
+  - 백엔드 세션에 "반영 예정" 답장은 아직 안 보냄
+  - 2026-10-26 정정(사용자 결정, AI·백엔드 세션 통보): DB는 Java만 다루고 Python은 상태 없는 AI 서버. 영수증 OCR(`POST /api/receipts`, `/api/receipts/{recptSn}/analyze`·`/cancel`)·캐릭터 생성(`POST /api/pets/{petSn}/pixel-characters`)·채팅 영수증 분석(SCR-AIM-013, 백엔드 확인 중)은 Spring 경유, Python 직접은 AI 채팅(`/ai/conversations…`, 스트리밍)만. Vite·nginx `/ai/` 프록시는 그대로. PDF 분석 위치도 Spring 경유로 바뀔 가능성(미확정)
+  - 연결 작업 때 고칠 것(사용자 결정 10-26): `features/ai/api.js` `analyzeChatReceipt` 머리 주석 "경로 미정, Python AI 서버 `/ai/` 아래" → Spring `/api/receipts` 경유. 검진 영수증(`ai/api.js` `recognizeCheckupReceipt` "POST /receipts/recognize/checkup 추정")·가계부 영수증(`expense/api.js` "POST /receipts/recognize")·캐릭터 생성(`pet/api.js` "POST /pets/{petSn}/character")의 추정 경로도 위 Spring 경로와 맞춘다
+  - AI 세션·백엔드 세션 답장은 SCR-AIM-013 마무리 뒤 보낸다(사용자 결정 10-26)
 - 디스코드로 알릴 것(PR #87 병합됨): "`SubPageLayout`을 쓰는 섹션 화면(건강기록·커뮤니티·고객센터·마이페이지)의 앱(≤760) 위 8px·아래 126px 여백을 뺐어요. 헤더~경로 24px, 콘텐츠 끝~탭바는 main 여백만 남아요. 화면 안에서 아래 여백을 따로 기대던 곳이 있으면 확인해 주세요"
 - SJM에 전달: 마이페이지 화면설계서 v0.6 ⑦ "상단 여백 약 40 → 20px"와 달리 구현은 섹션 화면 공통 24px로 정했다(마이페이지만 다르게 두지 않음). 설계서 문구를 고쳐 달라고 한다. 같은 ⑦의 "하단 여백 축소"는 PR #87로 반영
 - 결정 대기(사람): 페이지 머리 구조. v5 시안(`nyangmung-com.css` COM-5 "별도 브레드크럼은 쓰지 않아요 (10-12)")과 마이페이지 시안은 첫 줄이 섹션 이름("마이페이지")이고, 구현(`SubPageHead`)은 경로 줄(홈 / 섹션 / 메뉴)이다. 시안 구조로 바꿀지(27개 화면 영향) 그대로 둘지 정한다. 공통레이아웃 화면설계서 v0.8은 "브레드크럼 사용"으로 올라가 있다
