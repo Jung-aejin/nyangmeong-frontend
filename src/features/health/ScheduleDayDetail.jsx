@@ -4,7 +4,9 @@ import Icon from '@/components/Icon';
 import {
   formatMonthDayWeekday,
   formatTime,
+  getHmOf,
   getTodayYmd,
+  getYmdOf,
 } from '@/utils/formatDate';
 import {
   compareSchedules,
@@ -26,7 +28,7 @@ export default function ScheduleDayDetail({
   const todayYmd = getTodayYmd();
   const isPast = ymd < todayYmd;
   const sorted = schedules
-    .filter((schedule) => schedule.schdlYmd === ymd)
+    .filter((schedule) => getYmdOf(schedule.schdlDt) === ymd)
     .sort(compareSchedules);
 
   return (
@@ -82,9 +84,9 @@ export default function ScheduleDayDetail({
                       backgroundColor: getScheduleTone(schedule).fg,
                     }}
                   />
-                  {schedule.schdlTm && (
+                  {schedule.hrInptYn && (
                     <span className="shrink-0 whitespace-nowrap text-[#667374]">
-                      {formatTime(schedule.schdlTm)}
+                      {formatTime(getHmOf(schedule.schdlDt))}
                     </span>
                   )}
                   <span className="min-w-0 flex-1">
@@ -95,7 +97,7 @@ export default function ScheduleDayDetail({
                     >
                       {schedule.petNm} · {getScheduleKindName(schedule)} ·{' '}
                       {isHospital(schedule)
-                        ? schedule.hospNm
+                        ? schedule.hsptlNm
                         : schedule.schdlNm}
                     </span>
                     {isPast && isHospital(schedule) && (
@@ -110,9 +112,9 @@ export default function ScheduleDayDetail({
                         </Badge>
                       </>
                     )}
-                    {schedule.schdlMemoCn && (
+                    {schedule.memoCn && (
                       <span className="block text-sm text-[#667374]">
-                        {schedule.schdlMemoCn}
+                        {schedule.memoCn}
                       </span>
                     )}
                   </span>
