@@ -2,18 +2,12 @@
 
 ## 지금 하는 것
 
-SCR-CMU-004 우리동네 펫돌봄 (시작 2026-10-22, 끝 2026-10-23) — 상태: 끝 (검증 판정 `통과`, 사람 확인 2026-10-23)
+SCR-CMU-004 우리동네 펫돌봄 (2026-10-22~23) — 상태: 끝. 남은 연결·결정은 "다음에 할 것"에 있다
 
-- 만든 것: `features/community/{careApi,careQueries,careCodes}.js`, `features/community/care/{CareList,CareCard,CareFilters,CareStatusBadge,CareGuideRail,CareDetail,CareSideBox,CareAreaMap,CareForm,CareFormParts,careFormStyles,CareWriteGuide,careUtils}`, `pages/community/Care{List,Detail,Write,Edit}Page.jsx`, 라우트 `/community/petcare`·`/new`·`/:petPrtcRcrtSn`·`/:petPrtcRcrtSn/edit`(`ProtectedRoute` 없이). 실종센터의 `BreedCombobox`·`PlaceSearchModal`(`title`·`confirmLabel` prop 추가)·`CheckList`와 `ImageAttach`·`ReportModal`·`PostBody`를 같이 쓴다. 채팅은 LJS의 `useChatWindow`만 부른다(`open({ pstSn })`·`open({ listPstSn })`)
-- 디자인: `html/SCR-CMU-004-*.html`(디자인 폴더 `nmcare-design-v5-scr/CMU/`에서 복사, git 제외). 기능명세서·화면설계서는 DMS 인증이 막혀 디자인 폴더의 v0.7 파일을 `.cache/dms/`에 복사해 썼다
-- 가짜 응답(`careApi.js`, 메모리): 키는 ERD(PST·PET_PRTC_RCRT·RCRT_PET_KND·RCRT_PRTC_SHP) 컬럼 camelCase. 좋아요·신고·채팅은 `pstSn`, 상세·수정·삭제는 `petPrtcRcrtSn`. 코드 값(`PCAG01~03`·`petSizeCd`)은 가정. 서버 계산을 가정한 값: `sggNm`·`emdNm`·`wrtrNcknm`·`chatCnt`·`chatYn`·`mtchSttrNcknm`·`likeYn`·`mineYn`·`thmbUrlPath`·`atchFiles`. 상세 주소·정확한 좌표는 공개 응답에 넣지 않는다
-- 결정: 크기는 구간 코드(`petSizeCd`)로 두고 고양이는 비운다, 입력 요소 세로 간격 36px(`gap-9`)를 세 글쓰기 폼에 맞춤(사람이 직접 지정), 1100px·1280px 경계는 `max-[1101px]`·`max-[1281px]`(사람이 되돌리지 않기로 함)
-- 추가 요청(유효): 추가-1~16(펫돌봄 목록·상세·글쓰기 디자인 맞춤, 세 글쓰기 폼의 「* 표시…」 삭제·간격·최소 높이, 실종센터 목록 필터 전체 너비, 펫이야기·펫돌봄 카드 썸네일 크롭·두 줄 높이·모바일 위치, `SideMenu`·`SubPageLayout` 이탈 확인)
-- 영향: `layouts/SideMenu.jsx`·`SubPageLayout.jsx`(LJS 공용 겉틀)에 `onLeave`를 넘겼다. `onLeave`를 안 넘기는 화면은 그대로다. 헤더(GNB)는 `BrowserRouter`라 이탈 확인을 못 한다
-- 사람이 정할 것: ERD `RCRT_PET_KND.PET_BDWG`(체중, NOT NULL 숫자)와 폼의 크기 구간 선택이 맞지 않는다. ERD를 구간 코드 컬럼으로 바꾸거나 폼에 체중 입력을 둔다
-- 검증: `yarn -s lint` 0, `yarn -s build` 0 (회차마다 실패 항목을 고친 뒤 `통과`)
+펫뉴스 썸네일 높이, 실종센터·펫돌봄 장소 찾기와 지도 (2026-10-26, 끝난 마일스톤 CMU-002·003·004의 추가 요청) — 상태: 끝 (`yarn -s lint` 0, `yarn -s build` 0, 사람 확인 2026-10-26)
 
-SCR-CMU-003 펫뉴스 목록 썸네일 높이, SCR-CMU-002 실종센터 지도 움직이기 (시작 2026-10-26, 마일스톤 끝난 뒤 추가 요청)
+- 결정: 장소 검색·좌표→주소를 서버 API(AIC) 대신 프론트에서 카카오맵 SDK services로 한다(`features/community/missing/placeSearch.js`). 전북만, 동 이름은 목록 필터 값으로 맞춘다(`toBaseDong`). 펫돌봄 상세는 공개 좌표가 없어 동 중심을 보여 준다
+- 영향: 공용 `components/Modal.jsx`에 `isWide`(가로 688px)·`isTop`(위 80px 고정, 화면 전체 스크롤) 추가. 안 넘기는 모달은 그대로. 가짜 장소 검색(`searchMissingPlaces`·`useSearchMissingPlaces`)은 지웠다
 
 ### 추가 요청
 
@@ -32,7 +26,11 @@ SCR-CMU-003 펫뉴스 목록 썸네일 높이, SCR-CMU-002 실종센터 지도 �
 
 ## 다음에 할 것
 
-- SCR-CMU-004 연결 남음: 돌봄 모집 게시글·좋아요·신고 API(KSJ 백엔드)로 `careApi.js` 교체(응답 키·코드 값 `PCAG01~03`·`petSizeCd`·`chatCnt`·`chatYn`·`mtchSttrNcknm` 확인, 다르면 화면 코드의 키도 같이 바꾼다), 장소 검색·역지오코딩은 프론트에서 카카오 SDK로 처리하도록 바꿈(2026-10-26 추가-6, AIC 담당과 합의 필요), 품종 마스터(`VRTY`) API, 최저 시급 설정값(관리자 ADM), 글쓰기·수정 `ProtectedRoute`와 [돌봄 요청 등록하기]·[채팅하기] 비로그인 로그인 이동 후 복귀(AIC), `PET_BDWG` 체중 문제(위 사람이 정할 것)
+- 장소 검색을 프론트(카카오)로 바꾼 것을 AIC 담당에게 알리고 합의한다(서버 장소 검색·역지오코딩 API가 필요 없어짐). PR 본문에 공용 `Modal.jsx` 변경(`isWide`·`isTop`)을 적는다
+- 가짜 데이터의 「서곡동」(`missingCodes.js` `DONG_BY_REGION`, `careApi.js`, `missingApi.js` `PLACES`)은 카카오에 없는 동이라 펫돌봄 상세 1번 지도가 「지도를 불러오지 못했어요」다. 효자동 등으로 바꿀지 정한다
+- 읍·면·동 필터 목록이 서버 행정동 코드 목록으로 바뀌면 `placeSearch.js`의 `toBaseDong`(효자동1가→효자동, 인후1동→인후동) 규칙을 다시 맞춘다
+- 장소 찾기 모달의 스크롤바를 끌어도 닫히지 않는지는 실제 브라우저(스크롤바가 보이는 환경)에서만 확인됐다. 다른 OS·브라우저에서 이상하면 `Modal.jsx` `handleMouseDown`을 본다
+- SCR-CMU-004 연결 남음: 돌봄 모집 게시글·좋아요·신고 API(KSJ 백엔드)로 `careApi.js` 교체(응답 키·코드 값 `PCAG01~03`·`petSizeCd`·`chatCnt`·`chatYn`·`mtchSttrNcknm` 확인, 다르면 화면 코드의 키도 같이 바꾼다), 장소 검색·역지오코딩은 프론트에서 카카오 SDK로 처리하도록 바꿈(2026-10-26 추가-6, AIC 담당과 합의 필요), 품종 마스터(`VRTY`) API, 최저 시급 설정값(관리자 ADM), 글쓰기·수정 `ProtectedRoute`와 [돌봄 요청 등록하기]·[채팅하기] 비로그인 로그인 이동 후 복귀(AIC), `PET_BDWG` 체중 문제(ERD `RCRT_PET_KND.PET_BDWG`는 NOT NULL 숫자인데 폼은 크기 구간 선택. ERD를 구간 코드 컬럼으로 바꾸거나 폼에 체중 입력을 둔다, 사람이 정할 것)
 - 실종센터 목록은 필터를 바꾸면 목록이 새로 불러와져 필터 영역이 잠깐 사라질 수 있다. 펫돌봄처럼 `missingQueries.js`의 `useMissingList`에 `placeholderData: keepPreviousData`를 넣을지 정한다
 - SCR-CMU-001 연결 남음: 게시글·댓글·좋아요·신고·레일 API(KSJ 백엔드)로 `features/community/api.js` 가짜 교체(가정 키·게시판 코드 값 `CMUG01`·`popYn`·`cmntCnt`·`mineYn`·인기 포토·건강팁 응답 확인, 응답 키가 다르면 화면 코드의 키도 같이 바꾼다), 로그인 연결 후 글쓰기·수정 `ProtectedRoute`와 비로그인 좋아요·댓글·글쓰기 로그인 이동 후 복귀(AIC), 댓글 알림 저장(YAY `notification`). 기능명세서에 없는 「내 댓글 삭제」는 사람이 명세에 보완
 - SCR-CMU-002 연결 남음: 실종 게시글·댓글·좋아요·신고·연장·찾았어요 API(KSJ 백엔드)로 `missingApi.js` 교체(응답 키·상태 코드 `CMUG03` 값·`sggNm`/`emdNm`/`cnpl`/`wtnsPlcAddr` 제공 방식 확인, 다르면 화면 코드의 키도 같이 바꾼다), 장소 검색·역지오코딩은 프론트에서 카카오 SDK로 처리하도록 바꿈(2026-10-26 추가-6, AIC 담당과 합의 필요), 품종 마스터(`VRTY`) API, 연락처 로그인 회원에게만 보이기·[실종 등록하기] 로그인 이동 후 복귀·글쓰기 `ProtectedRoute`(AIC), 종료 7일·1일 전 알림 저장(YAY `notification`)
