@@ -339,11 +339,7 @@ export const confirmRegister = async ({ aiCnvrsRoomSn, aiCnvrsMsgSn }) => {
 export const cancelRegister = async ({ aiCnvrsRoomSn, aiCnvrsMsgSn }) => {
   await wait(150);
   const pending = getPendingCard(aiCnvrsRoomSn, aiCnvrsMsgSn);
-  return settleCard(
-    aiCnvrsRoomSn,
-    pending,
-    `취소됨 — ${describeCard(pending.card)}`,
-  );
+  return settleCard(aiCnvrsRoomSn, pending, '취소됨 — 등록하지 않았어요.');
 };
 
 /** 한글·영문 단어가 없는 입력은 매칭 실패, 개발 환경은 쿼리로 강제 */
@@ -493,4 +489,131 @@ export const recognizeCheckupReceipt = async ({ file, petSn, signal }) => {
     petSn,
     items: [{ ckupNm: '종합검진', ckupYmd: '2026-09-26', ckupAmt: 85000 }],
   };
+};
+
+/** 본창이 읽을 가짜 분석 결과: 창마다 메모리가 달라 localStorage 사용 */
+const fakeChatReceiptKey = (rcptSn) => `fakeChatReceipt:${rcptSn}`;
+
+const saveFakeChatReceipt = (result) => {
+  try {
+    localStorage.setItem(
+      fakeChatReceiptKey(result.rcptSn),
+      JSON.stringify(result),
+    );
+  } catch {
+    /** 저장소를 못 쓰면 본창 조회 실패로 처리 */
+  }
+};
+
+/**
+ * 대화창 영수증 인식 결과 조회 (Spring 영수증 결과 조회 예정, 경로 미정)
+ * 건강 일지 결과 확인 모달(SCR-HLT-002)이 받는 { rcptSn, petSn, items } 모양
+ */
+export const getChatReceiptResult = async (rcptSn) => {
+  await wait(200);
+  let saved = null;
+  try {
+    saved = localStorage.getItem(fakeChatReceiptKey(rcptSn));
+  } catch {
+    saved = null;
+  }
+  if (!saved) throw new Error('not found');
+  return JSON.parse(saved);
+};
+
+/** 대화 이력용 영수증 분석 요약 한 줄(FN-AIM-013-09) */
+const summarizeReceipt = ({ hsptlNm, ckupYmd, recptAmt }) => {
+  const [, month, day] = ckupYmd ? ckupYmd.split('-').map(Number) : [];
+  const parts = [
+    hsptlNm,
+    ckupYmd && `${month}월 ${day}일`,
+    recptAmt != null && `${recptAmt.toLocaleString()}원`,
+  ].filter(Boolean);
+  return `영수증 분석 — ${parts.join(', ')}`;
+};
+
+/**
+ * 대화창 영수증 분석 (경로 미정, Python AI 서버 `/ai/` 아래)
+ * 가짜 응답: 파일 이름의 slow(20초)·error(오류)·fail(추출 0건)·partial(일부 인식)에 따른 상황
+ * 인식되면 요약 한 줄을 AI 메시지로 저장, 필드 이름은 연결 때 Swagger로 확인
+ */
+export const analyzeChatReceipt = async ({
+  aiCnvrsRoomSn,
+  petSn,
+  file,
+  signal,
+}) => {
+  await waitAbortable(file.name.includes('slow') ? 20000 : 2000, signal);
+  if (file.name.includes('error')) throw new Error('일시 오류');
+  const recptSn = Date.now();
+  if (file.name.includes('fail')) {
+    return {
+      aiCnvrsRoomSn,
+      recptSn,
+      hsptlNm: null,
+      ckupYmd: null,
+      recptAmt: null,
+      petAmts: [],
+      prscrptnCnt: null,
+    };
+  }
+
+  const pet = fakePets.find((item) => item.petSn === petSn);
+  const otherPet = fakePets.find((item) => item.petSn !== petSn);
+  const result = file.name.includes('partial')
+    ? {
+        hsptlNm: '메이 동물병원',
+        ckupYmd: null,
+        recptAmt: 145000,
+        petAmts: [{ petSn, petNm: pet.petNm, amt: null }],
+        prscrptnCnt: null,
+      }
+    : {
+        hsptlNm: '메이 동물병원',
+        ckupYmd: '2026-10-20',
+        recptAmt: 145000,
+        petAmts: [
+          { petSn, petNm: pet.petNm, amt: 85000 },
+          { petSn: otherPet.petSn, petNm: otherPet.petNm, amt: 60000 },
+        ],
+        prscrptnCnt: 2,
+      };
+
+  let room = fakeConversations.find(
+    (item) => item.aiCnvrsRoomSn === aiCnvrsRoomSn,
+  );
+  if (!room) {
+    room = {
+      aiCnvrsRoomSn: nextFakeRoomSn++,
+      aiCnvrsRoomCnvrsTtl: '영수증 분석',
+      petSn,
+      petNm: pet.petNm,
+      crtDt: daysAgo(0, new Date().getHours()),
+      messages: [],
+    };
+    fakeConversations = [room, ...fakeConversations];
+  }
+  /** 이미지는 이력에 남기지 않고 요약만 저장(FN-AIM-013-08·09) */
+  const summary = saveAiMessage(room, summarizeReceipt(result));
+  saveFakeChatReceipt({
+    rcptSn: recptSn,
+    petSn,
+    items: [
+      { ckupNm: '종합검진', ckupYmd: result.ckupYmd, ckupAmt: result.recptAmt },
+    ],
+  });
+  return {
+    aiCnvrsRoomSn: room.aiCnvrsRoomSn,
+    aiCnvrsMsgSn: summary.aiCnvrsMsgSn,
+    recptSn,
+    ...result,
+  };
+};
+
+/**
+ * 대화창 영수증 분석 취소 (영수증 상태 '취소', FN-AIM-013-04)
+ * 가짜 응답: 저장 없음, 연결 때 recptSn 기준 취소 요청으로 교체
+ */
+export const cancelChatReceipt = async () => {
+  await wait(150);
 };

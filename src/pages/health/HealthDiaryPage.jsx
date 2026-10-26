@@ -1,18 +1,23 @@
-import { useState } from 'react';
-import { generatePath, useLocation, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import {
+  generatePath,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from 'react-router-dom';
 import PageSkeleton from '@/components/PageSkeleton';
 import SkeletonCard from '@/components/SkeletonCard';
+import { useChatReceiptResult } from '@/features/ai/queries';
 import ReceiptUploadModal from '@/features/ai/receipt/ReceiptUploadModal';
 import CheckupListCard from '@/features/health/diary/CheckupListCard';
 import CheckupModal from '@/features/health/diary/CheckupModal';
 import DailyTrendCard from '@/features/health/diary/DailyTrendCard';
-import DiaryTabs from '@/features/health/diary/DiaryTabs';
+import DiaryPetBar from '@/features/health/diary/DiaryPetBar';
 import ObservationCard from '@/features/health/diary/ObservationCard';
 import ReceiptResultStep from '@/features/health/diary/ReceiptResultStep';
 import RecentRecordTable from '@/features/health/diary/RecentRecordTable';
 import TodayRecordCard from '@/features/health/diary/TodayRecordCard';
 import TodayRecordForm from '@/features/health/diary/TodayRecordForm';
-import PetTabs from '@/features/health/PetTabs';
 import { MEAL } from '@/features/health/diaryTypes';
 import {
   useDailyRecords,
@@ -44,9 +49,50 @@ const getTabFromHash = (hash) =>
 
 export default function HealthDiaryPage() {
   const navigate = useNavigate();
-  const { hash } = useLocation();
+  const location = useLocation();
+  const { hash } = location;
+  const [searchParams, setSearchParams] = useSearchParams();
+  /** 지속 관찰 모바일 상세 화면으로 연 항목. 주소에 남겨 브라우저 뒤로 가기로 목록에 돌아온다 */
+  const openObsvSn = Number(searchParams.get('obsv')) || null;
+  const openObservation = (obsvItmSn) =>
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.set('obsv', String(obsvItmSn));
+        return next;
+      },
+      { state: { isObsvFromList: true } },
+    );
+  /** 목록에서 연 상세면 뒤로 가기와 같게, 주소로 바로 들어왔으면 쿼리만 지운다 */
+  const closeObservation = () => {
+    if (location.state?.isObsvFromList) {
+      navigate(-1);
+      return;
+    }
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.delete('obsv');
+        return next;
+      },
+      { replace: true },
+    );
+  };
   const todayYmd = getTodayYmd();
   const [tabPetSn, setTabPetSn] = useState(null);
+  /** 반려동물을 바꾸면 다른 반려동물의 관찰 항목 번호가 주소에 남지 않게 지운다 */
+  const selectPet = (petSn) => {
+    setTabPetSn(petSn);
+    if (openObsvSn === null) return;
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.delete('obsv');
+        return next;
+      },
+      { replace: true },
+    );
+  };
   const [sectionId, setSectionId] = useState(() => getTabFromHash(hash));
   /** 오늘 기록하기 입력 영역: null이면 닫힘, token으로 같은 영역을 다른 종류로 다시 엶 */
   const [recordForm, setRecordForm] = useState(null);
@@ -55,8 +101,43 @@ export default function HealthDiaryPage() {
    * { step: 'upload' } 업로드(LJS) → { step: 'result', result } 인식 결과 확인
    * 인식 실패 뒤 직접 입력은 { step: 'manual', rcptSn }
    * features/health는 features/ai를 import 할 수 없어 두 도메인을 이 페이지가 이어 준다
+   * AI 대화창(SCR-AIM-013) [직접 입력]은 ?checkup=manual&recptSn=으로 와서 빈 폼으로 시작,
+   *   [확인 후 저장]은 ?recptSn=만으로 와서 인식 결과를 받은 뒤 결과 확인으로 시작
    */
-  const [receiptFlow, setReceiptFlow] = useState(null);
+  const [receiptFlow, setReceiptFlow] = useState(() =>
+    searchParams.get('checkup') === 'manual'
+      ? {
+          step: 'manual',
+          rcptSn: Number(searchParams.get('recptSn')) || undefined,
+        }
+      : null,
+  );
+  /** [확인 후 저장]으로 온 영수증 번호 */
+  const [chatRcptSn] = useState(() =>
+    searchParams.has('checkup')
+      ? null
+      : Number(searchParams.get('recptSn')) || null,
+  );
+  const { data: chatReceipt } = useChatReceiptResult(chatRcptSn);
+  useEffect(() => {
+    if (!chatReceipt) return;
+    /* eslint-disable-next-line react-hooks/set-state-in-effect -- 인식 결과가 도착한 시점에 한 번 열기 */
+    setReceiptFlow({ step: 'result', result: chatReceipt });
+  }, [chatReceipt]);
+  /** 대화창에서 연 모달은 한 번만: 새로고침 때 다시 열리지 않게 쿼리 제거 */
+  useEffect(() => {
+    if (!searchParams.has('checkup') && !searchParams.has('recptSn')) return;
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.delete('checkup');
+        next.delete('recptSn');
+        return next;
+      },
+      { replace: true },
+    );
+    /* eslint-disable-next-line react-hooks/exhaustive-deps -- 첫 진입 때 한 번만 */
+  }, []);
 
   const {
     data: pets,
@@ -126,16 +207,13 @@ export default function HealthDiaryPage() {
 
   return (
     <SubPageLayout {...LAYOUT_PROPS}>
-      <PetTabs
+      <DiaryPetBar
         pets={pets}
         selectedPetSn={selectedPetSn}
-        label="반려동물 선택"
-        onSelect={setTabPetSn}
-      />
-      <DiaryTabs
-        items={SECTION_TABS}
-        activeId={sectionId}
-        onSelect={setSectionId}
+        onSelectPet={selectPet}
+        tabs={SECTION_TABS}
+        activeTabId={sectionId}
+        onSelectTab={setSectionId}
       />
 
       {selectedPet && sectionId === 'hlt002-graph' && (
@@ -178,6 +256,9 @@ export default function HealthDiaryPage() {
           <ObservationCard
             key={selectedPet.petSn}
             petSn={selectedPet.petSn}
+            openItmSn={openObsvSn}
+            onOpenItem={openObservation}
+            onCloseItem={closeObservation}
           />
         </div>
       )}
