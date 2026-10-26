@@ -79,6 +79,19 @@ export default function HealthDiaryPage() {
   };
   const todayYmd = getTodayYmd();
   const [tabPetSn, setTabPetSn] = useState(null);
+  /** 반려동물을 바꾸면 다른 반려동물의 관찰 항목 번호가 주소에 남지 않게 지운다 */
+  const selectPet = (petSn) => {
+    setTabPetSn(petSn);
+    if (openObsvSn === null) return;
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.delete('obsv');
+        return next;
+      },
+      { replace: true },
+    );
+  };
   const [sectionId, setSectionId] = useState(() => getTabFromHash(hash));
   /** 오늘 기록하기 입력 영역: null이면 닫힘, token으로 같은 영역을 다른 종류로 다시 엶 */
   const [recordForm, setRecordForm] = useState(null);
@@ -161,7 +174,7 @@ export default function HealthDiaryPage() {
       <DiaryPetBar
         pets={pets}
         selectedPetSn={selectedPetSn}
-        onSelectPet={setTabPetSn}
+        onSelectPet={selectPet}
         tabs={SECTION_TABS}
         activeTabId={sectionId}
         onSelectTab={setSectionId}
