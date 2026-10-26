@@ -1,5 +1,5 @@
 import { Check, ChevronDown, CircleAlert, Lock, X } from 'lucide-react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { showToast } from '@/components/toastStore';
 import {
   COLR_DRCT_INPT,
@@ -170,6 +170,9 @@ function PetForm({ pet, onClose }) {
     return pet.vrtySn == null ? VRTY_DRCT_LABEL : (pet.vrtyNm ?? '');
   });
   const [errors, setErrors] = useState({});
+  /** 추가 정보: 등록은 접힘, 수정은 펼침으로 시작. 접어도 입력값은 form에 남는다 */
+  const [isOptOpen, setIsOptOpen] = useState(pet != null);
+  const optRef = useRef(null);
   const { data: varieties = [] } = useVarieties(form.petSeCd);
   const createPet = useCreatePet();
   const updatePet = useUpdatePet();
@@ -250,9 +253,15 @@ function PetForm({ pet, onClose }) {
       setErrors(
         Object.fromEntries(found.map(([key, message]) => [key, message])),
       );
-      const target = document.getElementById(found[0][2]);
-      target?.focus();
-      target?.scrollIntoView({ block: 'center' });
+      const targets = found.map(([, , id]) => document.getElementById(id));
+      /** 접힌 추가 정보 안에 오류가 있으면 펼친 뒤 포커스 */
+      if (targets.some((el) => el && optRef.current?.contains(el))) {
+        setIsOptOpen(true);
+      }
+      requestAnimationFrame(() => {
+        targets[0]?.focus();
+        targets[0]?.scrollIntoView({ block: 'center' });
+      });
       return;
     }
     const body = {
@@ -307,9 +316,10 @@ function PetForm({ pet, onClose }) {
           id="pet-form"
           onSubmit={handleSubmit}
           noValidate
-          className="flex flex-col gap-6"
+          className="flex flex-col gap-6 max-[760px]:grid max-[760px]:grid-cols-2 max-[760px]:gap-x-3 max-[760px]:gap-y-5"
         >
           <Field
+            m="name"
             id="pet-nm"
             label="이름"
             required
@@ -329,7 +339,7 @@ function PetForm({ pet, onClose }) {
             />
           </Field>
 
-          <Group label="종류" required>
+          <Group m="species" label="종류" required>
             <RadioGroup
               name="petSeCd"
               options={PET_SE_OPTIONS}
@@ -340,10 +350,16 @@ function PetForm({ pet, onClose }) {
 
           <Row>
             <Field
+              m="vrty"
               id="pet-vrty"
               label="품종"
               required
-              help="공공데이터 품종코드 기준 목록이에요. 목록에 없으면 맨 아래 [직접 입력]을 골라 주세요"
+              help={
+                <ResponsiveHelp
+                  pc="공공데이터 품종코드 기준 목록이에요. 목록에 없으면 맨 아래 [직접 입력]을 골라 주세요"
+                  m="목록에 없으면 맨 아래 [직접 입력]"
+                />
+              }
               helpId="pet-vrty-h"
               error={errors.vrty}
             >
@@ -384,6 +400,7 @@ function PetForm({ pet, onClose }) {
               )}
             </Field>
             <Field
+              m="brdt"
               id="pet-brdt"
               label="생년월일"
               required
@@ -404,19 +421,7 @@ function PetForm({ pet, onClose }) {
           </Row>
 
           <Row>
-            <Field id="pet-chip" label="인식칩 번호" optional>
-              <input
-                id="pet-chip"
-                name="chipNo"
-                value={form.chipNo}
-                onChange={handleChipNoChange}
-                inputMode="numeric"
-                maxLength={20}
-                placeholder="숫자만 입력 (최대 20자리)"
-                className={INPUT}
-              />
-            </Field>
-            <Group label="성별" required>
+            <Group m="gndr" label="성별" required>
               <RadioGroup
                 name="petGndrCd"
                 options={PET_GNDR_OPTIONS}
@@ -439,123 +444,13 @@ function PetForm({ pet, onClose }) {
                 중성화 완료
               </label>
             </Group>
-          </Row>
-
-          <Row>
-            {lastBdwgRcd ? (
-              <div className="flex min-w-0 flex-col gap-1.5">
-                <span
-                  id="pet-bdwg-l"
-                  className="flex items-center gap-0.5 leading-[1.4] font-semibold"
-                >
-                  체중
-                  <span
-                    aria-hidden="true"
-                    className="ml-0.5 font-bold text-danger"
-                  >
-                    *
-                  </span>
-                </span>
-                <div
-                  role="textbox"
-                  aria-readonly="true"
-                  aria-labelledby="pet-bdwg-l"
-                  className="flex h-10 items-center gap-2 rounded-md border border-input-line bg-white px-3"
-                >
-                  <Lock className="size-4 shrink-0 text-subtle" />
-                  <span className="tabular-nums">{lastBdwgRcd.rcdNvl}</span>
-                  <span className="text-subtle">kg</span>
-                </div>
-                <p className={HELP}>
-                  건강 일지에 기록된 체중이에요 (
-                  {formatRecordDate(lastBdwgRcd.rcdDt)} 기록)
-                </p>
-                {/** 건강 일지(SCR-HLT-002) 경로 연결 예정 */}
-                <button
-                  type="button"
-                  className="inline-flex h-10 items-center justify-center self-start rounded-md border border-line bg-white px-4 font-semibold hover:border-line-strong hover:bg-surface-2"
-                >
-                  건강 일지에서 기록하기
-                </button>
-              </div>
-            ) : (
-              <Field
-                id="pet-bdwg"
-                label="체중"
-                required
-                help={
-                  isEdit
-                    ? '잘못 입력한 체중만 고칠 수 있어요. 체중이 바뀌었다면 건강 일지에 기록해 주세요'
-                    : '대략적인 체중이어도 괜찮아요. 건강기록에서 정확히 기록하면 자동으로 바뀌어요'
-                }
-                helpId="pet-bdwg-h"
-                error={errors.petBdwg}
-              >
-                <KgInput
-                  id="pet-bdwg"
-                  name="petBdwg"
-                  value={form.petBdwg}
-                  onChange={handleDecimalChange}
-                  placeholder="예: 4.2"
-                  invalid={!!errors.petBdwg}
-                  describedBy="pet-bdwg-h pet-bdwg-e"
-                />
-              </Field>
-            )}
             <Field
-              id="pet-goal"
-              label="목표체중"
-              optional
-              error={errors.goalBdwg}
-            >
-              <KgInput
-                id="pet-goal"
-                name="goalBdwg"
-                value={form.goalBdwg}
-                onChange={handleDecimalChange}
-                placeholder="예: 4.0"
-                invalid={!!errors.goalBdwg}
-                describedBy="pet-goal-e"
-              />
-            </Field>
-          </Row>
-
-          <Row>
-            <Group
-              label="체중 정상범위"
+              m="colr"
+              id="pet-colr"
+              label="털색"
               required
-              help="동물병원에서 확인한 범위를 입력해 주세요. 언제든 수정할 수 있어요"
-              helpId="pet-range-h"
-              error={errors.range}
-              errorId="pet-range-e"
+              error={errors.colr}
             >
-              <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2">
-                <KgInput
-                  id="pet-min"
-                  name="minBdwg"
-                  value={form.minBdwg}
-                  onChange={handleDecimalChange}
-                  placeholder="최소"
-                  label="정상범위 최소"
-                  invalid={!!errors.range}
-                  describedBy="pet-range-h pet-range-e"
-                />
-                <span aria-hidden="true" className="text-subtle">
-                  ~
-                </span>
-                <KgInput
-                  id="pet-max"
-                  name="maxBdwg"
-                  value={form.maxBdwg}
-                  onChange={handleDecimalChange}
-                  placeholder="최대"
-                  label="정상범위 최대"
-                  invalid={!!errors.range}
-                  describedBy="pet-range-h pet-range-e"
-                />
-              </div>
-            </Group>
-            <Field id="pet-colr" label="털색" required error={errors.colr}>
               <div className="relative">
                 <select
                   id="pet-colr"
@@ -607,70 +502,229 @@ function PetForm({ pet, onClose }) {
               )}
             </Field>
           </Row>
-
-          <Field
-            id="pet-chrc"
-            label="특징"
-            optional
-            count={{ length: form.chrcCn.length, max: 1000 }}
-            error={errors.chrcCn}
-          >
-            <input
-              id="pet-chrc"
-              name="chrcCn"
-              value={form.chrcCn}
-              onChange={handleChange}
-              maxLength={1000}
-              placeholder="예) 오른쪽 귀 한쪽만 접힘, 배에 흰 털"
-              className={INPUT}
-            />
-          </Field>
-
           <Row>
-            <Field
-              id="pet-algy"
-              label="알레르기"
-              optional
-              count={{ length: form.algyCn.length, max: 1000 }}
-              help="여러 건이면 쉼표(,)로 구분해 입력"
-              helpId="pet-algy-h"
-              error={errors.algyCn}
+            {lastBdwgRcd ? (
+              <div className={`flex min-w-0 flex-col gap-1.5 ${MOBILE.bdwg}`}>
+                <span
+                  id="pet-bdwg-l"
+                  className="flex items-center gap-0.5 leading-[1.4] font-semibold"
+                >
+                  체중
+                  <span
+                    aria-hidden="true"
+                    className="ml-0.5 font-bold text-danger"
+                  >
+                    *
+                  </span>
+                </span>
+                <div
+                  role="textbox"
+                  aria-readonly="true"
+                  aria-labelledby="pet-bdwg-l"
+                  className="flex h-10 items-center gap-2 rounded-md border border-input-line bg-white px-3"
+                >
+                  <Lock className="size-4 shrink-0 text-subtle" />
+                  <span className="tabular-nums">{lastBdwgRcd.rcdNvl}</span>
+                  <span className="text-subtle">kg</span>
+                </div>
+                <p className={HELP}>
+                  건강 일지에 기록된 체중이에요 (
+                  {formatRecordDate(lastBdwgRcd.rcdDt)} 기록)
+                </p>
+                {/** 건강 일지(SCR-HLT-002) 경로 연결 예정 */}
+                <button
+                  type="button"
+                  className="inline-flex h-10 items-center justify-center self-start rounded-md border border-line bg-white px-4 font-semibold hover:border-line-strong hover:bg-surface-2"
+                >
+                  건강 일지에서 기록하기
+                </button>
+              </div>
+            ) : (
+              <Field
+                m="bdwg"
+                id="pet-bdwg"
+                label="체중"
+                required
+                help={
+                  isEdit ? (
+                    '잘못 입력한 체중만 고칠 수 있어요. 체중이 바뀌었다면 건강 일지에 기록해 주세요'
+                  ) : (
+                    <ResponsiveHelp
+                      pc="대략적인 체중이어도 괜찮아요. 건강기록에서 정확히 기록하면 자동으로 바뀌어요"
+                      m="대략적인 값도 괜찮아요"
+                    />
+                  )
+                }
+                helpId="pet-bdwg-h"
+                error={errors.petBdwg}
+              >
+                <KgInput
+                  id="pet-bdwg"
+                  name="petBdwg"
+                  value={form.petBdwg}
+                  onChange={handleDecimalChange}
+                  placeholder="예: 4.2"
+                  invalid={!!errors.petBdwg}
+                  describedBy="pet-bdwg-h pet-bdwg-e"
+                />
+              </Field>
+            )}
+            <Group
+              m="range"
+              label="체중 정상범위"
+              required
+              help={
+                <ResponsiveHelp
+                  pc="동물병원에서 확인한 범위를 입력해 주세요. 언제든 수정할 수 있어요"
+                  m="동물병원에서 확인한 범위"
+                />
+              }
+              helpId="pet-range-h"
+              error={errors.range}
+              errorId="pet-range-e"
             >
-              <input
-                id="pet-algy"
-                name="algyCn"
-                value={form.algyCn}
-                onChange={handleChange}
-                maxLength={1000}
-                placeholder="예) 새우, 닭고기"
-                aria-describedby="pet-algy-h"
-                className={INPUT}
-              />
-            </Field>
-            <Field
-              id="pet-dss"
-              label="기저질환"
-              optional
-              count={{ length: form.dssCn.length, max: 1000 }}
-              help="여러 건이면 쉼표(,)로 구분해 입력"
-              helpId="pet-dss-h"
-              error={errors.dssCn}
-            >
-              <input
-                id="pet-dss"
-                name="dssCn"
-                value={form.dssCn}
-                onChange={handleChange}
-                maxLength={1000}
-                placeholder="예) 슬개골 탈구, 만성 신부전"
-                aria-describedby="pet-dss-h"
-                className={INPUT}
-              />
-            </Field>
+              <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2">
+                <KgInput
+                  id="pet-min"
+                  name="minBdwg"
+                  value={form.minBdwg}
+                  onChange={handleDecimalChange}
+                  placeholder="최소"
+                  label="정상범위 최소"
+                  invalid={!!errors.range}
+                  describedBy="pet-range-h pet-range-e"
+                />
+                <span aria-hidden="true" className="text-subtle">
+                  ~
+                </span>
+                <KgInput
+                  id="pet-max"
+                  name="maxBdwg"
+                  value={form.maxBdwg}
+                  onChange={handleDecimalChange}
+                  placeholder="최대"
+                  label="정상범위 최대"
+                  invalid={!!errors.range}
+                  describedBy="pet-range-h pet-range-e"
+                />
+              </div>
+            </Group>
           </Row>
+          <details
+            ref={optRef}
+            open={isOptOpen}
+            onToggle={(e) => setIsOptOpen(e.currentTarget.open)}
+            className="group rounded-box border border-line bg-white max-[760px]:order-9 max-[760px]:col-span-2"
+          >
+            <summary className="flex cursor-pointer list-none items-center gap-3 rounded-box px-4 py-3 group-open:rounded-b-none hover:bg-surface-2 [&::-webkit-details-marker]:hidden">
+              <span className="min-w-0 flex-1">
+                <span className="font-semibold">
+                  추가 정보{' '}
+                  <span className="ml-1 text-badge font-medium text-subtle">
+                    선택
+                  </span>
+                </span>
+                <span className="mt-0.5 block text-sm text-subtle">
+                  인식칩 번호 · 목표체중 · 특징 · 알레르기 · 기저질환
+                </span>
+              </span>
+              <ChevronDown className="size-5 shrink-0 text-subtle transition-transform group-open:rotate-180" />
+            </summary>
+            <div className="flex flex-col gap-6 border-t border-line-soft p-4">
+              <Row>
+                <Field id="pet-chip" label="인식칩 번호" optional>
+                  <input
+                    id="pet-chip"
+                    name="chipNo"
+                    value={form.chipNo}
+                    onChange={handleChipNoChange}
+                    inputMode="numeric"
+                    maxLength={20}
+                    placeholder="숫자만 입력 (최대 20자리)"
+                    className={INPUT}
+                  />
+                </Field>
+                <Field
+                  id="pet-goal"
+                  label="목표체중"
+                  optional
+                  error={errors.goalBdwg}
+                >
+                  <KgInput
+                    id="pet-goal"
+                    name="goalBdwg"
+                    value={form.goalBdwg}
+                    onChange={handleDecimalChange}
+                    placeholder="예: 4.0"
+                    invalid={!!errors.goalBdwg}
+                    describedBy="pet-goal-e"
+                  />
+                </Field>
+              </Row>
+              <Field
+                id="pet-chrc"
+                label="특징"
+                optional
+                count={{ length: form.chrcCn.length, max: 1000 }}
+                error={errors.chrcCn}
+              >
+                <input
+                  id="pet-chrc"
+                  name="chrcCn"
+                  value={form.chrcCn}
+                  onChange={handleChange}
+                  maxLength={1000}
+                  placeholder="예) 오른쪽 귀 한쪽만 접힘, 배에 흰 털"
+                  className={INPUT}
+                />
+              </Field>
+              <Row>
+                <Field
+                  id="pet-algy"
+                  label="알레르기"
+                  optional
+                  count={{ length: form.algyCn.length, max: 1000 }}
+                  help="여러 건이면 쉼표(,)로 구분해 입력"
+                  helpId="pet-algy-h"
+                  error={errors.algyCn}
+                >
+                  <input
+                    id="pet-algy"
+                    name="algyCn"
+                    value={form.algyCn}
+                    onChange={handleChange}
+                    maxLength={1000}
+                    placeholder="예) 새우, 닭고기"
+                    aria-describedby="pet-algy-h"
+                    className={INPUT}
+                  />
+                </Field>
+                <Field
+                  id="pet-dss"
+                  label="기저질환"
+                  optional
+                  count={{ length: form.dssCn.length, max: 1000 }}
+                  help="여러 건이면 쉼표(,)로 구분해 입력"
+                  helpId="pet-dss-h"
+                  error={errors.dssCn}
+                >
+                  <input
+                    id="pet-dss"
+                    name="dssCn"
+                    value={form.dssCn}
+                    onChange={handleChange}
+                    maxLength={1000}
+                    placeholder="예) 슬개골 탈구, 만성 신부전"
+                    aria-describedby="pet-dss-h"
+                    className={INPUT}
+                  />
+                </Field>
+              </Row>
+            </div>
+          </details>
         </form>
       </div>
-      <footer className="flex items-center justify-end gap-2 rounded-b-modal border-t border-line bg-[#fbfcfd] px-7 py-4">
+      <footer className="z-[2] flex items-center justify-end gap-2 rounded-b-modal border-t border-line bg-[#fbfcfd] px-7 py-4 max-[760px]:sticky max-[760px]:bottom-0">
         <button
           type="button"
           onClick={onClose}
@@ -718,9 +772,32 @@ function ErrorText({ id, children }) {
   );
 }
 
+/** 앱: 항목 순서(order)와 한 줄/반 줄(col-span)을 항목마다 정한다. 정하지 않은 항목은 뒤에 한 줄씩 */
+const MOBILE = {
+  name: 'max-[760px]:order-1 max-[760px]:col-span-2',
+  species: 'max-[760px]:order-2',
+  brdt: 'max-[760px]:order-3',
+  vrty: 'max-[760px]:order-4 max-[760px]:col-span-2',
+  gndr: 'max-[760px]:order-5',
+  colr: 'max-[760px]:order-6',
+  bdwg: 'max-[760px]:order-7 max-[760px]:col-span-2',
+  range: 'max-[760px]:order-8 max-[760px]:col-span-2',
+  rest: 'max-[760px]:order-9 max-[760px]:col-span-2',
+};
+
+/** 도움말: 앱에서는 짧은 문구 */
+function ResponsiveHelp({ pc, m }) {
+  return (
+    <>
+      <span className="max-[760px]:hidden">{pc}</span>
+      <span className="hidden max-[760px]:inline">{m}</span>
+    </>
+  );
+}
+
 function Row({ children }) {
   return (
-    <div className="grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2">
+    <div className="grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2 max-[760px]:contents">
       {children}
     </div>
   );
@@ -728,6 +805,7 @@ function Row({ children }) {
 
 /** 입력칸 하나 */
 function Field({
+  m = 'rest',
   id,
   label,
   required,
@@ -739,7 +817,7 @@ function Field({
   children,
 }) {
   return (
-    <div className="flex min-w-0 flex-col gap-1.5">
+    <div className={`flex min-w-0 flex-col gap-1.5 ${MOBILE[m]}`}>
       <div className="flex items-end justify-between gap-2">
         <label htmlFor={id} className={LABEL}>
           {label}
@@ -764,9 +842,20 @@ function Field({
 }
 
 /** 라벨로 이을 칸 없는 입력 묶음 */
-function Group({ label, required, help, helpId, error, errorId, children }) {
+function Group({
+  m = 'rest',
+  label,
+  required,
+  help,
+  helpId,
+  error,
+  errorId,
+  children,
+}) {
   return (
-    <fieldset className="m-0 flex min-w-0 flex-col gap-1.5 border-0 p-0">
+    <fieldset
+      className={`m-0 flex min-w-0 flex-col gap-1.5 border-0 p-0 ${MOBILE[m]}`}
+    >
       <legend className={`${LABEL} p-0`}>
         {label}
         {required && <Required />}
@@ -784,11 +873,11 @@ function Group({ label, required, help, helpId, error, errorId, children }) {
 
 function RadioGroup({ name, options, value, onChange }) {
   return (
-    <div className="flex flex-wrap gap-x-7">
+    <div className="flex flex-wrap gap-x-7 max-[760px]:h-10 max-[760px]:flex-nowrap max-[760px]:gap-0 max-[760px]:rounded-md max-[760px]:border max-[760px]:border-[#e6eaeb] max-[760px]:bg-[#f1f3f4] max-[760px]:p-[3px]">
       {options.map((option) => (
         <label
           key={option.code}
-          className="inline-flex min-h-10 cursor-pointer items-center gap-2 font-medium"
+          className="inline-flex min-h-10 cursor-pointer items-center gap-2 font-medium max-[760px]:min-h-0 max-[760px]:flex-1 max-[760px]:justify-center max-[760px]:rounded-sm max-[760px]:text-muted max-[760px]:has-[:checked]:bg-white max-[760px]:has-[:checked]:font-semibold max-[760px]:has-[:checked]:text-brand-600 max-[760px]:has-[:checked]:shadow-[0_1px_2px_rgba(26,50,52,.08),0_0_0_1px_rgba(40,90,92,.18)] max-[760px]:has-[:focus-visible]:outline-2 max-[760px]:has-[:focus-visible]:outline-offset-1 max-[760px]:has-[:focus-visible]:outline-brand-500"
         >
           <input
             type="radio"
@@ -799,7 +888,7 @@ function RadioGroup({ name, options, value, onChange }) {
           />
           <span
             aria-hidden="true"
-            className="grid size-5 shrink-0 place-items-center rounded-full border-[1.5px] border-line-strong bg-white after:size-2.5 after:scale-0 after:rounded-full after:bg-brand-500 after:transition-transform peer-checked:border-brand-500 peer-checked:after:scale-100 peer-focus-visible:ring-focus"
+            className="grid size-5 shrink-0 place-items-center rounded-full border-[1.5px] border-line-strong bg-white max-[760px]:hidden after:size-2.5 after:scale-0 after:rounded-full after:bg-brand-500 after:transition-transform peer-checked:border-brand-500 peer-checked:after:scale-100 peer-focus-visible:ring-focus"
           />
           {option.name}
         </label>

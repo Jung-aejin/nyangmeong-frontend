@@ -11,15 +11,15 @@
 @theme {
   --font-sans: 'Pretendard Variable', Pretendard, system-ui, sans-serif;
 
-  /** 플로팅 AI 말풍선이 위아래로 오르내림 */
-  --animate-bob: bob 1.6s ease-in-out infinite;
-  @keyframes bob {
+  /** 플로팅 AI 말풍선이 좌우로 흔들림 */
+  --animate-sway: sway 2s ease-in-out infinite;
+  @keyframes sway {
     0%,
     100% {
-      transform: translateY(0);
+      transform: translateX(0);
     }
     50% {
-      transform: translateY(-4px);
+      transform: translateX(-4px);
     }
   }
 
@@ -29,6 +29,11 @@
   --color-brand-500: #285a5c;
   --color-brand-600: #1e4a4c;
   --color-brand-900: #1a3234;
+
+  /** 플로팅 AI 버튼 */
+  --color-fab: #f9eaa6;
+  --color-fab-line: #e8d27e;
+  --color-fab-soft: #fffae2;
 
   /** 글자 */
   --color-ink: #1a3234;
@@ -63,6 +68,28 @@
   --color-tone-violet-fg: #5f49b0;
   --color-tone-amber-bg: #fcf1df;
   --color-tone-amber-fg: #9a5c0c;
+  /* 가계부 카테고리 색 (10-24): 도넛·범례·뱃지·앱 상세 막대 공통 */
+  --color-cat-hosp: #6fb0f5;
+  --color-cat-hosp-bg: #e5f1fd;
+  --color-cat-hosp-fg: #4f78a3;
+  --color-cat-food: #f59a4a;
+  --color-cat-food-bg: #fdedde;
+  --color-cat-food-fg: #a26a39;
+  --color-cat-care: #4cbf7a;
+  --color-cat-care-bg: #dff3e7;
+  --color-cat-care-fg: #398156;
+  --color-cat-goods: #8b6ee0;
+  --color-cat-goods-bg: #eae5f9;
+  --color-cat-goods-fg: #604f96;
+  --color-cat-beauty: #f28db2;
+  --color-cat-beauty-bg: #fdeaf1;
+  --color-cat-beauty-fg: #a06279;
+  --color-cat-snack: #f5c842;
+  --color-cat-snack-bg: #fdf5dd;
+  --color-cat-snack-fg: #a28734;
+  --color-cat-etc: #9c7c5c;
+  --color-cat-etc-bg: #ede7e2;
+  --color-cat-etc-fg: #6b5844;
   --color-warn: #80611a;
   --color-warn-soft: #faf6e8;
   --color-warn-line: #e6d7a8;

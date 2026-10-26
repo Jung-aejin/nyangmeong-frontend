@@ -6,14 +6,14 @@ import { CGVR_ROLE, MAX_CAREGIVERS, PET_REL } from '@/utils/petCodes';
 
 /**
  * [가족 초대하기 모달]
- * - 이메일 입력(형식 검사만, 상대 조회 없음) + 주양육 동물 다중 선택 -> 초대 1건 발송
+ * - 이메일 입력(형식 검사만, 상대 조회 없음, [확인] 버튼 없음) + 주양육 동물 다중 선택 -> 초대 1건 발송
  * - 공동양육자 5명이 찬 동물은 선택 불가
  */
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const INPUT =
-  'block h-10 min-w-0 flex-1 rounded-md border border-input-line bg-white px-3 placeholder:text-placeholder hover:border-line-strong focus:border-brand-500 focus:ring-focus focus:outline-none aria-invalid:border-danger aria-invalid:focus:ring-error';
+  'block h-10 w-full min-w-0 rounded-md border border-input-line bg-white px-3 placeholder:text-placeholder hover:border-line-strong focus:border-brand-500 focus:ring-focus focus:outline-none aria-invalid:border-danger aria-invalid:focus:ring-error';
 const LABEL = 'leading-[1.4] font-semibold';
 
 export default function InviteModal({ pets, initialPetSn, onClose }) {
@@ -22,8 +22,8 @@ export default function InviteModal({ pets, initialPetSn, onClose }) {
   const caregiverResults = useCaregiversOf(ownPets.map((pet) => pet.petSn));
 
   const [invtEml, setInvtEml] = useState('');
-  /** null: 확인 전, true: 형식 통과, false: 형식 오류 */
-  const [isEmailValid, setIsEmailValid] = useState(null);
+  /** 입력란을 벗어나거나 보내기를 눌러야 형식 오류를 안내 */
+  const [isEmailTouched, setIsEmailTouched] = useState(false);
   const [selectedPetSns, setSelectedPetSns] = useState(
     initialPetSn == null ? [] : [initialPetSn],
   );
@@ -44,10 +44,10 @@ export default function InviteModal({ pets, initialPetSn, onClose }) {
   const pickedPetSns = selectedPetSns.filter(
     (petSn) => coParentCounts[petSn] != null && !isFull(petSn),
   );
+  const isEmailValid = EMAIL_PATTERN.test(invtEml.trim());
+  const isEmailInvalid = isEmailTouched && !isEmailValid;
   const canSend =
-    isEmailValid === true &&
-    pickedPetSns.length > 0 &&
-    !createInvitation.isPending;
+    isEmailValid && pickedPetSns.length > 0 && !createInvitation.isPending;
 
   const close = () => {
     if (!createInvitation.isPending) onClose();
@@ -63,11 +63,7 @@ export default function InviteModal({ pets, initialPetSn, onClose }) {
 
   const handleEmailChange = (event) => {
     setInvtEml(event.target.value);
-    setIsEmailValid(null);
   };
-
-  const handleCheckEmail = () =>
-    setIsEmailValid(EMAIL_PATTERN.test(invtEml.trim()));
 
   const handleTogglePet = (petSn) =>
     setSelectedPetSns((prev) =>
@@ -78,6 +74,7 @@ export default function InviteModal({ pets, initialPetSn, onClose }) {
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    setIsEmailTouched(true);
     if (!canSend) return;
     createInvitation.mutate(
       { invtEml: invtEml.trim(), petSns: pickedPetSns },
@@ -124,32 +121,26 @@ export default function InviteModal({ pets, initialPetSn, onClose }) {
             <label htmlFor="invite-email" className={LABEL}>
               초대할 상대의 이메일
             </label>
-            <div className="flex gap-2">
-              <input
-                id="invite-email"
-                type="email"
-                value={invtEml}
-                onChange={handleEmailChange}
-                onKeyDown={(event) => {
-                  if (event.key !== 'Enter') return;
-                  event.preventDefault();
-                  handleCheckEmail();
-                }}
-                placeholder="이메일 주소 입력"
-                aria-invalid={isEmailValid === false ? 'true' : undefined}
-                aria-describedby="invite-email-e"
-                className={INPUT}
-              />
-              <button
-                type="button"
-                onClick={handleCheckEmail}
-                disabled={!invtEml.trim()}
-                className="inline-flex h-10 shrink-0 items-center justify-center rounded-md border border-line bg-white px-4 font-semibold hover:enabled:border-line-strong hover:enabled:bg-surface-2 disabled:cursor-not-allowed disabled:border-transparent disabled:bg-surface-3 disabled:text-line-strong"
-              >
-                확인
-              </button>
-            </div>
-            {isEmailValid === false && (
+            <input
+              id="invite-email"
+              type="email"
+              value={invtEml}
+              onChange={handleEmailChange}
+              onBlur={() => invtEml.trim() && setIsEmailTouched(true)}
+              placeholder="이메일 주소 입력"
+              aria-invalid={isEmailInvalid ? 'true' : undefined}
+              aria-describedby={
+                isEmailInvalid
+                  ? 'invite-email-h invite-email-e'
+                  : 'invite-email-h'
+              }
+              className={INPUT}
+            />
+            <p id="invite-email-h" className="text-sm text-subtle">
+              가입한 회원에게는 알림으로, 아직 가입하지 않았다면 이메일로 초대가
+              가요
+            </p>
+            {isEmailInvalid && (
               <p
                 id="invite-email-e"
                 className="flex items-center gap-1 text-sm text-danger"

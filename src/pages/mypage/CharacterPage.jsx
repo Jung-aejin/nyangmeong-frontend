@@ -40,6 +40,7 @@ export default function CharacterPage() {
         section="mypage"
         title={`${decoratingPet.petNm} 꾸미기`}
         description={DESCRIPTION}
+        contentClassName="min-[1101px]:pt-6 max-[760px]:grid max-[760px]:grid-cols-[auto_minmax(0,1fr)] max-[760px]:items-center"
       >
         <CharacterDecorate pet={decoratingPet} pntBal={point?.pntBal ?? 0} />
       </SubPageLayout>

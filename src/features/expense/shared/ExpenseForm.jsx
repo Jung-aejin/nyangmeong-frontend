@@ -3,8 +3,10 @@ import AmountInput from '@/components/AmountInput';
 import { BTN_PRIMARY, BTN_SECONDARY } from '@/components/buttonStyles';
 import Modal from '@/components/Modal';
 import Select from '@/components/Select';
+import { EXPND_PLACE_KEY } from '../api';
 import ExpenseCategoryChips from './ExpenseCategoryChips';
 import { FILTER_SHARED, HOSPITAL_CLSF_CD } from './expenseCodes';
+import { PLACE_MAX_LENGTH, getPlace } from './expenseFormat';
 import {
   HOSPITAL_NOTICE,
   getActivePets,
@@ -38,6 +40,7 @@ export default function ExpenseForm({
   );
   const [expndClsfCd, setExpndClsfCd] = useState(expense?.expndClsfCd ?? null);
   const [digits, setDigits] = useState(isEdit ? String(expense.expndAmt) : '');
+  const [place, setPlace] = useState(expense ? getPlace(expense) : '');
   const [dtlMttr, setDtlMttr] = useState(expense?.dtlMttr ?? '');
   const [hasHospitalNotice, setHasHospitalNotice] = useState(false);
 
@@ -79,6 +82,7 @@ export default function ExpenseForm({
       expndClsfCd,
       expndAmt: Number(digits),
       dtlMttr: dtlMttr.trim(),
+      [EXPND_PLACE_KEY]: place.trim(),
       expndYmd: ymd,
     });
   };
@@ -86,6 +90,7 @@ export default function ExpenseForm({
   return (
     <Modal
       title={isEdit ? '지출 수정' : '직접 입력'}
+      isSheet
       isPending={isPending}
       onClose={onClose}
       footer={
@@ -165,6 +170,19 @@ export default function ExpenseForm({
           />
         </div>
         <div>
+          <label htmlFor="expense-place" className={LABEL}>
+            사용처 <span className="font-normal text-subtle">선택</span>
+          </label>
+          <input
+            id="expense-place"
+            value={place}
+            maxLength={PLACE_MAX_LENGTH}
+            onChange={(event) => setPlace(event.target.value)}
+            placeholder="예: 애견미용실"
+            className={`${INPUT} mt-2`}
+          />
+        </div>
+        <div>
           <label htmlFor="expense-memo" className={LABEL}>
             내용 <span className="font-normal text-subtle">선택</span>
           </label>
@@ -172,7 +190,7 @@ export default function ExpenseForm({
             id="expense-memo"
             value={dtlMttr}
             onChange={(event) => setDtlMttr(event.target.value)}
-            placeholder="예: 부분 미용 · 애견미용실"
+            placeholder="예: 부분 미용"
             className={`${INPUT} mt-2`}
           />
         </div>

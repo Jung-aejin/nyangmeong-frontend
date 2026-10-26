@@ -1,22 +1,28 @@
-import { useState } from 'react';
+import { ChevronDown } from 'lucide-react';
+import { useRef, useState } from 'react';
 import { BTN_SECONDARY } from '@/components/buttonStyles';
 import MonthNav from '@/components/MonthNav';
 import MonthPicker from '@/components/MonthPicker';
 import Pagination from '@/components/Pagination';
+import useMediaQuery from '@/hooks/useMediaQuery';
 import { getCurrentYm, isYm, shiftYm } from '@/utils/yearMonth';
+import ExpenseDeleteDialog from '../dashboard/ExpenseDeleteDialog';
 import ExpenseBulkDeleteDialog from './ExpenseBulkDeleteDialog';
 import {
   EXPND_CLSF,
   FILTER_ALL,
   FILTER_SHARED,
+  LOAD,
   PAGE_SIZE,
   RANGE_MODE,
   SORT,
 } from '../shared/expenseCodes';
+import ExpenseDetailSheet from '../shared/ExpenseDetailSheet';
 import ExpenseEditModal from '../shared/ExpenseEditModal';
 import ExpenseFilterBar from './ExpenseFilterBar';
 import { formatWon, getPetFilterLabel } from '../shared/expenseFormat';
 import ExpenseGroupList from './ExpenseGroupList';
+import ExpenseLoadMore from './ExpenseLoadMore';
 import ExpenseRangeSelect from './ExpenseRangeSelect';
 import ExpenseSelectBar from './ExpenseSelectBar';
 import {
@@ -27,6 +33,10 @@ import {
 } from '../shared/expenseStats';
 import { CARD } from '../shared/expenseStyles';
 import { useExpenseOverview, useExpenses } from '../queries';
+
+/** 앱(≤760px)은 페이지 번호 대신 무한 스크롤 */
+const MOBILE_QUERY = '(max-width: 760px)';
+const LOAD_MORE_MS = 500;
 
 /** 기간 순서 보정 */
 const getSortedPeriod = (range) =>
@@ -61,6 +71,18 @@ export default function ExpenseHistory({ initialYm }) {
   const [selected, setSelected] = useState(() => new Set());
   const [isBulkOpen, setIsBulkOpen] = useState(false);
   const [editingExpense, setEditingExpense] = useState(null);
+  /** 앱 지출 상세 시트: 보고 있는 지출 번호(편집 중에는 시트를 잠시 숨기고 저장하면 다시 보인다) */
+  const [detailSn, setDetailSn] = useState(null);
+  const [deletingExpense, setDeletingExpense] = useState(null);
+  /** 앱 무한 스크롤: 지금까지 불러온 건수·불러오기 상태 */
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const [loadStatus, setLoadStatus] = useState(LOAD.IDLE);
+  const loadTokenRef = useRef(0);
+  /** 개발 전용 ?fake=more-fail: 첫 이어 불러오기만 실패해 ↻ 상태를 확인한다 */
+  const failOnceRef = useRef(
+    new URLSearchParams(window.location.search).get('fake') === 'more-fail',
+  );
+  const isMobile = useMediaQuery(MOBILE_QUERY);
 
   const { data: overview } = useExpenseOverview();
   const { data: expenses = [], isPlaceholderData } = useExpenses(
@@ -75,9 +97,12 @@ export default function ExpenseHistory({ initialYm }) {
   );
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const currentPage = Math.min(page, pageCount);
-  const pageItems = filtered.slice(
-    (currentPage - 1) * PAGE_SIZE,
-    currentPage * PAGE_SIZE,
+  const pageItems = isMobile
+    ? filtered.slice(0, visibleCount)
+    : filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  const isLoadEnd = visibleCount >= filtered.length;
+  const detailExpense = expenses.find(
+    (expense) => expense.expndSn === detailSn,
   );
   const selectedItems = filtered.filter((expense) =>
     selected.has(expense.expndSn),
@@ -111,9 +136,33 @@ export default function ExpenseHistory({ initialYm }) {
       ? '전체 카테고리'
       : EXPND_CLSF[categoryFilter].name;
 
+  /** 앱: 처음부터 다시 불러오기 (진행 중이던 불러오기는 버린다) */
+  const resetLoaded = () => {
+    loadTokenRef.current += 1;
+    setVisibleCount(PAGE_SIZE);
+    setLoadStatus(LOAD.IDLE);
+  };
+  const handleLoadMore = () => {
+    const token = loadTokenRef.current;
+    setLoadStatus(LOAD.LOADING);
+    setTimeout(() => {
+      if (token !== loadTokenRef.current) return;
+      if (failOnceRef.current) {
+        failOnceRef.current = false;
+        setLoadStatus(LOAD.ERROR);
+        return;
+      }
+      setVisibleCount((count) => count + PAGE_SIZE);
+      setLoadStatus(LOAD.IDLE);
+    }, LOAD_MORE_MS);
+  };
+  const handleOpenItem = (expense) =>
+    isMobile ? setDetailSn(expense.expndSn) : setEditingExpense(expense);
+
   /** 조회 조건 변경 시 1페이지·편집 종료 */
   const resetView = () => {
     setPage(1);
+    resetLoaded();
     setIsEditing(false);
     setSelected(new Set());
   };
@@ -137,12 +186,14 @@ export default function ExpenseHistory({ initialYm }) {
     setRange({ mode: RANGE_MODE.MONTH, fromYm: ym, toYm: ym });
     setSelected(new Set());
     setPage(1);
+    resetLoaded();
     setIsEditing(true);
   };
   const handleChangeRange = (nextRange) => {
     setRange(nextRange);
     setSelected(new Set());
     setPage(1);
+    resetLoaded();
   };
   const handleToggle = (expndSn) => {
     const next = new Set(selected);
@@ -226,6 +277,32 @@ export default function ExpenseHistory({ initialYm }) {
           </button>
         )}
       </ExpenseFilterBar>
+      {!isEditing && (
+        <div className="-mb-2 flex items-center justify-between px-0.5 min-[761px]:hidden">
+          <label className="relative inline-flex items-center text-sm text-ink-2">
+            <select
+              aria-label="정렬"
+              value={sort}
+              onChange={(event) => handleChangeSort(event.target.value)}
+              className="cursor-pointer appearance-none bg-transparent py-1 pr-5 focus:outline-none"
+            >
+              <option value={SORT.LATEST}>최신순</option>
+              <option value={SORT.AMOUNT}>금액순</option>
+            </select>
+            <ChevronDown
+              className="pointer-events-none absolute right-0 size-4"
+              aria-hidden="true"
+            />
+          </label>
+          <button
+            type="button"
+            onClick={handleStartEdit}
+            className="text-[15px] font-semibold text-brand-600"
+          >
+            편집
+          </button>
+        </div>
+      )}
       <section aria-label="지출 내역" className={`${CARD} overflow-hidden`}>
         {isEditing && (
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line bg-surface-2 px-4 py-3">
@@ -240,7 +317,9 @@ export default function ExpenseHistory({ initialYm }) {
               <span>
                 전체 선택{' '}
                 <span className="text-subtle">
-                  (이 페이지 {pageItems.length}건)
+                  (<span className="max-[760px]:hidden">이 페이지</span>
+                  <span className="hidden max-[760px]:inline">불러온</span>{' '}
+                  {pageItems.length}건)
                 </span>
               </span>
             </label>
@@ -262,17 +341,34 @@ export default function ExpenseHistory({ initialYm }) {
           </p>
         ) : (
           <ExpenseGroupList
+            items={pageItems}
             groups={groupByDay(pageItems)}
+            hasDayHead={sort === SORT.LATEST}
             isEditing={isEditing}
             selected={selected}
             onToggle={handleToggle}
-            onEditItem={setEditingExpense}
+            onOpenItem={handleOpenItem}
           />
         )}
       </section>
-      <Pagination page={currentPage} pageCount={pageCount} onChange={setPage} />
+      {isMobile ? (
+        pageItems.length > 0 && (
+          <ExpenseLoadMore
+            isEnd={isLoadEnd}
+            status={loadStatus}
+            onLoadMore={handleLoadMore}
+            onRetry={handleLoadMore}
+          />
+        )
+      ) : (
+        <Pagination
+          page={currentPage}
+          pageCount={pageCount}
+          onChange={setPage}
+        />
+      )}
       {!isEditing && (
-        <p className="text-center text-sm text-subtle">
+        <p className="text-center text-sm text-subtle max-[760px]:hidden">
           항목을 누르면 바로 수정할 수 있어요
         </p>
       )}
@@ -289,6 +385,21 @@ export default function ExpenseHistory({ initialYm }) {
           pets={overview.pets}
           onSaved={() => setEditingExpense(null)}
           onClose={() => setEditingExpense(null)}
+        />
+      )}
+      {detailExpense && !editingExpense && (
+        <ExpenseDetailSheet
+          expense={detailExpense}
+          onEdit={() => setEditingExpense(detailExpense)}
+          onDelete={() => setDeletingExpense(detailExpense)}
+          onClose={() => setDetailSn(null)}
+        />
+      )}
+      {deletingExpense && (
+        <ExpenseDeleteDialog
+          expense={deletingExpense}
+          onDeleted={() => setDetailSn(null)}
+          onClose={() => setDeletingExpense(null)}
         />
       )}
       {isBulkOpen && (

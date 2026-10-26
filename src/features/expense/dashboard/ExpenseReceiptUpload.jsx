@@ -70,6 +70,7 @@ export default function ExpenseReceiptUpload({
     return (
       <Modal
         title="영수증으로 등록"
+        isSheet
         onClose={onClose}
         footer={
           <>
@@ -104,6 +105,7 @@ export default function ExpenseReceiptUpload({
     return (
       <Modal
         title="영수증으로 등록"
+        isSheet
         isPending
         onClose={onClose}
         footer={
@@ -133,6 +135,7 @@ export default function ExpenseReceiptUpload({
   return (
     <Modal
       title="영수증으로 등록"
+      isSheet
       onClose={onClose}
       footer={
         <>
