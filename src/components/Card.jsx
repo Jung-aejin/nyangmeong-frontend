@@ -28,13 +28,16 @@ export default function Card({
         {createElement(
           headingTag,
           {
-            id: titleId,
             className:
               'flex min-w-0 flex-1 items-baseline gap-2 text-lg/[1.6] font-bold tracking-[-0.01em] text-[#1a3234]',
           },
-          <span className="truncate">{title}</span>,
+          <span id={titleId} className="truncate">
+            {title}
+          </span>,
           sub && (
-            <small className="text-base/[1.6] font-medium text-[#667374]">{sub}</small>
+            <small className="text-base/[1.6] font-medium text-[#667374]">
+              {sub}
+            </small>
           ),
         )}
         {action}
