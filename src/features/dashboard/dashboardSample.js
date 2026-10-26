@@ -1,5 +1,3 @@
-// 건강기록 API가 나오기 전까지 쓰는 샘플이다. 연결할 때는 페이지에서 features의 훅으로 바꾼다
-// 반려동물마다 값이 달라야 전환이 보이므로 두 벌을 번갈아 쓴다
 export const WEEK_LABELS = ['09.13', '09.20', '09.27', '10.04', '10.11'];
 export const LAB_LABELS = [
   '2025.01',
@@ -66,3 +64,5 @@ const SAMPLES = [
 ];
 
 export const getDashboardSample = (index) => SAMPLES[index % SAMPLES.length];
+
+export const ASOF_TEXT = '기준일 2026.10.11(일) · 최근 업데이트 14:32:07';

@@ -7,6 +7,7 @@ import { useSentInvitations } from '../queries';
  * [보낸 초대]
  * - 계정 전체 기준, 슬라이드와 무관한 조회 전용 목록
  * - 재발송 없음: 같은 이메일로 새로 초대
+ * - 한 초대에 동물이 여러 마리면 동물마다 한 줄로 나누고 상태도 동물별로 표시(일부만 수락하면 수락/거절)
  */
 
 const STATUS_BADGES = {
@@ -31,7 +32,7 @@ const STATUS_BADGES = {
 function Badge({ tone, children }) {
   return (
     <span
-      className={`inline-flex h-6 items-center rounded-full px-2.5 pt-[1.5px] text-badge leading-none font-semibold whitespace-nowrap ${tone}`}
+      className={`inline-flex h-6 shrink-0 items-center rounded-full px-2.5 pt-[1.5px] text-badge leading-none font-semibold whitespace-nowrap ${tone}`}
     >
       {children}
     </span>
@@ -41,16 +42,18 @@ function Badge({ tone, children }) {
 /** 'YYYY-MM-DD' → 'MM-DD' */
 const formatMonthDay = (ymd) => ymd.slice(5);
 
-const formatPetNames = (pets) => pets.map((pet) => pet.petNm).join(', ');
-
 export default function SentInvitations() {
   const { data: invitations = [], isPending } = useSentInvitations();
+  /** 초대 1건을 동물마다 한 줄로 펼친다 */
+  const rows = invitations.flatMap((invitation) =>
+    invitation.pets.map((pet) => ({ invitation, pet })),
+  );
 
   if (isPending) {
     return (
       <div aria-busy="true" className="mt-12 flex flex-col gap-5">
         <Skeleton className="h-7 w-32" />
-        <SkeletonCard className="h-[395px] max-[760px]:h-[635px]" />
+        <SkeletonCard className="h-[427px]" />
       </div>
     );
   }
@@ -66,43 +69,41 @@ export default function SentInvitations() {
           — 계정 전체
         </small>
       </h2>
-      {invitations.length === 0 ? (
+      {rows.length === 0 ? (
         <p className="rounded-card border border-line bg-white px-[22px] py-6 text-center text-muted shadow-depth-sm">
           아직 보낸 초대가 없어요
         </p>
       ) : (
         <ul className="min-w-0 rounded-card border border-line bg-white shadow-depth-sm">
-          {invitations.map((invitation) => {
-            const status = STATUS_BADGES[invitation.invtSttsCd];
+          {rows.map(({ invitation, pet }) => {
+            const status = STATUS_BADGES[pet.invtSttsCd];
             const meta = [
-              `${invitation.invtDt} 발송`,
+              `${formatMonthDay(invitation.invtDt)} 발송`,
               invitation.mbrYn === 'Y'
                 ? '가입 회원(인앱 알림)'
                 : '미가입 이메일',
             ];
-            if (invitation.invtSttsCd === INVT_STTS.WAIT) {
-              meta.push(`${formatMonthDay(invitation.expryDt)} 만료`);
-            }
             return (
               <li
-                key={invitation.invtSn}
-                className="flex flex-wrap items-center gap-4 border-b border-line-soft px-[22px] py-6 last:border-b-0"
+                key={`${invitation.invtSn}-${pet.petSn}`}
+                className="border-b border-line-soft px-[22px] py-6 last:border-b-0"
               >
-                <div className="min-w-0 flex-1">
-                  <p className="flex flex-wrap items-center gap-2 font-semibold break-all">
+                <p className="flex items-start gap-4 font-semibold">
+                  <span className="min-w-0 flex-1 [overflow-wrap:anywhere]">
                     {invitation.invtEml}
-                    <span className="font-normal text-subtle">
-                      — {formatPetNames(invitation.pets)}
-                    </span>
-                  </p>
-                  <p className="mt-1 text-sm text-subtle">{meta.join(' · ')}</p>
-                </div>
-                <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
-                  <Badge tone="bg-tone-blue-bg text-tone-blue-fg">
-                    초대 발송
-                  </Badge>
+                  </span>
                   <Badge tone={status.tone}>{status.label}</Badge>
-                </div>
+                </p>
+                <p className="mt-1 text-sm leading-[1.6] text-subtle">
+                  <b className="font-semibold text-ink">{pet.petNm}</b> ·{' '}
+                  {meta.join(' · ')}
+                  {pet.invtSttsCd === INVT_STTS.WAIT && (
+                    <>
+                      <br />
+                      {formatMonthDay(invitation.expryDt)}에 만료돼요
+                    </>
+                  )}
+                </p>
               </li>
             );
           })}

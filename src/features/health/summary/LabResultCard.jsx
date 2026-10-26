@@ -16,12 +16,28 @@ const TH =
  * [검사 결과] (FN-HLT-011-06)
  * - 최근 1회차 검사의 항목·결과·참고범위. 상태 판정 없음
  * - 행을 누르면(또는 Enter·Space) 옆 검사 수치 추이의 조회 항목 전환
+ * - 모바일(640px 미만)은 최근 검사일을 제목 아래 줄로, 표는 2열(검사항목 | 결과 · 참고범위) (추가 요청)
  */
 export default function LabResultCard({ lab, selectedNm, onSelect }) {
   return (
     <Card
-      title={<CardTitle icon="science">검사 결과</CardTitle>}
-      sub={lab && `최근 검사일 ${formatDate(lab.ckupYmd)}`}
+      title={
+        <>
+          <CardTitle icon="science">검사 결과</CardTitle>
+          {lab && (
+            <span className="block text-sm/[1.6] font-medium text-subtle sm:hidden">
+              최근 검사일 {formatDate(lab.ckupYmd)}
+            </span>
+          )}
+        </>
+      }
+      sub={
+        lab && (
+          <span className="max-sm:hidden">
+            최근 검사일 {formatDate(lab.ckupYmd)}
+          </span>
+        )
+      }
       action={
         lab && (
           <MoreLink
@@ -47,10 +63,11 @@ export default function LabResultCard({ lab, selectedNm, onSelect }) {
               <th scope="col" className={TH}>
                 검사항목
               </th>
-              <th scope="col" className={TH}>
-                결과
+              <th scope="col" className={`${TH} max-sm:text-right`}>
+                <span className="max-sm:hidden">결과</span>
+                <span className="sm:hidden">결과 · 참고범위</span>
               </th>
-              <th scope="col" className={TH}>
+              <th scope="col" className={`${TH} max-sm:hidden`}>
                 참고범위
               </th>
             </tr>
@@ -74,16 +91,21 @@ export default function LabResultCard({ lab, selectedNm, onSelect }) {
                     select();
                   }}
                 >
-                  <td className="px-4">
+                  <td className="px-4 whitespace-nowrap max-sm:py-2">
                     <span className="mr-2 inline-flex h-6 items-center rounded-full border border-line bg-surface-2 px-2 text-[13px] text-ink-2">
                       {getFunctionTagName(item.fnctTagCd)}
                     </span>
                     {item.inspItmNm}
                   </td>
-                  <td className="px-4">
-                    {item.rsltVal} {item.unitNm}
+                  <td className="px-4 whitespace-nowrap max-sm:py-2 max-sm:text-right">
+                    <span className="max-sm:block">
+                      {item.rsltVal} {item.unitNm}
+                    </span>
+                    <span className="block text-sm/[1.6] text-subtle sm:hidden">
+                      {formatRange(item.refMinVal, item.refMaxVal)}
+                    </span>
                   </td>
-                  <td className="px-4">
+                  <td className="px-4 max-sm:hidden">
                     {formatRange(item.refMinVal, item.refMaxVal)}
                   </td>
                 </tr>

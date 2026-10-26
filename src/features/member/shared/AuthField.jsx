@@ -4,10 +4,10 @@ import AiErrorGuide from '@/components/AiErrorGuide';
 import useCapsLock from '@/hooks/useCapsLock';
 
 const WRAP =
-  'flex h-[46px] items-center gap-2 rounded-md border bg-white px-3 focus-within:ring-focus';
+  'flex h-12 items-center gap-2.5 rounded-xl border bg-white px-3.5 text-sm focus-within:ring-focus';
 
 // 인증 화면의 입력칸. 오류는 칸 아래 문구로, hasGuide면 AI 안내로도 알린다. 오류가 없으면 help·success를 보인다.
-// 비밀번호는 보기 전환과 Caps Lock 안내가 붙고, endAdornment는 입력칸 오른쪽 안에 놓인다
+// icon(lucide 아이콘)은 입력칸 왼쪽 안에 놓인다. 비밀번호는 보기 전환과 Caps Lock 안내가 붙고, endAdornment는 입력칸 오른쪽 안에, action(버튼)은 입력칸 오른쪽 밖에 놓인다
 export default function AuthField({
   id,
   label,
@@ -23,61 +23,70 @@ export default function AuthField({
   help,
   success,
   endAdornment,
+  action,
+  readOnly,
   hasGuide,
+  icon,
 }) {
   const [isVisible, setIsVisible] = useState(false);
   const { isCapsOn, capsProps } = useCapsLock();
   const isPassword = type === 'password';
+  const Icon = icon;
 
   return (
     <div className="relative">
       <label
         htmlFor={id}
-        className="mb-2 block leading-6 font-semibold text-ink"
+        className="mb-1.5 block text-[13px] leading-6 font-semibold text-ink"
       >
         {label}
         <span aria-hidden="true" className="ml-0.5 text-danger">
           *
         </span>
       </label>
-      <div
-        className={`${WRAP} ${
-          error
-            ? 'border-danger focus-within:ring-error'
-            : 'border-input-line focus-within:border-brand-500'
-        }`}
-      >
-        <input
-          id={id}
-          type={isPassword && isVisible ? 'text' : type}
-          value={value}
-          onChange={(event) => onChange(event.target.value)}
-          onBlur={onBlur}
-          placeholder={placeholder}
-          autoComplete={autoComplete}
-          inputMode={inputMode}
-          maxLength={maxLength}
-          aria-required="true"
-          aria-invalid={Boolean(error)}
-          aria-describedby={error ? `${id}-error` : undefined}
-          className="h-full min-w-0 flex-1 bg-transparent placeholder:text-placeholder focus:outline-none"
-          {...(isPassword ? capsProps : {})}
-        />
-        {endAdornment}
-        {isPassword && (
-          <button
-            type="button"
-            onClick={() => setIsVisible((prev) => !prev)}
-            aria-label={isVisible ? '비밀번호 숨기기' : '비밀번호 표시'}
-            className="grid place-items-center text-subtle hover:text-ink"
-          >
-            {isVisible ? (
-              <EyeOff className="size-5" />
-            ) : (
-              <Eye className="size-5" />
-            )}
-          </button>
-        )}
+      <div className="flex gap-2">
+        <div
+          className={`${WRAP} min-w-0 flex-1 ${
+            error
+              ? 'border-danger focus-within:ring-error'
+              : 'border-input-line focus-within:border-brand-500'
+          } ${readOnly ? 'bg-surface-2' : ''}`}
+        >
+          {Icon && <Icon className="size-5 shrink-0 text-subtle" />}
+          <input
+            id={id}
+            type={isPassword && isVisible ? 'text' : type}
+            value={value}
+            onChange={(event) => onChange(event.target.value)}
+            onBlur={onBlur}
+            placeholder={placeholder}
+            autoComplete={autoComplete}
+            inputMode={inputMode}
+            maxLength={maxLength}
+            readOnly={readOnly}
+            aria-required="true"
+            aria-invalid={Boolean(error)}
+            aria-describedby={error ? `${id}-error` : undefined}
+            className="h-full min-w-0 flex-1 bg-transparent placeholder:text-placeholder focus:outline-none"
+            {...(isPassword ? capsProps : {})}
+          />
+          {endAdornment}
+          {isPassword && (
+            <button
+              type="button"
+              onClick={() => setIsVisible((prev) => !prev)}
+              aria-label={isVisible ? '비밀번호 숨기기' : '비밀번호 표시'}
+              className="grid place-items-center text-subtle hover:text-ink"
+            >
+              {isVisible ? (
+                <EyeOff className="size-5" />
+              ) : (
+                <Eye className="size-5" />
+              )}
+            </button>
+          )}
+        </div>
+        {action}
       </div>
       {isPassword && isCapsOn && (
         <p className="mt-2 flex items-center gap-1 text-sm text-warn">

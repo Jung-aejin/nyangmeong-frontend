@@ -5,49 +5,51 @@ export const EXPND_CLSF_LIST = [
   {
     code: 'MYPC0012',
     name: '병원',
-    badge: 'bg-tone-blue-bg text-tone-blue-fg',
-    color: 'var(--color-tone-blue-fg)',
+    badge: 'bg-cat-hosp-bg text-cat-hosp-fg',
+    color: 'var(--color-cat-hosp)',
   },
   {
     code: 'MYPC0013',
     name: '사료',
-    badge: 'bg-tone-green-bg text-tone-green-fg',
-    color: 'var(--color-tone-green-fg)',
+    badge: 'bg-cat-food-bg text-cat-food-fg',
+    color: 'var(--color-cat-food)',
   },
   {
     code: 'MYPC0014',
     name: '간식',
-    badge: 'bg-tone-rose-bg text-tone-rose-fg',
-    color: 'var(--color-tone-rose-fg)',
+    badge: 'bg-cat-snack-bg text-cat-snack-fg',
+    color: 'var(--color-cat-snack)',
   },
   {
     code: 'MYPC0015',
     name: '용품',
-    badge: 'bg-tone-violet-bg text-tone-violet-fg',
-    color: 'var(--color-tone-violet-fg)',
+    badge: 'bg-cat-goods-bg text-cat-goods-fg',
+    color: 'var(--color-cat-goods)',
   },
   {
     code: 'MYPC0016',
     name: '미용',
-    badge: 'bg-tone-amber-bg text-tone-amber-fg',
-    color: 'var(--color-tone-amber-fg)',
+    badge: 'bg-cat-beauty-bg text-cat-beauty-fg',
+    color: 'var(--color-cat-beauty)',
   },
   {
     code: 'MYPC0017',
     name: '돌봄',
-    badge: 'bg-brand-50 text-brand-600',
-    color: 'var(--color-brand-500)',
+    badge: 'bg-cat-care-bg text-cat-care-fg',
+    color: 'var(--color-cat-care)',
   },
   {
     code: 'MYPC0018',
     name: '기타',
-    badge: 'bg-tone-gray-bg text-tone-gray-fg',
-    color: 'var(--color-line-strong)',
+    badge: 'bg-cat-etc-bg text-cat-etc-fg',
+    color: 'var(--color-cat-etc)',
   },
 ];
 
 /** 병원 카테고리 공용 등록 불가 */
 export const HOSPITAL_CLSF_CD = EXPND_CLSF_LIST[0].code;
+
+export const ETC_CLSF_CD = EXPND_CLSF_LIST[6].code;
 
 export const EXPND_CLSF = Object.fromEntries(
   EXPND_CLSF_LIST.map((clsf) => [clsf.code, clsf]),
@@ -75,3 +77,6 @@ export const RANGE_MODE = {
 };
 
 export const PAGE_SIZE = 20;
+
+/** 앱 무한 스크롤 불러오기 상태 */
+export const LOAD = { IDLE: 'idle', LOADING: 'loading', ERROR: 'error' };

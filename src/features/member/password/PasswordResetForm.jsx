@@ -1,4 +1,4 @@
-import { Check } from 'lucide-react';
+import { Check, Lock } from 'lucide-react';
 import AuthCard from '../shared/AuthCard';
 import AuthField from '../shared/AuthField';
 import AuthHeading from '../shared/AuthHeading';
@@ -7,7 +7,6 @@ import { OUTLINE_BTN, PRIMARY_BTN, TEXT_LINK } from '../shared/authStyles';
 import { PASSWORD_MESSAGES as MSG } from './passwordMessages';
 import usePasswordReset from './usePasswordReset';
 
-// 본인확인이 끝난 계정의 새 비밀번호 입력. 본인확인이 없거나 이미 썼으면 만료 안내를, 저장하면 완료 안내를 보인다
 export default function PasswordResetForm({
   isVerified,
   onGoLogin,
@@ -43,7 +42,6 @@ export default function PasswordResetForm({
         <AuthHeading
           title="비밀번호 재설정"
           subtitle="다시 본인확인 후 비밀번호를 변경할 수 있어요."
-          isMascotHidden
         />
         <AuthNotice type="error" message={MSG.needVerify} hasGuide />
         <div className="flex flex-col gap-3">
@@ -68,8 +66,6 @@ export default function PasswordResetForm({
             <br />새 비밀번호를 입력해 주세요.
           </>
         }
-        isMascotHidden={target !== null}
-        isCompact
       />
       {form.notice && (
         <AuthNotice
@@ -81,6 +77,7 @@ export default function PasswordResetForm({
       <form noValidate onSubmit={form.submit} className="flex flex-col gap-5">
         <AuthField
           id="reset-password"
+          icon={Lock}
           label="새 비밀번호"
           type="password"
           value={form.password}
@@ -93,6 +90,7 @@ export default function PasswordResetForm({
         />
         <AuthField
           id="reset-confirm"
+          icon={Lock}
           label="새 비밀번호 확인"
           type="password"
           value={form.confirm}

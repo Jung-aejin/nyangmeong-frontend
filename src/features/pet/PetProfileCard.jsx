@@ -1,5 +1,4 @@
-import { Cat, Dog } from 'lucide-react';
-import { PET_SE } from '@/utils/petCodes';
+import PetFace from './shared/PetFace';
 import {
   formatAge,
   formatWeight,
@@ -8,10 +7,10 @@ import {
   splitList,
 } from '@/utils/petFormat';
 
-const TAG = 'rounded-full border border-line px-2 py-0.5 text-xs font-semibold';
+const TAG =
+  'inline-flex h-6 items-center rounded-full border border-white/26 px-2 text-[13px] font-semibold';
 
 export default function PetProfileCard({ pet }) {
-  const Icon = pet.petSeCd === PET_SE.CAT ? Cat : Dog;
   const meta = [getVrtyName(pet), formatAge(pet.petBrdt), getGndrName(pet)]
     .filter(Boolean)
     .join(' · ');
@@ -20,23 +19,26 @@ export default function PetProfileCard({ pet }) {
 
   return (
     <div className="flex items-start gap-4 p-5">
-      {pet.chrcFaceUrl ? (
-        <img
-          src={pet.chrcFaceUrl}
-          alt={`${pet.petNm} 캐릭터`}
-          className="size-20 shrink-0 rounded-card object-cover"
-        />
-      ) : (
-        <div className="grid size-20 shrink-0 place-items-center rounded-card bg-surface-2 text-line-strong">
-          <Icon className="size-10" />
-        </div>
-      )}
+      <PetFace
+        pet={pet}
+        alt={`${pet.petNm} 캐릭터`}
+        className="size-[76px] shrink-0 rounded-modal bg-white"
+        fallback={
+          <div className="grid size-[76px] shrink-0 place-items-center rounded-modal border border-dashed border-white/26 text-center text-sm leading-tight text-[#dbe8e8]">
+            캐릭터
+            <br />
+            이미지
+          </div>
+        }
+      />
       <div className="min-w-0">
-        <p className="text-xl leading-none font-bold">{pet.petNm}</p>
-        <p className="mt-1 text-muted">{meta}</p>
-        <div className="mt-2 flex flex-wrap gap-1 text-ink-2">
+        <p className="text-lg leading-none font-bold">{pet.petNm}</p>
+        <p className="mt-1 text-[#dbe8e8]">{meta}</p>
+        <div className="mt-2 flex flex-wrap gap-1">
           {pet.petBdwg != null && (
-            <span className={TAG}>{formatWeight(pet.petBdwg)}</span>
+            <span className={`${TAG} tabular-nums`}>
+              {formatWeight(pet.petBdwg)}
+            </span>
           )}
           {allergyCount > 0 && (
             <span className={TAG}>알레르기 {allergyCount}</span>

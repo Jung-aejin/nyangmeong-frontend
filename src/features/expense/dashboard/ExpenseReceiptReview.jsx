@@ -4,6 +4,7 @@ import AmountInput from '@/components/AmountInput';
 import { BTN_PRIMARY, BTN_SECONDARY } from '@/components/buttonStyles';
 import Modal from '@/components/Modal';
 import Select from '@/components/Select';
+import { EXPND_PLACE_KEY } from '../api';
 import ExpenseCategoryChips from '../shared/ExpenseCategoryChips';
 import { FILTER_SHARED, HOSPITAL_CLSF_CD } from '../shared/expenseCodes';
 import {
@@ -14,7 +15,7 @@ import {
   getPetOptions,
   toPetSn,
 } from '../shared/expenseInput';
-import { formatWon } from '../shared/expenseFormat';
+import { PLACE_MAX_LENGTH, formatWon } from '../shared/expenseFormat';
 
 const FORM_ID = 'expense-receipt-form';
 const LABEL = 'font-semibold';
@@ -42,6 +43,9 @@ export default function ExpenseReceiptReview({
   const activePets = getActivePets(pets);
   const [ymd, setYmd] = useState(result.expndYmd ?? fallbackYmd);
   const [expndClsfCd, setExpndClsfCd] = useState(result.expndClsfCd);
+  const [place, setPlace] = useState(() =>
+    (result[EXPND_PLACE_KEY] ?? '').slice(0, PLACE_MAX_LENGTH),
+  );
   const [dtlMttr, setDtlMttr] = useState(result.dtlMttr ?? '');
   const [rows, setRows] = useState(() => [
     newRow(
@@ -99,6 +103,7 @@ export default function ExpenseReceiptReview({
         expndClsfCd,
         expndAmt: Number(row.digits),
         dtlMttr: dtlMttr.trim(),
+        [EXPND_PLACE_KEY]: place.trim(),
         expndYmd: ymd,
       })),
     );
@@ -108,6 +113,7 @@ export default function ExpenseReceiptReview({
     <>
       <Modal
         title="인식 결과 확인"
+        isSheet
         isPending={isPending}
         onClose={onClose}
         footer={
@@ -184,6 +190,18 @@ export default function ExpenseReceiptReview({
               </div>
             </div>
             <div>
+              <label htmlFor="receipt-place" className={LABEL}>
+                사용처 <span className="font-normal text-subtle">선택</span>
+              </label>
+              <input
+                id="receipt-place"
+                value={place}
+                maxLength={PLACE_MAX_LENGTH}
+                onChange={(event) => setPlace(event.target.value)}
+                className={`${INPUT} mt-2`}
+              />
+            </div>
+            <div>
               <label htmlFor="receipt-memo" className={LABEL}>
                 내용 <span className="font-normal text-subtle">선택</span>
               </label>
@@ -191,6 +209,7 @@ export default function ExpenseReceiptReview({
                 id="receipt-memo"
                 value={dtlMttr}
                 onChange={(event) => setDtlMttr(event.target.value)}
+                placeholder="예: 종합 검진"
                 className={`${INPUT} mt-2`}
               />
             </div>

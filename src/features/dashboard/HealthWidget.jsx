@@ -1,6 +1,7 @@
 import { ArrowDown, ArrowUp } from 'lucide-react';
+import Reveal from '@/components/Reveal';
+import { GLASS_CARD } from './dashStyles';
 
-// 증감 한 칸. 변화가 없으면(0) 화살표와 수치를 그리지 않는다
 function Delta({ label, delta, unit }) {
   const Arrow = delta > 0 ? ArrowUp : ArrowDown;
   const amount = Math.abs(Math.round(delta * 10) / 10);
@@ -24,7 +25,6 @@ function Delta({ label, delta, unit }) {
   );
 }
 
-// 머리(제목 | 기간) → 요약(큰 숫자 | 증감) → 그래프
 export default function HealthWidget({
   title,
   period,
@@ -33,17 +33,22 @@ export default function HealthWidget({
   delta,
   deltaLabel,
   deltaUnit,
+  motion,
   children,
 }) {
   return (
-    <section className="flex flex-col rounded-card border border-line bg-white px-8 py-5 shadow-depth-sm max-[700px]:p-4">
+    <Reveal
+      as="section"
+      {...motion}
+      className={`${GLASS_CARD} flex flex-col px-8 py-5 hover:-translate-y-1 hover:border-brand-100 max-[700px]:p-4`}
+    >
       <div className="flex min-h-8 items-center justify-between gap-2">
         <h3 className="font-semibold">{title}</h3>
         <span className="shrink-0 text-sm text-subtle">{period}</span>
       </div>
       <div className="mt-4 flex flex-wrap items-end justify-between gap-x-3 gap-y-1">
         <p className="flex items-baseline gap-1">
-          <b className="text-[32px] leading-none font-bold tracking-[-0.02em]">
+          <b className="text-[34px] leading-none font-bold tracking-[-0.02em]">
             {value}
           </b>
           <span className="text-muted">{unit}</span>
@@ -51,6 +56,6 @@ export default function HealthWidget({
         <Delta label={deltaLabel} delta={delta} unit={deltaUnit} />
       </div>
       <div className="mt-auto pt-3">{children}</div>
-    </section>
+    </Reveal>
   );
 }

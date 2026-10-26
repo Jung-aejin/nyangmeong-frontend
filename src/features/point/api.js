@@ -5,7 +5,7 @@ import { PNT_HST_TY } from './shared/pointCodes';
 /**
  * [포인트·케어미션 가짜 API]
  * - SJM 백엔드 API 나오기 전까지 사용 -> 나오면 본문만 api 요청으로 교체
- * - 미확정 키: pntBal·earnTotAmt·earnCnt·useTotAmt·useCnt·items·pntHstSn·pntHstTyCd·pntHstNm·pntAmt
+ * - 미확정 키: pntBal·earnTotAmt·earnCnt·useTotAmt·useCnt·items·pntHstSn·pntHstTyCd·pntHstNm·pntAmt·pntHstYmd
  *   pets·msnSn·msnNm·msnPnt·cmplYn
  */
 const BALANCE = 8450;
@@ -28,6 +28,9 @@ const HISTORY_TEMPLATE = [
   [MISSION, '케어미션 달성', 45],
 ];
 
+/** HISTORY_TEMPLATE와 같은 순서의 일(최신순) */
+const HISTORY_DAYS = [13, 12, 12, 11, 10, 9, 9, 8, 6, 5, 3, 2];
+
 /** 이 달수 이전의 내역은 비어 있는 것으로 둔다 */
 const EMPTY_AFTER_MONTHS = 6;
 
@@ -49,6 +52,7 @@ export const getPointHistory = async (ym) => {
       pntHstTyCd,
       pntHstNm,
       pntAmt,
+      pntHstYmd: `${ym}-${String(HISTORY_DAYS[index]).padStart(2, '0')}`,
     }),
   );
   const earns = items.filter((item) => item.pntAmt > 0);

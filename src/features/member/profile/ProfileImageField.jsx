@@ -21,7 +21,7 @@ export default function ProfileImageField({ prflImgUrl, mbrNcnm, children }) {
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-5 px-5 py-5 sm:px-8 sm:py-7">
+    <div className="flex flex-wrap items-center gap-5 px-5 py-5 sm:px-8 sm:py-7 max-[760px]:gap-4">
       <div className="relative shrink-0">
         <span className="grid size-[76px] place-items-center overflow-hidden rounded-full bg-surface-3 text-subtle">
           {prflImgUrl ? (

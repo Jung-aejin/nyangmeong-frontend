@@ -17,7 +17,11 @@ export default function PointGuide({ onGoCharacter }) {
           <Lightbulb className="size-5 text-brand-500" aria-hidden="true" />
           포인트는 이렇게 모여요
         </h2>
-        <button type="button" onClick={onGoCharacter} className={BTN_SECONDARY}>
+        <button
+          type="button"
+          onClick={onGoCharacter}
+          className={`${BTN_SECONDARY} max-[760px]:hidden`}
+        >
           픽셀 캐릭터로 이동
         </button>
       </div>
