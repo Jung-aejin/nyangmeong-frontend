@@ -2,34 +2,21 @@
 
 ## 지금 하는 것
 
-SCR-COM-002 플로팅 AI 버튼 모바일 접힘 탭 · 첫 방문 말풍선 — 끝 (검증 `통과`, 사람 확인 2026-10-23). 기획·결정·추가 요청은 `milestones/LJS.md` 그 절과 아래 표
+SCR-COM-002 앱(≤760) 페이지 틀 여백 · AI 매니저 말풍선·접힌 탭 화살표 — 끝 (PR #87 develop 병합, 2026-10-25). `/start` 없이 대화로 진행해 마일스톤 절은 없다
 
-- 근거: 공통레이아웃_기능명세서_v0.4 FN-COM-002-19(플로팅 AI 버튼, 클릭 → AI 대화창 새 창), 002-21(우측 하단 고정). 접힘·말풍선은 명세에 없는 사람 요청(2026-10-23, 참고: iOS PiP를 옆으로 밀어 숨긴 탭)
-- 디자인: 없음, 사람이 대화에서 정한 동작 기준. 아이콘은 지금의 `Bot` 그대로
-- 채팅창 여는 동작(`useAiWindow`, 팝업 차단 안내)은 그대로 두고 아이콘 동작만 바꾼다
-
-| 기능 | 바꿀 파일 | API | 완료 조건 |
-| --- | --- | --- | --- |
-| D-01 모바일 접힘 탭 | `layouts/FloatingButtons.jsx`, `hooks/useAiDock.js`(신규) | 없음 | `화면:` 390px 첫 접속 시 AI 버튼이 우측 가장자리에 붙은 세로 탭(`‹`, 왼쪽 모서리만 둥금)으로 접혀 있다. 탭을 누르면 `Bot` 아이콘으로 펼쳐지기만 하고 AI 창은 열리지 않는다 |
-| D-02 펼친 아이콘 → AI 창 | `layouts/FloatingButtons.jsx` | 없음 | `화면:` 390px 펼친 상태에서 아이콘을 누르면 지금처럼 AI 창이 열린다(팝업 차단 안내도 그대로). 1440px은 지금과 같다(접힘 없음) |
-| D-03 드래그로 접기 | `hooks/useAiDock.js`, `layouts/FloatingButtons.jsx` | 없음 | `화면:` 390px 펼친 아이콘을 우측으로 끌어 놓으면 접힌다. 덜 끌면 제자리로 돌아온다. 끈 직후에는 AI 창이 열리지 않는다. 우측에만 붙고 세로 위치는 바뀌지 않는다(바텀 네비 위 규칙 유지) |
-| D-04 접힘 상태 기억 | `hooks/useAiDock.js` | 없음 | `화면:` 390px 펼친 뒤 새로고침하면 펼친 채, 접은 뒤 새로고침하면 접힌 채다. 저장값이 없으면 접힘. `localStorage`는 try/catch로 감싸 막혀도 화면이 깨지지 않는다 |
-| D-05 첫 방문 말풍선 | `layouts/FloatingButtons.jsx`(커지면 `layouts/AiBubble.jsx`로 뺀다) | 없음 | `화면:` 첫 방문에만 "AI 매니저예요" 말풍선이 뜬다. 모바일은 접힌 탭 위, PC는 아이콘 위. 몇 초 뒤 사라지고 X로도 닫힌다. 한 번 뜬 뒤 새로고침하면 다시 뜨지 않는다. 드래그 중에는 숨는다 |
-| 공통 | — | — | `명령:` `yarn -s lint`, `yarn -s build` |
-
-### 추가 요청
-
-| 추가 | 바꿀 파일 | 완료 조건 | 근거 |
-| --- | --- | --- | --- |
-| 추가-1 | `hooks/useAiDock.js`, `layouts/FloatingButtons.jsx` | `화면:` 첫 방문 말풍선이 6초 뒤 사라지지 않고 계속 떠 있다. 접힌 탭을 눌러 펼치면 사라진다(PC는 X 또는 아이콘을 누르면 사라진다). 한 번 뜬 뒤 새로고침하면 다시 뜨지 않는다 | 요청 2026-10-23 "말풍선 6초 뒤 사라지게 하지 말고 계속 유지, 한 번 펼쳐졌을 때 사라지는 걸로" |
-| 추가-2 | `layouts/FloatingButtons.jsx` | `화면:` 390px 접힌 탭 폭이 28px보다 좁고(22px), 탭과 펼친 `Bot` 아이콘이 프라이머리색(`brand-500`) 채움에 흰 아이콘이다 | 요청 2026-10-23 "너비를 좀 줄이고 스타일을 프라이머리 컬러에 맞게 변경" |
-| 추가-3 | `layouts/FloatingButtons.jsx` | `화면:` 말풍선에 X 버튼이 없다. `brand-500` 채움에 흰 글자(굵기 600), 꼬리도 `brand-500`, `rounded-lg`, 테두리·그림자 없음. 모바일은 접힌 탭을 펼칠 때, PC는 아이콘을 누를 때 사라진다 | 요청 2026-10-23 "말풍선 X 버튼 삭제하고 프라이머리 채움(A안)" |
-| 추가-4 | `layouts/FloatingButtons.jsx`, `assets/index.css`(키프레임) | `화면:` 말풍선이 위아래로 천천히 오르내린다(약 4px). 모션 줄이기 설정에서는 멈춘다. 말풍선 위치·사라지는 조건은 그대로 | 요청 2026-10-23 "약간 위아래로 움직이는 애니메이션까지만 추가하고 마무리" |
-
-- 이번엔 안 함: 캐릭터 이미지 아이콘(이미지가 나오면 교체), 지도 페이지 위치 조정(002-21, PLC 설계서), 좌측 스냅·세로 드래그
-- 새 의존성: 없음
+- 바꾼 것: `layouts/SubPageLayout.jsx` 760px 이하 `pt-0`·`pb-0`(헤더~경로 32 → 24px, 콘텐츠 끝~탭바 겹친 여백 126px 제거, PC 그대로), `layouts/FloatingButtons.jsx` 말풍선 16px·600·높이 40px(`leading-[38px]`), 접힌 탭 아이콘 `ChevronLeft` → `assets/arrow.svg`(7×13, brand-500)
+- 검증: `yarn -s lint`·`yarn -s build` 0. 390px 섹션 화면 27개 헤더~경로 24px, 1440px 32px. 말풍선·탭은 첫 방문 상태에서 확인
+- AI 플로팅 버튼 현재 모양(2026-10-23 마일스톤 추가-2·3 기록은 그 뒤 `e1f2376`로 바뀌어 맞지 않는다): 접힌 탭 `h-16 w-8` 노란 반원(`bg-fab`·`border-fab-line`), 펼친 버튼 `bg-fab` + `Bot`(brand-500), 말풍선 `from-fab-soft to-white` 그라디언트·`border-fab-line`·brand-500 글자, 좌우 4px `animate-sway`. 지난 마일스톤(D-01~05·추가-1~4)의 기획·완료 조건은 `milestones/LJS.md`와 git 이력에 있다
 
 ## 다음에 할 것
+
+- 디스코드로 알릴 것(PR #87 병합됨): "`SubPageLayout`을 쓰는 섹션 화면(건강기록·커뮤니티·고객센터·마이페이지)의 앱(≤760) 위 8px·아래 126px 여백을 뺐어요. 헤더~경로 24px, 콘텐츠 끝~탭바는 main 여백만 남아요. 화면 안에서 아래 여백을 따로 기대던 곳이 있으면 확인해 주세요"
+- SJM에 전달: 마이페이지 화면설계서 v0.6 ⑦ "상단 여백 약 40 → 20px"와 달리 구현은 섹션 화면 공통 24px로 정했다(마이페이지만 다르게 두지 않음). 설계서 문구를 고쳐 달라고 한다. 같은 ⑦의 "하단 여백 축소"는 PR #87로 반영
+- 결정 대기(사람): 페이지 머리 구조. v5 시안(`nyangmung-com.css` COM-5 "별도 브레드크럼은 쓰지 않아요 (10-12)")과 마이페이지 시안은 첫 줄이 섹션 이름("마이페이지")이고, 구현(`SubPageHead`)은 경로 줄(홈 / 섹션 / 메뉴)이다. 시안 구조로 바꿀지(27개 화면 영향) 그대로 둘지 정한다. 공통레이아웃 화면설계서 v0.8은 "브레드크럼 사용"으로 올라가 있다
+- 문서 업로드 완료(DMS, 2026-10-25): 공통레이아웃 기능명세서 v0.6(FN-COM-003-02·05 회원가입 경유 redirect, 004-07 공동양육 이동 대상 분리, 004-08 행 안 버튼 삭제 → 초대 수락 화면 이동)·화면설계서 v0.9, AI매니저 기능명세서 v0.8(FN-AIM-009-10·21 가계부 "내용 = 병원명" → "사용처 = 병원명")·화면설계서 v0.10(SCR-AIM-009 ⑦). 같은 날 앞서 공통레이아웃 기능명세서 v0.5·화면설계서 v0.8(구현 현행화)도 올렸다. 남은 문서 일은 아래 "사람이 고치는 문서"·SCR-COM-006 항목
+- 백엔드 세션에서: EXPND 사용처 컬럼(varchar(80) NULL, 기준 컬럼은 `CKUP_RCD.HSPTL_NM`, 기존 `DTL_MTTR`과 역할 정리), 초대받은 사람(연동 전)의 PetFace(`GET /pets/{petSn}/character-image`는 `PetAuthorizer`라 막힘), 초대 일부 수락 API(지금은 일괄 수락만), 알림 `mvmnPath`의 초대 식별자 이름(`invitationToken` vs `jntBrupInvtnSn`, 미정)
+- YAY에 알릴 것: 로그인 → [회원가입] 이동(`pages/auth/LoginPage.jsx` `navigate(PATHS.SIGNUP)`)과 가입 완료 → 로그인(`SignupPage.jsx` `/login?joined=1`)에서 `?redirect=`가 사라진다. 공통레이아웃 명세 v0.6 FN-COM-003-02·05로 유지가 정해짐(초대 링크로 온 미가입자)
+- 공동양육 알림 이동: 지금 가짜 `mvmnPath` `/mypage/caregivers`는 라우트가 없어 빈 화면이다. 명세 v0.6대로 초대 수신은 `/mypage/invitations/:invitationToken`, 결과·연동 해제는 `/mypage/pets`로 서버가 준다(알림 API 연결 때 가짜 데이터도 맞춘다)
 
 - 서브 화면 경로(SCR-COM-002 B-01) 확인 남음(각 담당 화면, 선택): 761~1100px 폭과 건강기록(JAJ)·마이페이지(SJM)·고객센터(KSJ) 실제 화면에서 경로 줄·섹션 제목 위치를 한 번 본다. 공용 틀(`SubPageHead`·`SubPageLayout`·`SideMenu`)을 고쳤다. 사이드 메뉴 이탈 확인(`onLeave`)이 develop 병합 뒤에도 되는지 글쓰기 화면에서 본다
 - SCR-COM-002 PR 전: 아래 디스코드 알림을 보내고, `docs/convention/ui.md` "로딩 표시" 절 변경을 팀과 합의한다. KSJ에 알릴 것: `useNotices`·`useFaqs`·`useInquiries`에 `placeholderData: keepPreviousData`(탭·검색·쪽 이동 때 이전 내용 유지), 390px `/faqs` 카테고리 탭 줄 때문에 가로 스크롤(범위 밖, 다 불러온 뒤)
@@ -104,7 +91,7 @@ SCR-COM-002 플로팅 AI 버튼 모바일 접힘 탭 · 첫 방문 말풍선 —
   - 팀에 알릴 것: SJM에게 `receiptFile.js`를 `src/utils/`로 옮겼다고 PR에 적는다(사전 공지 메시지는 보냄). `common.md` "비동기" 절 추가는 팀 합의 문서라 PR에서 알린다
 - 선택: `src/utils/formatDate.js`로 바꿀 수 있는 곳 — `ConversationHeader.jsx`의 `formatDate`는 `formatDate(crtDt)`, `features/expense/shared/expenseFormat.js`의 `formatMonthDay`는 `formatDate(expndYmd, { hasYear: false, separator: '-' })`. 이번에 안 건드렸다
 - 범위 밖에서 본 것(말만): `ConversationMessages.jsx`의 `{children && <li>…}`가 항상 참이라 대화 목록 끝에 빈 `<li>`가 생긴다
-- 사람이 고치는 문서(SCR-COM-002 반응형): 기능명세서 v0.4 FN-COM-002-23 "햄버거 메뉴 미사용"을 "≤1100px에서 햄버거 사용"으로, FN-COM-002-20 TOP에 "≤760px 미노출"을, FN-COM-006-07 터치 동작의 "반응형 범위 확정 후"를 범위 확정(≤1100px·≤760px)으로. 화면설계서 v0.7 SCR-COM-002 "햄버거[≡]를 두지 않는다", SCR-COM-006 터치(잠정) 문구도 같이
+- 사람이 고치는 문서(SCR-COM-002 반응형): FN-COM-002-23 햄버거·002-20 TOP은 기능명세서 v0.5·화면설계서 v0.8(2026-10-25)에 반영됨. 남은 것: FN-COM-006-07 터치 동작의 "반응형 범위 확정 후"를 범위 확정(≤1100px·≤760px)으로, 화면설계서 SCR-COM-006 터치(잠정) 문구
 - SCR-COM-002 반응형 남은 것: 실제 대표전화·팩스 번호를 디스코드로 받아 `UserFooter.jsx`의 `TEL_PLACEHOLDER`·`FAX_PLACEHOLDER`에 넣는다. drawer 슬라이드 애니메이션(시안에 있음)·Tab 포커스 가두기는 안 했다. AI 플로팅 버튼의 고양이 이미지(시안 `.fab-ai`, `src/assets/ai-character.png`)는 디자인 담당과 맞춘다
 - SCR-AIM-005 연결 남음: 대화 API(Python AI 서버, 담당 없음)로 `features/ai/api.js`의 `sendMessage` 가짜를 바꾸고 `FALLBACK` 판정 필드와 실패 안내 메시지 구분 필드를 Swagger로 확인(`FallbackBubble`을 고르는 `ConversationMessages.jsx`의 문구 비교를 그 필드로 바꾼다). 005-02 새로고침 뒤 실패 안내 문구가 이력에 남는지는 그때 확인한다. 고객센터 버튼은 `/faqs`(SCR-CSC-002, KSJ)가 만들어진 뒤 화면 이동을 확인한다
 - SCR-AIM-004 연결 남음: 대화 API(Python AI 서버, 담당 없음)로 `features/ai/api.js`의 `sendMessage` 가짜를 바꾸고 `route`·`aiCnvrsMsgSn` 필드 이름을 Swagger로 확인(`fakeRoutingMap.js`는 지운다). 004-03 새로고침 뒤에도 안내 문구가 이력에 남는지는 그때 확인한다. 본창이 닫혀 있을 때 새 탭으로 여는 `/main`은 라우트가 아직 없다(MAN-001, YAY)
@@ -112,14 +99,14 @@ SCR-COM-002 플로팅 AI 버튼 모바일 접힘 탭 · 첫 방문 말풍선 —
 - SCR-AIM-001 연결 남음: 대화 API(Python AI 서버, 담당 없음)로 `features/ai/api.js`의 `sendMessage` 가짜를 바꾸고 `intent` 필드 이름·값(`REGISTER·ROUTE·SEARCH·FALLBACK`은 추정)을 Swagger로 확인. Figma의 고양이 캐릭터 이미지(`ai-character.png`)는 저장소에 파일이 없어 웰컴에 넣지 못했다(파일을 받으면 `WelcomeMessage.jsx`에 추가). 직접 주소창으로 연 `/ai`에서는 칩을 눌러도 브라우저가 `window.close()`를 막아 창이 남는다(설계대로)
 - SCR-AIM-011 연결 남음: 대화 API(Python AI 서버, 담당 없음)로 `features/ai/api.js`의 가짜(`getConversations`·`getConversation`·`deleteConversation`)를 바꾸고 필드 이름(`aiCnvrs…` 추정)을 Swagger로 확인. 011-08 반려동물 목록 API(SJM)로 `AiChatPage.jsx`의 `fakePets`를 `features/pet` 훅으로 바꾼다. 011-03·17④ 세션 만료 시 AI 창 닫기는 로그인 연결 때(SCR-COM-003 003-10과 함께)
 - SCR-COM-008 연결 남음: 알림 설정 API(LJS 백엔드, `GET`·`PUT /members/me/notification-settings`)로 `features/notification/api.js`의 설정 가짜를 바꾼다. 008-12 캐릭터 완료 알림을 설정 가능하게 할지는 명세 확정 대기(명세 작성자)
-- SCR-COM-004 연결 남음: 알림 API(LJS 백엔드)로 `features/notification/api.js` 가짜를 바꾸고 AIMG02 코드값 확정 뒤 `notiTabs.js`의 가짜 코드를 고친다. 004-08 공동양육 [수락]·[거절]은 응답에 초대 식별자(`jntBrupInvtnSn`)가 있어야 한다(LJS 백엔드·SJM, 백엔드 issues 14번). 004-09 펫돌봄은 채팅방 식별자(`otoChatRoomSn`)로 방을 열어야 한다(SCR-COM-009, KSJ). 시간 표시("10분 전")는 `NotificationSummary`에 수신 일시 필드가 없어 LJS 백엔드에서 추가. 가짜 공지 `mvmnPath`가 `/notices/1`이라 `docs/routes.md` 75행(`/notices`)과 다르다(가짜라 동작 영향 없음)
+- SCR-COM-004 연결 남음: 알림 API(LJS 백엔드)로 `features/notification/api.js` 가짜를 바꾸고 AIMG02 코드값 확정 뒤 `notiTabs.js`의 가짜 코드를 고친다. 004-08은 명세 v0.6(업로드 대기)에서 행 안 [수락]·[거절]을 없애고 초대 수락 화면 이동으로 바꿨다 — 알림 행은 다른 알림과 같게 두면 되고(지금 구현과 같음), 이동 경로의 초대 식별자 이름은 백엔드와 정한다. 004-09 펫돌봄은 채팅방 식별자(`otoChatRoomSn`)로 방을 열어야 한다(SCR-COM-009, KSJ). 시간 표시("10분 전")는 `NotificationSummary`에 수신 일시 필드가 없어 LJS 백엔드에서 추가. 가짜 공지 `mvmnPath`가 `/notices/1`이라 `docs/routes.md` 75행(`/notices`)과 다르다(가짜라 동작 영향 없음)
 - SCR-COM-003 연결 남음: 003-08 로그인 상태로 랜딩에 오면 `/main`으로(`useMe` 필요, 로그인 연결 때, YAY). 003-10 AI 대화창이 401이면 인증 오류 표시 후 창 닫기(SCR-AIM-011). 로그인 화면(ACC-002, YAY)은 성공 뒤 `routes/redirect.js`의 `getRedirectPath(location.search)`로 이동 경로를 정한다(YAY에 알릴 것). 테스트 러너가 없어 이 함수의 회귀 테스트가 없다(러너 추가는 의존성이라 팀 결정)
 - SCR-COM-005 연결 남음: 005-02 회원 요약 조회 API(LJS 백엔드)로 `getMemberSummary`를 바꾸고 응답 키(`maskedAcntEml`, 명세 기준)를 Swagger로 확인, 005-07 로그아웃 API(YAY)로 `logout`을 바꾼다(로그인 연결 때)
 - SCR-COM-007 연결 남음: 007-03 메인 히어로 검색바가 `useAiWindow`의 `open(문장)`을 부르게 연결(YAY, MAN-001). `/ai`가 `?q=`를 새 대화의 첫 메시지로 보내는 일(SCR-AIM-001, 읽기까지는 `AiChatPage.jsx`가 한다). 이미 열린 `/ai` 창에서는 `open(firstMessage)`의 첫 메시지가 무시되므로(`useAiWindow.js` else 분기) 그때 처리 방식을 정한다
 - 사람이 고치는 문서 (`?cat` → `?category`):
   - AI매니저 기능명세서 v0.7: FN-AIM-004-10, 「부록_라우팅매핑표」 No.2·3·17~20행, 제.개정내역 새 버전 행
   - AI매니저 화면설계서 v0.9: 부록 라우팅 표의 `?cat=hospital`, `?cat=…` 2곳
-- SCR-COM-006 문서 불일치(공통레이아웃): 기능명세서 v0.4 006-03(3열 한 패널)·006-04(건강기록 = 건강 종합·검진기록관리·건강상태관리, 커뮤니티 순서)와 화면설계서 v0.7 SCR-COM-006(같은 내용)이 구현(메뉴별 카드, 건강기록 = 종합 건강기록·건강 일지·케어 캘린더)과 다름. 작성자가 어느 쪽이 맞는지 정해 문서를 고친다. Figma 플레이스 프레임은 없음
+- SCR-COM-006 문서 불일치(공통레이아웃): 006-03 메뉴별 카드·006-04 커뮤니티 순서는 기능명세서 v0.5·화면설계서 v0.8(2026-10-25)에 반영됨. 남은 것: 건강기록 2차 메뉴명(문서 건강 종합·검진기록관리·건강상태관리 ↔ 구현 종합 건강기록·건강 일지·케어 캘린더)은 JAJ 확인 후, 플레이스 지도 화면의 푸터·플로팅 미노출(002-01·21)과 캐릭터 완료 알림 표기(008-12)도 확인 필요로 남김. Figma 플레이스 프레임은 없음
 - 화면설계서 v0.7 SCR-COM-006의 건강기록 첫 화면 ID `SCR-HLT-001`은 결번이다. `SCR-HLT-011`로 고친다(AI매니저 명세 부록 No.43 기준)
 - 범위 밖에서 본 것(말만): 공통레이아웃 기능명세서 FN-COM-004-07의 케어 일정 알림 이동 대상(건강상태관리 정기관리)이 AI매니저 FN-AIM-006-13(케어 캘린더 SCR-HLT-003)과 다름
 - SCR-COM-006 연결 남음: 006-07 터치 동작 명세 확정(반응형 범위는 ≤1100px·≤760px로 정해졌다. 명세 작성자가 문구를 갱신하면 구현할 내용을 정한다)
