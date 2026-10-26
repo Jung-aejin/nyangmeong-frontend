@@ -52,6 +52,29 @@
 - 완료 조건: [올해 검진]·[예방접종] 모두 켜진 칩을 다시 누르면 꺼지고, 둘 다 꺼지면 그해 전체가 나온다
 - 연결 남음: 없음
 
+## 공용 · PetFace 올리기 — 끝
+
+- 기능: `features/pet/shared/PetFace.jsx` → `components/PetFace.jsx`, `useCharacterImage` → `hooks/useCharacterImage.js`. props는 `petSn`·`petSeCd`·`chrcSttsCd`와 기존 `className`·`iconClassName`·`alt`·`fallback`
+- 기다리는 것: 없음 (담당자 답변으로 확정: 이미지 키는 맞출 필요 없음, PetFace는 `petSn`으로 이미지 자체를 받는다)
+- 완료 조건: 명령: `yarn -s lint`·`yarn -s build` 통과 / `features/pet` 밖에서 `PetFace`를 쓸 수 있고 `features/pet`의 네 곳(PetMiniCard·PetSlide·PetProfileCard·InvitationAccept) 표시가 그대로다
+- 연결 남음: 1. PetFace 올리기 (캐릭터 얼굴 이미지 실제 응답 GET /pets/{petSn}/character-image, LJS)
+
+## 공용 · 영수증 사용처 키 — 끝
+
+- 기능: 건강 일지 영수증의 "가계부에도 기록"(FN-HLT-002-41)이 병원명을 `dtlMttr`(내용)이 아니라 사용처에 넣는다. 가계부 사용처 키를 `expndPlcNm` → `expndPlcusNm`으로 바꾼다. 내용(`dtlMttr`)은 빈칸
+- 기다리는 것: 없음 (담당자 답변으로 확정)
+- 완료 조건: 명령: `yarn -s lint`·`yarn -s build` 통과 / 화면: 영수증으로 검진기록을 저장하면 가계부 가짜 목록에 사용처=병원명, 내용=빈칸으로 들어간다
+- 연결 남음: 2. 영수증 사용처 키 (가계부 지출 생성·중복 확인 실제 호출, SJM)
+- 추가 요청: 건강 일지(SCR-HLT-002) 추가-1~20을 이 작업에서 함께 처리(핸드오프 기록, 추가-9·11은 추가-13으로 되돌림)
+
+## SCR-HLT-002 건강 일지 · 결함 정리와 모달 다듬기 — 끝
+
+- 기능: 건강 일지 핸드오프 "참고(실패 아님)" 4건과 결정 필요 1건, 상세 기록 모달 높이·✕ (명세 기능 ID 추가 없음, FN-HLT-002-11·13·15·16·18·14에 걸침)
+- 기다리는 것: 없음 (공용 `Modal.jsx`·`Card.jsx`는 선택 속성 추가·접근성만 고치고 알린다)
+- 완료 조건: 명령: `yarn -s lint`·`yarn -s build` 통과 / 화면: 아래 기획의 항목별 확인
+- 연결 남음: 없음 (실제 API 연결은 기존 항목 그대로)
+- 추가 요청: 추가-1 반려동물 칩 → 셀렉트, 추가-2 알약형·히어로 색(`DropdownSelect` `isPill`), 추가-3 이름 칸 세 글자 폭·말줄임, 추가-4 검진상세 [건강 일지로 돌아가기] 삭제
+
 ## 제외
 
 - AI매니저 FN-AIM-008 참조 대상 반려동물 선택: 화면 SCR-AIM-008 영수증 업로드는 LJS(분배 표 "AIM-008 영수증 업로드")
