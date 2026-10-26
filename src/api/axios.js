@@ -36,9 +36,21 @@ api.interceptors.response.use(
         .then(JSON.parse)
         .catch(() => null);
     }
-    const error = body?.error ?? fallbackError(response);
+    /** 서버 오류 { code, message, data } 정리(fields는 검증 오류의 data) */
+    const error = body?.code
+      ? {
+          code: body.code,
+          message: body.message,
+          fields: body.code === 'INVALID_INPUT_VALUE' ? body.data : null,
+        }
+      : fallbackError(response);
     const isRefresh = config?.url === '/auth/refresh';
-    if (response?.status === 401 && !config._retried && !isRefresh) {
+    if (
+      response?.status === 401 &&
+      error.code === 'TOKEN_EXPIRED' &&
+      !config._retried &&
+      !isRefresh
+    ) {
       /** 재발급 1회 제한 */
       config._retried = true;
       try {

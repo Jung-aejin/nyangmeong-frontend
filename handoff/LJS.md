@@ -2,16 +2,15 @@
 
 ## 지금 하는 것
 
-SCR-AIM-013 대화창 · 영수증 분석 (+ 디자인 v5 문구 맞춤) — 끝 (2026-10-26, 검증 통과·사람 확인). 기획·완료 조건은 `milestones/LJS.md`와 이 커밋 이력에 있다
+SCR-COM-002 공통 인터셉터 오류 모양 · 401 재발급 조건 — 끝 (2026-10-26, 검증 1회차 통과·사람 확인). 기획·완료 조건은 `milestones/LJS.md`와 이 커밋 이력에 있다
 
-- 바꾼 것: `features/ai/chat/ChatInput.jsx`([＋] 이미지 1장 첨부·썸네일, 첨부 중에도 글 입력), 새 `chat/useChatReceipt.js`(되묻기→분석→결과·실패·취소, 15초 제한), 새 `chat/ReceiptAnalysisBubble.jsx`(보낸 이미지·글, 결과 카드·실패·취소 말풍선), 새 `receipt/receiptFailure.js`(실패 문구·제한 시간, 업로드 모달과 공용), `features/ai/api.js`·`queries.js`(가짜 `analyzeChatReceipt`·`cancelChatReceipt`·`getChatReceiptResult`, 012 취소 문구), `pages/ai/AiChatPage.jsx`, v5 문구 4곳(`ConversationSidebar`·`ConversationHeader`·`FallbackBubble`·공용 `components/ConfirmModal.jsx`에 선택 prop `description`)
-- JAJ 파일 `pages/health/HealthDiaryPage.jsx`에 입구 2개: `?checkup=manual&recptSn=` → 검진기록 등록 빈 폼, `?recptSn=` → 인식 결과 확인. 연 뒤 쿼리 제거(해시도 같이 지워짐, 탭은 이미 선택돼 영향 없음). `react-hooks` 예외 주석 2줄
-- 디자인: `html/SCR-AIM-013.html`(v5 `aim-chat.html` 복사, 참고 시안 `aim-chat-schedule`·`aim-chat-new`·`aim-receipt-upload`는 `html/SCR-AIM-013/`). 모양은 시안 부품 조합, 문구는 화면설계서 v0.11(분석 중 "<이름>의 영수증을 분석하고 있어요…", 카드 [취소] 뒤 "취소됨")
-- 검증: `yarn -s lint`·`yarn -s build` 0, 검증 판정 통과(추가-1~4 포함). 추가-1 `vite.config.js`는 커밋 `5c35ea3`
+- 바꾼 것: `src/api/axios.js`(서버 오류 최상위 `code`·`message`를 `{ code, message, fields }`로 정리, `fields`는 `INVALID_INPUT_VALUE`의 `data`. 재발급은 401 `TOKEN_EXPIRED`만), 새 `scripts/check-axios-errors.mjs`(가짜 adapter로 오류 모양·재발급·랜딩 이동 11개 확인, 테스트 도구가 없어 회귀 확인용)
+- 검증: `yarn -s lint`·`yarn -s build`·`node scripts/check-axios-errors.mjs` 0. 고치기 전 코드에서는 스크립트 4개 실패(404·400이 `SERVER_ERROR`, `UNAUTHORIZED` 재발급 시도, `MEMBER_INACTIVE` 이동 없음)
+- `src/api/axios.js`를 고치면 `node scripts/check-axios-errors.mjs`를 같이 돌린다
 
 ## 다음에 할 것
 
-- 공통 인터셉터 오류 본문 위치 불일치(2026-10-26 발견, 범위 밖이라 고치지 않음, 따로 기획): `src/api/axios.js:39` `const error = body?.error ?? fallbackError(response)`가 서버 오류 `{ status, httpCode, message, path, code, data }`의 최상위 `code`·`message`를 읽지 않는다(`docs/convention/api.md:25-31`·예시 코드는 `body?.code ? { code, message, fields: INVALID_INPUT_VALUE면 data } : fallbackError`). 실제 API 오류가 모두 "일시적인 오류가 발생했어요."로 바뀌고, `MEMBER_INACTIVE` 랜딩 이동·입력칸 `fields` 표시가 동작하지 않는다. 같은 파일은 모든 401에 재발급을 시도하는데 문서는 `TOKEN_EXPIRED`만이다. 공용 파일이라 팀에 알린 뒤 고친다. AI 세션에도 알림(10-26) 이 문제가 남아 있으면 아래 영수증 결과 조회의 404 `RECEIPT_NOT_FOUND`도 `SERVER_ERROR`로 바뀌어 구분할 수 없다
+- 디스코드로 알릴 것(공용 `src/api/axios.js`, 팀에 알리지 않고 고침 — 사용자 결정 10-26): "`api/axios.js`가 서버 오류의 `code`·`message`를 읽지 못해 모든 API 오류가 '일시적인 오류가 발생했어요.'로 나오던 것을 고쳤어요. 이제 `error.code`·`error.message`가 서버 값 그대로고, 입력값 오류(`INVALID_INPUT_VALUE`)는 `error.fields`에 `[{ field, message }]`가 와요. 재발급은 401 `TOKEN_EXPIRED`일 때만 하고, `UNAUTHORIZED`·403 `MEMBER_INACTIVE`는 바로 랜딩으로 가요. `SERVER_ERROR`를 기대하고 분기한 곳이 있으면 확인해 주세요. 인터셉터를 고치면 `node scripts/check-axios-errors.mjs`를 돌려 주세요". SJM: `PetFormModal.jsx:294` `error.fields` 입력칸 문구가 이제 처음 동작한다(화면 확인 안 함)
 - SCR-AIM-013 연결 남음 (2026-10-26 확정 반영)
   - 013-04·08·09 채팅 영수증 분석·취소·이력: Spring 경유(`POST /api/receipts`에 요청 출처 'AI 대화창'(AIMG07 신설)을 더하는 방향, 백엔드 논의 중 — LJS 백엔드 / 인식은 Python)
   - 영수증 인식 결과 조회 API 확정(백엔드 10-26, 사용자 결정): `GET /api/receipts/{recptSn}` → `ReceiptResponse` `{ recptSn, ocrPrcsSttsCd, failRsn, hsptlNm, ckupYmd, recptAmt, dstrbDscntAmt, sections:[{ sectionNm, petSn, sbttlAmt, dscntAmt, sectionAmt, ckupCn, items:[{ itemNm, itemAmt }], prescriptions:[{ mdcnNm, mdcnBgngYmd, mdcnEndYmd, dayMdcnNmtm, prscSttsCd, mdcnAmt }] }] }`(분석 응답과 같은 모양, `expense/dto/ReceiptResponse.java`). 없거나 남의 영수증은 404 `RECEIPT_NOT_FOUND`. 조회할 때마다 OCR 원본을 다시 가공해 날짜 기본값·반려동물 자동 연결이 분석 직후와 조금 다를 수 있음(사용자 허용, 화면에서 차이가 보이면 백엔드에 알림). 백엔드 구현은 내부 인증 작업 다음 마일스톤
