@@ -129,6 +129,16 @@
   }
 }
 
+/* Tailwind 4는 버튼의 손가락 커서를 없애므로, 누를 수 있는 것에 다시 준다(비활성은 그대로) */
+@layer base {
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']),
+  summary,
+  select:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
 @keyframes man-float {
   0%,
   100% {
