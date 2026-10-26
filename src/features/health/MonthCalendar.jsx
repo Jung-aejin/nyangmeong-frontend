@@ -5,6 +5,7 @@ import {
   getDaysInMonth,
   getTodayYmd,
   getWeekdayIndex,
+  getYmdOf,
   makeYmd,
 } from '@/utils/formatDate';
 import {
@@ -106,7 +107,7 @@ export default function MonthCalendar({
         {renderBlanks(leadingBlanks, 'lead')}
         {days.map((ymd) => {
           const daySchedules = sorted.filter(
-            (schedule) => schedule.schdlYmd === ymd,
+            (schedule) => getYmdOf(schedule.schdlDt) === ymd,
           );
           const isSelected = ymd === selectedYmd;
           const isToday = ymd === todayYmd;
