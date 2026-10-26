@@ -1,10 +1,12 @@
 import { createElement, useId } from 'react';
 
 // 제목 줄(제목·보조 글·오른쪽 동작) + 본문으로 이뤄진 카드. 퍼블리싱 시안의 .card와 같은 모양이다
+// leading은 제목 왼쪽에 두는 선택 요소(예: 반려동물 셀렉트)다
 export default function Card({
   as: headingTag = 'h2',
   title,
   sub,
+  leading,
   action,
   onHeaderClick,
   className = '',
@@ -23,8 +25,9 @@ export default function Card({
         onClick={onHeaderClick}
         className={`flex min-w-0 items-center justify-between gap-3 border-b border-[#edf1f1] px-[18px] py-4 sm:px-[22px] sm:py-[18px] ${
           onHeaderClick ? 'cursor-pointer' : ''
-        }`}
+        } ${leading ? 'flex-wrap' : ''}`}
       >
+        {leading}
         {createElement(
           headingTag,
           {

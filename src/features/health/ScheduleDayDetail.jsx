@@ -37,12 +37,15 @@ export default function ScheduleDayDetail({
       className={className}
       bodyClassName={bodyClassName}
       action={
+        // 좁은 화면에서는 제목·부제가 잘리지 않게 ＋ 아이콘만 남긴다
         <button
           type="button"
-          className="inline-flex h-8 shrink-0 items-center rounded-[6px] bg-brand-500 px-3 text-base font-semibold text-white hover:bg-brand-600"
+          aria-label="새 일정 등록"
+          className="inline-flex h-8 shrink-0 items-center justify-center rounded-[6px] bg-brand-500 px-3 text-base font-semibold text-white hover:bg-brand-600 max-[760px]:w-8 max-[760px]:px-0"
           onClick={onCreate}
         >
-          새 일정 등록
+          <Icon name="add" className="text-xl min-[761px]:hidden" />
+          <span className="max-[760px]:hidden">새 일정 등록</span>
         </button>
       }
     >

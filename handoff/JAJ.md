@@ -2,7 +2,7 @@
 
 ## 지금 하는 것
 
-끝남: SCR-HLT-002 건강 일지 · 결함 정리와 모달 다듬기 (2026-10-26). 모바일 말풍선·`?obsv=` 잔존·검진기록 헤딩 이름·목록 말줄임 고침, 관찰 0건 머리 버튼, 상세 기록 모달 높이·✕, 추가-1~4(반려동물 셀렉트 알약형·세 글자 폭, 검진상세 돌아가기 삭제). 검증 통과, 사람 확인 완료
+끝남: SCR-HLT-003 케어 캘린더 · 결함 정리 (2026-10-26). 390px 날짜 상세 머리 ＋ 버튼, 주소 `#`로 탭 열기, 추가-1~18(달력 88px 칸·모바일 점 달력, 케어리스트 셀렉트를 카드 제목 왼쪽으로, 두 열 줄 높이·처방약 연동 배지 정렬, 모바일 둥근 칸·더보기, 스켈레톤 높이). 검증 통과, 사람 확인 완료
 
 ## 다음에 할 것
 
@@ -20,7 +20,9 @@
 - 참고(SCR-HLT-011): 개발용 `?fakePets=8`(미생성·공동양육 포함 8마리, 늘어난 5마리는 앞 세 마리 프로필을 돌려 씀). `features/health/diary/LineChart.jsx` 선택 속성: `bandLabelSide`, `isLeftColumn`(모바일 건강기록 변화), `activeIndex`(모바일 지속 관찰). 모바일 프로필 태그는 7px 여유라 실제 데이터의 긴 값이면 넘칠 수 있다
 
 - 결정 필요(SCR-HLT-003 추가 요청): 명세 v1.1·시안과 달라졌다. 한 화면 세로 배치 → 탭 둘(캘린더·케어리스트, 추가-6), [새 일정 등록]이 날짜 상세 카드 오른쪽 위(추가-1), 카드 머리 버튼·빈 상태 버튼이 채운 주 버튼 색(추가-2·5, 시안은 `btn-soft`), 오른쪽 열 높이 배분(추가-3), 구역 제목·기록 내용 제목의 굵은 구분선(추가-7·8)을 고칠지 정한다. 시안은 퍼블리싱 담당에게 알린다
-- 참고(SCR-HLT-003): 390px에서 날짜 상세 카드 제목이 말줄임되고 부제가 두 줄로 꺾인다(추가-1의 부작용). 탭 선택은 주소 `#`를 읽지 않는다. 가짜 일정 5건(`api.js` schdlSn 9~13)은 오늘+2일이라 날마다 이동한다
+- 결정 필요(SCR-HLT-003 결함 정리 추가 요청, 디자인 담당): 명세 v1.1·시안과 달라졌다. FN-HLT-003-30 날짜 칸 80px 고정 → 88px(추가-5), 760px 이하는 태그 대신 점·막대(가계부 달력과 같은 모양, 추가-12). FN-HLT-003-12 [출처 보기] 삭제(추가-4). FN-HLT-003-01 반려동물 선택 탭 → 토탈 케어리스트 카드 제목 왼쪽 알약형 셀렉트(추가-13). 모바일 케어 목록 둥근 칸·더보기 3칸·"오늘 n/N 완료" 숨김(추가-14·15), 처방약 연동 배지를 이름 옆으로(추가-10·17). 시안(`html/hlt-calendar.html`)은 퍼블리싱 담당에게 알린다
+- 알릴 것(공용 파일 담당): `components/Card.jsx`에 선택 속성 `leading`(제목 왼쪽 요소, 있을 때만 머리 줄이 꺾임)을 더했다. 기본값 없음이라 기존 화면은 그대로다. `features/health/PetTabs.jsx`는 쓰는 곳이 없어 지웠다
+- 참고(SCR-HLT-003): 1280px에서 정기관리 구충제·심장사상충 예방 이름이 33px로 줄어 말줄임된다(이름 칸 7.5em 고정 정렬의 결과). 6줄인 달은 로딩 자리보다 달력이 88px(모바일 약 56px) 길다. 761~1100px 로딩 자리 높이는 따로 재지 않았다. 가짜 일정 5건(`api.js` schdlSn 9~13)은 오늘+2일이라 날마다 이동한다
 - 연결 남음(SCR-HLT-003): 반려동물 목록 (SJM), 캐릭터 이미지 (LJS), 케어미션·포인트 반영 (SJM), 일정·케어 API `features/health/api.js` 가짜 응답을 실제 호출로 교체 (JAJ 백엔드)
 
 - 결정 필요(SCR-HLT-002 추가 요청): 명세 v1.1·시안과 달라졌다. 명세 FN-HLT-002-13(날짜 행 클릭 펼침, 5·3·2칸 → 행 클릭 시 상세 모달 하나의 표, 조회기간 3·7·14일 기본 3일), 앵커 → 탭, 제목 옆 글자 14px, [관찰 항목 등록] 채운 주 버튼(시안은 `btn-soft`)을 고칠지 정한다. 검사 수치 추가가 아래에 열리는 것은 검진상세 SCR-HLT-005·검사 수치 입력 SCR-HLT-007 명세와 다르다
@@ -37,4 +39,4 @@
 - 연결 남음: 반려동물 목록·프로필(체중 정상범위·목표 포함) `getPets` (SJM), 캐릭터 이미지 조회 (LJS), 케어 완료의 케어미션·포인트 반영 (SJM), 일정·케어·일상 기록·관찰·검진기록 API `features/health/api.js`·`diaryApi.js` 가짜 응답을 실제 호출로 교체 (JAJ 백엔드)
 - 결정 필요: 공용 `ConfirmModal`을 시안 스타일로 맞출지, 우측 아래 플로팅 버튼(시안은 고양이 이미지)을 맞출지(LJS 파일). 앱 전체 본문 줄 높이를 시안 1.6으로 할지(지금은 건강 일지 안에서만 맞춤). 식사량·음수량·산책 그래프의 "최근 14개"를 기록 14건이 걸친 날의 합계로 그렸는데 14일로 바꿀지
 - 영수증 등록 연결 남음: 영수증 인식 결과 전체(YAY, 지금은 LJS 인식 응답 + `receiptApi.js` `getReceiptDetail` 가짜)
-- 알릴 것(LJS): 공용 `layouts/UserHeader.jsx`·`NotificationDropdown.jsx`·`ProfileDropdown.jsx`를 시안 기준으로 수정(Material 아이콘, 새 `headerStyles.js`·`assets/user.svg`), `Card`·`buttonStyles`·`SideMenu`·`PetTabs` 줄 높이·색·비활성 스타일 수정, 로컬 Pretendard 글꼴 추가(`assets/fonts/PretendardVariable.woff2` 약 2MB, `index.css` `@font-face`), `eslint.config.js`에 `html` 제외
+- 알릴 것(LJS): 공용 `layouts/UserHeader.jsx`·`NotificationDropdown.jsx`·`ProfileDropdown.jsx`를 시안 기준으로 수정(Material 아이콘, 새 `headerStyles.js`·`assets/user.svg`), `Card`·`buttonStyles`·`SideMenu`·`PetTabs`(SCR-HLT-003에서 삭제) 줄 높이·색·비활성 스타일 수정, 로컬 Pretendard 글꼴 추가(`assets/fonts/PretendardVariable.woff2` 약 2MB, `index.css` `@font-face`), `eslint.config.js`에 `html` 제외
