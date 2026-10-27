@@ -185,7 +185,11 @@ function SidebarPanel({
           </p>
         )}
         {conversations?.length === 0 && (
-          <p className="p-2 text-sm text-[#667374]">저장된 대화가 없어요</p>
+          <p className="p-2 text-sm text-[#667374]">
+            {selectedPetSn == null
+              ? '저장된 대화가 없어요'
+              : '이 반려동물과 나눈 대화가 아직 없어요'}
+          </p>
         )}
         {conversations &&
           groupConversations(conversations).map((group) => (
