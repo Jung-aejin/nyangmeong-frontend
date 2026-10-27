@@ -10,7 +10,10 @@ const cleanCaptcha = (value) =>
     .replace(/[^A-Z0-9]/g, '')
     .slice(0, 6);
 
-// 이메일 로그인 폼의 값·오류·보안코드 상태를 한곳에서 다룬다. 로그인에 성공하면 onSuccess를 부른다
+/** 서버 검증 오류의 field를 폼의 입력칸 이름으로 */
+const FIELD_KEYS = { acntEml: 'email', pswd: 'password', scrtyCd: 'captcha' };
+
+// 이메일 로그인 폼의 값·오류·보안코드 상태를 한곳에서 다룬다. 로그인에 성공하면 onSuccess(로그인 응답)를 부른다
 export default function useEmailLogin(onSuccess) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -25,26 +28,43 @@ export default function useEmailLogin(onSuccess) {
   const setError = (key, message) =>
     setErrors((prev) => ({ ...prev, [key]: message }));
 
+  // 보안코드가 필요 없는 아이디로 바뀌었으면 서버가 CAPTCHA_NOT_REQUIRED로 거절하므로 영역을 닫는다
+  const issueCaptcha = (acntEml) =>
+    captcha.mutate(
+      { acntEml },
+      {
+        onError: (error) => {
+          if (error.code === 'CAPTCHA_NOT_REQUIRED') {
+            setIsCaptchaOn(false);
+            setNotice(null);
+            return;
+          }
+          setNotice({ type: 'error', message: error.message });
+        },
+      },
+    );
+
   const refreshCaptcha = () => {
     setCaptchaInput('');
     setError('captcha', '');
-    captcha.mutate();
+    issueCaptcha(email.trim());
   };
 
-  const requireCaptcha = (nextNotice) => {
+  const requireCaptcha = (acntEml, nextNotice) => {
     setNotice(nextNotice);
-    if (!isCaptchaOn) {
-      setIsCaptchaOn(true);
-      captcha.mutate();
-    }
+    setIsCaptchaOn(true);
+    issueCaptcha(acntEml);
   };
 
+  // 보안코드가 열린 뒤 이메일을 바꾸면 비밀번호·보안코드를 비우고, 새 코드는 입력칸을 벗어날 때 받는다
   const changeEmail = (value) => {
     setEmail(value);
     setError('email', '');
     if (isCaptchaOn) {
       setPassword('');
-      refreshCaptcha();
+      setCaptchaInput('');
+      setError('captcha', '');
+      captcha.reset();
     }
   };
 
@@ -69,37 +89,51 @@ export default function useEmailLogin(onSuccess) {
     status.mutate(
       { acntEml: trimmed },
       {
-        onSuccess: ({ captchaRequired }) => {
-          if (captchaRequired && !isCaptchaOn) {
-            requireCaptcha({ type: 'warn', message: MSG.captchaRequired });
+        onSuccess: ({ scrtyCdRqtYn }) => {
+          if (scrtyCdRqtYn) {
+            if (!isCaptchaOn || !captcha.data) issueCaptcha(trimmed);
+            setIsCaptchaOn(true);
+            return;
+          }
+          if (isCaptchaOn) {
+            setIsCaptchaOn(false);
+            setNotice(null);
           }
         },
+        onError: (error) =>
+          setNotice({ type: 'error', message: error.message }),
       },
     );
   };
 
-  const handleResult = (result) => {
-    if (result.ok) {
-      onSuccess();
-      return;
-    }
+  const handleError = (acntEml, error) => {
     setPassword('');
     setCaptchaInput('');
-    if (result.reason === 'captcha') {
-      setErrors({ captcha: MSG.captchaMismatch });
-      captcha.mutate();
-      return;
-    }
-    if (!result.captchaRequired) {
-      setNotice({ type: 'error', message: MSG.mismatch });
-      return;
-    }
-    // 5회째 실패는 보안코드 안내, 그 뒤 실패는 불일치 안내를 보이고 보안코드는 새로 만든다
-    if (isCaptchaOn) {
-      setNotice({ type: 'error', message: MSG.mismatch });
-      captcha.mutate();
-    } else {
-      requireCaptcha({ type: 'warn', message: MSG.captchaRequired });
+    switch (error.code) {
+      case 'LOGIN_FAILED':
+        setNotice({ type: 'error', message: error.message });
+        if (isCaptchaOn) issueCaptcha(acntEml);
+        return;
+      case 'LOGIN_CAPTCHA_REQUIRED':
+        requireCaptcha(acntEml, { type: 'warn', message: error.message });
+        return;
+      case 'CAPTCHA_MISMATCH':
+        setNotice(null);
+        setErrors({ captcha: error.message });
+        issueCaptcha(acntEml);
+        return;
+      case 'INVALID_INPUT_VALUE': {
+        const next = {};
+        (error.fields ?? []).forEach(({ field, message }) => {
+          const key = FIELD_KEYS[field];
+          if (key && !next[key]) next[key] = message;
+        });
+        setNotice(null);
+        setErrors(next);
+        return;
+      }
+      default:
+        setNotice({ type: 'error', message: error.message });
     }
   };
 
@@ -125,10 +159,12 @@ export default function useEmailLogin(onSuccess) {
       {
         acntEml: trimmed,
         pswd: password,
-        captchaId: captcha.data?.captchaId,
-        captchaCd: captchaInput,
+        scrtyCd: isCaptchaOn ? captchaInput : undefined,
       },
-      { onSuccess: handleResult },
+      {
+        onSuccess,
+        onError: (error) => handleError(trimmed, error),
+      },
     );
   };
 
@@ -150,7 +186,8 @@ export default function useEmailLogin(onSuccess) {
     errors,
     notice,
     isCaptchaOn,
-    captchaCode: captcha.data?.captchaCd,
+    captchaImg: captcha.data?.captchaImg,
+    isCaptchaLoading: captcha.isPending,
     isPending: login.isPending,
     guideTarget,
     changeEmail,
