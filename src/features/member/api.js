@@ -78,11 +78,14 @@ export const updatePassword = ({ curPswd }) =>
 
 /** 실패 횟수·보안코드 요구 상태. 기록 없는 아이디도 false·0이라 가입 여부를 드러내지 않는다 */
 export const getLoginStatus = ({ acntEml }) =>
-  api.get('/auth/login-attempt-limits', { params: { email: acntEml } });
+  api.get('/auth/login-attempt-limits', {
+    params: { email: acntEml },
+    skipAuthRedirect: true,
+  });
 
 /** 보안코드 발급·새로고침. captchaImg는 PNG data URI이고 코드 원문은 오지 않는다 */
 export const getCaptcha = ({ acntEml }) =>
-  api.post('/auth/captchas', { acntEml });
+  api.post('/auth/captchas', { acntEml }, { skipAuthRedirect: true });
 
 /**
  * 성공은 { ncnmReguide, mbrNcnm }, 실패는 code로 거부된다
