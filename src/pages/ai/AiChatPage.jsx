@@ -9,6 +9,7 @@ import ConversationMessages from '@/features/ai/chat/ConversationMessages';
 import AnswerBubble from '@/features/ai/chat/AnswerBubble';
 import ConversationSidebar from '@/features/ai/chat/ConversationSidebar';
 import ReceiptAnalysisBubble from '@/features/ai/chat/ReceiptAnalysisBubble';
+import { AI_ROLE } from '@/features/ai/shared/aiCodes';
 import { CHAT_MODAL_ACTION } from '@/features/ai/shared/fakeRoutingMap';
 import { fakePets } from '@/features/ai/chat/fakePets';
 import {
@@ -99,13 +100,12 @@ export default function AiChatPage() {
   const selectedPet = pets.find((pet) => pet.petSn === selectedPetSn);
 
   /** 메시지 전송 */
-  const handleSend = (aiCnvrsMsgCn) => {
+  const handleSend = (cnvrsCn) => {
     sendMessage.mutate(
       {
         aiCnvrsRoomSn: selectedRoomSn,
         petSn: selectedPet?.petSn,
-        petNm: selectedPet?.petNm,
-        aiCnvrsMsgCn,
+        cnvrsCn,
       },
       {
         onSuccess: ({
@@ -133,7 +133,7 @@ export default function AiChatPage() {
           }
           /** 검색·이동 안내·매칭 실패만 이 화면 처리 */
           if (intent === 'SEARCH') {
-            answer.start({ aiCnvrsRoomSn, question: aiCnvrsMsgCn });
+            answer.start({ aiCnvrsRoomSn, question: cnvrsCn });
           }
           if (intent === 'ROUTE') {
             setRoute({ ...nextRoute, aiCnvrsMsgSn, status: 'waiting' });
@@ -174,13 +174,13 @@ export default function AiChatPage() {
     mutation.mutate(
       { aiCnvrsRoomSn: selectedRoomSn, aiCnvrsMsgSn },
       {
-        onSuccess: ({ aiCnvrsMsgCn }) => {
+        onSuccess: ({ cnvrsCn }) => {
           setRegisterCards((prev) => ({
             ...prev,
             [aiCnvrsMsgSn]: {
               ...prev[aiCnvrsMsgSn],
               status,
-              resultText: aiCnvrsMsgCn,
+              resultText: cnvrsCn,
             },
           }));
         },
@@ -203,7 +203,7 @@ export default function AiChatPage() {
     );
     const question = messages
       .slice(0, index)
-      .findLast((item) => item.aiCnvrsMsgRoleCd === 'USER')?.aiCnvrsMsgCn;
+      .findLast((item) => item.roleCd === AI_ROLE.USER)?.cnvrsCn;
     if (!question) return;
     answer.start({
       aiCnvrsRoomSn: selectedRoomSn,
