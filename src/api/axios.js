@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { toLoginPath } from '@/utils/loginRedirect';
 
 export const api = axios.create({
   baseURL: '/api',
@@ -60,14 +61,19 @@ api.interceptors.response.use(
         await refreshing;
         return api(config);
       } catch {
-        /** 재발급 실패 시 랜딩 이동으로 진행 */
+        /** 재발급 실패 시 로그인 이동으로 진행 */
       }
     }
     const loggedOut =
       response?.status === 401 || error.code === 'MEMBER_INACTIVE';
-    /** 재발급 요청 자신은 이동 제외 */
-    if (loggedOut && !isRefresh && !config?.skipAuthRedirect) {
-      location.href = `/?redirect=${encodeURIComponent(location.pathname + location.search)}`;
+    /** 재발급 요청 자신과 로그인 화면(새로고침 반복 방지)은 이동 제외 */
+    if (
+      loggedOut &&
+      !isRefresh &&
+      !config?.skipAuthRedirect &&
+      location.pathname !== '/login'
+    ) {
+      location.href = toLoginPath(location.pathname, location.search);
     }
     return Promise.reject(error);
   },

@@ -21,6 +21,7 @@ export default function useEmailLogin(onSuccess) {
   const [errors, setErrors] = useState({});
   const [notice, setNotice] = useState(null);
   const [isCaptchaOn, setIsCaptchaOn] = useState(false);
+  const [checkedEmail, setCheckedEmail] = useState('');
   const login = useLogin();
   const status = useLoginStatus();
   const captcha = useNewCaptcha();
@@ -51,21 +52,15 @@ export default function useEmailLogin(onSuccess) {
   };
 
   const requireCaptcha = (acntEml, nextNotice) => {
+    setCheckedEmail(acntEml);
     setNotice(nextNotice);
     setIsCaptchaOn(true);
     issueCaptcha(acntEml);
   };
 
-  // 보안코드가 열린 뒤 이메일을 바꾸면 비밀번호·보안코드를 비우고, 새 코드는 입력칸을 벗어날 때 받는다
   const changeEmail = (value) => {
     setEmail(value);
     setError('email', '');
-    if (isCaptchaOn) {
-      setPassword('');
-      setCaptchaInput('');
-      setError('captcha', '');
-      captcha.reset();
-    }
   };
 
   const changePassword = (value) => {
@@ -78,7 +73,8 @@ export default function useEmailLogin(onSuccess) {
     setError('captcha', '');
   };
 
-  // 형식이 맞는 이메일은 서버에서 보안코드 요구 여부를 미리 확인한다
+  // 형식이 맞고 마지막으로 확인한 이메일과 다르면 서버에서 보안코드 요구 여부를 확인한다
+  // 보안코드가 열린 뒤 이메일이 바뀌었으면 비밀번호·보안코드를 비우고 새 코드를 받는다
   const blurEmail = () => {
     const trimmed = email.trim();
     if (!trimmed) return;
@@ -86,12 +82,23 @@ export default function useEmailLogin(onSuccess) {
       setError('email', MSG.emailFormat);
       return;
     }
+    if (trimmed === checkedEmail) return;
+    const isChanged = isCaptchaOn;
+    if (isChanged) {
+      setPassword('');
+      setCaptchaInput('');
+      setError('captcha', '');
+      captcha.reset();
+    }
     status.mutate(
       { acntEml: trimmed },
       {
         onSuccess: ({ scrtyCdRqtYn }) => {
+          setCheckedEmail(trimmed);
           if (scrtyCdRqtYn) {
-            if (!isCaptchaOn || !captcha.data) issueCaptcha(trimmed);
+            if (!isCaptchaOn || !captcha.data || isChanged) {
+              issueCaptcha(trimmed);
+            }
             setIsCaptchaOn(true);
             return;
           }
