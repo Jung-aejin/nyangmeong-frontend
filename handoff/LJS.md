@@ -2,14 +2,17 @@
 
 ## 지금 하는 것
 
-SCR-COM-002 공통 인터셉터 오류 모양 · 401 재발급 조건 — 끝 (2026-10-26, 검증 1회차 통과·사람 확인). 기획·완료 조건은 `milestones/LJS.md`와 이 커밋 이력에 있다
+SCR-COM-004 알림 드롭다운 · SCR-COM-008 설정(알림) · 서버 연결 — 끝 (2026-10-27, 검증 2회차 통과·추가-3 포함 재검증 통과·사람 확인). 기획·완료 조건은 `milestones/LJS.md`와 이 커밋 이력에 있다
 
-- 바꾼 것: `src/api/axios.js`(서버 오류 최상위 `code`·`message`를 `{ code, message, fields }`로 정리, `fields`는 `INVALID_INPUT_VALUE`의 `data`. 재발급은 401 `TOKEN_EXPIRED`만), 새 `scripts/check-axios-errors.mjs`(가짜 adapter로 오류 모양·재발급·랜딩 이동 11개 확인, 테스트 도구가 없어 회귀 확인용)
-- 검증: `yarn -s lint`·`yarn -s build`·`node scripts/check-axios-errors.mjs` 0. 고치기 전 코드에서는 스크립트 4개 실패(404·400이 `SERVER_ERROR`, `UNAUTHORIZED` 재발급 시도, `MEMBER_INACTIVE` 이동 없음)
-- `src/api/axios.js`를 고치면 `node scripts/check-axios-errors.mjs`를 같이 돌린다
+- 바꾼 것: `features/notification/api.js`(가짜 → `GET /notifications/unread-count`·`GET /notifications?tab=`·`POST /notifications/{sn}/read`·`GET`·`PUT /members/me/notification-settings`), `notiTabs.js`(유형 코드 `AIMC00xx`, 탭의 서버 `tab` 값, 코드→라벨 표), `NotificationSettingsForm.jsx`(사전 알림 `leadTimes` 배열, `maskedAcntEml`), `NotificationDropdown.jsx`·`NotificationItem.jsx`·`queries.js`
+- 추가 요청(모두 검증 통과): 추가-1 알림 패널 스켈레톤·탭 전환 `keepPreviousData`, 추가-2 프로필 드롭다운·전체 메뉴 이름·이메일 스켈레톤, 추가-3 `docs/routes.md` 79행 공동양육 알림 이동 대상을 명세 v0.6대로(초대 수신 `/mypage/invitations/:invitationToken`, 결과·연동 해제 `/mypage/pets`)
+- 확인 환경: 백엔드 `localhost:8080` + 백엔드 `POST /api/auth/dev-tokens` 쿠키(로그인 API 연결 전). 백엔드 코드를 고친 뒤에는 서버를 다시 띄워야 반영된다(정렬 변경을 확인할 때 옛 서버가 떠 있었음)
 
 ## 다음에 할 것
 
+- 백엔드 세션(`backend-a8`)이 이 세션 요청을 처리함(로컬 커밋, push 전): 알림 목록 정렬을 안 읽음 우선으로(COM-004-05), 시드 알림·미션 경로를 프론트 라우트로 고침. 사람이 할 일: ① DMS 명세 FN-COM-004-05 문구를 새 버전으로 올린다 — 제안 문구 "안 읽은 알림을 먼저, 같은 읽음 상태끼리는 최신순으로 최대 5건 노출한다." ② 미션 이동 경로(`/health/calendar`로 맞춘 시드)는 SJM이 미션 기획대로 확정 ③ 공용 DB의 기존 알림 행은 팀원이 마이그레이션 UPDATE로 고친다
+- 디스코드로 알릴 것(백엔드 세션이 적용할 때): 공용 DB 요청이 1초씩 걸린 원인은 DB 왕복 횟수. 백엔드가 JDBC URL 옵션 5개로 약 0.3초까지 줄였고, `application.properties`는 git에 없어 팀원이 직접 URL을 바꿔야 한다
+- 알림 화면 로딩 표시 확인: 알림 패널(5행)·프로필 드롭다운·전체 메뉴(NavDrawer) 스켈레톤을 넣었다. `ProtectedRoute`의 `return null`(로그인 확인 전 화면이 통째로 빈다)은 이번에 안 건드렸다 — 헤더·푸터를 먼저 그릴지 결정 대기(공용 파일, `docs/convention/shared-files.md`)
 - 디스코드로 알릴 것(공용 `src/api/axios.js`, 팀에 알리지 않고 고침 — 사용자 결정 10-26): "`api/axios.js`가 서버 오류의 `code`·`message`를 읽지 못해 모든 API 오류가 '일시적인 오류가 발생했어요.'로 나오던 것을 고쳤어요. 이제 `error.code`·`error.message`가 서버 값 그대로고, 입력값 오류(`INVALID_INPUT_VALUE`)는 `error.fields`에 `[{ field, message }]`가 와요. 재발급은 401 `TOKEN_EXPIRED`일 때만 하고, `UNAUTHORIZED`·403 `MEMBER_INACTIVE`는 바로 랜딩으로 가요. `SERVER_ERROR`를 기대하고 분기한 곳이 있으면 확인해 주세요. 인터셉터를 고치면 `node scripts/check-axios-errors.mjs`를 돌려 주세요". SJM: `PetFormModal.jsx:294` `error.fields` 입력칸 문구가 이제 처음 동작한다(화면 확인 안 함)
 - SCR-AIM-013 연결 남음 (2026-10-26 확정 반영)
   - 013-04·08·09 채팅 영수증 분석·취소·이력: Spring 경유(`POST /api/receipts`에 요청 출처 'AI 대화창'(AIMG07 신설)을 더하는 방향, 백엔드 논의 중 — LJS 백엔드 / 인식은 Python)
@@ -33,7 +36,7 @@ SCR-COM-002 공통 인터셉터 오류 모양 · 401 재발급 조건 — 끝 (2
 - 문서 업로드 완료(DMS, 2026-10-25): 공통레이아웃 기능명세서 v0.6(FN-COM-003-02·05 회원가입 경유 redirect, 004-07 공동양육 이동 대상 분리, 004-08 행 안 버튼 삭제 → 초대 수락 화면 이동)·화면설계서 v0.9, AI매니저 기능명세서 v0.8(FN-AIM-009-10·21 가계부 "내용 = 병원명" → "사용처 = 병원명")·화면설계서 v0.10(SCR-AIM-009 ⑦). 같은 날 앞서 공통레이아웃 기능명세서 v0.5·화면설계서 v0.8(구현 현행화)도 올렸다. 남은 문서 일은 아래 "사람이 고치는 문서"·SCR-COM-006 항목
 - 백엔드 세션에서: EXPND 사용처 컬럼(varchar(80) NULL, 기준 컬럼은 `CKUP_RCD.HSPTL_NM`, 기존 `DTL_MTTR`과 역할 정리), 초대받은 사람(연동 전)의 PetFace(`GET /pets/{petSn}/character-image`는 `PetAuthorizer`라 막힘), 초대 일부 수락 API(지금은 일괄 수락만), 알림 `mvmnPath`의 초대 식별자 이름(`invitationToken` vs `jntBrupInvtnSn`, 미정)
 - YAY에 알릴 것: 로그인 → [회원가입] 이동(`pages/auth/LoginPage.jsx` `navigate(PATHS.SIGNUP)`)과 가입 완료 → 로그인(`SignupPage.jsx` `/login?joined=1`)에서 `?redirect=`가 사라진다. 공통레이아웃 명세 v0.6 FN-COM-003-02·05로 유지가 정해짐(초대 링크로 온 미가입자)
-- 공동양육 알림 이동: 지금 가짜 `mvmnPath` `/mypage/caregivers`는 라우트가 없어 빈 화면이다. 명세 v0.6대로 초대 수신은 `/mypage/invitations/:invitationToken`, 결과·연동 해제는 `/mypage/pets`로 서버가 준다(알림 API 연결 때 가짜 데이터도 맞춘다)
+- 공동양육 알림 이동(SJM이 알림을 만들 때): 초대 수신은 `/mypage/invitations/:invitationToken`, 결과·연동 해제는 `/mypage/pets`. `docs/routes.md` 79행을 정정했고(추가-3) 백엔드 세션에도 전했다
 
 - 서브 화면 경로(SCR-COM-002 B-01) 확인 남음(각 담당 화면, 선택): 761~1100px 폭과 건강기록(JAJ)·마이페이지(SJM)·고객센터(KSJ) 실제 화면에서 경로 줄·섹션 제목 위치를 한 번 본다. 공용 틀(`SubPageHead`·`SubPageLayout`·`SideMenu`)을 고쳤다. 사이드 메뉴 이탈 확인(`onLeave`)이 develop 병합 뒤에도 되는지 글쓰기 화면에서 본다
 - SCR-COM-002 PR 전: 아래 디스코드 알림을 보내고, `docs/convention/ui.md` "로딩 표시" 절 변경을 팀과 합의한다. KSJ에 알릴 것: `useNotices`·`useFaqs`·`useInquiries`에 `placeholderData: keepPreviousData`(탭·검색·쪽 이동 때 이전 내용 유지), 390px `/faqs` 카테고리 탭 줄 때문에 가로 스크롤(범위 밖, 다 불러온 뒤)
@@ -115,8 +118,8 @@ SCR-COM-002 공통 인터셉터 오류 모양 · 401 재발급 조건 — 끝 (2
 - SCR-AIM-002 연결 남음: 대화 API(Python AI 서버, 담당 없음)로 `features/ai/api.js`의 `streamAnswer` 가짜를 바꾸고 스트리밍 방식(SSE 등)·`rltdShrtcts`·`aiCnvrsMsgCmptnYn` 필드 이름을 Swagger로 확인. 웰컴에 Figma의 고양이 캐릭터를 넣을지(`src/assets/ai-character.png`는 이미 있음)는 디자인 담당과 맞춘다
 - SCR-AIM-001 연결 남음: 대화 API(Python AI 서버, 담당 없음)로 `features/ai/api.js`의 `sendMessage` 가짜를 바꾸고 `intent` 필드 이름·값(`REGISTER·ROUTE·SEARCH·FALLBACK`은 추정)을 Swagger로 확인. Figma의 고양이 캐릭터 이미지(`ai-character.png`)는 저장소에 파일이 없어 웰컴에 넣지 못했다(파일을 받으면 `WelcomeMessage.jsx`에 추가). 직접 주소창으로 연 `/ai`에서는 칩을 눌러도 브라우저가 `window.close()`를 막아 창이 남는다(설계대로)
 - SCR-AIM-011 연결 남음: 대화 API(Python AI 서버, 담당 없음)로 `features/ai/api.js`의 가짜(`getConversations`·`getConversation`·`deleteConversation`)를 바꾸고 필드 이름(`aiCnvrs…` 추정)을 Swagger로 확인. 011-08 반려동물 목록 API(SJM)로 `AiChatPage.jsx`의 `fakePets`를 `features/pet` 훅으로 바꾼다. 011-03·17④ 세션 만료 시 AI 창 닫기는 로그인 연결 때(SCR-COM-003 003-10과 함께)
-- SCR-COM-008 연결 남음: 알림 설정 API(LJS 백엔드, `GET`·`PUT /members/me/notification-settings`)로 `features/notification/api.js`의 설정 가짜를 바꾼다. 008-12 캐릭터 완료 알림을 설정 가능하게 할지는 명세 확정 대기(명세 작성자)
-- SCR-COM-004 연결 남음: 알림 API(LJS 백엔드)로 `features/notification/api.js` 가짜를 바꾸고 AIMG02 코드값 확정 뒤 `notiTabs.js`의 가짜 코드를 고친다. 004-08은 명세 v0.6(업로드 대기)에서 행 안 [수락]·[거절]을 없애고 초대 수락 화면 이동으로 바꿨다 — 알림 행은 다른 알림과 같게 두면 되고(지금 구현과 같음), 이동 경로의 초대 식별자 이름은 백엔드와 정한다. 004-09 펫돌봄은 채팅방 식별자(`otoChatRoomSn`)로 방을 열어야 한다(SCR-COM-009, KSJ). 시간 표시("10분 전")는 `NotificationSummary`에 수신 일시 필드가 없어 LJS 백엔드에서 추가. 가짜 공지 `mvmnPath`가 `/notices/1`이라 `docs/routes.md` 75행(`/notices`)과 다르다(가짜라 동작 영향 없음)
+- SCR-COM-008 남은 것: 008-12 캐릭터 완료 알림을 설정 가능하게 할지는 명세 확정 대기(명세 작성자). 알림 설정 API 연결은 끝남
+- SCR-COM-004 남은 것: 004-08 공동양육 초대 알림 이동(알림 생성 SJM), 004-09 펫돌봄 알림의 채팅 모달(채팅 API·알림 생성 KSJ, 시드 `mvmnPath`는 `/chats`라 방 번호가 없음), 커뮤니티(`AIMC0010`) 알림 이동 경로(KSJ와 결정, `docs/routes.md` 79행에 없음), 공지 알림이 `/notices` 목록인지 `/notices/{sn}` 상세인지 결정. 시간 표시("10분 전")는 `NotificationSummary.regDt`로 화면에서 계산할 수 있다
 - SCR-COM-003 연결 남음: 003-08 로그인 상태로 랜딩에 오면 `/main`으로(`useMe` 필요, 로그인 연결 때, YAY). 003-10 AI 대화창이 401이면 인증 오류 표시 후 창 닫기(SCR-AIM-011). 로그인 화면(ACC-002, YAY)은 성공 뒤 `routes/redirect.js`의 `getRedirectPath(location.search)`로 이동 경로를 정한다(YAY에 알릴 것). 테스트 러너가 없어 이 함수의 회귀 테스트가 없다(러너 추가는 의존성이라 팀 결정)
 - SCR-COM-005 연결 남음: 005-02 회원 요약 조회 API(LJS 백엔드)로 `getMemberSummary`를 바꾸고 응답 키(`maskedAcntEml`, 명세 기준)를 Swagger로 확인, 005-07 로그아웃 API(YAY)로 `logout`을 바꾼다(로그인 연결 때)
 - SCR-COM-007 연결 남음: 007-03 메인 히어로 검색바가 `useAiWindow`의 `open(문장)`을 부르게 연결(YAY, MAN-001). `/ai`가 `?q=`를 새 대화의 첫 메시지로 보내는 일(SCR-AIM-001, 읽기까지는 `AiChatPage.jsx`가 한다). 이미 열린 `/ai` 창에서는 `open(firstMessage)`의 첫 메시지가 무시되므로(`useAiWindow.js` else 분기) 그때 처리 방식을 정한다
