@@ -4,8 +4,6 @@ import RegisterCard from './RegisterCard';
 import { AI_ROLE } from '../shared/aiCodes';
 import { FALLBACK_MESSAGE, FAQ_FAIL_COUNT } from '../shared/fallbackCount';
 
-const INCOMPLETE = 'N';
-
 /** 저장된 메시지 목록 */
 export default function ConversationMessages({
   messages,
@@ -57,7 +55,7 @@ export default function ConversationMessages({
           );
         }
         if (message.roleCd !== AI_ROLE.USER) {
-          const isIncomplete = message.aiCnvrsMsgCmptnYn === INCOMPLETE;
+          const isIncomplete = message.cmptnYn === false;
           return (
             <li key={message.aiCnvrsMsgSn}>
               <AnswerBubble
