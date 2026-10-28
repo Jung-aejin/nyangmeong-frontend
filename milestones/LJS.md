@@ -261,6 +261,16 @@
 - 연결 남음: FN-COM-002-02 (ai·chat·place·main bare 화면 감싸기, 세션 만료 FN-COM-003-10과 함께)
 - 연결 남음: FN-COM-003-03 (명세 문구를 로그인 이동으로 고쳐 DMS 새 버전 업로드, 사람)
 
+## SCR-AIM-011 대화 API 서버 연결 · AI 서버 요청 기반 — 끝
+- 기능: (연결 작업, 명세 기능 ID 추가 없음) B-01 `aiApi`와 공통 응답 인터셉터, B-02 `docs/convention/api.md` AI 서버 주소 규칙, FN-AIM-011-07·09·10·11·13·14 대화 생성·목록·상세·삭제를 `features/ai/api.js` 가짜에서 Python AI 서버 `/ai/conversations`로
+- 기다리는 것: 없음 (대화 API 구현됨, ai 저장소 `docs/api/chat.md`)
+- 완료 조건: 새 질문으로 만든 대화가 새로고침 뒤에도 목록에 남는다 / 삭제 뒤 새로고침해도 사라져 있다 / `node scripts/check-axios-errors.mjs` 전부 ok
+- 추가 요청(모두 검증 통과): 추가-1 761~1099px drawer가 화면을 어둡게 하지 않고 채팅 가능, 추가-2 이어 쓴 대화가 목록 맨 위로, 추가-3 drawer가 본문을 밀어냄, 추가-4 drawer 슬라이드 애니메이션
+- 완료 조건 결과: 검증 `통과`(2026-10-27, 2회차(1회차 `analyzeChatReceipt` 글 누락 실패 뒤 수정), 추가-1~4 포함 재검증), 사람 확인 2026-10-27
+- 연결 남음: FN-AIM-011-08 (반려동물 목록 API, SJM)
+- 연결 남음: FN-AIM-011-03·17 (세션 만료 시 AI 창 닫기, SCR-COM-003 003-10과 함께)
+- 연결 남음: FN-AIM-011-07·14 (두 번째 이후 메시지 저장은 메시지 추가·질문 API, ai 저장소 AIM-001·002)
+
 
 ## 제외
 - FN-AIM-009-01~27: 화면 담당이 JAJ(milestone.md "화면과 API 담당이 다른 곳" — AIM-009 영수증 결과 규칙, 화면은 SCR-HLT-002)

@@ -32,7 +32,7 @@ export const useChatReceiptResult = (rcptSn) =>
 export const useConversations = (petSn) =>
   useQuery({
     queryKey: aiKeys.list(petSn),
-    queryFn: () => getConversations({ petSn }),
+    queryFn: () => getConversations(),
   });
 
 export const useConversation = (aiCnvrsRoomSn) =>
