@@ -1,0 +1,242 @@
+@import 'tailwindcss';
+
+@font-face {
+  font-family: 'Pretendard Variable';
+  font-weight: 45 920;
+  font-style: normal;
+  font-display: swap;
+  src: url('./fonts/PretendardVariable.woff2') format('woff2-variations');
+}
+
+@theme {
+  --font-sans: 'Pretendard Variable', Pretendard, system-ui, sans-serif;
+
+  --animate-sway: sway 2s ease-in-out infinite;
+  @keyframes sway {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    50% {
+      transform: translateX(-4px);
+    }
+  }
+
+  /** 브랜드 */
+  --color-brand-50: #e9f2f2;
+  --color-brand-100: #cde0e0;
+  --color-brand-500: #285a5c;
+  --color-brand-600: #1e4a4c;
+  --color-brand-900: #1a3234;
+
+  /** 플로팅 AI 버튼 */
+  --color-fab: #f9eaa6;
+  --color-fab-line: #e8d27e;
+  --color-fab-soft: #fffae2;
+
+  /** 글자 */
+  --color-ink: #1a3234;
+  --color-ink-2: #3d4a4b;
+  --color-muted: #566465;
+  --color-subtle: #667374;
+  --color-placeholder: #8c9899;
+
+  /** 면·선 */
+  --color-surface-2: #f4f6f6;
+  --color-surface-3: #ebf0f0;
+  --color-line: #e2e7e7;
+  --color-line-soft: #edf1f1;
+  --color-line-strong: #b9c4c4;
+  --color-input-line: #d3dae2;
+
+  /** 포인트(노랑)·상태·뱃지 */
+  --color-accent-300: #f9eaa6;
+  --color-accent-ink: #1a3234;
+  --color-ok: #2f6f57;
+  --color-danger: #b4473a;
+  --color-danger-soft: #fbeeec;
+  --color-tone-green-bg: #e6f4ec;
+  --color-tone-green-fg: #22744a;
+  --color-tone-gray-bg: #eef1f4;
+  --color-tone-gray-fg: #59636e;
+  --color-tone-blue-bg: #eaf1fc;
+  --color-tone-blue-fg: #2d5fb8;
+  --color-tone-rose-bg: #fcebea;
+  --color-tone-rose-fg: #b8463f;
+  --color-tone-violet-bg: #efecfa;
+  --color-tone-violet-fg: #5f49b0;
+  --color-tone-amber-bg: #fcf1df;
+  --color-tone-amber-fg: #9a5c0c;
+  /* 가계부 카테고리 색 (10-24): 도넛·범례·뱃지·앱 상세 막대 공통 */
+  --color-cat-hosp: #6fb0f5;
+  --color-cat-hosp-bg: #e5f1fd;
+  --color-cat-hosp-fg: #4f78a3;
+  --color-cat-food: #f59a4a;
+  --color-cat-food-bg: #fdedde;
+  --color-cat-food-fg: #a26a39;
+  --color-cat-care: #4cbf7a;
+  --color-cat-care-bg: #dff3e7;
+  --color-cat-care-fg: #398156;
+  --color-cat-goods: #8b6ee0;
+  --color-cat-goods-bg: #eae5f9;
+  --color-cat-goods-fg: #604f96;
+  --color-cat-beauty: #f28db2;
+  --color-cat-beauty-bg: #fdeaf1;
+  --color-cat-beauty-fg: #a06279;
+  --color-cat-snack: #f5c842;
+  --color-cat-snack-bg: #fdf5dd;
+  --color-cat-snack-fg: #a28734;
+  --color-cat-etc: #9c7c5c;
+  --color-cat-etc-bg: #ede7e2;
+  --color-cat-etc-fg: #6b5844;
+  --color-warn: #80611a;
+  --color-warn-soft: #faf6e8;
+  --color-warn-line: #e6d7a8;
+
+  /** 글자 크기 */
+  --text-page: 28px;
+  --text-page--line-height: 1.35;
+  --text-badge: 13px;
+
+  /** 둥글기 */
+  --radius-box: 10px;
+  --radius-card: 14px;
+  --radius-modal: 20px;
+
+  /** 깊이 그림자 */
+  --shadow-depth-sm: 0 8px 24px rgba(26, 50, 52, 0.08);
+  --shadow-depth-md:
+    0 12px 32px -8px rgba(15, 23, 35, 0.18), 0 2px 6px rgba(15, 23, 35, 0.06);
+  --shadow-depth-lg: 0 24px 64px -12px rgba(15, 23, 35, 0.35);
+}
+
+/** 입력칸·선택 컨트롤 포커스·오류 링 */
+@utility ring-focus {
+  box-shadow: 0 0 0 3px rgba(182, 218, 172, 0.5);
+}
+
+@utility ring-error {
+  box-shadow: 0 0 0 3px rgba(180, 71, 58, 0.14);
+}
+
+@layer components {
+  .icon {
+    font-family: 'Material Symbols Rounded';
+    font-weight: 500;
+    font-style: normal;
+    font-size: 20px;
+    line-height: 1;
+    width: 1em;
+    height: 1em;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    letter-spacing: normal;
+    text-transform: none;
+    white-space: nowrap;
+    direction: ltr;
+    flex-shrink: 0;
+    user-select: none;
+    font-feature-settings: 'liga';
+    font-variation-settings:
+      'FILL' 0,
+      'wght' 500,
+      'GRAD' 0,
+      'opsz' 20;
+  }
+
+  .icon-filled {
+    font-variation-settings:
+      'FILL' 1,
+      'wght' 500,
+      'GRAD' 0,
+      'opsz' 20;
+  }
+}
+
+@layer base {
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']),
+  summary,
+  select:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+@keyframes man-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes man-pop {
+  from {
+    opacity: 0.25;
+    transform: translateY(8px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes landing-slide-in {
+  from {
+    transform: translateX(100.1%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes landing-slide-out {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100.1%);
+  }
+}
+
+@keyframes landing-zoom {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.1);
+  }
+}
+
+@keyframes landing-char {
+  from {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes landing-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes landing-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}

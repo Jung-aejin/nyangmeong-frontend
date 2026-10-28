@@ -1,12 +1,47 @@
 # OS
 .DS_Store
 Thumbs.db
+desktop.ini
 
 # 비밀값. 키 이름만 적은 .env.example은 커밋한다
 .env
 .env.*
 !.env.example
 
-# 개인 작업 기록과 Claude Code 개인 설정
-.claude/
+# Claude Code는 팀 공용 설정(settings.json, skills, mods)만 커밋한다. 작업 기록은 handoff/<이름>.md로 커밋한다
+.claude/*
+!.claude/settings.json
+!.claude/skills/
+!.claude/mods/
 CLAUDE.local.md
+
+# 로그
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 설치·빌드 결과
+node_modules
+dist
+dist-ssr
+*.local
+
+# 편집기. .vscode/는 포맷 설정을 공유하므로 커밋한다. 실행·디버그 설정(launch.json)은 사람마다 달라서 커밋하지 않는다
+.vscode/launch.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Playwright MCP 로그·스냅샷
+.playwright-mcp/
+
+# /start가 내려받는 DMS 문서 캐시(화면설계서 등). 각자 PC에만 둔다
+.cache/
+
+# 디자인 HTML 파일. 각자 PC에만 둔다
+html/
