@@ -271,6 +271,11 @@
 - 연결 남음: FN-AIM-011-03·17 (세션 만료 시 AI 창 닫기, SCR-COM-003 003-10과 함께)
 - 연결 남음: FN-AIM-011-07·14 (두 번째 이후 메시지 저장은 메시지 추가·질문 API, ai 저장소 AIM-001·002)
 
+## SCR-AIM-002 메시지 전송 SSE 연결 · 판정·답변 서버 연결 — 진행
+- 기능: (연결 작업, 명세 기능 ID 추가 없음) B-01 `api/axios.js` SSE 요청(`fetch`, 401 재발급 공유), FN-AIM-002-02·04·05·06·07 검색 답변 스트리밍·연관 바로가기·미완료·오류, FN-AIM-001-04·05 전송·의도 분기, FN-AIM-004-01·03·06·07·10·12 서버 판정 ROUTE → 화면 ID 변환표로 본창 이동, FN-AIM-005-01·02 서버 판정 FALLBACK, FN-AIM-011-07·14 두 번째 이후 메시지 서버 저장
+- 기다리는 것: 없음 (메시지 API 구현됨, ai 저장소 LJS `41385b7` `docs/api/chat.md` MessageSendRequest·MessageEvent)
+- 완료 조건: 건강 질문 답변이 글자 단위로 이어 붙고 새로고침해도 남는다 / "가계부"를 입력하면 3초 뒤 본창이 가계부로 간다 / 2회 연속 실패하면 FAQ 버튼이 나오고 새로고침해도 실패 안내가 남는다 / `node scripts/check-axios-errors.mjs` 전부 ok
+
 
 ## 공통 파일 이미지 컴포넌트 · 공개·비공개 이미지 주소 — 대기
 - 기능: (연결 작업, 명세 기능 ID 추가 없음) 공개 이미지는 `/api/files/public/{atchFileSn}` 주소로 바로 보여 주고, 비공개 이미지는 도메인 API(`/api/receipts/{recptSn}/image`·`/api/pets/{petSn}/character-image`·`/api/items/{itemSn}/image`)를 `api.get(..., { responseType: 'blob' })`로 받아 보여 주는 공통 코드를 `components/`·`hooks/`에 만든다. 화면 담당(KSJ 게시글·SJM 캐릭터 등)이 가져다 쓴다

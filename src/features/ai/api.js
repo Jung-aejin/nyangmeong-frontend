@@ -1,8 +1,6 @@
-import { aiApi } from '@/api/axios';
+import { aiApi, aiStream } from '@/api/axios';
 import { IS_DEV } from '@/api/env';
-import { PATHS } from '@/routes/paths';
 import { AI_ROLE } from './shared/aiCodes';
-import { FALLBACK_MESSAGE } from './shared/fallbackCount';
 import { fakePets } from './chat/fakePets';
 import {
   describeCard,
@@ -11,15 +9,14 @@ import {
   interpretRegister,
   REVISE_PATTERN,
 } from './shared/fakeRegisterParser';
-import { isRegisterRequest, matchRoute } from './shared/fakeRoutingMap';
 
 /**
- * 대화 생성·목록·상세·삭제는 Python AI 서버(/ai/conversations, ai 저장소 docs/api/chat.md)
- * 질문·답변·라우팅·폴백·일정 생성 확인·영수증은 서버 API가 아직 없어 가짜
+ * 대화 생성·목록·상세·삭제와 메시지 전송(판정·답변 SSE)은 Python AI 서버(/ai/conversations, ai 저장소 docs/api/chat.md)
+ * 일정 생성 확인·영수증은 서버 API가 아직 없어 가짜
  * 펫 태그: 반려동물 목록(pet, SJM) 연결 전이라 서버에는 petSn을 보내지 않고 목록도 petSn 없이 조회
  */
 
-/** 서버에 없는 메시지: 대화 번호 → 서버 메시지 뒤에 붙는 가짜 메시지(새로고침하면 사라짐) */
+/** 서버에 없는 메시지(일정 등록·영수증 가짜): 대화 번호 → 가짜 메시지(새로고침하면 사라짐) */
 const fakeMessages = new Map();
 const getFakeMessages = (aiCnvrsRoomSn) =>
   fakeMessages.get(aiCnvrsRoomSn) ?? [];
@@ -27,12 +24,21 @@ const getFakeMessages = (aiCnvrsRoomSn) =>
 /** 서버 번호와 겹치지 않는 가짜 메시지 번호 */
 let nextFakeMsgSn = -1;
 
+const pad = (value) => String(value).padStart(2, '0');
+
+/** 서버 regDt와 같은 모양(타임존 없는 현재 시각) */
+const nowLocal = () => {
+  const date = new Date();
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+};
+
 const addFakeMessage = (aiCnvrsRoomSn, roleCd, cnvrsCn) => {
   const message = {
     aiCnvrsMsgSn: nextFakeMsgSn--,
     roleCd,
     cnvrsCn,
-    aiCnvrsMsgCmptnYn: 'Y',
+    regDt: nowLocal(),
+    cmptnYn: true,
   };
   fakeMessages.set(aiCnvrsRoomSn, [...getFakeMessages(aiCnvrsRoomSn), message]);
   return message;
@@ -44,14 +50,6 @@ const saveAiMessage = (aiCnvrsRoomSn, cnvrsCn) =>
 
 /** 이어서 진행한 대화의 마지막 활동 시각: 서버에 갱신 시각이 없어 이 창 메모리에만 있다 */
 const lastActive = new Map();
-
-const pad = (value) => String(value).padStart(2, '0');
-
-/** 서버 regDt와 같은 모양(타임존 없는 현재 시각) */
-const nowLocal = () => {
-  const date = new Date();
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
-};
 
 /** 대화를 이어서 진행하면 목록 맨 위로 올린다 */
 const touchConversation = (aiCnvrsRoomSn) =>
@@ -68,12 +66,14 @@ export const getConversations = async () => {
     .sort((a, b) => Date.parse(b.lastDt) - Date.parse(a.lastDt));
 };
 
-/** 대화 상세: 서버 메시지 뒤에 가짜 메시지를 붙인다 */
+/** 대화 상세: 서버 메시지와 가짜 메시지를 시각 순으로 합친다 */
 export const getConversation = async (aiCnvrsRoomSn) => {
   const room = await aiApi.get(`/conversations/${aiCnvrsRoomSn}`);
   return {
     ...room,
-    messages: [...room.messages, ...getFakeMessages(aiCnvrsRoomSn)],
+    messages: [...room.messages, ...getFakeMessages(aiCnvrsRoomSn)].sort(
+      (a, b) => Date.parse(a.regDt) - Date.parse(b.regDt),
+    ),
   };
 };
 
@@ -90,6 +90,58 @@ export const deleteConversation = async (aiCnvrsRoomSn) => {
 const createConversation = (cnvrsCn) =>
   aiApi.post('/conversations', { petSn: null, cnvrsCn });
 
+/** 스트림이 done·error 없이 닫힘 */
+const STREAM_CLOSED = { code: 'STREAM_CLOSED', message: '연결이 끊겼어요' };
+
+/**
+ * 메시지 전송: 판정(intent) → 답변 조각(delta) → 끝(done)|오류(error) SSE
+ * - 방이 없으면 대화를 만들고(첫 메시지 저장) 같은 방에 cnvrsCn 없이 보낸다
+ * - cnvrsCn이 없으면 저장 없이 방의 마지막 사용자 메시지에 답한다([다시 시도]·[다시 생성])
+ * - error 이벤트는 { code, message }로 실패
+ */
+export const sendMessage = async ({
+  aiCnvrsRoomSn,
+  cnvrsCn,
+  signal,
+  onRoom,
+  onIntent,
+  onDelta,
+}) => {
+  let roomSn = aiCnvrsRoomSn;
+  let body = cnvrsCn == null ? {} : { cnvrsCn };
+  if (roomSn == null) {
+    roomSn = (await createConversation(cnvrsCn)).aiCnvrsRoomSn;
+    body = {};
+  } else if (cnvrsCn != null) {
+    touchConversation(roomSn);
+  }
+  onRoom?.(roomSn);
+
+  let intent = null;
+  let done = null;
+  let failure = null;
+  await aiStream(`/conversations/${roomSn}/messages`, body, {
+    signal,
+    onEvent: (name, data) => {
+      if (name === 'intent') {
+        intent = data;
+        onIntent?.(data);
+      }
+      if (name === 'delta') onDelta?.(data.text);
+      if (name === 'done') done = data;
+      if (name === 'error') failure = data;
+    },
+  });
+  if (failure) throw failure;
+  if (!done) throw STREAM_CLOSED;
+  return {
+    aiCnvrsRoomSn: roomSn,
+    intent,
+    message: done.message,
+    shortcut: done.shortcut,
+  };
+};
+
 /** 대화별 되묻는 중인 등록 초안 */
 const fakeDrafts = new Map();
 /** 대화별 확정·취소 전인 가장 최근 미리보기 카드 */
@@ -97,83 +149,65 @@ const fakePendingCards = new Map();
 /** 같은 이름 케어 항목 안내 확인용 기존 항목 */
 const fakeCareItems = [{ petSn: 1, careArtclNm: '산책' }];
 
-/** 메시지 전송 */
-export const sendMessage = async ({ aiCnvrsRoomSn, petSn, cnvrsCn }) => {
-  let roomSn = aiCnvrsRoomSn;
-  if (roomSn == null) {
-    roomSn = (await createConversation(cnvrsCn)).aiCnvrsRoomSn;
-  } else {
-    addFakeMessage(roomSn, AI_ROLE.USER, cnvrsCn);
-    touchConversation(roomSn);
+/** 되묻기 대답·카드 수정 문구: 서버 판정 없이 등록 가짜로 이어 간다 */
+export const isRegisterFollowUp = (aiCnvrsRoomSn, cnvrsCn) =>
+  fakeDrafts.has(aiCnvrsRoomSn) ||
+  (fakePendingCards.has(aiCnvrsRoomSn) && REVISE_PATTERN.test(cnvrsCn));
+
+/**
+ * 일정 등록 해석 (SCR-AIM-012 연결 전 가짜)
+ * - 서버가 REGISTER로 판정한 메시지(이미 저장됨)나 되묻기 대답·카드 수정 문구(isFollowUp, 가짜로 저장)를 해석한다
+ */
+export const answerRegister = async ({
+  aiCnvrsRoomSn,
+  petSn,
+  cnvrsCn,
+  isFollowUp,
+}) => {
+  if (isFollowUp) {
+    addFakeMessage(aiCnvrsRoomSn, AI_ROLE.USER, cnvrsCn);
+    touchConversation(aiCnvrsRoomSn);
   }
 
-  const answeringDraft = fakeDrafts.get(roomSn);
-  const pendingCard = fakePendingCards.get(roomSn);
+  const answeringDraft = fakeDrafts.get(aiCnvrsRoomSn);
+  const pendingCard = fakePendingCards.get(aiCnvrsRoomSn);
   const isRevision =
     !answeringDraft && Boolean(pendingCard) && REVISE_PATTERN.test(cnvrsCn);
-  if (answeringDraft || isRevision || isRegisterRequest(cnvrsCn)) {
-    const result = interpretRegister({
-      text: cnvrsCn,
-      draft: answeringDraft ?? (isRevision ? pendingCard.draft : undefined),
-      isRevision,
-      pets: fakePets,
-      petSn,
-      careItems: fakeCareItems,
-    });
+  const result = interpretRegister({
+    text: cnvrsCn,
+    draft: answeringDraft ?? (isRevision ? pendingCard.draft : undefined),
+    isRevision,
+    pets: fakePets,
+    petSn,
+    careItems: fakeCareItems,
+  });
 
-    if (result.type === 'ASK') {
-      fakeDrafts.set(roomSn, result.draft);
-      const ask = saveAiMessage(roomSn, result.message);
-      return {
-        aiCnvrsRoomSn: roomSn,
-        intent: 'REGISTER',
-        aiCnvrsMsgSn: ask.aiCnvrsMsgSn,
-        petChoices: result.petChoices,
-      };
-    }
-
-    /** 카드 메시지는 요약 텍스트로 저장, 결과는 확정·취소 때 교체 */
-    fakeDrafts.delete(roomSn);
-    const preview = saveAiMessage(
-      roomSn,
-      `${getCardTitle(result.card)} ${describeCard(result.card)}`,
-    );
-    fakePendingCards.set(roomSn, {
-      aiCnvrsMsgSn: preview.aiCnvrsMsgSn,
-      draft: result.draft,
-      card: result.card,
-    });
+  if (result.type === 'ASK') {
+    fakeDrafts.set(aiCnvrsRoomSn, result.draft);
+    const ask = saveAiMessage(aiCnvrsRoomSn, result.message);
     return {
-      aiCnvrsRoomSn: roomSn,
-      intent: 'REGISTER',
-      aiCnvrsMsgSn: preview.aiCnvrsMsgSn,
-      card: result.card,
+      aiCnvrsRoomSn,
+      aiCnvrsMsgSn: ask.aiCnvrsMsgSn,
+      petChoices: result.petChoices,
     };
   }
 
-  const route = matchRoute(cnvrsCn);
-  if (route) {
-    /** 이동 안내 문구의 AI 메시지 저장 */
-    const guide = saveAiMessage(roomSn, `${route.label} 화면으로 이동할게요.`);
-    return {
-      aiCnvrsRoomSn: roomSn,
-      intent: 'ROUTE',
-      aiCnvrsMsgSn: guide.aiCnvrsMsgSn,
-      route: { label: route.label, path: route.path, action: route.action },
-    };
-  }
-
-  if (isUnmatchable(cnvrsCn)) {
-    /** 실패 안내 문구의 AI 메시지 저장 */
-    const notice = saveAiMessage(roomSn, FALLBACK_MESSAGE);
-    return {
-      aiCnvrsRoomSn: roomSn,
-      intent: 'FALLBACK',
-      aiCnvrsMsgSn: notice.aiCnvrsMsgSn,
-    };
-  }
-
-  return { aiCnvrsRoomSn: roomSn, intent: 'SEARCH' };
+  /** 카드 메시지는 요약 텍스트로 저장, 결과는 확정·취소 때 교체 */
+  fakeDrafts.delete(aiCnvrsRoomSn);
+  const preview = saveAiMessage(
+    aiCnvrsRoomSn,
+    `${getCardTitle(result.card)} ${describeCard(result.card)}`,
+  );
+  fakePendingCards.set(aiCnvrsRoomSn, {
+    aiCnvrsMsgSn: preview.aiCnvrsMsgSn,
+    draft: result.draft,
+    card: result.card,
+  });
+  return {
+    aiCnvrsRoomSn,
+    aiCnvrsMsgSn: preview.aiCnvrsMsgSn,
+    card: result.card,
+  };
 };
 
 /** 가장 최근 카드만 확정·취소 가능 */
@@ -228,18 +262,6 @@ export const cancelRegister = async ({ aiCnvrsRoomSn, aiCnvrsMsgSn }) => {
   return settleCard(aiCnvrsRoomSn, pending, '취소됨 — 등록하지 않았어요.');
 };
 
-/** 한글·영문 단어가 없는 입력은 매칭 실패, 개발 환경은 쿼리로 강제 */
-const isUnmatchable = (text) =>
-  Boolean(fakeFlag('fakeAiFallback')) || !/[가-힣A-Za-z]/.test(text);
-
-const HEALTH_PATTERN = /접종|병원|아파|건강|약|사료/;
-const HEALTH_NOTE =
-  '※ 참고 정보이며 의료 진단이 아닙니다. 이상 징후가 있다면 수의사와 상담하세요.';
-const FAKE_ANSWER =
-  '생후 6~8주부터 종합백신(DHPPL) 1차를 시작으로 2~4주 간격으로 5차까지 맞히고, 코로나 장염·켄넬코프·인플루엔자·광견병을 순서대로 이어서 접종해요. 기초 접종이 끝나면 1년에 한 번 추가 접종을 권장해요.';
-const CHUNK_SIZE = 3;
-const CHUNK_DELAY_MS = 40;
-
 /** 개발 환경 전용 실패 상황 쿼리 */
 const fakeFlag = (name) =>
   IS_DEV ? new URLSearchParams(window.location.search).get(name) : null;
@@ -261,78 +283,6 @@ const wait = (ms, signal) =>
       resolve();
     });
   });
-
-/** 답변 스트리밍 */
-export const streamAnswer = async ({
-  aiCnvrsRoomSn,
-  question,
-  replaceMsgSn,
-  onToken,
-  signal,
-}) => {
-  await wait(
-    Number(fakeFlagOnce('fakeAiFirstDelay') ?? 0) * 1000 || 600,
-    signal,
-  );
-  if (signal?.aborted) return { aiCnvrsMsgSn: null };
-  if (fakeFlagOnce('fakeAiError')) throw new Error('AI error');
-
-  const isHealth = HEALTH_PATTERN.test(question);
-  const answer = isHealth
-    ? FAKE_ANSWER
-    : '그 내용은 아직 잘 몰라요. 다른 질문을 해 주세요.';
-  const limit = fakeFlagOnce('fakeAiCut')
-    ? Math.floor(answer.length / 2)
-    : answer.length;
-
-  let received = '';
-  while (received.length < limit && !signal?.aborted) {
-    const chunk = answer.slice(
-      received.length,
-      Math.min(received.length + CHUNK_SIZE, limit),
-    );
-    received += chunk;
-    onToken(chunk);
-    await wait(CHUNK_DELAY_MS, signal);
-  }
-
-  const isComplete = received.length === answer.length;
-  /** 미완료 저장 제외 대상 */
-  if (received === '') return { aiCnvrsMsgSn: null };
-
-  const message = {
-    aiCnvrsMsgSn: nextFakeMsgSn--,
-    roleCd: AI_ROLE.AI,
-    cnvrsCn:
-      isComplete && isHealth
-        ? `${answer}
-
-${HEALTH_NOTE}`
-        : received,
-    aiCnvrsMsgCmptnYn: isComplete ? 'Y' : 'N',
-  };
-  fakeMessages.set(aiCnvrsRoomSn, [
-    ...getFakeMessages(aiCnvrsRoomSn).filter(
-      (item) => item.aiCnvrsMsgSn !== replaceMsgSn,
-    ),
-    message,
-  ]);
-
-  const hasShortcut = isComplete && isHealth && !fakeFlag('fakeAiNoShortcut');
-  return {
-    aiCnvrsMsgSn: message.aiCnvrsMsgSn,
-    aiCnvrsMsgCmptnYn: message.aiCnvrsMsgCmptnYn,
-    cnvrsCn: message.cnvrsCn,
-    rltdShrtcts: hasShortcut
-      ? [
-          {
-            label: '케어 캘린더에서 접종 일정 보기',
-            path: PATHS.HEALTH_CALENDAR,
-          },
-        ]
-      : [],
-  };
-};
 
 /** 가짜 응답 대기: signal이 중단되면 AbortError */
 const waitAbortable = (ms, signal) =>
