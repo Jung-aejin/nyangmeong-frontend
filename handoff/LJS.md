@@ -2,16 +2,45 @@
 
 ## 지금 하는 것
 
-SCR-AIM-011 대화 API 서버 연결 · AI 서버 요청 기반 — 끝 (2026-10-27, 검증 통과(2회차 중 1회 실패 뒤 수정, 추가-1~4 포함 재검증)·사람 확인). 기획·완료 조건은 `milestones/LJS.md`와 이 커밋 이력에 있다
+SCR-AIM-002 메시지 전송 SSE 연결 · 판정·답변 서버 연결 — 진행 중: 구현·검증 통과(2026-10-28, 6회차), 사람 확인 남음 (승인 2026-10-28 14:35)
 
-- 바꾼 것: `api/axios.js`(`aiApi` `baseURL: '/ai'`, 응답 인터셉터를 `api`와 공유, 재발급은 항상 `api.post('/auth/refresh')`·재시도는 요청을 보낸 인스턴스로), `features/ai/api.js`(대화 생성·목록·상세·삭제를 `/ai/conversations`로, 서버에 없는 메시지는 메모리 `fakeMessages`에 덧붙임), `features/ai/shared/aiCodes.js`(역할 코드 `AI_ROLE`), 필드 이름을 서버 것으로(`cnvrsTtl`·`regDt`·`roleCd`·`cnvrsCn`), `scripts/check-axios-errors.mjs`(`@/` 별칭 훅, 이동 기대값 로그인으로, `aiApi` 경우 3개), `docs/convention/api.md`·`docs/OPEN_ISSUES.md`(AI 서버는 같은 오리진 `/ai`, `VITE_AI_API_URL` 폐기)
-- 추가 요청(모두 검증 통과): 추가-1·3 761~1099px에서 대화 목록 drawer가 화면을 어둡게 덮지 않고 본문을 밀어냄(760px 이하는 전체 폭 + 가림막), 추가-2 이어 쓴 대화가 목록 맨 위로(서버에 갱신 시각이 없어 새로고침하면 원래 자리), 추가-4 drawer 슬라이드 애니메이션
-- 결정(사용자): 펫 태그는 서버에 `petSn: null`로 보내고 목록도 `petSn` 없이 조회, 반려동물 목록은 pet(SJM)에 실제 API가 붙을 때 연결. 두 번째 이후 메시지·가짜 답변은 새로고침하면 사라지는 것을 받음(메시지 추가 API 없음)
-- 확인 환경: 백엔드 `./gradlew bootRun`(8080, `ai` 도메인 있는 작업 트리) + ai 저장소 `uv run python -m uvicorn app.main:app --reload`(8000) + 프론트 `yarn dev`, 로그인 쿠키
+계약: ai 저장소 LJS `41385b7` `docs/api/chat.md`의 `POST /ai/conversations/{aiCnvrsRoomSn}/messages`(MessageSendRequest `{cnvrsCn?}`, 응답 SSE `intent` → `delta`… → `done`|`error`). 기능명세서 AI매니저 v0.9(20261026). 디자인: `html/SCR-AIM-002.html`, 화면 모양은 바꾸지 않는다(이미 끝난 화면에 서버만 붙임).
+
+- B-01 SSE 요청 공통: `src/api/axios.js`에 `aiStream(url, body, { signal, onEvent })`를 더한다. `fetch('/ai' + url)` POST, 헤더 `X-Requested-With`·`Content-Type: application/json`. 응답이 JSON이면 스트림 전 오류로 보고 인터셉터와 같은 규칙을 쓴다(오류 모양 `{code, message, fields}`, 401 `TOKEN_EXPIRED`면 `refreshing` 공유 재발급 → 1회 재시도, 그 밖의 401·403 `MEMBER_INACTIVE`는 로그인 이동, 연결 실패 `NETWORK_ERROR`). `text/event-stream`이면 `response.body.getReader()`로 읽어 빈 줄로 블록을 나누고 `event:`·`data:`(JSON)를 `onEvent(name, data)`로 넘긴다. 로그인 이동·오류 모양 코드는 인터셉터와 함수로 나눠 쓴다. `docs/convention/api.md` "주소와 인증"에 "AI 스트리밍은 `aiStream`, 화면 코드에서 `fetch`를 직접 쓰지 않는다" 한 줄. 완료 조건 — 명령: `node scripts/check-axios-errors.mjs`에 `aiStream` 경우 4개(이벤트 파싱·조각이 블록 중간에서 끊겨도 같은 결과 / 401 `TOKEN_EXPIRED` → `/auth/refresh` → 재시도 / 401 `UNAUTHORIZED` → 로그인 이동 / 400 `INVALID_REQUEST` → 그 코드로 실패)를 더하고 전부 ok
+- FN-AIM-001-04·05, 011-07·14 전송·의도 분기: `features/ai/api.js` `sendMessage`·`streamAnswer` 가짜를 `sendMessage({ aiCnvrsRoomSn, cnvrsCn, signal, onIntent, onDelta })` 하나로 바꾼다. 방이 없으면 `createConversation(cnvrsCn)` 뒤 같은 방에 `{}`, 있으면 `{cnvrsCn}`, `cnvrsCn`이 없으면(다시 시도·다시 생성) `{}`. `done`이면 `{ aiCnvrsRoomSn, intent, message, shortcut }`을 돌려주고 `error` 이벤트면 `{code, message}`로 실패. 사용자·AI 메시지는 서버가 저장하므로 검색·이동·폴백 경로의 `fakeMessages` 저장을 지운다(등록·영수증 가짜만 남김). `lastActive`(이어 쓴 대화 목록 맨 위)는 서버에 갱신 시각이 없어 남긴다. `useAnswerStream.js`가 전송부터 끝까지 맡고(`start({ aiCnvrsRoomSn, cnvrsCn, replaceMsgSn, onIntent })`), `pages/ai/AiChatPage.jsx` `handleSend`는 `intent`로 화면을 가른다. 새 대화는 방이 생기면 바로 그 방을 선택해 서버가 저장한 첫 메시지가 보이게 한다. API: Python AI 서버(LJS). 완료 조건 — 화면: 새 대화와 이어지는 질문 모두 내 말풍선이 바로 보이고, 새로고침해도 질문·답변이 남는다
+- FN-AIM-002-02·03·06 검색 답변: `delta.text`를 받는 대로 이어 붙이고 첫 `delta` 전까지 점 3개, `done`·`error`까지 입력 차단. 의료 고지는 서버가 마지막 `delta`로 주므로 화면에서 붙이지 않는다. 클라이언트 10초·60초 타이머는 서버가 판정하므로 지우고, 서버가 멈췄을 때만 쓰는 70초 안전 중단을 둔다. 완료 조건 — 화면: "강아지 예방접종 언제 해?" → 점 3개 → 글자가 이어 붙고 끝에 "※ 참고 정보이며 의료 진단이 아닙니다" / 답변 중 입력창 비활성
+- FN-AIM-002-04·05 연관 바로가기: `done.shortcut`(Intent ROUTE 모양)을 변환표로 경로로 바꿔 `AnswerBubble` "관련 기능 바로가기" 버튼(`label: scrNm`), 누르면 ROUTE와 같은 이동. 저장하지 않으므로 다시 열면 없다(명세대로). 완료 조건 — 화면: 바로가기가 온 답변에 버튼이 보이고 누르면 본창 이동 + 창 닫힘. 서버가 바로가기를 주는 질문을 찾지 못하면 이유와 함께 보고
+- FN-AIM-002-07 오류·미완료: `error` 이벤트 → 기존 "일시적으로 답변할 수 없어요" + [다시 시도] + 칩 재노출, [다시 시도]는 `{}`로 다시 보낸다. `done.message.cmptnYn === false` → 미완료 말풍선 + [다시 생성](`{}`, 그 말풍선을 새 답변으로 교체). 다시 열 때 미완료 판정을 `aiCnvrsMsgCmptnYn === 'N'` → `cmptnYn === false`로(`ConversationMessages.jsx`, 가짜 메시지도 `cmptnYn: true`). 스트림 전 오류(400·404·502)는 기존 "메시지를 보내지 못했어요". 완료 조건 — 화면: AI 서버의 LLM을 쓸 수 없게 띄워 `error`를 내고 [다시 시도]로 답을 받는다. 미완료(60초 초과·도중 끊김)는 서버에서 만들기 어려우면 이유와 함께 보고
+- FN-AIM-004-01·03·06·07·10·12 이동: 새 `features/ai/shared/screenPaths.js`에 화면 ID(+`param`) → `PATHS` 변환표(ai `data/routing.yaml`의 라우팅 대상 행 30개, `docs/routes.md` 1장 ✓ 기준). `intent.kind === 'ROUTE'`면 기존 이동 안내(`RouteGuideBubble`, 3초 유예·취소)에 `scrNm`·경로를 넣고, `moveType === 'MODAL'`(COM-009)이면 채팅 창을 연다. 변환표에 없는 화면 ID는 실패 안내로 보인다. `fakeRoutingMap.js`(`matchRoute`·`isRegisterRequest`)를 지우고 `CHAT_MODAL_ACTION`은 `moveType`으로 바꾼다. 이동 안내 문구는 서버가 저장하지 않아 새로고침하면 사라진다. 완료 조건 — 화면: "가계부" → 3초 뒤 본창 `/mypage/expenses`·창 닫힘 / "동물병원" → `/places?category=hospital` / [취소]면 이동 안 함 / "채팅" → 채팅 창이 열림
+- FN-AIM-005-01·02 폴백: `intent.kind === 'FALLBACK'`이면 기존처럼 실패 횟수를 늘리고 칩을 다시 보인다. 안내 문구는 서버가 저장한 `done.message`를 상세를 다시 불러 보인다(문구가 `FALLBACK_MESSAGE`와 같음 확인함). 완료 조건 — 화면: "ㅋㅋㅋ" 2회 → 실패 안내 + FAQ 버튼, 새로고침해도 실패 안내가 남는다
+- REGISTER·RECEIPT(SCR-AIM-012·013 연결 전): 서버가 `REGISTER`라고 하면 기존 가짜 해석(`interpretRegister`, 미리보기 카드)을 그대로 돌린다. 되묻는 중(반려동물·빠진 칸)이거나 카드 수정 문구면 서버를 부르지 않고 지금처럼 가짜로 처리한다. `RECEIPT`면 "영수증 사진을 첨부해 주세요" 안내를 보인다(저장 안 함). 완료 조건 — 화면: "다음 주 화요일 산책 등록해줘" → 기존 미리보기 카드가 나오고 [등록]이 동작
+- 공통 완료 조건 — 명령: `yarn -s lint`, `yarn -s build`, `node scripts/check-axios-errors.mjs`
+- 확인 환경: 백엔드 `./gradlew bootRun`(8080) + ai 저장소 LJS(`41385b7` 이후) `uv run python -m uvicorn app.main:app --reload`(8000, LLM 키 필요) + 프론트 `yarn dev`, 로그인 쿠키
+- 질문(승인 때 답):
+  1. 일정 등록 되묻기·카드 수정 문구는 서버를 거치지 않고 가짜로 처리한다(이 대화 이력은 새로고침하면 사라짐). (추천: 그대로, SCR-AIM-012 연결 때 서버로)
+  2. 서버 `param`이 `?cat=hospital`인데 프론트 URL은 `?category=hospital`(`docs/routes.md`)이다. 변환표에서 `category`로 바꾸고 AI 서버에 `category`로 맞춰 달라고 알린다. (추천: 그렇게)
+  3. 서버 화면 ID `SCR-MYP-031`은 가계부 전체 내역(`/mypage/expenses/all`, routes.md의 MYP-030 30-2)으로, `SCR-CMU-001-01`·`SCR-CMU-003-01`·`SCR-CSC-002-01`은 각 목록(`/community`·`/community/news`·`/faqs`)으로 본다. (추천: 그렇게)
+  - 결정: 추천안대로 (1~3 모두)
+- AI 서버에 확인할 것(구현 중 메시지): [다시 생성] 뒤 이전 미완료 메시지가 DB에 남는지(남으면 다시 열 때 미완료와 새 답변이 둘 다 보임). `param` 이름 `cat` → `category`
+- 새 의존성: 없음
 
 ## 다음에 할 것
 
-- SCR-AIM-011 연결 남음: ① FN-AIM-011-08 반려동물 목록 API(SJM)가 붙으면 `AiChatPage.jsx`의 `fakePets`를 `features/pet` 훅으로 바꾸고 `features/ai/api.js` `createConversation`·`getConversations`에 `petSn`을 되살린다(지금은 서버 태그가 모두 "전체", 서버 응답에 `petNm`이 없어 이름은 목록의 펫으로 찾아 붙인다) ② 두 번째 이후 메시지·AI 답변 저장은 ai 저장소가 메시지 추가·질문 API를 만들 때(AIM-001·002) `fakeMessages`·`lastActive`를 지운다 ③ FN-AIM-011-03·17 세션 만료 시 창 닫기(SCR-COM-003 003-10과 함께). 서버가 대화 갱신 시각을 주면 `lastActive`(이어 쓴 대화 목록 순서)를 그 값으로 바꾼다
+- **SCR-AIM-002 사람 확인 남음** (검증 6회차 통과 2026-10-28, 사람이 아직 확인 안 함). 다음 세션에서 아래를 확인하고 `/end`에 `확인`이라고 답하면 `끝` 판정. 검증 루프 잠금은 통과 뒤 보관 중이고 `끝` 판정 때 `/end`가 버린다. 기획은 고치지 않는다
+  - 띄우기: 백엔드 저장소 `./gradlew bootRun`(8080) + ai 저장소 LJS(`41385b7` 이후) `uv run python -m uvicorn app.main:app --reload`(8000, LLM 키) + 프론트 `yarn dev`(5173). 로그인한 뒤 http://localhost:5173/main 에서 AI 창을 연다(본창 이동은 opener가 있어야 확인됨)
+  - FN-AIM-001-04·05, 011-07·14: http://localhost:5173/ai → [새 대화] → "강아지 예방접종 언제 해?" → 내 말풍선이 바로 보임 → 같은 대화에서 "동물병원" → 이동 안내 동안에도 내 말풍선이 보임 → 목록에서 그 대화를 다시 열면 질문·답변이 남음
+  - FN-AIM-002-02·03·06: 같은 질문 → 점 3개 → 글자가 이어 붙고 끝에 "참고 정보이며 의료 진단이 아닙니다…" / 답변 중 전송 버튼 비활성
+  - FN-AIM-002-04·05: 그 답변의 "관련 기능 바로가기" [케어 캘린더] → 본창 /health/calendar, AI 창 닫힘
+  - FN-AIM-002-07: AI 서버를 LLM 키 없이 띄우고 질문 → "일시적으로 답변할 수 없어요" + [다시 시도] → 키를 넣어 다시 띄운 뒤 [다시 시도] → 답변(검증은 브라우저에서 꾸민 SSE로만 확인함)
+  - FN-AIM-004: "가계부" → 3초 뒤 본창 http://localhost:5173/mypage/expenses, 창 닫힘 / "동물병원" → /places?category=hospital / "가계부" 뒤 [취소] → 이동 안 함 / "채팅" → 채팅 창이 열림
+  - FN-AIM-005-01·02: 새 대화에서 "ㅋㅋㅋ" 2회 → "질문을 이해하지 못했어요…" + [자주 묻는 질문 보기] → 대화를 다시 열어도 실패 안내가 남음
+  - REGISTER: "다음 주 화요일 미용 등록해줘" → 미리보기 카드 → [등록] → "등록됨 — …"("산책"은 기존 가짜 해석기가 종류를 먼저 되물음)
+  - 정리: 검증용 대화(강아지 예방접종 시기 안내, ㅋㅋㅋ… 등)를 사이드바에서 [삭제]
+- SCR-AIM-002 사람이 정할 것(검증 판정 밖, 코드 읽다 나옴): ① 채팅(COM-009) 바로가기 버튼이 채팅 창 대신 본창을 `/chat`으로 옮김(`AnswerBubble`이 `isModal`을 안 씀) ② 서버 저장 전 전송 실패(400·404·502) 때 임시 내 말풍선이 "메시지를 보내지 못했어요"와 함께 남음. 고치면 `### 추가 요청`으로 받는다
+- SCR-AIM-002 AI 서버(ai-41) 답(2026-10-28, 그쪽 사람 결정): ① 메시지 테이블은 INSERT 전용이라 [다시 생성] 뒤에도 미완료(`cmptnYn=false`) 메시지가 DB에 남는다 → 프론트 표시 규칙으로 처리: AI 메시지가 `cmptnYn=false`이고 다음 사용자 메시지 전에 다른 AI 메시지가 있으면 미완료를 숨기고(새 답변으로 교체된 것), 없으면 미완료 말풍선 + [다시 생성]. 지금 `ConversationMessages.jsx`는 이 규칙이 없어 다시 열면 둘 다 보인다 — 사람 확인 때 같이 보고 추가 요청으로 고칠지 정한다 ② `param` `?cat=`은 명세 부록 A 값이라 서버는 그대로, 프론트 `screenPaths.js`에서 `category`로 바꿔 쓰는 지금 방식 유지
+- SCR-AIM-002 AI 서버에 보낸 것, 답 기다림: 의료 고지 두 번 저장·고지 앞 "※" 없음, `scrNm`에 "화면"이 들어가 "~화면 화면으로 이동할게요", 웃음만 보낸 대화 제목이 LLM 설명문(그쪽 승인 절차 뒤 알려 주기로 함)
+- 팀에 알릴 것(SCR-AIM-002, PR 전): "`api/axios.js`에 AI 스트리밍용 `aiStream`을 더했어요. 오류 모양·401 재발급·로그인 이동은 인터셉터와 같고, 이 파일에서만 `fetch`를 써요(eslint 예외 한 줄). 화면 코드는 `fetch`를 직접 쓰지 않아요(`docs/convention/api.md`)"
+- SCR-AIM-011 연결 남음: ① FN-AIM-011-08 반려동물 목록 API(SJM)가 붙으면 `AiChatPage.jsx`의 `fakePets`를 `features/pet` 훅으로 바꾸고 `features/ai/api.js` `createConversation`·`getConversations`에 `petSn`을 되살린다(지금은 서버 태그가 모두 "전체", 서버 응답에 `petNm`이 없어 이름은 목록의 펫으로 찾아 붙인다) ② 두 번째 이후 메시지·AI 답변 저장은 SCR-AIM-002에서 서버로 옮김. `fakeMessages`는 일정 등록·영수증 가짜만 남았고 SCR-AIM-012·013 연결 때 지운다 ③ FN-AIM-011-03·17 세션 만료 시 창 닫기(SCR-COM-003 003-10과 함께). 서버가 대화 갱신 시각을 주면 `lastActive`(이어 쓴 대화 목록 순서)를 그 값으로 바꾼다
 - 팀에 알릴 것(SCR-AIM-011, PR 전): "AI 서버 요청은 `api/axios.js`의 `aiApi`(같은 오리진 `/ai`)로 보내요. `VITE_AI_API_URL`·`withCredentials`는 쓰지 않고(`docs/convention/api.md`), 오류 모양·401 재발급은 `api`와 같은 인터셉터를 써요. 재발급은 항상 `/api/auth/refresh`예요. `scripts/check-axios-errors.mjs`가 `@/` 별칭 때문에 돌지 않던 것을 고쳤으니 인터셉터를 고치면 `node scripts/check-axios-errors.mjs`를 돌려 주세요"
 - ai-e6·백엔드 세션에 알릴 것: 공용 DB를 쓰는 백엔드에서 `POST /ai/conversations`가 502 `EXTERNAL_API_ERROR`를 낸 적이 있다(방과 메시지는 저장됨). ai 저장소 `app/core/backend.py`의 `TIMEOUT_SEC = 3.0`보다 Java 응답이 느린 것으로 보인다. 이때 화면은 "메시지를 보내지 못했어요"를 띄운다(새로고침하면 대화는 목록에 있음)
 
